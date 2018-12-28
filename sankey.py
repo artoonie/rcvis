@@ -3,14 +3,15 @@ import pandas as pd
 import numpy as np
 
 label = []
+color = []
 sources = []
 target = []
 value = []
 
 class Member:
-    def __init__(self, name, numVotes):
+    def __init__(self, name, color):
         self.name = name
-        self.numVotes = numVotes
+        self.color = color
 
 class Elimination:
     def __init__(self, member, transfers):
@@ -22,75 +23,79 @@ class Step:
         self.eliminations = eliminations
 
 class MemberNode:
-    def __init__(self, member, index):
+    def __init__(self, member, numVotes, index):
         self.member = member
-        self.lastIndex = None
-        self.currIndex = index
-
-    def step(self, numEliminated):
-        self.lastIndex = self.currIndex
-        self.currIndex += numEliminated
+        self.numVotes = numVotes
+        self.index = index
 
 class NodeFactory:
     def __init__(self):
         self.currIndex = 0
 
-    def makeNode(self, member):
-        memberNode = MemberNode(member, self.currIndex)
+    def makeNode(self, member, numVotes):
+        memberNode = MemberNode(member, numVotes, self.currIndex)
         self.currIndex += 1
+        label.append(member.name)
+        color.append(member.color)
         return memberNode
 
-armin = Member("Armin", 100)
-kim = Member("Kim", 1000)
-breed = Member("Breed", 1000)
-leno = Member("Leno", 1000)
+armin = Member("Armin", "#FF0000")
+kim = Member("Kim", "#00CCCC")
+breed = Member("Breed", "#CCCC00")
+leno = Member("Leno", "#CCFFCC")
 members = [armin, kim, breed, leno]
 
-elimination0 = Elimination(armin, {kim: 50, breed: 50})
-elimination1 = Elimination(leno, {kim: 900, breed: 100})
-elimination2 = Elimination(kim, {breed: 50})
+elimination0 = Elimination(armin, {kim: 100, breed: 100})
+elimination1 = Elimination(leno, {kim: 180, breed: 20})
+elimination2 = Elimination(kim, {breed: 180+100+200})
 step0 = [elimination0]
 step1 = [elimination1]
 step2 = [elimination2]
+steps = (step0, step1, step2)
+
+# TODO plotly ignores the sort order...
+eliminationOrder = []
+membersRemaining = set(members)
+for step in steps:
+    for elimination in step:
+        eliminationOrder.append(elimination.member)
+        membersRemaining.remove(elimination.member)
+for member in membersRemaining:
+    eliminationOrder.append(member)
 
 nodeFactory = NodeFactory()
 nodes = {}
-for m in members:
-    nodes[m] = nodeFactory.makeNode(m)
+for m in sorted(members, key=lambda m:eliminationOrder.index(m)):
+    nodes[m] = nodeFactory.makeNode(m, 200)
 
-steps = (step0, step1, step2)
-
-for member in sorted(nodes, key=lambda m:nodes[m].currIndex):
-    label.append(member.name)
-
+nodesLastRound = nodes
 for step in steps:
-    numInCurrentRound = len(nodes)
-    for member in sorted(nodes, key=lambda m:nodes[m].currIndex):
-        nodes[member].step(numInCurrentRound)
-        label.append(member.name)
+    nodesThisRound = {}
+
+    eliminatedMembers = set([elimination.member for elimination in step])
+    for member in sorted(nodesLastRound, key=lambda m:nodes[m].index):
+        if member in eliminatedMembers:
+            continue
+        startingVotes = nodesLastRound[member].numVotes
+        nodesThisRound[member] = nodeFactory.makeNode(member, startingVotes)
 
     for elimination in step:
         for transferMember, transferNumber in elimination.transfers.items():
-            sourceNode = nodes[elimination.member]
-            targetNode = nodes[transferMember]
-            sources.append(sourceNode.lastIndex)
-            target.append(targetNode.currIndex)
+            sourceNode = nodesLastRound[elimination.member]
+            targetNode = nodesThisRound[transferMember]
+            sources.append(sourceNode.index)
+            target.append(targetNode.index)
             value.append(transferNumber)
-            targetNode.member.numVotes += transferNumber
+            targetNode.numVotes += transferNumber
 
-    for member, node in nodes.items():
+    for member in nodesLastRound:
         if elimination.member == member:
             continue
-        sources.append(node.lastIndex)
-        target.append(node.currIndex)
-        value.append(node.member.numVotes)
-        print("On step", step, "we have member", node.member.name)
+        sources.append(nodesLastRound[member].index)
+        target.append(nodesThisRound[member].index)
+        value.append(nodesLastRound[member].numVotes)
 
-    for elimination in step:
-        del nodes[elimination.member]
-
-    for member in sorted(nodes, key=lambda m:nodes[m].currIndex):
-        label.append(member.name)
+    nodesLastRound = nodesThisRound
 
 print(label, sources, target, value)
 
@@ -100,7 +105,7 @@ data_trace = dict(
       x =  [0,1],
       y =  [0,1]
     ),
-    orientation = "h",
+    orientation = "v",
     valueformat = ".0f",
     node = dict(
       pad = 10,
@@ -108,7 +113,8 @@ data_trace = dict(
       line = dict(
         width = 0
       ),
-      label = label
+      label = label,
+      color = color
     ),
     link = dict(
       source = sources,
