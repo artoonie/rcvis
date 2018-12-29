@@ -90,41 +90,6 @@ class Graph:
 
         return fig
 
-def generateTestData():
-    armin = Item("Armin", "#FF0000")
-    kim = Item("Kim", "#00CCCC")
-    breed = Item("Breed", "#CCCC00")
-    leno = Item("Leno", "#CCFFCC")
-    items = [armin, kim, breed, leno]
-
-    elimination0 = Elimination(armin, {kim: 100, breed: 100})
-    elimination1 = Elimination(leno, {kim: 180, breed: 20})
-    elimination2 = Elimination(kim, {breed: 180+100+200})
-    step0 = [elimination0]
-    step1 = [elimination1]
-    step2 = [elimination2]
-    steps = (step0, step1, step2)
-    return steps, items
-
-def getEliminationOrder(steps, items):
-    # TODO plotly ignores the sort order, but let's leave this in here
-    # in case we find a workaround
-    eliminationOrder = []
-    itemsRemaining = set(items.values())
-    for step in steps:
-        for elimination in step:
-            eliminationOrder.append(elimination.item)
-            itemsRemaining.remove(elimination.item)
-    for item in itemsRemaining:
-        eliminationOrder.append(item)
-    return eliminationOrder
-
-def generateInitialTestNodes(graph, items, eliminationOrder):
-    nodes = {}
-    for m in sorted(items.values(), key=lambda m:eliminationOrder.index(m)):
-        nodes[m] = graph.addNode(m, 200)
-    return nodes
-
 def runStep(step, graph):
     graph.markNextStep()
     nodesThisRound = {}
@@ -169,7 +134,8 @@ def readJson(fn):
         graph = Graph(title)
         return graph
 
-    def initializeMembers(data, graph, items):
+    def initializeMembers(data, graph):
+        items = {}
         round0 = data['results'][0]
         itemNames = round0['tally'].items()
 
@@ -183,7 +149,7 @@ def readJson(fn):
             graph.addNode(item, int(initialVotes))
             colorIndex += 1
 
-    def handleUndeclared(data, graph, items):
+    def initializeUndeclaredNode(data, graph, items):
         # The number of undeclared votes must be computed by looking
         # through how many undeclared votes were transferred elsewhere
         tallyResults = data['results'][0]['tallyResults']
@@ -212,7 +178,7 @@ def readJson(fn):
 
         return Elimination(itemEliminated, transfersByItem)
 
-    def loadSteps():
+    def loadSteps(data):
         steps = []
         for currRound in data['results']:
             step = [] # List of Elimination objects
@@ -228,23 +194,16 @@ def readJson(fn):
             steps.append(step)
         return steps
 
-    items = {}
-
     data = loadData(fn)
     graph = loadGraph(data)
-    initializeMembers(data, graph, items)
-    handleUndeclared(data, graph, items)
-    steps = loadSteps()
+    items = initializeMembers(data, graph)
+    initializeUndeclaredNode(data, graph, items)
+    steps = loadSteps(data)
 
     return graph, steps, items
 
-#graph = Graph("Graph Title")
-#steps, items = generateTestData()
-#fn = '2013_minneapolis_park.json'
 fn = '2017_minneapolis_mayor.json'
-graph, steps, items = readJson(fn)
-eliminationOrder = getEliminationOrder(steps, items)
-# nodes = generateInitialTestNodes(graph, items, eliminationOrder)
+graph, steps = readJson(fn)
 
 for step in steps:
     runStep(step, graph)
