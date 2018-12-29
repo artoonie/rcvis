@@ -1,6 +1,9 @@
 import json
 import seaborn as sns
+
 import plotly.offline as py
+# Use this instead to render to the web
+# import plotly.plotly as py
 
 class Item:
     def __init__(self, name, color):
@@ -148,6 +151,7 @@ def readJson(fn):
             items[name] = item
             graph.addNode(item, int(initialVotes))
             colorIndex += 1
+        return items
 
     def initializeUndeclaredNode(data, graph, items):
         # The number of undeclared votes must be computed by looking
@@ -200,7 +204,7 @@ def readJson(fn):
     initializeUndeclaredNode(data, graph, items)
     steps = loadSteps(data)
 
-    return graph, steps, items
+    return graph, steps
 
 fn = '2017_minneapolis_mayor.json'
 graph, steps = readJson(fn)
