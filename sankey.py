@@ -7,8 +7,25 @@ import plotly.offline as py
 
 class Item:
     def __init__(self, name, color):
+        assert(isinstance(color, Color))
         self.name = name
         self.color = color
+
+class Color:
+    def __init__(self, rgbAsFloat):
+        assert(all([x<=1 and x>=0 for x in rgbAsFloat]))
+        self.rgb = rgbAsFloat
+
+    def asHex(self):
+        rgbInt = [int(c*255) for c in self.rgb]
+        return '#%02x%02x%02x' % (rgbInt[0], rgbInt[1], rgbInt[2])
+
+    @classmethod
+    def interpolate(cls, color0, color1, alpha):
+        rgb = []
+        for i in range(len(color0.rgb)):
+            rgb.append((1-alpha)*color0.rgb[i] + alpha*color1.rgb[i])
+        return Color(rgb)
 
 class Elimination:
     def __init__(self, item, transfers):
@@ -34,7 +51,8 @@ class Graph:
         self.target = []
         self.value = []
         self.label = []
-        self.color = []
+        self.linkColor = []
+        self.nodeColor = []
         self.currIndex = 0
 
         self.currStepNodes, self.lastStepNodes = {}, {}
@@ -44,9 +62,13 @@ class Graph:
         self.target.append(targetNode.index)
         self.value.append(value)
 
+        white = Color([1]*3)
+        faded = Color.interpolate(white, sourceNode.item.color, .3)
+        self.linkColor.append(faded.asHex())
+
     def addNode(self, item, numVotes):
         self.label.append(item.name + " " + str(numVotes))
-        self.color.append(item.color)
+        self.nodeColor.append(item.color.asHex())
         itemNode = ItemNode(item, numVotes, self.currIndex)
         self.currIndex += 1
         self.currStepNodes[item] = itemNode
@@ -72,12 +94,13 @@ class Graph:
                 width = 0
               ),
               label = self.label,
-              color = self.color
+              color = self.nodeColor
             ),
             link = dict(
               source = self.sources,
               target = self.target,
               value = self.value,
+              color = self.linkColor
           )
         )
 
@@ -143,11 +166,11 @@ def readJson(fn):
         itemNames = round0['tally'].items()
 
         palette = sns.color_palette("Set1", len(itemNames), desat=0.8)
-        hexColors = palette.as_hex()
+        rgbColors = palette
         colorIndex = 0
 
         for name, initialVotes in itemNames:
-            item = Item(name, hexColors[colorIndex])
+            item = Item(name, Color(rgbColors[colorIndex]))
             items[name] = item
             graph.addNode(item, int(initialVotes))
             colorIndex += 1
@@ -164,7 +187,7 @@ def readJson(fn):
 
         count = sum(map(int, undeclaredResults['transfers'].values()))
         name = "Undeclared"
-        item = Item(name, '#CCFFFF')
+        item = Item(name, Color((.5, .5, .5)))
         items[name] = item
         graph.addNode(item, count)
 
