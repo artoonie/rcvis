@@ -18,6 +18,7 @@ class Color:
 
     def asHex(self):
         rgbInt = [int(c*255) for c in self.rgb]
+        # c/o https://stackoverflow.com/a/3380739
         return '#%02x%02x%02x' % (rgbInt[0], rgbInt[1], rgbInt[2])
 
     @classmethod
