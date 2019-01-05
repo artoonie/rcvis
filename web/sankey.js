@@ -224,6 +224,9 @@ d3.sankey = function() {
             n = nodes.length,
             i;
 
+        for (i = 0; i < n; ++i) {
+          nodes[i].y =  i*nodePadding;
+        }
         // Push any overlapping nodes down.
         nodes.sort(ascendingDepth);
         for (i = 0; i < n; ++i) {
