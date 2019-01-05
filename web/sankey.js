@@ -38,7 +38,6 @@ d3.sankey = function() {
 
   sankey.layout = function(iterations) {
     computeNodeLinks();
-    //sortNodesByNumTargets();
     computeNodeValues();
     computeNodeBreadths();
     computeNodeDepths(iterations);
@@ -153,15 +152,6 @@ d3.sankey = function() {
     });
   }
 
-  function sortNodesByNumTargets() {
-    nodes.sort(ascendingDepth);
-    function ascendingDepth(a, b) {
-      outgoingDiff = a.targetLinks.length - b.targetLinks.length
-      return outgoingDiff
-      return outgoingDiff*10000 + (a.y - b.y);
-    }
-  }
-
   function computeNodeDepths(iterations) {
     var nodesByBreadth = d3.nest()
         .key(function(d) { return d.x; })
@@ -260,9 +250,7 @@ d3.sankey = function() {
     }
 
     function ascendingDepth(a, b) {
-      outgoingDiff = b.targetLinks.length - a.targetLinks.length
-      return outgoingDiff
-      return outgoingDiff*10000 + (a.y - b.y);
+      return a.y - b.y;
     }
   }
 
