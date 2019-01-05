@@ -1,7 +1,10 @@
 import json
+
+# TODO this import takes a crazy long time! Replace with
+# something sensible.
 import seaborn as sns
 
-import plotly.offline as py
+# import plotly.offline as py
 # Use this instead to render to the web
 # import plotly.plotly as py
 
@@ -39,41 +42,44 @@ class Step:
     def __init__(self, eliminations):
         self.eliminations = eliminations
 
-class ItemNode:
-    def __init__(self, item, numVotes, index):
+class LinkData:
+    def __init__(self, source, target, value, color):
+        self.source = source
+        self.target = target
+        self.value = value
+        self.color = color
+
+class NodeData:
+    def __init__(self, item, label, color, count):
         self.item = item
-        self.numVotes = numVotes
-        self.index = index
+        self.label = label
+        self.color = color
+        self.count = count
 
 class Graph:
     def __init__(self, title):
         self.title = title
-        self.sources = []
-        self.target = []
-        self.value = []
-        self.label = []
-        self.linkColor = []
-        self.nodeColor = []
-        self.currIndex = 0
+        self.nodes = []
+        self.links = []
 
         self.currStepNodes, self.lastStepNodes = {}, {}
 
     def addConnection(self, sourceNode, targetNode, value):
-        self.sources.append(sourceNode.index)
-        self.target.append(targetNode.index)
-        self.value.append(value)
-
         white = Color([1]*3)
-        faded = Color.interpolate(white, sourceNode.item.color, .3)
-        self.linkColor.append(faded.asHex())
+        faded = Color.interpolate(white, sourceNode.item.color, .9)
+        color = faded.asHex()
+        link = LinkData(sourceNode, targetNode, value, color)
+        self.links.append(link)
 
-    def addNode(self, item, numVotes):
-        self.label.append(item.name + " " + str(numVotes))
-        self.nodeColor.append(item.color.asHex())
-        itemNode = ItemNode(item, numVotes, self.currIndex)
-        self.currIndex += 1
-        self.currStepNodes[item] = itemNode
-        return itemNode
+    def addNode(self, item, count):
+        label = item.name + " " + str(count)
+        color = item.color.asHex()
+        node = NodeData(item, label, color, count)
+        self.nodes.append(node)
+
+        self.currStepNodes[item] = node
+
+        return node
 
     def markNextStep(self):
         self.lastStepNodes = self.currStepNodes
@@ -94,14 +100,14 @@ class Graph:
               line = dict(
                 width = 0
               ),
-              label = self.label,
-              color = self.nodeColor
+              label = [n.label for n in self.nodes],
+              color = [n.color for n in self.nodes]
             ),
             link = dict(
-              source = self.sources,
-              target = self.target,
-              value = self.value,
-              color = self.linkColor
+              source = [self.nodes.index(l.source) for l in self.links],
+              target = [self.nodes.index(l.target) for l in self.links],
+              value = [l.value for l in self.links],
+              color = [l.color for l in self.links]
           )
         )
 
@@ -117,6 +123,25 @@ class Graph:
 
         return fig
 
+    def createD3JS(self):
+        js = ''
+        js += 'graph = {"nodes" : [], "links" : []};\n'
+
+        nodeIndices = {}
+        for i, node in enumerate(self.nodes):
+            nodeIndices[node] = i
+            js += 'graph.nodes.push({ "name": "%s",\n' % node.label
+            js += '                   "color": "%s"});\n' % node.color
+        for link in self.links:
+            sourceIndex = nodeIndices[link.source]
+            targetIndex = nodeIndices[link.target]
+            js += 'graph.links.push({ "source": %d,\n'    % sourceIndex
+            js += '                   "target": %d,\n'    % targetIndex
+            js += '                   "color": "%s",\n'   % link.color
+            js += '                   "value":  %d });\n' % link.value
+        return js
+
+
 def runStep(step, graph):
     graph.markNextStep()
     nodesThisRound = {}
@@ -127,7 +152,7 @@ def runStep(step, graph):
         for item in nodesLastRound:
             if item in eliminatedItems:
                 continue
-            votes = nodesLastRound[item].numVotes
+            votes = nodesLastRound[item].count
             for elimination in step:
                 if item in elimination.transfers:
                     votes += elimination.transfers[item]
@@ -135,7 +160,7 @@ def runStep(step, graph):
 
             graph.addConnection(sourceNode = nodesLastRound[item],
                                 targetNode = nodesThisRound[item],
-                                value  = nodesLastRound[item].numVotes)
+                                value  = nodesLastRound[item].count)
 
     def getTransferVotes():
         for elimination in step:
@@ -206,6 +231,17 @@ def readJson(fn):
 
         return Elimination(itemEliminated, transfersByItem)
 
+    def getEliminationOrder(steps, items):
+        eliminationOrder = []
+        itemsRemaining = set(items.values())
+        for step in steps:
+            for elimination in step:
+                eliminationOrder.append(elimination.item)
+                itemsRemaining.remove(elimination.item)
+        for item in itemsRemaining:
+            eliminationOrder.append(item)
+        return eliminationOrder
+
     def loadSteps(data):
         steps = []
         for currRound in data['results']:
@@ -227,14 +263,20 @@ def readJson(fn):
     items = initializeMembers(data, graph)
     initializeUndeclaredNode(data, graph, items)
     steps = loadSteps(data)
+    eliminationOrder = getEliminationOrder(steps, items)
 
-    return graph, steps
+    return graph, steps, eliminationOrder
 
 fn = '2017_minneapolis_mayor.json'
-graph, steps = readJson(fn)
+fn = '2013_minneapolis_park.json'
+graph, steps, eliminationOrder = readJson(fn)
 
 for step in steps:
     runStep(step, graph)
 
-fig = graph.createPlotlyFigure()
-py.plot(fig, validate=True)
+graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
+
+#fig = graph.createPlotlyFigure()
+#py.plot(fig, validate=True)
+js = graph.createD3JS()
+print(js)
