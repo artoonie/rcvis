@@ -23,7 +23,7 @@ class JSONReader():
             round0 = data['results'][0]
             itemNames = round0['tally'].items()
 
-            palette = sns.color_palette("Set1", len(itemNames), desat=0.8)
+            palette = sns.color_palette("Set2", len(itemNames), desat=0.8)
             rgbColors = palette
             colorIndex = 0
 

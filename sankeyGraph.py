@@ -1,5 +1,9 @@
 import rcvResult
 
+# Toggle to show percentages instead of absolute votes.
+# Gets confusing because the percentages can change as
+# undervotes occur, meaning the same number of votes
+# will change percentages each round.
 USE_PERCENT = False
 
 class LinkData:
