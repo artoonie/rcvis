@@ -1,4 +1,4 @@
-import rcvResult
+from . import rcvResult
 
 # Toggle to show percentages instead of absolute votes.
 # Gets confusing because the percentages can change as

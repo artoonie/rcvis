@@ -3,8 +3,8 @@ import json
 # something sensible.
 import seaborn as sns
 
-import sankeyGraph
-import rcvResult
+from . import sankeyGraph
+from . import rcvResult
 
 class JSONReader():
     def __init__(self, fn):

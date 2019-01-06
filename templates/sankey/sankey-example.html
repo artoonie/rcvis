@@ -29,9 +29,12 @@
 <body>
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="sankey.js"></script>
-<script src="graph.js"></script>
+{% load static %}
+<script src="./sankey.js"></script>
+<script src="{% static 'sankey/sankey.js' %}"></script>
+<!--<script src="graph.js"></script>-->
 <script>
+{{ sankeyjs|safe }}
 	
 var units = "Votes";
 var nodeHeight = 500
