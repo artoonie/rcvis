@@ -11,17 +11,18 @@
 
 .node text {
   pointer-events: none;
-  text-shadow: 0 1px 0 #fff;
+  text-shadow: white 0px 1px 10px, gray 0px 0px 3px;
+
 }
 
 .link {
   fill: none;
   stroke: #000;
-  stroke-opacity: .2;
+  stroke-opacity: .5;
 }
 
 .link:hover {
-  stroke-opacity: .5;
+  stroke-opacity: 1.0;
 }
 
 </style>
@@ -33,10 +34,15 @@
 <script>
 	
 var units = "Votes";
+var nodeHeight = 500
+var nodeWidth = 200
+var nodePadding = 20
+var linkPadding = 50
+var totalWidth = numRounds * (nodeWidth + nodePadding + linkPadding)
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = 3500 - margin.left - margin.right,
+    width = totalWidth - margin.left - margin.right,
     height = 1200 - margin.top - margin.bottom;
 
 // format variables
@@ -67,16 +73,16 @@ link.attr("d", path);
 
 // Set the sankey diagram properties
 var sankey = d3.sankey()
-    .nodeWidth(200)
-    .nodePadding(20)
-    .size([0, 600]);
+    .nodeWidth(nodeWidth)
+    .nodePadding(nodePadding)
+    .size([0, nodeHeight]);
 
 var path = sankey.link();
 
 sankey
   .nodes(graph.nodes)
   .links(graph.links)
-  .layout(128); // seems to control how far down the page it's drawn?
+  .layout(32);
 
 // add in the links
 var link = svg.append("g").selectAll(".link")
@@ -91,8 +97,7 @@ var link = svg.append("g").selectAll(".link")
 // add the link titles
 link.append("title")
     .text(function(d) {
-        return d.source.name + " → " + 
-            d.target.name + "\n" + format(d.value); });
+        return format(d.value) + " transferred"; });
 
 // add in the nodes
 var node = svg.append("g").selectAll(".node")
@@ -123,15 +128,11 @@ node.append("rect")
 
 // add in the title for the nodes
 node.append("text")
-  .attr("x", -6)
+  .attr("x", 6)
   .attr("y", function(d) { return d.dy / 2; })
   .attr("dy", ".35em")
-  .attr("text-anchor", "end")
-  .attr("transform", null)
   .text(function(d) { return d.name; })
-  .filter(function(d) { return d.x < width / 2; })
-  .attr("x", 8)
-  .attr("text-anchor", "start");
+  .filter(function(d) { return d.x < width / 2; });
 
 </script>
 

@@ -8,6 +8,12 @@ import seaborn as sns
 # Use this instead to render to the web
 # import plotly.plotly as py
 
+# Toggle to show percentages instead of absolute votes.
+# Gets confusing because the percentages can change as
+# undervotes occur, meaning the same number of votes
+# will change percentages each round.
+USE_PERCENT = False
+
 class Item:
     def __init__(self, name, color):
         assert(isinstance(color, Color))
@@ -39,8 +45,9 @@ class Elimination:
         self.transfers = transfers
 
 class Step:
-    def __init__(self, eliminations):
-        self.eliminations = eliminations
+    def __init__(self):
+        self.winners = []
+        self.eliminations = []
 
 class LinkData:
     def __init__(self, source, target, value, color):
@@ -62,6 +69,7 @@ class Graph:
         self.nodes = []
         self.links = []
 
+        self.numRounds = 1
         self.currStepNodes, self.lastStepNodes = {}, {}
 
     def addConnection(self, sourceNode, targetNode, value):
@@ -71,8 +79,13 @@ class Graph:
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
 
-    def addNode(self, item, count):
-        label = item.name + " " + str(count)
+    def addNode(self, item, count, totalVotes):
+        if USE_PERCENT:
+            assert(isinstance(count, int))
+            label = item.name + " " + \
+                    str(round(count/totalVotes * 100, 2)) + "%"
+        else:
+            label = item.name + " ("+str(count)+")"
         color = item.color.asHex()
         node = NodeData(item, label, color, count)
         self.nodes.append(node)
@@ -84,6 +97,7 @@ class Graph:
     def markNextStep(self):
         self.lastStepNodes = self.currStepNodes
         self.currStepNodes = {}
+        self.numRounds += 1
 
     def createPlotlyFigure(self):
         data_trace = dict(
@@ -125,6 +139,7 @@ class Graph:
 
     def createD3JS(self):
         js = ''
+        js += 'numRounds = %d;\n' % self.numRounds
         js += 'graph = {"nodes" : [], "links" : []};\n'
 
         nodeIndices = {}
@@ -143,37 +158,47 @@ class Graph:
 
 
 def runStep(step, graph):
-    graph.markNextStep()
+    if step.eliminations:
+        graph.markNextStep()
     nodesThisRound = {}
     nodesLastRound = graph.lastStepNodes
 
+    def getLastRoundWinners():
+        for winner in step.winners:
+            nodesLastRound[winner].label += " ✅"
+
     def getPassthroughVotes():
-        eliminatedItems = set([elimination.item for elimination in step])
+        eliminatedItems = set([e.item for e in step.eliminations])
+        allItemVotes = {}
         for item in nodesLastRound:
             if item in eliminatedItems:
                 continue
             votes = nodesLastRound[item].count
-            for elimination in step:
-                if item in elimination.transfers:
-                    votes += elimination.transfers[item]
-            nodesThisRound[item] = graph.addNode(item, votes)
+            for event in step.eliminations:
+                if item in event.transfers:
+                    votes += event.transfers[item]
+            allItemVotes[item] = votes
+        totalVotes = sum(allItemVotes.values())
+        for item, votes in allItemVotes.items():
+            nodesThisRound[item] = graph.addNode(item, votes, totalVotes)
 
             graph.addConnection(sourceNode = nodesLastRound[item],
                                 targetNode = nodesThisRound[item],
                                 value  = nodesLastRound[item].count)
 
     def getTransferVotes():
-        for elimination in step:
-            for transferItem, transferNumber in elimination.transfers.items():
-                sourceNode = nodesLastRound[elimination.item]
+        for event in step.eliminations:
+            nodesLastRound[event.item].label += " ❌"
+            for transferItem, transferNumber in event.transfers.items():
+                sourceNode = nodesLastRound[event.item]
                 targetNode = nodesThisRound[transferItem]
                 graph.addConnection(sourceNode = sourceNode,
                                     targetNode = targetNode,
                                     value  = transferNumber)
-
-    getPassthroughVotes()
-    getTransferVotes()
-    return nodesThisRound
+    getLastRoundWinners()
+    if step.eliminations:
+        getPassthroughVotes()
+        getTransferVotes()
 
 def readJson(fn):
     def loadData(fn):
@@ -195,10 +220,11 @@ def readJson(fn):
         rgbColors = palette
         colorIndex = 0
 
+        totalVotes = sum([int(i[1]) for i in itemNames])
         for name, initialVotes in itemNames:
             item = Item(name, Color(rgbColors[colorIndex]))
             items[name] = item
-            graph.addNode(item, int(initialVotes))
+            graph.addNode(item, int(initialVotes), totalVotes)
             colorIndex += 1
         return items
 
@@ -215,7 +241,8 @@ def readJson(fn):
         name = "Undeclared"
         item = Item(name, Color((.5, .5, .5)))
         items[name] = item
-        graph.addNode(item, count)
+        totalVotes = 1e12 # TODO get the real value here
+        graph.addNode(item, count, totalVotes)
 
     def loadEliminated(tallyResults):
         nameEliminated = tallyResults['eliminated']
@@ -235,7 +262,7 @@ def readJson(fn):
         eliminationOrder = []
         itemsRemaining = set(items.values())
         for step in steps:
-            for elimination in step:
+            for elimination in step.eliminations:
                 eliminationOrder.append(elimination.item)
                 itemsRemaining.remove(elimination.item)
         for item in itemsRemaining:
@@ -245,16 +272,17 @@ def readJson(fn):
     def loadSteps(data):
         steps = []
         for currRound in data['results']:
-            step = [] # List of Elimination objects
+            step = Step()
             for tallyResults in currRound['tallyResults']:
                 if 'transfers' not in tallyResults:
                     # Can only happen on a zero-vote eliminated person
                     continue
-                if 'elected' in tallyResults:
-                    # Will happen on final round, or during intermediate rounds
-                    # in multi-winner races
-                    continue
-                step.append(loadEliminated(tallyResults))
+                elif 'elected' in tallyResults:
+                    winnerName = tallyResults['elected']
+                    winnerItem = items[winnerName]
+                    step.winners.append(winnerItem)
+                else:
+                    step.eliminations.append(loadEliminated(tallyResults))
             steps.append(step)
         return steps
 
@@ -267,7 +295,7 @@ def readJson(fn):
 
     return graph, steps, eliminationOrder
 
-fn = '2017_minneapolis_mayor.json'
+#fn = '2017_minneapolis_mayor.json'
 fn = '2013_minneapolis_park.json'
 graph, steps, eliminationOrder = readJson(fn)
 
