@@ -12,7 +12,6 @@ matplotlib==3.0.2
 nbformat==4.4.0
 numpy==1.15.4
 pandas==0.23.4
-pkg-resources==0.0.0
 plotly==3.4.2
 pyparsing==2.3.0
 python-dateutil==2.7.5
