@@ -10,7 +10,7 @@ def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']
         fs = FileSystemStorage()
-        d3Sankey = makeGraphWithFile(myfile.name)
+        d3Sankey = makeGraphWithFile(myfile.file)
         return render(request, 'sankey/sankey-example.html', {
             'sankeyjs': d3Sankey.js
         })

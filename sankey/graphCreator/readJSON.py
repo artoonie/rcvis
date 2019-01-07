@@ -7,10 +7,9 @@ from . import sankeyGraph
 from . import rcvResult
 
 class JSONReader():
-    def __init__(self, fn):
-        def loadData(fn):
-            with open(fn) as f:
-                data = json.load(f)
+    def __init__(self, fileObj):
+        def loadData(fileObj):
+            data = json.load(fileObj)
             return data
 
         def loadGraph(data):
@@ -94,7 +93,7 @@ class JSONReader():
                 steps.append(step)
             return steps
 
-        data = loadData(fn)
+        data = loadData(fileObj)
         graph = loadGraph(data)
         items = initializeMembers(data, graph)
         initializeUndeclaredNode(data, graph, items)
