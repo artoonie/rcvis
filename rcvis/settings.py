@@ -25,7 +25,7 @@ SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 
-ALLOWED_HOSTS = ['django-env-try2.gx73xzjamq.us-west-1.elasticbeanstalk.com', 'localhost']
+ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
 
 
 # Application definition
