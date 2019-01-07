@@ -113,22 +113,17 @@ d3.sankey = function() {
         nextNodes,
         x = 0;
 
-    while (remainingNodes.length) {
-      nextNodes = [];
-      remainingNodes.forEach(function(node) {
-        node.x = x;
+    maxX = 0
+    nodes.forEach(function(node) {
+        node.x = node.round;
         node.dx = nodeWidth;
-        node.sourceLinks.forEach(function(link) {
-          nextNodes.push(link.target);
-        });
-      });
-      remainingNodes = nextNodes;
-      ++x;
-    }
+        if(node.round > maxX) maxX = node.round
+    });
+
+    scaleNodeBreadths((width - nodeWidth) / maxX);
 
     //
     // moveSinksRight(x);
-    scaleNodeBreadths((width - nodeWidth) / (x - 1));
   }
 
   function moveSourcesRight() {

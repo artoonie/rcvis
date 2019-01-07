@@ -2,12 +2,14 @@ class D3Sankey:
     def __init__(self, graph):
         js = ''
         js += 'numRounds = %d;\n' % graph.numRounds
+        js += 'numCandidates = %d;\n' % len(graph.nodesPerRound[0])
         js += 'graph = {"nodes" : [], "links" : []};\n'
 
         nodeIndices = {}
         for i, node in enumerate(graph.nodes):
             nodeIndices[node] = i
             js += 'graph.nodes.push({ "name": "%s",\n' % node.label
+            js += '                   "round": %d,\n' % node.stepNum
             js += '                   "color": "%s"});\n' % node.color
         for link in graph.links:
             sourceIndex = nodeIndices[link.source]

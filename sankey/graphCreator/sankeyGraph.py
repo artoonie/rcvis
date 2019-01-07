@@ -14,11 +14,12 @@ class LinkData:
         self.color = color
 
 class NodeData:
-    def __init__(self, item, label, color, count):
+    def __init__(self, item, label, color, count, stepNum):
         self.item = item
         self.label = label
         self.color = color
         self.count = count
+        self.stepNum = stepNum
 
     def markEliminated(self):
         self.label = "❌ " + self.label
@@ -33,8 +34,14 @@ class Graph:
         self.links = []
 
         self.numRounds = 1
-        self.currStepNodes, self.lastStepNodes = {}, {}
+        self.nodesPerRound = [{}]
         self.winnersSoFar = []
+
+    def currStepNodes(self):
+        return self.nodesPerRound[self.numRounds-1]
+
+    def lastStepNodes(self):
+        return self.nodesPerRound[self.numRounds-2]
 
     def addConnection(self, sourceNode, targetNode, value):
         white = rcvResult.Color([1]*3)
@@ -51,23 +58,22 @@ class Graph:
         else:
             label = item.name + " ("+str(count)+")"
         color = item.color.asHex()
-        node = NodeData(item, label, color, count)
+        node = NodeData(item, label, color, count, self.numRounds-1)
         self.nodes.append(node)
 
-        self.currStepNodes[item] = node
+        self.currStepNodes()[item] = node
 
         return node
 
     def markNextStep(self):
-        self.lastStepNodes = self.currStepNodes
-        self.currStepNodes = {}
+        self.nodesPerRound.append({})
         self.numRounds += 1
 
     def step(self, step):
         if step.eliminations:
             self.markNextStep()
         nodesThisRound = {}
-        nodesLastRound = self.lastStepNodes
+        nodesLastRound = self.lastStepNodes()
 
         def getLastRoundWinners():
             self.winnersSoFar.extend(step.winners)

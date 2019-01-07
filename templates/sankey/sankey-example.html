@@ -37,16 +37,17 @@
 {{ sankeyjs|safe }}
 	
 var units = "Votes";
-var nodeHeight = 500
 var nodeWidth = 200
 var nodePadding = 20
 var linkPadding = 50
 var totalWidth = numRounds * (nodeWidth + nodePadding + linkPadding)
+var avgNodeHeight = 50
+var totalHeight = numCandidates * avgNodeHeight
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 10, bottom: 10, left: 10},
     width = totalWidth - margin.left - margin.right,
-    height = 1200 - margin.top - margin.bottom;
+    height = 30000 - margin.top - margin.bottom;
 
 // format variables
 var formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -78,7 +79,7 @@ link.attr("d", path);
 var sankey = d3.sankey()
     .nodeWidth(nodeWidth)
     .nodePadding(nodePadding)
-    .size([0, nodeHeight]);
+    .size([0, totalHeight]);
 
 var path = sankey.link();
 
