@@ -97,7 +97,8 @@ class JSONReader():
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
                         winnerItem = items[winnerName]
-                        step.winners.append(winnerItem)
+                        # Apply the winner to the previous step
+                        steps[-1].winners.append(winnerItem)
                     else:
                         step.eliminations.append(loadEliminated(tallyResults))
                 steps.append(step)

@@ -20,6 +20,12 @@ class NodeData:
         self.color = color
         self.count = count
 
+    def markEliminated(self):
+        self.label = "❌ " + self.label
+
+    def markWinner(self):
+        self.label = "✅ " + self.label
+
 class Graph:
     def __init__(self, title):
         self.title = title
@@ -28,6 +34,7 @@ class Graph:
 
         self.numRounds = 1
         self.currStepNodes, self.lastStepNodes = {}, {}
+        self.winnersSoFar = []
 
     def addConnection(self, sourceNode, targetNode, value):
         white = rcvResult.Color([1]*3)
@@ -63,8 +70,7 @@ class Graph:
         nodesLastRound = self.lastStepNodes
 
         def getLastRoundWinners():
-            for winner in step.winners:
-                nodesLastRound[winner].label += " ✅"
+            self.winnersSoFar.extend(step.winners)
 
         def getPassthroughVotes():
             eliminatedItems = set([e.item for e in step.eliminations])
@@ -80,6 +86,8 @@ class Graph:
             totalVotes = sum(allItemVotes.values())
             for item, votes in allItemVotes.items():
                 nodesThisRound[item] = self.addNode(item, votes, totalVotes)
+                if item in self.winnersSoFar:
+                    nodesThisRound[item].markWinner()
 
                 self.addConnection(sourceNode = nodesLastRound[item],
                                    targetNode = nodesThisRound[item],
@@ -87,7 +95,7 @@ class Graph:
 
         def getTransferVotes():
             for event in step.eliminations:
-                nodesLastRound[event.item].label += " ❌"
+                nodesLastRound[event.item].markEliminated()
                 for transferItem, transferNumber in event.transfers.items():
                     sourceNode = nodesLastRound[event.item]
                     targetNode = nodesThisRound[transferItem]
