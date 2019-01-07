@@ -6,11 +6,40 @@ import seaborn as sns
 from . import sankeyGraph
 from . import rcvResult
 
+class JSONMigration():
+    """ Correct data inconsistencies in the JSON upfront,
+        rather than intermixing this code throughout the parser. """
+    def __init__(self, data):
+        self.fixUndeclaredUWI(data)
+        self.fixNoTransfers(data)
+
+    def fixUndeclaredUWI(self, data):
+        """ Undeclared votes are sometimes marked as 'UWI' instead 
+            of 'Undeclared' """
+        results = data['results']
+        firstEliminated = [x['eliminated'] for x in results[0]['tallyResults']]
+        firstTally = results[0]['tally']
+        if 'UWI' in firstTally and \
+           'Undeclared' not in firstTally and \
+           'Undeclared' in firstEliminated:
+            firstTally['Undeclared'] = firstTally['UWI']
+            del firstTally['UWI']
+
+    def fixNoTransfers(self, data):
+        results = data['results']
+        for result in results:
+            for tallyResult in result['tallyResults']:
+                if 'transfers' not in tallyResult:
+                    tallyResult['transfers'] = {}
+    
 class JSONReader():
     def __init__(self, fileObj):
         def loadData(fileObj):
             data = json.load(fileObj)
             return data
+
+        def migrateData(data):
+            JSONMigration(data)
 
         def loadGraph(data):
             title = data['config']['contest']
@@ -22,7 +51,7 @@ class JSONReader():
             round0 = data['results'][0]
             itemNames = round0['tally'].items()
 
-            palette = sns.color_palette("Set2", len(itemNames), desat=0.8)
+            palette = sns.color_palette("Set3", len(itemNames), desat=0.8)
             rgbColors = palette
             colorIndex = 0
 
@@ -34,22 +63,6 @@ class JSONReader():
                 graph.addNode(item, int(initialVotes), totalVotes)
                 colorIndex += 1
             return items
-
-        def initializeUndeclaredNode(data, graph, items):
-            # The number of undeclared votes must be computed by looking
-            # through how many undeclared votes were transferred elsewhere
-            tallyResults = data['results'][0]['tallyResults']
-            eliminated = [m['eliminated'] for m in tallyResults]
-            if "Undeclared" not in eliminated:
-                return
-            undeclaredResults = tallyResults[eliminated.index('Undeclared')]
-
-            count = sum(map(int, undeclaredResults['transfers'].values()))
-            name = "Undeclared"
-            item = rcvResult.Item(name, rcvResult.Color((.5, .5, .5)))
-            items[name] = item
-            totalVotes = 1e12 # TODO get the real value here
-            graph.addNode(item, count, totalVotes)
 
         def loadEliminated(tallyResults):
             nameEliminated = tallyResults['eliminated']
@@ -81,10 +94,7 @@ class JSONReader():
             for currRound in data['results']:
                 step = rcvResult.Step()
                 for tallyResults in currRound['tallyResults']:
-                    if 'transfers' not in tallyResults:
-                        # Can only happen on a zero-vote eliminated person
-                        continue
-                    elif 'elected' in tallyResults:
+                    if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
                         winnerItem = items[winnerName]
                         step.winners.append(winnerItem)
@@ -94,9 +104,9 @@ class JSONReader():
             return steps
 
         data = loadData(fileObj)
+        migrateData(data)
         graph = loadGraph(data)
         items = initializeMembers(data, graph)
-        initializeUndeclaredNode(data, graph, items)
         steps = loadSteps(data)
         eliminationOrder = getEliminationOrder(steps, items)
 
