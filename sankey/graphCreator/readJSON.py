@@ -17,7 +17,13 @@ class JSONMigration():
         """ Undeclared votes are sometimes marked as 'UWI' instead 
             of 'Undeclared' """
         results = data['results']
-        firstEliminated = [x['eliminated'] for x in results[0]['tallyResults']]
+
+        firstEliminated = []
+        firstTally = results[0]['tallyResults']
+        for tallyResult in firstTally:
+            if 'eliminated' in tallyResult:
+                firstEliminated.append(tallyResult['eliminated'])
+
         firstTally = results[0]['tally']
         if 'UWI' in firstTally and \
            'Undeclared' not in firstTally and \
@@ -97,8 +103,13 @@ class JSONReader():
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
                         winnerItem = items[winnerName]
-                        # Apply the winner to the previous step
-                        steps[-1].winners.append(winnerItem)
+                        # Winner means that in the previous round,
+                        # we've reached enough votes. If there is no
+                        # previous round, it means that we won in this round.
+                        if steps:
+                            steps[-1].winners.append(winnerItem)
+                        else:
+                            step.winners.append(winnerItem)
                     else:
                         step.eliminations.append(loadEliminated(tallyResults))
                 steps.append(step)
