@@ -20,10 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '93zisab&b+n6n-zkvr$^$l_dc^c7cok6r9g-+*iz(60t@5((x+'
+SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 
 ALLOWED_HOSTS = ['django-env-try2.gx73xzjamq.us-west-1.elasticbeanstalk.com', 'localhost']
 
