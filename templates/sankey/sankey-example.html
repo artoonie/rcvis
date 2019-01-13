@@ -30,24 +30,22 @@
 
 <script src="https://d3js.org/d3.v5.min.js"></script>
 {% load static %}
-<script src="./sankey.js"></script>
 <script src="{% static 'sankey/sankey.js' %}"></script>
-<!--<script src="graph.js"></script>-->
+<!-- change to setupHorizontal to rotate -->
+<script src="{% static 'sankey/setupVertical.js' %}"></script>
 <script>
 {{ sankeyjs|safe }}
-	
+
 var units = "Votes";
-var nodeWidth = 200
-var nodePadding = 20
+var nodePadding = 20 + 2*numCandidates // the more candidates, the more room you want to display connections
 var linkPadding = 50
-var totalWidth = numRounds * (nodeWidth + nodePadding + linkPadding)
-var avgNodeHeight = 50
-var totalHeight = numCandidates * avgNodeHeight
+var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
+var totalSize1 = numCandidates * avgNodeSize1
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 10, bottom: 10, left: 10},
-    width = totalWidth - margin.left - margin.right,
-    height = 30000 - margin.top - margin.bottom;
+var margin = {top: 10, right: 10, bottom: 10, left: 50},
+    size0 = totalSize0 + size0margin(margin),
+    size1 = totalSize1 + size1margin(margin);
 
 // format variables
 var formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -56,30 +54,31 @@ var formatNumber = d3.format(",.0f"),    // zero decimal places
 
 // append the svg object to the body of the page
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    .attr(size0string(), size0 + size0margin(margin))
+    .attr(size1string(), size1 + size1margin(margin))
   .append("g")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
 // the function for moving the nodes
 function dragmove(d) {
+var translate0 = dim0(d);
+var translate1 = (set_dim1(d, Math.max(
+                  0, Math.min(size1 - ddim1(d), dim1(d3.event))))
+                 );
+commad = commaSeparate(translate0, translate1)
 d3.select(this)
   .attr("transform", 
-        "translate(" 
-           + d.x + "," 
-           + (d.y = Math.max(
-              0, Math.min(height - d.dy, d3.event.y))
-             ) + ")");
+        "translate(" + commad + ")");
 sankey.relayout();
 link.attr("d", path);
 }
 
 // Set the sankey diagram properties
 var sankey = d3.sankey()
-    .nodeWidth(nodeWidth)
+    .nodeSize0(nodeSize0)
     .nodePadding(nodePadding)
-    .size([0, totalHeight]);
+    .size([0, totalSize1]);
 
 var path = sankey.link();
 
@@ -94,9 +93,9 @@ var link = svg.append("g").selectAll(".link")
 .enter().append("path")
   .attr("class", "link")
   .attr("d", path)
-  .style("stroke-width", function(d) { return Math.max(1, d.dy); })
+  .style("stroke-width", function(d) { return Math.max(1, ddim1(d)); })
   .style("stroke", function(d) { return d3.rgb(d.color) })
-  .sort(function(a, b) { return b.dy - a.dy; });
+  .sort(function(a, b) { return ddim1(b) - ddim1(a); });
 
 // add the link titles
 link.append("title")
@@ -109,7 +108,8 @@ var node = svg.append("g").selectAll(".node")
 .enter().append("g")
   .attr("class", "node")
   .attr("transform", function(d) { 
-      return "translate(" + d.x + "," + d.y + ")"; })
+      commad = commaSeparate(dim0(d), dim1(d))
+      return "translate(" + commad + ")"; })
   .call(d3.drag()
     .subject(function(d) {
       return d;
@@ -121,22 +121,21 @@ var node = svg.append("g").selectAll(".node")
 
 // add the rectangles for the nodes
 node.append("rect")
-  .attr("height", function(d) { return d.dy; })
-  .attr("width", sankey.nodeWidth())
+  .attr(size1string(), function(d) { return ddim1(d); })
+  .attr(size0string(), sankey.nodeSize0())
   .style("fill", function(d) { return d.color })
-  .style("stroke", function(d) { 
-      return d3.rgb(d.color).darker(2); })
 .append("title")
   .text(function(d) { 
       return d.name + "\n" + format(d.value); });
 
 // add in the title for the nodes
 node.append("text")
-  .attr("x", 6)
-  .attr("y", function(d) { return d.dy / 2; })
+  // For horizontal
+  .attr("x", function(d) { return textXPos(d) } )
+  .attr("y", function(d) { return textYPos(d) } )
   .attr("dy", ".35em")
   .text(function(d) { return d.name; })
-  .filter(function(d) { return d.x < width / 2; });
+  .filter(function(d) { return dim0(d) < size0 / 2; });
 
 </script>
 

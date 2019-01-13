@@ -45,7 +45,11 @@ class Graph:
 
     def addConnection(self, sourceNode, targetNode, value):
         white = rcvResult.Color([1]*3)
-        faded = rcvResult.Color.interpolate(white, sourceNode.item.color, .9)
+        if sourceNode.item == targetNode.item:
+            alpha = .2
+        else:
+            alpha = .9
+        faded = rcvResult.Color.interpolate(white, sourceNode.item.color, alpha)
         color = faded.asHex()
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
@@ -55,8 +59,11 @@ class Graph:
             assert(isinstance(count, int))
             label = item.name + " " + \
                     str(round(count/totalVotes * 100, 2)) + "%"
+        elif self.numRounds == 1:
+            label = item.name + " ("+str(count)+" votes)"
         else:
-            label = item.name + " ("+str(count)+")"
+            diff = count - self.lastStepNodes()[item].count
+            label = "+%d votes (%d votes)" % (diff, count)
         color = item.color.asHex()
         node = NodeData(item, label, color, count, self.numRounds-1)
         self.nodes.append(node)

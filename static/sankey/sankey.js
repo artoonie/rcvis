@@ -1,14 +1,14 @@
 d3.sankey = function() {
   var sankey = {},
-      nodeWidth = 24,
+      nodeSize0 = 24,
       nodePadding = 8,
       size = [1, 1],
       nodes = [],
       links = [];
 
-  sankey.nodeWidth = function(_) {
-    if (!arguments.length) return nodeWidth;
-    nodeWidth = +_;
+  sankey.nodeSize0 = function(_) {
+    if (!arguments.length) return nodeSize0;
+    nodeSize0 = +_;
     return sankey;
   };
 
@@ -51,20 +51,20 @@ d3.sankey = function() {
   };
 
   sankey.link = function() {
-    var curvature = .5;
+    var curvature = 0.5;
 
     function link(d) {
-      var x0 = d.source.x + d.source.dx,
-          x1 = d.target.x,
-          xi = d3.interpolateNumber(x0, x1),
-          x2 = xi(curvature),
-          x3 = xi(1 - curvature),
-          y0 = d.source.y + d.sy + d.dy / 2,
-          y1 = d.target.y + d.ty + d.dy / 2;
-      return "M" + x0 + "," + y0
-           + "C" + x2 + "," + y0
-           + " " + x3 + "," + y1
-           + " " + x1 + "," + y1;
+      var dim0_0 = dim0(d.source) + ddim0(d.source),
+          dim0_1 = dim0(d.target),
+          dim0_i = d3.interpolateNumber(dim0_0, dim0_1),
+          dim0_2 = dim0_i(curvature),
+          dim0_3 = dim0_i(1 - curvature),
+          dim1_0 = dim1(d.source) + d.sdim1 + ddim1(d) / 2,
+          dim1_1 = dim1(d.target) + d.tdim1 + ddim1(d) / 2;
+      return "M" + commaSeparate(dim0_0, dim1_0)
+           + "C" + commaSeparate(dim0_2, dim1_0)
+           + " " + commaSeparate(dim0_3, dim1_1)
+           + " " + commaSeparate(dim0_1, dim1_1);
     }
 
     link.curvature = function(_) {
@@ -109,18 +109,14 @@ d3.sankey = function() {
   // uncomment moveSinksRight to make:
   //          nodes with no outgoing links are assigned the maximum breadth.
   function computeNodeBreadths() {
-    var remainingNodes = nodes,
-        nextNodes,
-        x = 0;
-
-    maxX = 0
+    var max_dim0 = 0;
     nodes.forEach(function(node) {
-        node.x = node.round;
-        node.dx = nodeWidth;
-        if(node.round > maxX) maxX = node.round
+        set_dim0(node, node.round);
+        set_ddim0(node, nodeSize0);
+        if(node.round > max_dim0) max_dim0 = node.round
     });
 
-    scaleNodeBreadths((width - nodeWidth) / maxX);
+    scaleNodeBreadths((totalSize0 - nodeSize0) / max_dim0);
 
     //
     // moveSinksRight(x);
@@ -129,28 +125,28 @@ d3.sankey = function() {
   function moveSourcesRight() {
     nodes.forEach(function(node) {
       if (!node.targetLinks.length) {
-        node.x = d3.min(node.sourceLinks, function(d) { return d.target.x; }) - 1;
+        set_dim0(node, d3.min(node.sourceLinks, function(d) { return dim0(d.target); }) - 1);
       }
     });
   }
 
-  function moveSinksRight(x) {
+  function moveSinksRight(dim0) {
     nodes.forEach(function(node) {
       if (!node.sourceLinks.length) {
-        node.x = x - 1;
+        set_dim0(node, dim0 - 1);
       }
     });
   }
 
-  function scaleNodeBreadths(kx) {
+  function scaleNodeBreadths(kdim0) {
     nodes.forEach(function(node) {
-      node.x *= kx;
+      set_dim0(node, dim0(node) * kdim0);
     });
   }
 
   function computeNodeDepths(iterations) {
     var nodesByBreadth = d3.nest()
-        .key(function(d) { return d.x; })
+        .key(function(d) { return dim0(d); })
         .sortKeys(d3.ascending)
         .entries(nodes)
         .map(function(d) { return d.values; });
@@ -166,19 +162,19 @@ d3.sankey = function() {
     }
 
     function initializeNodeDepth() {
-      var ky = d3.min(nodesByBreadth, function(nodes) {
-        return (size[1] - (nodes.length - 1) * nodePadding) / d3.sum(nodes, value);
+      var kdim1 = d3.min(nodesByBreadth, function(nodes) {
+        return (size[idx1()] - (nodes.length - 1) * nodePadding) / d3.sum(nodes, value);
       });
 
       nodesByBreadth.forEach(function(nodes) {
         nodes.forEach(function(node, i) {
-          node.y = i;
-          node.dy = node.value * ky;
+          set_dim1(node, i);
+          set_ddim1(node, node.value * kdim1);
         });
       });
 
       links.forEach(function(link) {
-        link.dy = link.value * ky;
+        set_ddim1(link, link.value * kdim1);
       });
     }
 
@@ -186,8 +182,8 @@ d3.sankey = function() {
       nodesByBreadth.forEach(function(nodes, breadth) {
         nodes.forEach(function(node) {
           if (node.targetLinks.length) {
-            var y = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
-            node.y += (y - center(node)) * alpha;
+            var new_dim1 = d3.sum(node.targetLinks, weightedSource) / d3.sum(node.targetLinks, value);
+            set_dim1(node, dim1(node) + (new_dim1 - center(node)) * alpha);
           }
         });
       });
@@ -201,8 +197,8 @@ d3.sankey = function() {
       nodesByBreadth.slice().reverse().forEach(function(nodes) {
         nodes.forEach(function(node) {
           if (node.sourceLinks.length) {
-            var y = d3.sum(node.sourceLinks, weightedTarget) / d3.sum(node.sourceLinks, value);
-            node.y += (y - center(node)) * alpha;
+            var new_dim1 = d3.sum(node.sourceLinks, weightedTarget) / d3.sum(node.sourceLinks, value);
+            set_dim1(node, dim1(node) + (new_dim1 - center(node)) * alpha);
           }
         });
       });
@@ -215,41 +211,41 @@ d3.sankey = function() {
     function resolveCollisions() {
       nodesByBreadth.forEach(function(nodes) {
         var node,
-            dy,
-            y0 = 0,
+            new_ddim1,
+            dim1_0 = 0,
             n = nodes.length,
             i;
 
         for (i = 0; i < n; ++i) {
-          nodes[i].y =  i*nodePadding;
+          set_dim1(nodes[i], i*nodePadding);
         }
         // Push any overlapping nodes down.
         nodes.sort(ascendingDepth);
         for (i = 0; i < n; ++i) {
           node = nodes[i];
-          dy = y0 - node.y;
-          if (dy > 0) node.y += dy;
-          y0 = node.y + node.dy + nodePadding;
+          new_ddim1 = dim1_0 - dim1(node);
+          if (new_ddim1 > 0) set_dim1(node, dim1(node) + new_ddim1);
+          dim1_0 = dim1(node) + ddim1(node) + nodePadding;
         }
 
         // If the bottommost node goes outside the bounds, push it back up.
-        dy = y0 - nodePadding - size[1];
-        if (dy > 0) {
-          y0 = node.y -= dy;
+        new_ddim1 = dim1_0 - nodePadding - size[idx1()];
+        if (new_ddim1 > 0) {
+          dim1_0 = set_dim1(node, dim1(node) - new_ddim1);
 
           // Push any overlapping nodes back up.
           for (i = n - 2; i >= 0; --i) {
             node = nodes[i];
-            dy = node.y + node.dy + nodePadding - y0;
-            if (dy > 0) node.y -= dy;
-            y0 = node.y;
+            new_ddim1 = dim1(node) + ddim1(node) + nodePadding - dim1_0;
+            if (new_ddim1 > 0) set_dim1(node, dim1(node) - new_ddim1);
+            dim1_0 = dim1(node);
           }
         }
       });
     }
 
     function ascendingDepth(a, b) {
-      return a.y - b.y;
+      return dim1(a) - dim1(b);
     }
   }
 
@@ -259,28 +255,28 @@ d3.sankey = function() {
       node.targetLinks.sort(ascendingSourceDepth);
     });
     nodes.forEach(function(node) {
-      var sy = 0, ty = 0;
+      var sdim1 = 0, tdim1 = 0;
       node.sourceLinks.forEach(function(link) {
-        link.sy = sy;
-        sy += link.dy;
+        link.sdim1 = sdim1;
+        sdim1 += ddim1(link);
       });
       node.targetLinks.forEach(function(link) {
-        link.ty = ty;
-        ty += link.dy;
+        link.tdim1 = tdim1;
+        tdim1 += ddim1(link);
       });
     });
 
     function ascendingSourceDepth(a, b) {
-      return a.source.y - b.source.y;
+      return dim1(a.source) - dim1(b.source);
     }
 
     function ascendingTargetDepth(a, b) {
-      return a.target.y - b.target.y;
+      return dim1(a.target) - dim1(b.target);
     }
   }
 
   function center(node) {
-    return node.y + node.dy / 2;
+    return dim1(node) + ddim1(node) / 2;
   }
 
   function value(link) {
