@@ -1,8 +1,7 @@
+import math
 import json
-# TODO this import takes a crazy long time! Replace with
-# something sensible.
-import seaborn as sns
 
+from . import colors
 from . import sankeyGraph
 from . import rcvResult
 
@@ -37,6 +36,26 @@ class JSONMigration():
             for tallyResult in result['tallyResults']:
                 if 'transfers' not in tallyResult:
                     tallyResult['transfers'] = {}
+
+class ColorGenerator():
+    def __init__(self, totalToGenerate):
+        self.total = totalToGenerate
+        self.curr = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.curr >= self.total:
+            raise StopIteration
+        v = self.curr / self.total # [0, 1]
+        r = 100
+        a = r * math.sin(2 * math.pi * v)
+        b = r * math.cos(2 * math.pi * v)
+        lab = [32, a, b]
+        self.curr += 1
+        print(colors.lab2rgb(lab))
+        return colors.lab2rgb(lab)
     
 class JSONReader():
     def __init__(self, fileObj):
@@ -57,17 +76,14 @@ class JSONReader():
             round0 = data['results'][0]
             itemNames = round0['tally'].items()
 
-            palette = sns.color_palette("Set3", len(itemNames), desat=0.8)
-            rgbColors = palette
-            colorIndex = 0
+            palette = ColorGenerator(len(itemNames))
 
             totalVotes = sum([int(i[1]) for i in itemNames])
             for name, initialVotes in itemNames:
-                color = rcvResult.Color(rgbColors[colorIndex])
+                color = rcvResult.Color(next(palette))
                 item = rcvResult.Item(name, color)
                 items[name] = item
                 graph.addNode(item, int(initialVotes), totalVotes)
-                colorIndex += 1
             return items
 
         def loadEliminated(tallyResults):
