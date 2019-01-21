@@ -46,6 +46,7 @@ class ColorGenerator():
         return self
 
     def __next__(self):
+        # c/o https://stackoverflow.com/a/30296361/1057105
         if self.curr >= self.total:
             raise StopIteration
         v = self.curr / self.total # [0, 1]
@@ -107,8 +108,18 @@ class JSONReader():
                 for elimination in step.eliminations:
                     eliminationOrder.append(elimination.item)
                     itemsRemaining.remove(elimination.item)
-            for item in itemsRemaining:
-                eliminationOrder.append(item)
+            # Winners are added last
+            winners = []
+            for step in steps:
+                for winner in step.winners:
+                    winners.append(winner)
+            # Non-winners and non-eliminated go next
+            for winner in winners:
+                itemsRemaining.remove(winner)
+
+            eliminationOrder.extend(itemsRemaining)
+            eliminationOrder.extend(winners)
+
             return eliminationOrder
 
         def loadSteps(data):

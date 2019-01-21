@@ -16,13 +16,13 @@
 }
 
 .link {
-  fill: none;
-  stroke: #000;
-  stroke-opacity: .5;
+  fill: #000;
+  stroke: none;
+  fill-opacity: .5;
 }
 
 .link:hover {
-  stroke-opacity: 1.0;
+  fill-opacity: 1.0;
 }
 
 </style>
@@ -40,7 +40,7 @@ var units = "Votes";
 var nodePadding = 20 + 2*numCandidates // the more candidates, the more room you want to display connections
 var linkPadding = 50
 var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
-var totalSize1 = numCandidates * avgNodeSize1
+var totalSize1 = Math.min(numCandidates * avgNodeSize1,  1000)
 var totalSize1 = numCandidates * avgNodeSize1
 
 // set the dimensions and margins of the graph
@@ -94,14 +94,13 @@ var link = svg.append("g").selectAll(".link")
 .enter().append("path")
   .attr("class", "link")
   .attr("d", path)
-  .style("stroke-width", 0)
   .style("fill", function(d) { return d3.rgb(d.color) })
   .sort(function(a, b) { return ddim1(b) - ddim1(a); });
 
 // add the link titles
 link.append("title")
     .text(function(d) {
-        return format(d.value) + " transferred"; });
+        return format(d.value); });
 
 // add in the nodes
 var node = svg.append("g").selectAll(".node")

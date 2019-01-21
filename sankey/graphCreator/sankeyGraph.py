@@ -48,7 +48,7 @@ class Graph:
         if sourceNode.item == targetNode.item:
             alpha = .2
         else:
-            alpha = .9
+            alpha = .8
         faded = rcvResult.Color.interpolate(white, sourceNode.item.color, alpha)
         color = faded.asHex()
         link = LinkData(sourceNode, targetNode, value, color)
@@ -63,7 +63,7 @@ class Graph:
             label = item.name + " ("+str(count)+" votes)"
         else:
             diff = count - self.lastStepNodes()[item].count
-            label = "+%d votes (%d votes)" % (diff, count)
+            label = str(count)
         color = item.color.asHex()
         node = NodeData(item, label, color, count, self.numRounds-1)
         self.nodes.append(node)
