@@ -41,6 +41,7 @@ var nodePadding = 20 + 2*numCandidates // the more candidates, the more room you
 var linkPadding = 50
 var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
 var totalSize1 = numCandidates * avgNodeSize1
+var totalSize1 = numCandidates * avgNodeSize1
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 10, bottom: 10, left: 50},
@@ -93,8 +94,8 @@ var link = svg.append("g").selectAll(".link")
 .enter().append("path")
   .attr("class", "link")
   .attr("d", path)
-  .style("stroke-width", function(d) { return Math.max(1, ddim1(d)); })
-  .style("stroke", function(d) { return d3.rgb(d.color) })
+  .style("stroke-width", 0)
+  .style("fill", function(d) { return d3.rgb(d.color) })
   .sort(function(a, b) { return ddim1(b) - ddim1(a); });
 
 // add the link titles

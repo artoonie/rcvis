@@ -54,17 +54,23 @@ d3.sankey = function() {
     var curvature = 0.5;
 
     function link(d) {
-      var dim0_0 = dim0(d.source) + ddim0(d.source),
-          dim0_1 = dim0(d.target),
-          dim0_i = d3.interpolateNumber(dim0_0, dim0_1),
-          dim0_2 = dim0_i(curvature),
-          dim0_3 = dim0_i(1 - curvature),
+      var dim0_s = dim0(d.source) + ddim0(d.source), // start
+          dim0_e = dim0(d.target), // end
+          dim0_i = d3.interpolateNumber(dim0_s, dim0_e),
+          dim0_a = dim0_i(curvature), // spline cp 0
+          dim0_b = dim0_i(1 - curvature), // spline cp 1
           dim1_0 = dim1(d.source) + d.sdim1 + ddim1(d) / 2,
           dim1_1 = dim1(d.target) + d.tdim1 + ddim1(d) / 2;
-      return "M" + commaSeparate(dim0_0, dim1_0)
-           + "C" + commaSeparate(dim0_2, dim1_0)
-           + " " + commaSeparate(dim0_3, dim1_1)
-           + " " + commaSeparate(dim0_1, dim1_1);
+      r = ddim1(d) / 2
+      return "M" + commaSeparate(dim0_s, dim1_0+r)
+           + "C" + commaSeparate(dim0_a, dim1_0+r)
+           + " " + commaSeparate(dim0_b, dim1_1+r)
+           + " " + commaSeparate(dim0_e, dim1_1+r)
+           + "L" + commaSeparate(dim0_e, dim1_1-r)
+           + "C" + commaSeparate(dim0_b, dim1_1-r)
+           + " " + commaSeparate(dim0_a, dim1_0-r)
+           + " " + commaSeparate(dim0_s, dim1_0-r)
+           + "Z" + commaSeparate(dim0_s, dim1_0-r)
     }
 
     link.curvature = function(_) {
