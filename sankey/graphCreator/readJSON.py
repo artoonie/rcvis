@@ -86,10 +86,7 @@ class JSONReader():
                 graph.addNode(item, int(initialVotes), totalVotes)
             return items
 
-        def loadEliminated(tallyResults):
-            nameEliminated = tallyResults['eliminated']
-            itemEliminated = items[nameEliminated]
-
+        def loadTransfer(tallyResults):
             transfersByName = tallyResults['transfers']
             transfersByItem = {}
             for toName,numTransferred in transfersByName.items():
@@ -98,13 +95,23 @@ class JSONReader():
                     continue
                 transfersByItem[items[toName]] = int(float(numTransferred))
 
-            return rcvResult.Elimination(itemEliminated, transfersByItem)
+            if 'eliminated' in tallyResults:
+                nameEliminated = tallyResults['eliminated']
+                itemEliminated = items[nameEliminated]
+                return rcvResult.Elimination(itemEliminated, transfersByItem)
+            else:
+                assert 'elected' in tallyResults
+                nameEliminated = tallyResults['elected']
+                itemEliminated = items[nameEliminated]
+                return rcvResult.WinTransfer(itemEliminated, transfersByItem)
 
         def getEliminationOrder(steps, items):
             eliminationOrder = []
             itemsRemaining = set(items.values())
             for step in steps:
-                for elimination in step.eliminations:
+                for elimination in step.transfers:
+                    if not isinstance(elimination, rcvResult.Elimination):
+                        continue
                     eliminationOrder.append(elimination.item)
                     itemsRemaining.remove(elimination.item)
             # Winners are added last
@@ -136,8 +143,7 @@ class JSONReader():
                             steps[-1].winners.append(winnerItem)
                         else:
                             step.winners.append(winnerItem)
-                    else:
-                        step.eliminations.append(loadEliminated(tallyResults))
+                    step.transfers.append(loadTransfer(tallyResults))
                 steps.append(step)
             return steps
 

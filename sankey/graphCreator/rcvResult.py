@@ -21,14 +21,16 @@ class Color:
             rgb.append((1-alpha)*color0.rgb[i] + alpha*color1.rgb[i])
         return Color(rgb)
 
-class Elimination:
+class Transfer:
     def __init__(self, item, transfers):
         """ Transfers is a mapping from Item objects
             to a number of transferred votes. """
         self.item = item
         self.transfers = transfers
+class Elimination(Transfer): pass
+class WinTransfer(Transfer): pass
 
 class Step:
     def __init__(self):
         self.winners = []
-        self.eliminations = []
+        self.transfers = []

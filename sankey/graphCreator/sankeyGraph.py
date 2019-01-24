@@ -77,8 +77,7 @@ class Graph:
         self.numRounds += 1
 
     def step(self, step):
-        if step.eliminations:
-            self.markNextStep()
+        self.markNextStep()
         nodesThisRound = {}
         nodesLastRound = self.lastStepNodes()
 
@@ -86,13 +85,14 @@ class Graph:
             self.winnersSoFar.extend(step.winners)
 
         def getPassthroughVotes():
-            eliminatedItems = set([e.item for e in step.eliminations])
+            eliminatedItems = set([e.item for e in step.transfers
+                                if isinstance(e, rcvResult.Elimination)])
             allItemVotes = {}
             for item in nodesLastRound:
                 if item in eliminatedItems:
                     continue
                 votes = nodesLastRound[item].count
-                for event in step.eliminations:
+                for event in step.transfers:
                     if item in event.transfers:
                         votes += event.transfers[item]
                 allItemVotes[item] = votes
@@ -107,8 +107,9 @@ class Graph:
                                    value  = nodesLastRound[item].count)
 
         def getTransferVotes():
-            for event in step.eliminations:
-                nodesLastRound[event.item].markEliminated()
+            for event in step.transfers:
+                if isinstance(event, rcvResult.Elimination):
+                    nodesLastRound[event.item].markEliminated()
                 for transferItem, transferNumber in event.transfers.items():
                     sourceNode = nodesLastRound[event.item]
                     targetNode = nodesThisRound[transferItem]
@@ -116,6 +117,6 @@ class Graph:
                                         targetNode = targetNode,
                                         value  = transferNumber)
         getLastRoundWinners()
-        if step.eliminations:
+        if step.transfers:
             getPassthroughVotes()
             getTransferVotes()
