@@ -5,13 +5,16 @@ from django.shortcuts import render
 from .forms import UploadFileForm
 
 from .graphCreator.sankeyCreator import makeGraphWithFile
+from .graphCreator.graphToD3 import D3Sankey
 
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']
         fs = FileSystemStorage()
-        d3Sankey = makeGraphWithFile(myfile.file)
+        graph = makeGraphWithFile(myfile.file)
+        d3Sankey = D3Sankey(graph)
         return render(request, 'sankey/sankey-example.html', {
+            'title': graph.title,
             'sankeyjs': d3Sankey.js
         })
     else:

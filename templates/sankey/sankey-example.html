@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<title>SANKEY Experiment</title>
+<title>{{ title }}</title>
 <style>
 
 .node rect {
@@ -28,6 +28,8 @@
 </style>
 <body>
 
+<h1>{{ title }}</h1>
+
 <script src="https://d3js.org/d3.v5.min.js"></script>
 {% load static %}
 <script src="{% static 'sankey/sankey.js' %}"></script>
@@ -40,8 +42,7 @@ var units = "Votes";
 var nodePadding = 20 + 2*numCandidates // the more candidates, the more room you want to display connections
 var linkPadding = 50
 var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
-var totalSize1 = Math.min(numCandidates * avgNodeSize1,  1000)
-var totalSize1 = numCandidates * avgNodeSize1
+var totalSize1 = Math.min(numCandidates,5)*150 + Math.max(numCandidates-5,0)*30
 
 // set the dimensions and margins of the graph
 var margin = {top: 10, right: 10, bottom: 10, left: 50},

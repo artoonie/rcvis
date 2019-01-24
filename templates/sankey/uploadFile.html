@@ -3,7 +3,7 @@
 {% block content %}
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    <input type="file" name="myfile">
+    <input type="file" name="myfile" accept='application/json'>
     <button type="submit">Upload</button>
   </form>
 

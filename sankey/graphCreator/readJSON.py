@@ -55,7 +55,6 @@ class ColorGenerator():
         b = r * math.cos(2 * math.pi * v)
         lab = [32, a, b]
         self.curr += 1
-        print(colors.lab2rgb(lab))
         return colors.lab2rgb(lab)
     
 class JSONReader():
