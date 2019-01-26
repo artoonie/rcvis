@@ -62,15 +62,19 @@ d3.sankey = function() {
           dim1_0 = dim1(d.source) + d.sdim1 + ddim1(d) / 2,
           dim1_1 = dim1(d.target) + d.tdim1 + ddim1(d) / 2;
       r = ddim1(d) / 2
-      return "M" + commaSeparate(dim0_s, dim1_0+r)
-           + "C" + commaSeparate(dim0_a, dim1_0+r)
-           + " " + commaSeparate(dim0_b, dim1_1+r)
-           + " " + commaSeparate(dim0_e, dim1_1+r)
-           + "L" + commaSeparate(dim0_e, dim1_1-r)
-           + "C" + commaSeparate(dim0_b, dim1_1-r)
-           + " " + commaSeparate(dim0_a, dim1_0-r)
-           + " " + commaSeparate(dim0_s, dim1_0-r)
-           + "Z" + commaSeparate(dim0_s, dim1_0-r)
+      rminus = Math.max(r, 3)
+      rplus =  r
+      // TODO on the outgoing edge, this doesn't line up
+      // and the line is drawn outside 
+      return "M" + commaSeparate(dim0_s, dim1_0+rplus)
+           + "C" + commaSeparate(dim0_a, dim1_0+rplus)
+           + " " + commaSeparate(dim0_b, dim1_1+rplus)
+           + " " + commaSeparate(dim0_e, dim1_1+rplus)
+           + "L" + commaSeparate(dim0_e, dim1_1-rminus)
+           + "C" + commaSeparate(dim0_b, dim1_1-rminus)
+           + " " + commaSeparate(dim0_a, dim1_0-rminus)
+           + " " + commaSeparate(dim0_s, dim1_0-rminus)
+           + "Z" + commaSeparate(dim0_s, dim1_0-rminus)
     }
 
     link.curvature = function(_) {

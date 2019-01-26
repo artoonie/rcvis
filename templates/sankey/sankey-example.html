@@ -25,29 +25,58 @@
   fill-opacity: 1.0;
 }
 
+#topbar {
+  background-color: white;
+}
+
+.sticky {
+  position: fixed;
+  top: 0;
+}
+
 </style>
 <body>
 
 <h1>{{ title }}</h1>
 
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<div id="topbar">
+</div>
+<div id="content">
+</div>
+
 {% load static %}
+
+<!-- for offline use (leave commented when you commit!) -->
+<!--<script src="{% static 'sankey/d3.v5.min.js' %}"></script>-->
+<!-- for online use -->
+<script src="https://d3js.org/d3.v5.min.js"></script>
+
 <script src="{% static 'sankey/sankey.js' %}"></script>
 <!-- change to setupHorizontal to rotate -->
 <script src="{% static 'sankey/setupVertical.js' %}"></script>
 <script>
 {{ sankeyjs|safe }}
 
+    // TODO
+    // 1. how to mouseover <text> in the middle of the sankey?
+    // 2. how to limit text with overflow:hidden or similar, instead of
+    //      truncation (and are ellipses possible?)
+    // 3. how to keep a sticky bar at the top, and replace it as you
+    //      scroll based on what the topmost nodes are
+
+// Below are crazy heuristics to try to get the graph to look good
+// on a variety of sizes.
 var units = "Votes";
-var nodePadding = 20 + 2*numCandidates // the more candidates, the more room you want to display connections
+var nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, the more room you want to display connections.
 var linkPadding = 50
 var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
 var totalSize1 = Math.min(numCandidates,5)*150 + Math.max(numCandidates-5,0)*30
 
 // set the dimensions and margins of the graph
-var margin = {top: 10, right: 10, bottom: 10, left: 50},
-    size0 = totalSize0 + size0margin(margin),
-    size1 = totalSize1 + size1margin(margin);
+var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
+    tmargin = {top:  0,                        left: 50}, // topbar
+    size0 = totalSize0 + size0margin(cmargin),
+    size1 = totalSize1 + size1margin(cmargin);
 
 // format variables
 var formatNumber = d3.format(",.0f"),    // zero decimal places
@@ -56,11 +85,11 @@ var formatNumber = d3.format(",.0f"),    // zero decimal places
 
 // append the svg object to the body of the page
 var svg = d3.select("body").append("svg")
-    .attr(size0string(), size0 + size0margin(margin))
-    .attr(size1string(), size1 + size1margin(margin))
+    .attr(size0string(), size0 + size0margin(cmargin))
+    .attr(size1string(), size1 + size1margin(cmargin))
   .append("g")
     .attr("transform", 
-          "translate(" + margin.left + "," + margin.top + ")");
+          "translate(" + cmargin.left + "," + cmargin.top + ")");
 
 // the function for moving the nodes
 function dragmove(d) {
@@ -75,7 +104,39 @@ d3.select(this)
 sankey.relayout();
 link.attr("d", path);
 }
+function hackCharsForWidth(width, text) {
+    // TODO this assumes characters are 13px wide...yikes
+    var length = width/13
+    if(length >= text.length - 3) {
+        return text;
+    } else {
+        return text.substring(0, length) + "...";
+    }
+}
+function getNodeLabelText(d) {
+    if(d.round==0)
+        return d.name;
+}
+function getNodeLabelTextTruncated(d) {
+    return hackCharsForWidth(d.dx, d.name);
+}
+function textForNode(d) {
+    var s = "";
+    if(d.isEliminated)
+        s += "❌ " ;
+    if(d.isWinner)
+        s += "✅ " ;
+    s += ""+d.value;
+    return s;
+}
 
+function getNodeValueText(d) {
+    func = getTruncationFunction()
+    return func(d.value, textForNode(d))
+}
+function getNodeValueTextTruncated(d) {
+    return hackCharsForWidth(d.value, textForNode(d))
+}
 // Set the sankey diagram properties
 var sankey = d3.sankey()
     .nodeSize0(nodeSize0)
@@ -131,12 +192,65 @@ node.append("rect")
 
 // add in the title for the nodes
 node.append("text")
-  // For horizontal
-  .attr("x", function(d) { return textXPos(d) } )
-  .attr("y", function(d) { return textYPos(d) } )
+  .attr("x", textXPos )
+  .attr("y", textYPos )
   .attr("dy", ".35em")
-  .text(function(d) { return d.name; })
-  .filter(function(d) { return dim0(d) < size0 / 2; });
+  .text(getNodeValueTextTruncated)
+    .on('mouseover', function(d){
+        d3.selectAll("text").text(getNodeLabelText);
+    })
+    .on('mouseout', function(d){
+        d3.selectAll("text").text(getNodeLabelTextTruncated);
+    })
+    .call(d3.drag());
+
+// top bar
+var topbarDiv = d3.select('#topbar')
+var topbar = topbarDiv.append("svg")
+    .attr(size0string(), 40)
+    .attr(size1string(), size1)
+    .attr("transform", 
+          "translate(" + tmargin.left + "," + tmargin.top + ")")
+  .append("g")
+  .selectAll(".node")
+  .data(graph.nodes)
+.enter().append("g")
+  .filter(function(d) { return d.round == 0 })
+  .attr("transform", function(d) { 
+      commad = commaSeparate(0, dim1(d))
+      return "translate(" + commad + ")"; })
+  .attr(size1string(), function(d) { return ddim1(d); })
+  .attr(size0string(), sankey.nodeSize0())
+  .append("text")
+  .attr("x", textXPos )
+  .attr("y", 30 )
+  .attr("dy", ".35em")
+  .text(getNodeLabelTextTruncated)
+    .on('mouseover', function(d){
+        d3.select(this).text(getNodeLabelText);
+    })
+    .on('mouseout', function(d){
+        d3.select(this).text(getNodeLabelTextTruncated);
+    })
+    .call(d3.drag());
+
+window.onscroll = function() {myFunction()};
+
+// Get the navbar
+var topbar = document.getElementById("topbar");
+
+// Get the offset position of the navbar
+var sticky = topbar.offsetTop;
+
+function myFunction() {
+  var x = -(window.pageXOffset + textXPos);
+  if (window.pageYOffset >= sticky) {
+    topbar.classList.add("sticky")
+  } else {
+    topbar.classList.remove("sticky");
+  }
+  topbar.style.left = x+"px";
+}
 
 </script>
 

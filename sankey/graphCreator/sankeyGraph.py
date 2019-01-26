@@ -4,8 +4,6 @@ from . import rcvResult
 # Gets confusing because the percentages can change as
 # undervotes occur, meaning the same number of votes
 # will change percentages each round.
-USE_PERCENT = False
-
 class LinkData:
     def __init__(self, source, target, value, color):
         self.source = source
@@ -20,12 +18,14 @@ class NodeData:
         self.color = color
         self.count = count
         self.stepNum = stepNum
+        self.isWinner = False
+        self.isEliminated = False
 
     def markEliminated(self):
-        self.label = "❌ " + self.label
+        self.isEliminated = True
 
     def markWinner(self):
-        self.label = "✅ " + self.label
+        self.isWinner = True
 
 class Graph:
     def __init__(self, title):
@@ -55,15 +55,7 @@ class Graph:
         self.links.append(link)
 
     def addNode(self, item, count, totalVotes):
-        if USE_PERCENT:
-            assert(isinstance(count, int))
-            label = item.name + " " + \
-                    str(round(count/totalVotes * 100, 2)) + "%"
-        elif self.numRounds == 1:
-            label = item.name + " ("+str(count)+" votes)"
-        else:
-            diff = count - self.lastStepNodes()[item].count
-            label = str(count)
+        label = str(item.name)
         color = item.color.asHex()
         node = NodeData(item, label, color, count, self.numRounds-1)
         self.nodes.append(node)

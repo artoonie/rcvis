@@ -10,6 +10,8 @@ class D3Sankey:
             nodeIndices[node] = i
             js += 'graph.nodes.push({ "name": "%s",\n' % node.label
             js += '                   "round": %d,\n' % node.stepNum
+            js += '                   "isWinner": %d,\n' % node.isWinner
+            js += '                   "isEliminated": %d,\n' % node.isEliminated
             js += '                   "color": "%s"});\n' % node.color
         for link in graph.links:
             sourceIndex = nodeIndices[link.source]

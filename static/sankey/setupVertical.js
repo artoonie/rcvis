@@ -18,5 +18,5 @@ function commaSeparate(d0, d1) { return d1 + "," + d0; }
 var nodeSize0 = 5;
 var avgNodeSize1 = 150;
 
-function textXPos(d) { return ddim0(d) / 2; }
-function textYPos(d) { return 20; }
+textXPos = 5;
+textYPos = 20;
