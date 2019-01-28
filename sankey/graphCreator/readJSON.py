@@ -136,13 +136,7 @@ class JSONReader():
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
                         winnerItem = items[winnerName]
-                        # Winner means that in the previous round,
-                        # we've reached enough votes. If there is no
-                        # previous round, it means that we won in this round.
-                        if steps:
-                            steps[-1].winners.append(winnerItem)
-                        else:
-                            step.winners.append(winnerItem)
+                        step.winners.append(winnerItem)
                     step.transfers.append(loadTransfer(tallyResults))
                 steps.append(step)
             return steps

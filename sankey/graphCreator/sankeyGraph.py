@@ -109,6 +109,5 @@ class Graph:
                                         targetNode = targetNode,
                                         value  = transferNumber)
         getLastRoundWinners()
-        if step.transfers:
-            getPassthroughVotes()
-            getTransferVotes()
+        getPassthroughVotes()
+        getTransferVotes()
