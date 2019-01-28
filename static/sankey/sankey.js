@@ -74,7 +74,6 @@ d3.sankey = function() {
            + "C" + commaSeparate(dim0_b, dim1_1-rminus)
            + " " + commaSeparate(dim0_a, dim1_0-rminus)
            + " " + commaSeparate(dim0_s, dim1_0-rminus)
-           + "Z" + commaSeparate(dim0_s, dim1_0-rminus)
     }
 
     link.curvature = function(_) {
