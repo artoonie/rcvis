@@ -37,6 +37,11 @@
   margin-left: 0px;
 }
 
+.roundLabels {
+  font-size: 3em;
+  opacity: 0.2;
+}
+
 </style>
 <body>
 
@@ -50,9 +55,9 @@
 {% load static %}
 
 <!-- for offline use (leave commented when you commit!) -->
-<!--<script src="{% static 'sankey/d3.v5.min.js' %}"></script>-->
+<script src="{% static 'sankey/d3.v5.min.js' %}"></script>
 <!-- for online use -->
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<!--<script src="https://d3js.org/d3.v5.min.js"></script>-->
 
 <script src="{% static 'sankey/sankey.js' %}"></script>
 <!-- change to setupHorizontal to rotate -->
@@ -72,8 +77,9 @@
 var units = "Votes";
 var nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, the more room you want to display connections.
 var linkPadding = 50
-var totalSize0 = numRounds * (nodeSize0 + nodePadding + linkPadding)
-var totalSize1 = Math.min(numCandidates,5)*150 + Math.max(numCandidates-5,0)*30
+var roundSize0 = nodeSize0 + nodePadding + linkPadding
+var totalSize0 = (numRounds) * roundSize0
+var totalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 
 // set the dimensions and margins of the graph
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
@@ -184,6 +190,22 @@ var node = svg.append("g").selectAll(".node")
     })
     .on("drag", dragmove));
 
+svg.append("g").selectAll(".roundLabels")
+    // TODO we shouldn't assume dim1 is at zero but
+    // this is the easiest way to get unique values
+    // and computing the height based on nodeSize0
+    // didn't work for some reason?
+  .data(graph.nodes.filter(function(d){return dim1(d) == 0;}))
+  .enter().append("text")
+  .attr("class", 'roundLabels' )
+  .attr("x", function(d) {
+        return avgNodeSize1 * 1.5
+   } )
+  .attr("y", function(d) {
+        return dim0(d) - roundSize0*0.2;
+   } )
+  .text(function(d) { return "Round " + d.round });
+
 // add the rectangles for the nodes
 node.append("rect")
   .attr(size1string(), function(d) { return ddim1(d); })
@@ -266,7 +288,7 @@ function notifyScrolled() {
     topbarDiv.classList.remove("sticky");
   }
   topbarDiv.style.left = x+"px"; 
-  var round = numRounds * (window.pageYOffset + tmarginLength)/totalSize0 - cmargin.top
+  var round = (window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
   round = Math.floor(round);
   round = Math.min(round, numRounds)
   round = Math.max(round - 1, 0)
