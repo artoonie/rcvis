@@ -27,11 +27,14 @@
 
 #topbar {
   background-color: white;
+  padding: 0px;
+  border: 0px;
 }
 
 .sticky {
   position: fixed;
-  top: 0;
+  top: 0px;
+  margin-left: 0px;
 }
 
 </style>
@@ -75,6 +78,7 @@ var totalSize1 = Math.min(numCandidates,5)*150 + Math.max(numCandidates-5,0)*30
 // set the dimensions and margins of the graph
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
+    tmarginLength = 40,
     size0 = totalSize0 + size0margin(cmargin),
     size1 = totalSize1 + size1margin(cmargin);
 
@@ -114,8 +118,7 @@ function hackCharsForWidth(width, text) {
     }
 }
 function getNodeLabelText(d) {
-    if(d.round==0)
-        return d.name;
+    return d.name;
 }
 function getNodeLabelTextTruncated(d) {
     return hackCharsForWidth(d.dx, d.name);
@@ -205,51 +208,71 @@ node.append("text")
     .call(d3.drag());
 
 // top bar
-var topbarDiv = d3.select('#topbar')
-var topbar = topbarDiv.append("svg")
-    .attr(size0string(), 40)
+var lastRound = -1;
+var topbarG = d3.select('#topbar').append("svg")
+    .attr(size0string(), tmarginLength)
     .attr(size1string(), size1)
     .attr("transform", 
           "translate(" + tmargin.left + "," + tmargin.top + ")")
-  .append("g")
-  .selectAll(".node")
-  .data(graph.nodes)
-.enter().append("g")
-  .filter(function(d) { return d.round == 0 })
-  .attr("transform", function(d) { 
-      commad = commaSeparate(0, dim1(d))
-      return "translate(" + commad + ")"; })
-  .attr(size1string(), function(d) { return ddim1(d); })
-  .attr(size0string(), sankey.nodeSize0())
-  .append("text")
-  .attr("x", textXPos )
-  .attr("y", 30 )
-  .attr("dy", ".35em")
-  .text(getNodeLabelTextTruncated)
-    .on('mouseover', function(d){
-        d3.select(this).text(getNodeLabelText);
-    })
-    .on('mouseout', function(d){
-        d3.select(this).text(getNodeLabelTextTruncated);
-    })
-    .call(d3.drag());
+    .append("g");
 
-window.onscroll = function() {myFunction()};
+function populateTopBarFor(round) {
+    lastRound = round;
+    var data = graph.nodes.filter(function(d){return d.round == round;});
+    var topbar = topbarG
+      .selectAll(".topbar_element")
+      .data(data, function(d) { return d; });
+
+    topbar.enter().append("g")
+      .attr('class', 'topbar_element')
+      .attr("transform", function(d) { 
+          commad = commaSeparate(0, dim1(d))
+          return "translate(" + commad + ")"; })
+      .attr(size1string(), function(d) { return ddim1(d); })
+      .attr(size0string(), sankey.nodeSize0())
+      .append("text")
+      .attr("x", 0 )
+      .attr("y", 30 )
+      .attr("dy", ".35em")
+      .text(getNodeLabelTextTruncated)
+        .on('mouseover', function(d){
+            d3.select(this).text(getNodeLabelText);
+        })
+        .on('mouseout', function(d){
+            d3.select(this).text(getNodeLabelTextTruncated);
+        })
+        .call(d3.drag());
+    topbar.exit().remove();
+
+}
+populateTopBarFor(0)
+
+window.onscroll = function() {notifyScrolled()};
 
 // Get the navbar
-var topbar = document.getElementById("topbar");
+var topbarDiv = document.getElementById("topbar");
+var body = d3.select('body')
 
 // Get the offset position of the navbar
-var sticky = topbar.offsetTop;
+var sticky = topbarDiv.offsetTop;
 
-function myFunction() {
-  var x = -(window.pageXOffset + textXPos);
+function notifyScrolled() {
+  // TODO this only supports vertical sankey mode
+  var bodyMargin = body.style.marginleft;
+  var x = -window.pageXOffset + bodyMargin;
   if (window.pageYOffset >= sticky) {
-    topbar.classList.add("sticky")
+    topbarDiv.classList.add("sticky")
   } else {
-    topbar.classList.remove("sticky");
+    topbarDiv.classList.remove("sticky");
   }
-  topbar.style.left = x+"px";
+  topbarDiv.style.left = x+"px"; 
+  var round = numRounds * (window.pageYOffset + tmarginLength)/totalSize0 - cmargin.top
+  round = Math.floor(round);
+  round = Math.min(round, numRounds)
+  round = Math.max(round - 1, 0)
+  if(round != lastRound) {
+      populateTopBarFor(round)
+  }
 }
 
 </script>
