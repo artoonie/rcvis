@@ -19,7 +19,7 @@ class D3Sankey:
             js += 'graph.links.push({ "source": %d,\n'       % sourceIndex
             js += '                   "target": %d,\n'       % targetIndex
             js += '                   "color": "%s",\n'      % link.color
-            js += '                   "value":  %0.2f });\n' % link.value
+            js += '                   "value":  %0.3f });\n' % link.value
         self.js = js
 
     def printJavascript(self):

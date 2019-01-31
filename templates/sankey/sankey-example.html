@@ -62,15 +62,13 @@
 <script src="{% static 'sankey/sankey.js' %}"></script>
 <!-- change to setupHorizontal to rotate -->
 <script src="{% static 'sankey/setupVertical.js' %}"></script>
+<script> {{ sankeyjs|safe }} </script>
 <script>
-{{ sankeyjs|safe }}
 
     // TODO
     // 1. how to mouseover <text> in the middle of the sankey?
     // 2. how to limit text with overflow:hidden or similar, instead of
     //      truncation (and are ellipses possible?)
-    // 3. how to keep a sticky bar at the top, and replace it as you
-    //      scroll based on what the topmost nodes are
 
 // Below are crazy heuristics to try to get the graph to look good
 // on a variety of sizes.
@@ -135,16 +133,15 @@ function textForNode(d) {
         s += "❌ " ;
     if(d.isWinner)
         s += "✅ " ;
-    s += ""+d.value;
+    s += ""+Math.round(d.value*100)/100.0;
     return s;
 }
 
 function getNodeValueText(d) {
-    func = getTruncationFunction()
-    return func(d.value, textForNode(d))
+    return textForNode(d)
 }
 function getNodeValueTextTruncated(d) {
-    return hackCharsForWidth(d.value, textForNode(d))
+    return hackCharsForWidth(d.dx, textForNode(d))
 }
 // Set the sankey diagram properties
 var sankey = d3.sankey()
@@ -216,17 +213,18 @@ node.append("rect")
       return d.name + "\n" + format(d.value); });
 
 // add in the title for the nodes
-node.append("text")
+node.append('g').append("text")
   .attr("x", textXPos )
   .attr("y", textYPos )
   .attr("dy", ".35em")
+  .style("pointer-events", "all")
   .text(getNodeValueTextTruncated)
-    .on('mouseover', function(d){
-        d3.selectAll("text").text(getNodeLabelText);
-    })
-    .on('mouseout', function(d){
-        d3.selectAll("text").text(getNodeLabelTextTruncated);
-    })
+      .on('mouseover', function(d){
+          d3.select(this).text(getNodeValueText);
+      })
+      .on('mouseout', function(d){
+          d3.select(this).text(getNodeValueTextTruncated);
+      })
     .call(d3.drag());
 
 // top bar
@@ -267,20 +265,15 @@ function populateTopBarFor(round) {
     topbar.exit().remove();
 
 }
-populateTopBarFor(0)
 
-window.onscroll = function() {notifyScrolled()};
-
-// Get the navbar
-var topbarDiv = document.getElementById("topbar");
-var body = d3.select('body')
-
-// Get the offset position of the navbar
-var sticky = topbarDiv.offsetTop;
+function getBodyMarginInt() {
+    var style = window.getComputedStyle(document.body);
+    var bodyMargin = style.getPropertyValue('margin-left');
+    return parseInt(bodyMargin, 10);
+}
 
 function notifyScrolled() {
   // TODO this only supports vertical sankey mode
-  var bodyMargin = body.style.marginleft;
   var x = -window.pageXOffset + bodyMargin;
   if (window.pageYOffset >= sticky) {
     topbarDiv.classList.add("sticky")
@@ -296,6 +289,14 @@ function notifyScrolled() {
       populateTopBarFor(round)
   }
 }
+
+window.onscroll = function() {notifyScrolled()};
+
+// Initialization
+var topbarDiv = document.getElementById("topbar");
+var sticky = topbarDiv.offsetTop;
+var bodyMargin = getBodyMarginInt()
+populateTopBarFor(0)
 
 </script>
 
