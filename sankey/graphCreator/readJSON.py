@@ -122,6 +122,7 @@ class JSONReader():
             # Non-winners and non-eliminated go next
             for winner in winners:
                 itemsRemaining.remove(winner)
+            winners = reversed(winners)
 
             eliminationOrder.extend(itemsRemaining)
             eliminationOrder.extend(winners)
