@@ -78,12 +78,12 @@ class JSONReader():
 
             palette = ColorGenerator(len(itemNames))
 
-            totalVotes = sum([int(i[1]) for i in itemNames])
+            totalVotes = sum([float(i[1]) for i in itemNames])
             for name, initialVotes in itemNames:
                 color = rcvResult.Color(next(palette))
                 item = rcvResult.Item(name, color)
                 items[name] = item
-                graph.addNode(item, int(initialVotes), totalVotes)
+                graph.addNode(item, float(initialVotes), totalVotes)
             return items
 
         def loadTransfer(tallyResults):
@@ -93,7 +93,7 @@ class JSONReader():
                 if toName == "exhausted":
                     # Ignoring exhausted votes for now
                     continue
-                transfersByItem[items[toName]] = int(float(numTransferred))
+                transfersByItem[items[toName]] = float(numTransferred)
 
             if 'eliminated' in tallyResults:
                 nameEliminated = tallyResults['eliminated']

@@ -16,10 +16,10 @@ class D3Sankey:
         for link in graph.links:
             sourceIndex = nodeIndices[link.source]
             targetIndex = nodeIndices[link.target]
-            js += 'graph.links.push({ "source": %d,\n'    % sourceIndex
-            js += '                   "target": %d,\n'    % targetIndex
-            js += '                   "color": "%s",\n'   % link.color
-            js += '                   "value":  %d });\n' % link.value
+            js += 'graph.links.push({ "source": %d,\n'       % sourceIndex
+            js += '                   "target": %d,\n'       % targetIndex
+            js += '                   "color": "%s",\n'      % link.color
+            js += '                   "value":  %0.2f });\n' % link.value
         self.js = js
 
     def printJavascript(self):
