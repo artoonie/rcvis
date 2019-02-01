@@ -15,6 +15,7 @@ def index(request):
         d3Sankey = D3Sankey(graph)
         return render(request, 'sankey/sankey-example.html', {
             'title': graph.title,
+            'date': graph.dateString,
             'sankeyjs': d3Sankey.js
         })
     else:

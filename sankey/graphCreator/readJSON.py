@@ -1,3 +1,4 @@
+import datetime
 import math
 import json
 
@@ -66,9 +67,23 @@ class JSONReader():
         def migrateData(data):
             JSONMigration(data)
 
+        def parseDate(date):
+            if not date:
+                return None
+            yr  = int(date[0:4])
+            mo  = int(date[5:7])
+            day = int(date[8:10])
+            return datetime.datetime(yr, mo, day)
+
         def loadGraph(data):
             title = data['config']['contest']
+            date = parseDate(data['config']['date'])
+
             graph = sankeyGraph.Graph(title)
+
+            if date is not None:
+                graph.setDate(date)
+
             return graph
 
         def initializeMembers(data, graph):

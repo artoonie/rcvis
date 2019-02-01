@@ -1,3 +1,5 @@
+import datetime
+
 from . import rcvResult
 
 # Toggle to show percentages instead of absolute votes.
@@ -32,10 +34,15 @@ class Graph:
         self.title = title
         self.nodes = []
         self.links = []
+        self.dateString = ""
 
         self.numRounds = 1
         self.nodesPerRound = [{}]
         self.winnersSoFar = []
+
+    def setDate(self, date):
+        assert isinstance(date, datetime.datetime)
+        self.dateString = datetime.date.strftime(date, format='%A, %B %-d, %Y')
 
     def currStepNodes(self):
         return self.nodesPerRound[self.numRounds-1]
