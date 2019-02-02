@@ -2,6 +2,7 @@ d3.sankey = function() {
   var sankey = {},
       nodeSize0 = 24,
       nodePadding = 8,
+      minNodeSize = 6,
       size = [1, 1],
       nodes = [],
       links = [];
@@ -41,6 +42,8 @@ d3.sankey = function() {
     computeNodeValues();
     computeNodeBreadths();
     computeNodeDepths(iterations);
+    computeNodeLinks();
+    setNodeMinSize1(minNodeSize);
     computeLinkDepths();
     return sankey;
   };
@@ -62,7 +65,7 @@ d3.sankey = function() {
           dim1_0 = dim1(d.source) + d.sdim1 + ddim1(d) / 2,
           dim1_1 = dim1(d.target) + d.tdim1 + ddim1(d) / 2;
       r = ddim1(d) / 2
-      rminus = Math.max(r, 3)
+      rminus = r
       rplus =  r
       // TODO on the outgoing edge, this doesn't line up
       // and the line is drawn outside 
@@ -256,6 +259,21 @@ d3.sankey = function() {
     function ascendingDepth(a, b) {
       return dim1(a) - dim1(b);
     }
+  }
+
+  function setNodeMinSize1(size1) {
+    nodes.forEach(function(node) {
+        if(ddim1(node) < size1) {
+            set_dim1(node, dim1(node))
+            set_ddim1(node, size1)
+        }
+        node.targetLinks.forEach(function(link) {
+          set_ddim1(link, Math.max(ddim1(link), size1));
+        });
+        node.sourceLinks.forEach(function(link) {
+          set_ddim1(link, Math.max(ddim1(link), size1));
+        });
+    })
   }
 
   function computeLinkDepths() {
