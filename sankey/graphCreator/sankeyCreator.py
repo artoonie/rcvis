@@ -2,8 +2,13 @@
 from .readJSON import JSONReader
 from . import graphToD3
 
-def makeGraphWithFile(fn):
-    jsonReader = JSONReader(fn)
+class SankeyConfig():
+    hideTransferlessRounds = False
+    hideDecimals = False
+
+def makeGraphWithFile(fn, config):
+    assert isinstance(config, SankeyConfig)
+    jsonReader = JSONReader(fn, config)
     sankeyGraph = jsonReader.getGraph()
     steps = jsonReader.getSteps()
     eliminationOrder = jsonReader.getEliminationOrder()

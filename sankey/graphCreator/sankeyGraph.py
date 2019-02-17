@@ -100,6 +100,7 @@ class Graph:
                 nodesThisRound[item] = self.addNode(item, votes, totalVotes)
                 if item in self.winnersSoFar:
                     nodesThisRound[item].markWinner()
+                    nodesLastRound[item].markWinner()
 
                 self.addConnection(sourceNode = nodesLastRound[item],
                                    targetNode = nodesThisRound[item],

@@ -6,17 +6,24 @@ from . import colors
 from . import sankeyGraph
 from . import rcvResult
 
-class JSONMigration():
-    """ Correct data inconsistencies in the JSON upfront,
-        rather than intermixing this code throughout the parser. """
-    def __init__(self, data):
-        self.fixUndeclaredUWI(data)
-        self.fixNoTransfers(data)
+class JSONMigrateTask():
+    def __init__(self, jsonData):
+        self.data = jsonData
 
-    def fixUndeclaredUWI(self, data):
+    def _enumerateTallyResults(self):
+        results = self.data['results']
+        for result in results:
+            for tallyResult in result['tallyResults']:
+                yield tallyResult
+
+    def do(self):
+        assert False
+
+class FixUndeclaredUWITask(JSONMigrateTask):
+    def do(self):
         """ Undeclared votes are sometimes marked as 'UWI' instead 
             of 'Undeclared' """
-        results = data['results']
+        results = self.data['results']
 
         firstEliminated = []
         firstTally = results[0]['tallyResults']
@@ -31,12 +38,58 @@ class JSONMigration():
             firstTally['Undeclared'] = firstTally['UWI']
             del firstTally['UWI']
 
-    def fixNoTransfers(self, data):
-        results = data['results']
+class FixNoTransfersTask(JSONMigrateTask):
+    def do(self):
+        for tallyResult in self._enumerateTallyResults():
+            if 'transfers' not in tallyResult:
+                tallyResult['transfers'] = {}
+
+class HideDecimalsTask(JSONMigrateTask):
+    def do(self):
+        results = self.data['results']
         for result in results:
-            for tallyResult in result['tallyResults']:
-                if 'transfers' not in tallyResult:
-                    tallyResult['transfers'] = {}
+            tally = result['tally']
+            for name in tally:
+                tally[name] = round(float(tally[name]))
+
+        for tallyResult in self._enumerateTallyResults():
+            xfers = tallyResult['transfers']
+            for name in xfers:
+                xfers[name] = round(float(xfers[name]))
+
+class HideTransferlessRoundsTask(JSONMigrateTask):
+    def _isTransferlessRound(self, tallyResults):
+        for tallyResult in tallyResults:
+            if tallyResult['transfers']:
+                return False
+        return True
+
+    def do(self):
+        i = 0
+        rounds = self.data['results']
+        while i < len(rounds):
+            result = rounds[i]
+            currRoundResults = result['tallyResults']
+            if self._isTransferlessRound(currRoundResults):
+                if i == 0:
+                    rounds[i+1]['tallyResults'].extend(currRoundResults)
+                else:
+                    rounds[i-1]['tallyResults'].extend(currRoundResults)
+                rounds = rounds[:i] + rounds[i+1:]
+            else:
+                i += 1
+        self.data['results'] = rounds
+        # fix round #
+        for i in range(len(rounds)):
+            rounds[i]['round'] = i+1
+        print(json.dumps(self.data, indent=4, sort_keys=True))
+
+class JSONMigration():
+    """ Correct data inconsistencies in the JSON upfront,
+        rather than intermixing this code throughout the parser. """
+    def __init__(self, data):
+        self.fixUndeclaredUWI(data)
+        self.fixNoTransfers(data)
 
 class ColorGenerator():
     def __init__(self, totalToGenerate):
@@ -59,13 +112,20 @@ class ColorGenerator():
         return colors.lab2rgb(lab)
     
 class JSONReader():
-    def __init__(self, fileObj):
+    def __init__(self, fileObj, config):
         def loadData(fileObj):
             data = json.load(fileObj)
             return data
 
-        def migrateData(data):
-            JSONMigration(data)
+        def loadMigrationTasks(data):
+            self.tasks.append(FixNoTransfersTask)
+            self.tasks.append(FixUndeclaredUWITask)
+
+        def loadConfigurationTasks(data, config):
+            if config.hideTransferlessRounds:
+                self.tasks.append(HideTransferlessRoundsTask)
+            if config.hideDecimals:
+                self.tasks.append(HideDecimalsTask)
 
         def parseDate(date):
             if not date:
@@ -129,14 +189,13 @@ class JSONReader():
                         continue
                     eliminationOrder.append(elimination.item)
                     itemsRemaining.remove(elimination.item)
+
             # Winners are added last
             winners = []
             for step in steps:
                 for winner in step.winners:
                     winners.append(winner)
-            # Non-winners and non-eliminated go next
-            for winner in winners:
-                itemsRemaining.remove(winner)
+                    itemsRemaining.remove(winner)
             winners = reversed(winners)
 
             eliminationOrder.extend(itemsRemaining)
@@ -158,7 +217,14 @@ class JSONReader():
             return steps
 
         data = loadData(fileObj)
-        migrateData(data)
+
+        # Apply migrations and configuration adjustments
+        self.tasks = []
+        loadMigrationTasks(data)
+        loadConfigurationTasks(data, config)
+        for task in self.tasks:
+            task(data).do()
+
         graph = loadGraph(data)
         items = initializeMembers(data, graph)
         steps = loadSteps(data)

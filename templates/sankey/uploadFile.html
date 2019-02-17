@@ -3,6 +3,13 @@
 {% block content %}
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+    Visualization options:
+    <br/>
+    <input type="checkbox" name="combineWinner"> Combine winner-only rounds with the previous transfer round?
+    <br/>
+    <input type="checkbox" name="hideDecimals"> Hide decimal places?
+    <br/>
+    <br/>
     <input type="file" name="myfile" accept='application/json'>
     <button type="submit">Upload</button>
   </form>
