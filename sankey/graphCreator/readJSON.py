@@ -107,7 +107,7 @@ class ColorGenerator():
         r = 100
         a = r * math.sin(2 * math.pi * v)
         b = r * math.cos(2 * math.pi * v)
-        lab = [32, a, b]
+        lab = [80, a, b]
         self.curr += 1
         return colors.lab2rgb(lab)
     
