@@ -31,6 +31,11 @@
   border: 0px;
 }
 
+.topbar_element text {
+    stroke: white;
+    stroke-width: 0.002em;
+}
+
 .sticky {
   position: fixed;
   top: 0px;
@@ -78,14 +83,18 @@ var nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, th
 var linkPadding = 50
 var roundSize0 = nodeSize0 + nodePadding + linkPadding
 var totalSize0 = (numRounds) * roundSize0
-var totalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
+var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
+var size1TopbarTextPadding = 300; // allow room for long text on last candidate
 
 // set the dimensions and margins of the graph
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
     tmarginLength = 40,
     size0 = totalSize0 + size0margin(cmargin),
-    size1 = totalSize1 + size1margin(cmargin);
+    hackExtraPadding = numCandidates*30, // we need extra room because the
+                                         // ideal size may not be the actual size
+                                         // once all the nodes are expanded to their minimum sizes
+    size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
 
 function hackCharsForWidth(width, text) {
     // TODO this assumes characters are 13px wide...yikes
@@ -136,7 +145,7 @@ function makeGraph(graph) {
     var sankey = d3.sankey()
         .nodeSize0(nodeSize0)
         .nodePadding(nodePadding)
-        .size([0, totalSize1]);
+        .size([0, idealTotalSize1]);
 
     var path = sankey.link();
 
@@ -216,8 +225,9 @@ function makeGraph(graph) {
           return d.name + "\n" + format(d.value); });
 
     // add in the title for the nodes
+    var SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN = 100;
     node.append('g').append("text")
-      .attr("x", textXPos )
+      .attr("x", function(d) { if(ddim1(d) > SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN) return textXPos; return -3; } ) // small nodes shouldn't be shifted to save space
       .attr("y", textYPos )
       .attr("dy", ".35em")
       .style("pointer-events", "all")
@@ -235,7 +245,7 @@ function makeTopBar(graph) {
     var lastRound = -1;
     var topbarG = d3.select('#topbar').append("svg")
         .attr(size0string(), tmarginLength)
-        .attr(size1string(), size1)
+        .attr(size1string(), size1+size1TopbarTextPadding)
         .attr("transform", 
               "translate(" + tmargin.left + "," + tmargin.top + ")")
         .append("g");
@@ -301,7 +311,7 @@ var topbarDiv = document.getElementById("topbar");
 var sticky = topbarDiv.offsetTop;
 var bodyMargin = getBodyMarginInt()
 makeGraph(graph);
-topbarG = makeTopBar(graph);
+var topbarG = makeTopBar(graph);
 populateTopBarFor(topbarG, 0)
 
 </script>
