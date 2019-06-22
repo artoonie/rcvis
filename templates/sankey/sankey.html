@@ -86,11 +86,13 @@ var totalSize0 = (numRounds) * roundSize0
 var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 var size1TopbarTextPadding = 300; // allow room for long text on last candidate
 
+var ESTIMATED_CHAR_WIDTH = 13; // yikes this is not correct
+
 // set the dimensions and margins of the graph
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
 {% if config.rotateNames %}
-    tmarginLength = 5 * longestLabelChars,
+    tmarginLength = ESTIMATED_CHAR_WIDTH*.7071067 * longestLabelChars,
     rotationOffset = tmarginLength*.7071067,
 {% else %}
     tmarginLength = 40,
@@ -102,8 +104,7 @@ var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
 
 function hackCharsForWidth(width, text) {
-    // TODO this assumes characters are 13px wide...yikes
-    var length = width/13
+    var length = width/ESTIMATED_CHAR_WIDTH
     if(length >= text.length - 3) {
         return text;
     } else {
