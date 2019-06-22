@@ -89,7 +89,12 @@ var size1TopbarTextPadding = 300; // allow room for long text on last candidate
 // set the dimensions and margins of the graph
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
+{% if config.rotateNames %}
+    tmarginLength = 5 * longestLabelChars,
+    rotationOffset = tmarginLength*.7071067,
+{% else %}
     tmarginLength = 40,
+{% endif %}
     size0 = totalSize0 + size0margin(cmargin),
     hackExtraPadding = numCandidates*30, // we need extra room because the
                                          // ideal size may not be the actual size
@@ -247,7 +252,8 @@ function makeTopBar(graph) {
         .attr(size0string(), tmarginLength)
         .attr(size1string(), size1+size1TopbarTextPadding)
         .attr("transform", 
-              "translate(" + tmargin.left + "," + tmargin.top + ")")
+              "translate(" + tmargin.left + "," + tmargin.top + ")" ,
+        )
         .append("g");
     return topbarG;
 }
@@ -267,6 +273,12 @@ function populateTopBarFor(topbarG, round) {
       .attr(size1string(), function(d) { return ddim1(d); })
       .attr(size0string(), nodeSize0)
       .append("text")
+      {% if config.rotateNames %}
+      .attr("dx", -rotationOffset + 5)
+      .attr("dy", rotationOffset + 5)
+      .attr("transform", "rotate(-45)")
+      .text(getNodeLabelText)
+      {% else %}
       .attr("x", 0 )
       .attr("y", 30 )
       .attr("dy", ".35em")
@@ -278,6 +290,7 @@ function populateTopBarFor(topbarG, round) {
             d3.select(this).text(getNodeLabelTextTruncated);
         })
         .call(d3.drag());
+      {% endif %}
     topbar.exit().remove();
 }
 

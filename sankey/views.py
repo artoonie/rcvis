@@ -15,12 +15,14 @@ def display(request):
         config = SankeyConfig();
         config.hideDecimals = request.POST.get('hideDecimals', False)
         config.hideTransferlessRounds = request.POST.get('combineWinner', False)
+        config.rotateNames = request.POST.get('rotateNames', False)
         graph = makeGraphWithFile(sankeyJson.file, config)
         d3Sankey = D3Sankey(graph)
 
         return render(request, 'sankey/sankey.html', {
             'title': graph.title,
             'date': graph.dateString,
+            'config': config,
             'sankeyjs': d3Sankey.js
         })
         return render(request, 'sankey/uploadFile.html', {'form': form})

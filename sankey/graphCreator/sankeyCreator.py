@@ -5,6 +5,7 @@ from . import graphToD3
 class SankeyConfig():
     hideTransferlessRounds = False
     hideDecimals = False
+    rotateNames = False
 
 def makeGraphWithFile(fn, config):
     assert isinstance(config, SankeyConfig)

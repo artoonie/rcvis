@@ -1,8 +1,10 @@
 class D3Sankey:
     def __init__(self, graph):
+        longestLabelChars = max([len(n.label) for n in graph.nodesPerRound[0].values()])
         js = ''
         js += 'numRounds = %d;\n' % graph.numRounds
         js += 'numCandidates = %d;\n' % len(graph.nodesPerRound[0])
+        js += 'longestLabelChars = %d;\n' % longestLabelChars
         js += 'graph = {"nodes" : [], "links" : []};\n'
 
         nodeIndices = {}
