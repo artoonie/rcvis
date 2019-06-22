@@ -1,18 +1,40 @@
 {% load static %}
 
+<head>
+<link rel="stylesheet" type="text/css" href="{% static 'sankey/style.css' %}">
+</head>
+
+<script>
+function handleFiles(files)
+{
+  document.getElementById("selectFileButton").innerHTML = files[0].name
+}
+</script>
+
 {% block content %}
-  <form method="post" enctype="multipart/form-data">
+  <div class="content">
+  <form action="display.html" enctype="multipart/form-data" method="post" id="form">
     {% csrf_token %}
-    Visualization options:
-    <br/>
-    <input type="checkbox" name="combineWinner"> Combine winner-only rounds with the previous transfer round?
-    <br/>
-    <input type="checkbox" name="hideDecimals"> Hide decimal places?
-    <br/>
-    <br/>
-    <input type="file" name="myfile" accept='application/json'>
-    <button type="submit">Upload</button>
+ 	<div class="formArea">
+      Visualization options:
+	  <div class="options">
+        <label><input type="checkbox" name="combineWinner"/> Combine winner-only rounds with the previous transfer round</label>
+        <br/>
+        <label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
+	  </p>
+	  <br/>
+
+ 	  <div class="selectFileButtonWrapper">
+  	    <button id="selectFileButton">Click to select a file</button>
+	    <input type="file" class="selectFileDefaultInput" name="sankeyJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+	  </div>
+
+ 	  <div id="submitDiv">
+        <button type="submit" class="submitButton">Upload</button>
+	  </div>
+    </p>
   </form>
+  </div>
 
   {% if uploaded_file_url %}
     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
