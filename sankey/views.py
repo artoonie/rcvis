@@ -18,7 +18,7 @@ def display(request):
         graph = makeGraphWithFile(sankeyJson.file, config)
         d3Sankey = D3Sankey(graph)
 
-        return render(request, 'sankey/sankey-example.html', {
+        return render(request, 'sankey/sankey.html', {
             'title': graph.title,
             'date': graph.dateString,
             'sankeyjs': d3Sankey.js
