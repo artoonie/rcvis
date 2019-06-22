@@ -1,15 +1,11 @@
 # import graphToPlotly
+from sankey.models import JsonConfig
 from .readJSON import JSONReader
 from . import graphToD3
 
-class SankeyConfig():
-    hideTransferlessRounds = False
-    hideDecimals = False
-    rotateNames = False
-
-def makeGraphWithFile(fn, config):
-    assert isinstance(config, SankeyConfig)
-    jsonReader = JSONReader(fn, config)
+def makeGraphWithFile(config):
+    assert isinstance(config, JsonConfig)
+    jsonReader = JSONReader(config.jsonFile, config)
     sankeyGraph = jsonReader.getGraph()
     steps = jsonReader.getSteps()
     eliminationOrder = jsonReader.getEliminationOrder()

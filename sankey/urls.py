@@ -4,5 +4,6 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('display.html', views.display, name='display'),
+    path('upload.html', views.upload, name='upload'),
+    path('display=<rcvresult>', views.display, name='display')
 ]
