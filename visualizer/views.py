@@ -2,18 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import UploadFileForm
 
 from .models import JsonConfig
-from .graphCreator.sankeyCreator import makeGraphWithFile
-from .graphCreator.graphToD3 import D3Sankey
+from .sankey.graphToD3 import D3Sankey
+from .sankey.sankeyCreator import makeGraphWithFile
 
 def index(request):
     form = UploadFileForm()
-    return render(request, 'sankey/uploadFile.html', {'form': form})
+    return render(request, 'visualizer/uploadFile.html', {'form': form})
 
 def upload(request):
-    if request.method == 'POST' and request.FILES.get('sankeyJson'):
-        sankeyJson = request.FILES['sankeyJson']
+    if request.method == 'POST' and request.FILES.get('rcvJson'):
+        visualizerJson = request.FILES['rcvJson']
 
-        config = JsonConfig(jsonFile=sankeyJson)
+        config = JsonConfig(jsonFile=visualizerJson)
         config.hideDecimals = request.POST.get('hideDecimals', False) == "on"
         config.hideTransferlessRounds = request.POST.get('combineWinner', False) == "on"
         config.rotateNames = request.POST.get('rotateNames', False) == "on"

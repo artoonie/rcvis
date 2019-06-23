@@ -1,7 +1,7 @@
 {% load static %}
 
 <head>
-<link rel="stylesheet" type="text/css" href="{% static 'sankey/style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'visualizer/style.css' %}">
 </head>
 
 <script>
@@ -28,7 +28,7 @@ function handleFiles(files)
 
  	  <div class="selectFileButtonWrapper">
   	    <button id="selectFileButton">Click to select a file</button>
-	    <input type="file" class="selectFileDefaultInput" name="sankeyJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+	    <input type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
 	  </div>
 
  	  <div id="submitDiv">

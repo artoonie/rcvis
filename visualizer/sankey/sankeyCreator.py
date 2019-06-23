@@ -1,6 +1,6 @@
 # import graphToPlotly
-from sankey.models import JsonConfig
-from .readJSON import JSONReader
+from visualizer.models import JsonConfig
+from visualizer.graphCreator.readJSON import JSONReader
 from . import graphToD3
 
 def makeGraphWithFile(config):
