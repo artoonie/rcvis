@@ -92,7 +92,7 @@ var ESTIMATED_CHAR_WIDTH = 13; // yikes this is not correct
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
 {% if config.rotateNames %}
-    tmarginLength = ESTIMATED_CHAR_WIDTH*.7071067 * longestLabelChars,
+    tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5, // +5 handles one-char names well
     rotationOffset = tmarginLength*.7071067,
 {% else %}
     tmarginLength = 40,
