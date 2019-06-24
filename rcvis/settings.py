@@ -26,6 +26,8 @@ SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
 DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 
 ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
+if 'RCVIS_HOST_ALIAS' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
 
 
 # Application definition
