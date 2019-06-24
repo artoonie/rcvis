@@ -3,6 +3,7 @@ from .forms import UploadFileForm
 
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
+from .bargraph.graphToD3 import D3Bargraph
 from .sankey.sankeyCreator import makeGraphWithFile
 
 def index(request):
@@ -26,11 +27,11 @@ def upload(request):
         context = {
             'rcvresult': config.slug
         }
-        return redirect('display', rcvresult=config.slug);
+        return redirect('sankey', rcvresult=config.slug);
     else:
         return redirect('index')
 
-def display(request, rcvresult):
+def displaySankey(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
     graph = makeGraphWithFile(config)
@@ -40,4 +41,16 @@ def display(request, rcvresult):
         'date': graph.dateString,
         'config': config,
         'sankeyjs': d3Sankey.js
+    })
+
+def displayBargraph(request, rcvresult):
+    config = get_object_or_404(JsonConfig, slug=rcvresult)
+
+    graph = makeGraphWithFile(config)
+    d3Bargraph = D3Bargraph(graph)
+    return render(request, 'bargraph/bargraph.html', {
+        'title': graph.title,
+        'date': graph.dateString,
+        'config': config,
+        'bargraphjs': d3Bargraph.js
     })

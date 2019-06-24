@@ -90,26 +90,6 @@ class JSONMigration():
     def __init__(self, data):
         self.fixUndeclaredUWI(data)
         self.fixNoTransfers(data)
-
-class ColorGenerator():
-    def __init__(self, totalToGenerate):
-        self.total = totalToGenerate
-        self.curr = 0
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        # c/o https://stackoverflow.com/a/30296361/1057105
-        if self.curr >= self.total:
-            raise StopIteration
-        v = self.curr / self.total # [0, 1]
-        r = 100
-        a = r * math.sin(2 * math.pi * v)
-        b = r * math.cos(2 * math.pi * v)
-        lab = [80, a, b]
-        self.curr += 1
-        return colors.lab2rgb(lab)
     
 class JSONReader():
     def __init__(self, fileObj, config):
@@ -151,11 +131,11 @@ class JSONReader():
             round0 = data['results'][0]
             itemNames = round0['tally'].items()
 
-            palette = ColorGenerator(len(itemNames))
+            palette = colors.ColorGenerator(len(itemNames))
 
             totalVotes = sum([float(i[1]) for i in itemNames])
             for name, initialVotes in itemNames:
-                color = rcvResult.Color(next(palette))
+                color = colors.Color(next(palette))
                 item = rcvResult.Item(name, color)
                 items[name] = item
                 graph.addNode(item, float(initialVotes), totalVotes)

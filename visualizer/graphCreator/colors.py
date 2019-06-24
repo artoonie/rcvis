@@ -1,3 +1,42 @@
+import math
+
+class Color:
+    def __init__(self, rgbAsFloat):
+        assert(all([x<=1 and x>=0 for x in rgbAsFloat]))
+        self.rgb = rgbAsFloat
+
+    def asHex(self):
+        rgbInt = [int(c*255) for c in self.rgb]
+        # c/o https://stackoverflow.com/a/3380739
+        return '#%02x%02x%02x' % (rgbInt[0], rgbInt[1], rgbInt[2])
+
+    @classmethod
+    def interpolate(cls, color0, color1, alpha):
+        rgb = []
+        for i in range(len(color0.rgb)):
+            rgb.append((1-alpha)*color0.rgb[i] + alpha*color1.rgb[i])
+        return Color(rgb)
+
+class ColorGenerator():
+    def __init__(self, totalToGenerate):
+        self.total = totalToGenerate
+        self.curr = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        # c/o https://stackoverflow.com/a/30296361/1057105
+        if self.curr >= self.total:
+            raise StopIteration
+        v = self.curr / self.total # [0, 1]
+        r = 100
+        a = r * math.sin(2 * math.pi * v)
+        b = r * math.cos(2 * math.pi * v)
+        lab = [80, a, b]
+        self.curr += 1
+        return lab2rgb(lab)
+
 # Converted from the Javascript at
 # https://github.com/antimatter15/rgb-lab/blob/master/color.js
 # which in turn was based off the psuedocode at
