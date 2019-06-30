@@ -1,61 +1,6 @@
-<!DOCTYPE html>
-<meta charset="utf-8">
-<title>{{ title }}</title>
-<style>
-
-.node rect {
-  cursor: move;
-  fill-opacity: .9;
-  shape-rendering: crispEdges;
-}
-
-.node text {
-  pointer-events: none;
-  text-shadow: white 0px 1px 10px, gray 0px 0px 3px;
-
-}
-
-.link {
-  fill: #000;
-  stroke: none;
-  fill-opacity: .5;
-}
-
-.link:hover {
-  fill-opacity: 1.0;
-}
-
-#topbar {
-  background-color: white;
-  padding: 0px;
-  border: 0px;
-}
-
-.topbar_element text {
-    stroke: white;
-    stroke-width: 0.002em;
-}
-
-.sticky {
-  position: fixed;
-  top: 0px;
-  margin-left: 0px;
-}
-
-.roundLabels {
-  font-size: 3em;
-  opacity: 0.2;
-}
-
-</style>
-<body>
-
-<h1>{{ title }}</h1>
-<h3>{{ date }}</h3>
-
-<div id="topbar">
-</div>
-<div id="content">
+<div id="sankey-body">
+    <div id="topbar"></div>
+    <div id="content"></div>
 </div>
 
 {% load static %}
@@ -73,8 +18,6 @@
 
     // TODO
     // 1. how to mouseover <text> in the middle of the sankey?
-    // 2. how to limit text with overflow:hidden or similar, instead of
-    //      truncation (and are ellipses possible?)
 
 // Below are crazy heuristics to try to get the graph to look good
 // on a variety of sizes.
@@ -85,6 +28,7 @@ var roundSize0 = nodeSize0 + nodePadding + linkPadding
 var totalSize0 = (numRounds) * roundSize0
 var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 var size1TopbarTextPadding = 300; // allow room for long text on last candidate
+var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
 
 var ESTIMATED_CHAR_WIDTH = 13; // yikes this is not correct
 
@@ -140,7 +84,7 @@ function makeGraph(graph) {
         format = function(d) { return formatNumber(d) + " " + units; };
 
     // append the svg object to the body of the page
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#sankey-body").append("svg")
         .attr(size0string(), size0 + size0margin(cmargin))
         .attr(size1string(), size1 + size1margin(cmargin))
       .append("g")
@@ -322,12 +266,10 @@ function notifyScrolled() {
 window.onscroll = function() {notifyScrolled()};
 
 var topbarDiv = document.getElementById("topbar");
-var sticky = topbarDiv.offsetTop;
+var sticky = topbarDiv.offsetTop + heightUntilSticky;
 var bodyMargin = getBodyMarginInt()
 makeGraph(graph);
 var topbarG = makeTopBar(graph);
 populateTopBarFor(topbarG, 0)
 
 </script>
-
-</body>

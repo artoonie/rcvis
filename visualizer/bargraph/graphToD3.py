@@ -93,7 +93,6 @@ class D3Bargraph:
         colors = [Color(next(palette)).asHex() for i in range(numRounds)]
 
         longestLabelApxWidth = max([approxLength(n.label) for n in graph.nodesPerRound[0].values()])
-        print(longestLabelApxWidth)
 
         js = f'var data = {candidatesJs};'
         js += f'\nvar candidatesRange = {list(rounds)};'

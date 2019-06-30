@@ -27,7 +27,7 @@ def upload(request):
         context = {
             'rcvresult': config.slug
         }
-        return redirect('sankey', rcvresult=config.slug);
+        return redirect('visualize', rcvresult=config.slug);
     else:
         return redirect('index')
 
@@ -53,4 +53,18 @@ def displayBargraph(request, rcvresult):
         'date': graph.dateString,
         'config': config,
         'bargraphjs': d3Bargraph.js
+    })
+
+def visualize(request, rcvresult):
+    config = get_object_or_404(JsonConfig, slug=rcvresult)
+
+    graph = makeGraphWithFile(config)
+    d3Bargraph = D3Bargraph(graph)
+    d3Sankey = D3Sankey(graph)
+    return render(request, 'visualizer/visualize.html', {
+        'title': graph.title,
+        'date': graph.dateString,
+        'config': config,
+        'bargraphjs': d3Bargraph.js,
+        'sankeyjs': d3Sankey.js
     })

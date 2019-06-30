@@ -1,0 +1,43 @@
+.node rect {
+  cursor: move;
+  fill-opacity: .9;
+  shape-rendering: crispEdges;
+}
+
+.node text {
+  pointer-events: none;
+  text-shadow: white 0px 1px 10px, gray 0px 0px 3px;
+
+}
+
+.link {
+  fill: #000;
+  stroke: none;
+  fill-opacity: .5;
+}
+
+.link:hover {
+  fill-opacity: 1.0;
+}
+
+#topbar {
+  background-color: white;
+  padding: 0px;
+  border: 0px;
+}
+
+.topbar_element text {
+    stroke: white;
+    stroke-width: 0.002em;
+}
+
+.sticky {
+  position: fixed;
+  top: 0px;
+  margin-left: 0px;
+}
+
+.roundLabels {
+  font-size: 3em;
+  opacity: 0.2;
+}

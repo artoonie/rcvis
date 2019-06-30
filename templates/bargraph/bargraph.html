@@ -1,32 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>d3.js learning</title>
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-  <style type="text/css">
-  svg {
-    font: 10px sans-serif;
-    shape-rendering: crispEdges;
-  }
+<div id="bargraph-body">
+</div>
 
-  .axis path,
-  .axis line {
-    fill: none;
-    stroke: #000;
-  }
- 
-  path.domain {
-    stroke: none;
-  }
- 
-  .y .tick line {
-    stroke: #ddd;
-  }
-  </style>
-
-</head>
-<body>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script type="text/javascript">
 
 // Setup svg using Bostock's margin convention
@@ -38,7 +13,7 @@ var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 6
 var width = 960 - margin.left - margin.right,
     height = 600 - margin.top - margin.bottom;
 
-var svg = d3.select("body")
+var svg = d3.select("#bargraph-body")
   .append("svg")
   .attr("width", width + margin.left + margin.right)
   .attr("height", height + margin.top + margin.bottom + longestLabelApxWidth*13)
@@ -154,5 +129,3 @@ tooltip.append("text")
   .attr("font-weight", "bold");
 
 </script>
-</body>
-</html>
