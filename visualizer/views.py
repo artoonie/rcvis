@@ -4,7 +4,7 @@ from .forms import UploadFileForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
-from .sankey.sankeyCreator import makeGraphWithFile
+from visualizer.graphCreator.graphCreator import makeGraphWithFile
 
 def index(request):
     form = UploadFileForm()
