@@ -1,6 +1,7 @@
 import datetime
 
 from . import rcvResult
+from .graphSummary import GraphSummary
 
 # Toggle to show percentages instead of absolute votes.
 # Gets confusing because the percentages can change as
@@ -38,7 +39,14 @@ class Graph:
 
         self.numRounds = 1
         self.nodesPerRound = [{}]
-        self.winnersSoFar = []
+        self.winnersSoFar = set()
+
+        self.summary = None
+
+    def summarize(self):
+        if self.summary is None:
+            self.summary = GraphSummary(self)
+        return self.summary
 
     def setDate(self, date):
         assert isinstance(date, datetime.datetime)
@@ -47,7 +55,7 @@ class Graph:
     def currStepNodes(self):
         return self.nodesPerRound[self.numRounds-1]
 
-    def lastStepNodes(self):
+    def prevStepNodes(self):
         return self.nodesPerRound[self.numRounds-2]
 
     def addConnection(self, sourceNode, targetNode, value):
@@ -75,22 +83,18 @@ class Graph:
         self.nodesPerRound.append({})
         self.numRounds += 1
 
-    def step(self, step):
-        self.markNextStep()
-        nodesThisRound = {}
-        nodesLastRound = self.lastStepNodes()
-
-        def getLastRoundWinners():
-            self.winnersSoFar.extend(step.winners)
+    def step(self, step, isLastRound):
+        def getPreviousRoundWinners():
+            self.winnersSoFar.update(step.winners)
 
         def getPassthroughVotes():
             eliminatedItems = set([e.item for e in step.transfers
                                 if isinstance(e, rcvResult.Elimination)])
             allItemVotes = {}
-            for item in nodesLastRound:
+            for item in nodesPrevRound:
                 if item in eliminatedItems:
                     continue
-                votes = nodesLastRound[item].count
+                votes = nodesPrevRound[item].count
                 for event in step.transfers:
                     if item in event.transfers:
                         votes += event.transfers[item]
@@ -100,22 +104,36 @@ class Graph:
                 nodesThisRound[item] = self.addNode(item, votes, totalVotes)
                 if item in self.winnersSoFar:
                     nodesThisRound[item].markWinner()
-                    nodesLastRound[item].markWinner()
 
-                self.addConnection(sourceNode = nodesLastRound[item],
+                self.addConnection(sourceNode = nodesPrevRound[item],
                                    targetNode = nodesThisRound[item],
-                                   value  = nodesLastRound[item].count)
+                                   value  = nodesPrevRound[item].count)
+        def markWinnersForLastStep():
+            nodesLastRound = self.currStepNodes()
+            for item in step.winners:
+                nodesLastRound[item].markWinner()
 
         def getTransferVotes():
             for event in step.transfers:
                 if isinstance(event, rcvResult.Elimination):
-                    nodesLastRound[event.item].markEliminated()
+                    nodesPrevRound[event.item].markEliminated()
                 for transferItem, transferNumber in event.transfers.items():
-                    sourceNode = nodesLastRound[event.item]
+                    sourceNode = nodesPrevRound[event.item]
                     targetNode = nodesThisRound[transferItem]
                     self.addConnection(sourceNode = sourceNode,
                                         targetNode = targetNode,
                                         value  = transferNumber)
-        getLastRoundWinners()
-        getPassthroughVotes()
-        getTransferVotes()
+
+        getPreviousRoundWinners()
+
+        if not isLastRound:
+            self.markNextStep()
+            nodesThisRound = {}
+            nodesPrevRound = self.prevStepNodes()
+
+            getPassthroughVotes()
+            getTransferVotes()
+        else:
+            # Last round shouldn't create info for extra rounds,
+            # it should just mark what happened
+            markWinnersForLastStep()

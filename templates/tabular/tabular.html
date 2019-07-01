@@ -1,0 +1,27 @@
+<div id="tabular-body">
+</div>
+
+<div  style="margin-left: 20px; width:80%">
+{% for candidateTabulation in tabularData.candidateTabulations %}
+<table class="table">
+    <h4> {{ candidateTabulation.name }} </h4>
+    <thead class="thead-light">
+        <tr>
+            <th scope="col" width="10%">Round</th>
+            <th scope="col" width="80%">What changed</th>
+            <th scope="col" width="10%">Current total votes</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for roundTabulation in candidateTabulation.rounds %}
+        <tr>
+            <th scope="row">Round {{ roundTabulation.round_i }}</th>
+            <td>{{ roundTabulation.summary }}</td>
+            <td>{{ roundTabulation.totalVotes }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endfor %}
+</div>

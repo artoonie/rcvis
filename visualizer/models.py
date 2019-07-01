@@ -8,6 +8,7 @@ class JsonConfig(models.Model):
     hideTransferlessRounds = models.BooleanField(default=False)
     hideDecimals = models.BooleanField(default=False)
     rotateNames = models.BooleanField(default=False)
+    onlyShowWinnersTabular = models.BooleanField(default=True)
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)

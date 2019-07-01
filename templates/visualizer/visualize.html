@@ -21,6 +21,9 @@
         <li class="nav-item">
             <a class="nav-link" id="barchart-tab" data-toggle="tab" href="#barchart" role="tab" aria-controls="barchart" aria-selected="false">Bar Chart</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tabular-tab" data-toggle="tab" href="#tabular" role="tab" aria-controls="tabular" aria-selected="false">Tabular Data</a>
+        </li>
     </ul>
 
     <div class="tab-content" id="myTabContent">
@@ -29,6 +32,7 @@
 
         <div class="tab-pane fade show active" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
         <div class="tab-pane fade" id="barchart" role="tabpanel" aria-labelledby="barchart-tab">{% include "bargraph/bargraph.html" %}</div>
+        <div class="tab-pane fade" id="tabular" role="tabpanel" aria-labelledby="tabular-tab">{% include "tabular/tabular.html" %}</div>
     </div>
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

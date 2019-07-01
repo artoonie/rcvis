@@ -4,6 +4,7 @@ from .forms import UploadFileForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
+from .tabular.tabular import Tabulate
 from visualizer.graphCreator.graphCreator import makeGraphWithFile
 
 def index(request):
@@ -18,6 +19,7 @@ def upload(request):
         config.hideDecimals = request.POST.get('hideDecimals', False) == "on"
         config.hideTransferlessRounds = request.POST.get('combineWinner', False) == "on"
         config.rotateNames = request.POST.get('rotateNames', False) == "on"
+        config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
         graph = makeGraphWithFile(config)
         d3Sankey = D3Sankey(graph)
 
@@ -61,10 +63,12 @@ def visualize(request, rcvresult):
     graph = makeGraphWithFile(config)
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
+    tabularData = Tabulate(graph, config.onlyShowWinnersTabular)
     return render(request, 'visualizer/visualize.html', {
         'title': graph.title,
         'date': graph.dateString,
         'config': config,
         'bargraphjs': d3Bargraph.js,
-        'sankeyjs': d3Sankey.js
+        'sankeyjs': d3Sankey.js,
+        'tabularData': tabularData
     })

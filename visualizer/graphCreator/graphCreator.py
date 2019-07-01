@@ -8,8 +8,9 @@ def makeGraphWithFile(config):
     steps = jsonReader.getSteps()
     eliminationOrder = jsonReader.getEliminationOrder()
 
-    for step in steps:
-        graph.step(step)
+    for step in steps[:-1]:
+        graph.step(step, False)
+    graph.step(steps[-1], True)
 
     graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
 
