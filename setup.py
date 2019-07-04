@@ -10,5 +10,5 @@ setup(
 
     url='https://github.com/artoonie/rcvis',
 
-    install_requires = ['Django>=2.2.2'],
+    install_requires = ['Django>=2.2.3'],
 )
