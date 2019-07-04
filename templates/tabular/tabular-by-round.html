@@ -1,0 +1,24 @@
+<div id="tabular-body">
+</div>
+
+<div  style="margin-left: 20px; width:600px">
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col" width="100">Round</th>
+            <th scope="col" width="250">Eliminated</th>
+            <th scope="col" width="250">Winners</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for roundTabulation in tabularByRound.tabulation %}
+        <tr>
+            <th scope="row">Round {{ roundTabulation.round_i }}</th>
+            <td>{{ roundTabulation.eliminated|safe }}</td>
+            <td>{{ roundTabulation.winners|safe }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

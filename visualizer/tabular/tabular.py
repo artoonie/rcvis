@@ -1,17 +1,26 @@
+class TabulateByRound:
+    tabulation:list # A thin wrapper around graph.Summary
 
-from visualizer.jsUtils import approxLength
+    def __init__(self, graph):
+        summary = graph.summarize()
+        rounds = []
+        for r in summary.rounds:
+            rounds.append({'round_i': r.round_i+1,
+                           'eliminated': '<br/>'.join(r.eliminatedNames),
+                           'winners': '<br/>'.join(r.winnerNames)})
+        self.tabulation = rounds
 
-class Tabulate:
-    candidateTabulations:list # A list of CandidateTabulation
+class TabulateByCandidate:
+    tabulation:list # A list of CandidateTabulation
 
     def __init__(self, graph, onlyShowWinners):
         summary = graph.summarize()
-        self.candidateTabulations = []
+        self.tabulation = []
         candidates = summary.candidates
         if onlyShowWinners:
             candidates = [c for c in candidates if c in graph.winnersSoFar]
         for item in candidates:
-            self.candidateTabulations.append(CandidateTabulation(graph, item))
+            self.tabulation.append(CandidateTabulation(graph, item))
 
 """ A summary of one candidate, prepared for tabulation """
 class CandidateTabulation:
