@@ -25,7 +25,7 @@
             <a class="nav-link" id="home-tab" href="/" role="tab" aria-controls="home" aria-selected="true">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link active" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey Visualization</a>
+            <a class="nav-link" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey Visualization</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="barchart-fixed-tab" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Cumulative Bar Chart</a>
@@ -45,7 +45,7 @@
         <h1 style="margin-left: 20px">{{ title }}</h1>
         <h3 style="margin-left: 20px">{{ date }}</h3>
 
-        <div class="tab-pane fade show active" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
+        <div class="tab-pane fade" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
         <div class="tab-pane fade" id="barchart-fixed" role="tabpanel" aria-labelledby="barchart-fixed-tab">{% include "bargraph/barchart-fixed.html" %}</div>
         <div class="tab-pane fade" id="barchart-interactive" role="tabpanel" aria-labelledby="barchart-interactive-tab">{% include "bargraph/barchart-interactive.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-candidate" role="tabpanel" aria-labelledby="tabular-by-candidate-tab">{% include "tabular/tabular-by-candidate.html" %}</div>
@@ -59,9 +59,14 @@
       // c/o https://stackoverflow.com/a/9393768/1057105
       // Javascript to enable link to tab
       var url = document.location.toString();
+      var activeTab;
       if (url.match('#')) {
-          $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+          activeTab = url.split('#')[1];
       } 
+      else {
+          activeTab = "sankey";
+      }
+      $('.nav-tabs a[href="#' + activeTab + '"]').tab('show');
 
       // Change hash for page-reload
       $('.nav-tabs a').on('shown.bs.tab', function (e) {
