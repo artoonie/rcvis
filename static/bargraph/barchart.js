@@ -72,11 +72,22 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
 
   // Draw everything
   var currRound = numRounds;
+  var barHeightHelperFn = function(d) { return y(d[0]) - y(d[1]); }
   var shouldColorFn = function(d) { return !isInteractive || d.numRoundsTilEliminated >= currRound; }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
-  var barYPosFn   = function(d) { if (shouldDisplayFn(d)) return y(d[1]); else return 0;};
-  var barHeightFn = function(d) { if (shouldDisplayFn(d)) return y(d[0]) - y(d[1]); else return 0;};
-  var barColorFn = function(d) { if (shouldColorFn(d)) return colors[d.round]; else return "#CCC"};
+  var barYPosFn   = function(d) {
+      if (!shouldDisplayFn(d)) return y(d[0]); // Place it nicely for the animation
+      var yOffset = -Math.max(0, -barHeightHelperFn(d));
+      return yOffset + y(d[1]);
+  };
+  var barHeightFn = function(d) { if (!shouldDisplayFn(d)) return 0; return Math.abs(barHeightHelperFn(d)); };
+  var barColorFn = function(d) {
+      if (!shouldColorFn(d)) return "#CCC"; // Color for eliminated candidates
+      if (barHeightHelperFn(d) > 0)
+          return colors[d.round];
+      else
+          return "#CCC"; // Color for overflow votes
+  };
 
   var eachBar = svg.append("g")
     .selectAll("g")
