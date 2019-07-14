@@ -39,7 +39,6 @@ d3.sankey = function() {
 
   sankey.layout = function(iterations) {
     computeNodeLinks();
-    computeNodeValues();
     computeNodeBreadths();
     computeNodeDepths(iterations);
     computeNodeLinks();
@@ -102,16 +101,6 @@ d3.sankey = function() {
       if (typeof target === "number") target = link.target = nodes[link.target];
       source.sourceLinks.push(link);
       target.targetLinks.push(link);
-    });
-  }
-
-  // Compute the value (size) of each node by summing the associated links.
-  function computeNodeValues() {
-    nodes.forEach(function(node) {
-      node.value = Math.max(
-        d3.sum(node.sourceLinks, value),
-        d3.sum(node.targetLinks, value)
-      );
     });
   }
 

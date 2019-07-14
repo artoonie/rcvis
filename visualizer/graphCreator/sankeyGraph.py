@@ -96,8 +96,12 @@ class Graph:
                     continue
                 votes = nodesPrevRound[item].count
                 for event in step.transfers:
+                    # If votes are being transferred to us:
                     if item in event.transfers:
                         votes += event.transfers[item]
+                    # If votes are being transferred away, but we're not eliminated:
+                    if event.item == item:
+                        votes -= sum(event.transfers.values())
                 allItemVotes[item] = votes
             totalVotes = sum(allItemVotes.values())
             for item, votes in allItemVotes.items():
@@ -105,9 +109,12 @@ class Graph:
                 if item in self.winnersSoFar:
                     nodesThisRound[item].markWinner()
 
+                # Minimum of: everything we had in the previous round, or the number
+                # of votes in the next round that are not transferred away
+                votesTransferredToSelf = min(votes, nodesPrevRound[item].count)
                 self.addConnection(sourceNode = nodesPrevRound[item],
                                    targetNode = nodesThisRound[item],
-                                   value  = nodesPrevRound[item].count)
+                                   value  = votesTransferredToSelf)
         def markWinnersForLastStep():
             nodesLastRound = self.currStepNodes()
             for item in step.winners:

@@ -75,8 +75,13 @@ function getNodeValueTextTruncated(d) {
 
 function makeGraph(graph) {
     // format variables
-    var formatNumber = d3.format(",.0f"),    // zero decimal places
-        format = function(d) { return formatNumber(d) + " " + units; };
+    var formatNumber = d3.format(",.2f");    // two decimal places
+    var format = function(d) {
+      // format num if it's a float
+      if(d%1 != 0) var num = formatNumber(d);
+      else         var num = d;
+      return num + " " + units;
+    };
 
     // append the svg object to the body of the page
     var svg = d3.select("#sankey-body").append("svg")

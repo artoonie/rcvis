@@ -14,6 +14,7 @@ class D3Sankey:
             nodeIndices[node] = i
             js += 'graph.nodes.push({ "name": "%s",\n' % node.label
             js += '                   "round": %d,\n' % node.stepNum
+            js += '                   "value": %f,\n' % node.count
             js += '                   "isWinner": %d,\n' % node.isWinner
             js += '                   "isEliminated": %d,\n' % node.isEliminated
             js += '                   "color": "%s"});\n' % node.color
@@ -25,6 +26,3 @@ class D3Sankey:
             js += '                   "color": "%s",\n'      % link.color
             js += '                   "value":  %0.3f });\n' % link.value
         self.js = js
-
-    def printJavascript(self):
-        print(self.js)
