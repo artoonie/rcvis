@@ -1,0 +1,38 @@
+The interactivity is in-progress. This is a static bar chart for now.
+
+<div class="row align-items-center">
+    <div class="col-sm-2"></div>
+    <div class="col-sm"><div id="slider-step"></div></div>
+</div>
+
+<div id="bargraph-interactive-body">
+</div>
+
+<script src="https://unpkg.com/d3-simple-slider"></script>
+<script .type="text/javascript">
+
+// Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+var sliderStep = d3
+  .sliderBottom()
+  .min(1)
+  .max(6)
+  .width(300)
+    .tickFormat(function(d) { return "Round " + d;})
+  .ticks(5)
+  .step(1)
+  .default(0.015)
+
+var gStep = d3
+  .select('div#slider-step')
+  .append('svg')
+  .attr('width', 500)
+  .attr('height', 100)
+  .append('g')
+  .attr('transform', 'translate(30,30)');
+
+gStep.call(sliderStep);
+
+{{ bargraphjs|safe }}
+
+makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth);
+</script>

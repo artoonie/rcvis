@@ -1,0 +1,13 @@
+<div id="bargraph-fixed-body">
+</div>
+
+<!-- c/o http://bl.ocks.org/mstanaland/6100713 -->
+
+<script type="text/javascript">
+
+// Setup svg using Bostock's margin convention
+
+{{ bargraphjs|safe }}
+
+makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth);
+</script>

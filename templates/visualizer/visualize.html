@@ -9,6 +9,15 @@
   {% load static %}
   <link rel="stylesheet" href="{% static "sankey/style.css" %}">
   <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
+
+  <!-- for offline use (leave commented when you commit!) -->
+  <!--<script src="{% static 'sankey/d3.v5.min.js' %}"></script>-->
+  <!-- for online use -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.0/d3.js"></script>
+
+  <!-- Shared resources for multiple visualizations-->
+  <script src="{% static 'bargraph/barchart.js' %}"></script>
+
 </head>
 <body>
     <ul class="nav nav-tabs" id="tablist" role="tablist">
@@ -19,7 +28,10 @@
             <a class="nav-link active" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey Visualization</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="barchart-tab" data-toggle="tab" href="#barchart" role="tab" aria-controls="barchart" aria-selected="false">Bar Chart</a>
+            <a class="nav-link" id="barchart-fixed-tab" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Cumulative Bar Chart</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="barchart-interactive-tab" data-toggle="tab" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Interactive Bar Chart</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="tabular-by-candidate-tab" data-toggle="tab" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
@@ -34,7 +46,8 @@
         <h3 style="margin-left: 20px">{{ date }}</h3>
 
         <div class="tab-pane fade show active" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
-        <div class="tab-pane fade" id="barchart" role="tabpanel" aria-labelledby="barchart-tab">{% include "bargraph/bargraph.html" %}</div>
+        <div class="tab-pane fade" id="barchart-fixed" role="tabpanel" aria-labelledby="barchart-fixed-tab">{% include "bargraph/barchart-fixed.html" %}</div>
+        <div class="tab-pane fade" id="barchart-interactive" role="tabpanel" aria-labelledby="barchart-interactive-tab">{% include "bargraph/barchart-interactive.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-candidate" role="tabpanel" aria-labelledby="tabular-by-candidate-tab">{% include "tabular/tabular-by-candidate.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-round" role="tabpanel" aria-labelledby="tabular-by-round-tab">{% include "tabular/tabular-by-round.html" %}</div>
     </div>

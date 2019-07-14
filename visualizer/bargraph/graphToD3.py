@@ -2,6 +2,8 @@ from visualizer.graphCreator.colors import ColorGenerator, Color
 from visualizer.jsUtils import approxLength
 
 class D3Bargraph:
+    js: str # We just...throw all the javascript into here
+
     def __init__(self, graph):
         numRounds = len(graph.nodesPerRound)
 
