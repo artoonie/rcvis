@@ -9,5 +9,6 @@
 
 {{ bargraphjs|safe }}
 
-makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth);
+var interactive = true;
+makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, false);
 </script>

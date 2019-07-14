@@ -1,6 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
-function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth) {
+// Makes a bar graph and returns a function that allows you to animate based on round
+function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive) {
   var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 60};
   
   var width = 960 - margin.left - margin.right,
@@ -21,6 +22,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   });
   var candidateNames = mappedData[0].map(c => c.x);
   var roundNames = Object.keys(data[0]).slice(1)
+  var numRounds = roundNames.length;
   var stackSeries = d3.stack().keys(roundNames)(data);
   
   // Set x, y and colors
@@ -69,18 +71,48 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   }
 
   // Draw everything
-  svg.append("g")
+  var currRound = numRounds;
+  var shouldColorFn = function(d) { return !isInteractive || d.numRoundsTilEliminated >= currRound; }
+  var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
+  var barYPosFn   = function(d) { if (shouldDisplayFn(d)) return y(d[1]); else return 0;};
+  var barHeightFn = function(d) { if (shouldDisplayFn(d)) return y(d[0]) - y(d[1]); else return 0;};
+  var barColorFn = function(d) { if (shouldColorFn(d)) return colors[d.round]; else return "#CCC"};
+
+  var eachBar = svg.append("g")
     .selectAll("g")
     .data(stackSeries)
     .join("g")
-      .attr("fill",  function(d, i) { return colors[i]; })
     .selectAll("rect")
-    .data(d => d)
+    .data(function(d, i) {
+      var numCandidates = d.length;
+      var maxNumRounds = 0;
+      for(var candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
+      {
+        // We're doing a naughty thing and assuming that the number of keys minus one is the
+        // number of rounds this candidate survivided (the keys are each round + one for "candidate").
+        // We verify that assumption by looking at the max number of rounds after this loop.
+        var numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 1;
+
+        d[candidate_i].round = i;
+        d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
+        maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated);
+      }
+
+      if(maxNumRounds != numRounds)
+      {
+          throw new Error("Assumption did not hold! See comment above.");
+      }
+
+      return d;
+    });
+
+  eachBar
     .join("rect")
-      .attr("x", (d, i) => x(d.data.candidate))
-      .attr("y", d => y(d[1]))
-      .attr("height", d => y(d[0]) - y(d[1]))
+      .attr("x", d => x(d.data.candidate))
+      .attr("y", barYPosFn)
+      .attr("height", barHeightFn)
       .attr("width", x.bandwidth() * 0.9)
+      .attr("fill", barColorFn)
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
       .on("mousemove", function(d) {
@@ -121,4 +153,16 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
     .attr("font-size", "12px")
     .attr("font-weight", "bold");
 
+
+  // Return animation controls
+  var transitionEachBarForRound = function(round) {
+    currRound = round;
+    eachBar.enter().selectAll("rect").transition()
+        .duration(100)
+        .delay(0)
+        .attr("y", barYPosFn)
+        .attr("height", barHeightFn)
+        .attr("fill", barColorFn);
+  };
+  return transitionEachBarForRound;
 }
