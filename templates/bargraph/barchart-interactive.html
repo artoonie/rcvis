@@ -1,5 +1,4 @@
 <div class="row align-items-center">
-    <div class="col-sm-2"></div>
     <div class="col-sm"><div id="slider-step"></div></div>
 </div>
 
@@ -16,7 +15,7 @@ var sliderStep = d3
   .sliderBottom()
   .min(1)
   .max(numRounds)
-  .width(400)
+  .width(numRounds * 50)
     .tickFormat(function(d) { return "Round " + d;})
   .ticks(numRounds)
   .step(1)
@@ -28,7 +27,7 @@ var sliderStep = d3
 var gStep = d3
   .select('div#slider-step')
   .append('svg')
-  .attr('width', 500)
+  .attr('width', numRounds * 50 + 100)
   .attr('height', 100)
   .append('g')
   .attr('transform', 'translate(30,30)');

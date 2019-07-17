@@ -1,10 +1,9 @@
 import datetime
-import math
-import json
 
 from . import colors
-from . import sankeyGraph
 from . import rcvResult
+from . import readJSONBase
+from .graph import Graph
 
 class JSONMigrateTask():
     def __init__(self, jsonData):
@@ -91,12 +90,8 @@ class JSONMigration():
         self.fixUndeclaredUWI(data)
         self.fixNoTransfers(data)
     
-class JSONReader():
-    def __init__(self, fileObj, config):
-        def loadData(fileObj):
-            data = json.load(fileObj)
-            return data
-
+class JSONReader(readJSONBase.JSONReaderBase):
+    def parseJsonData(self, data, config):
         def loadMigrationTasks(data):
             self.tasks.append(FixNoTransfersTask)
             self.tasks.append(FixUndeclaredUWITask)
@@ -119,7 +114,7 @@ class JSONReader():
             title = data['config']['contest']
             date = parseDate(data['config']['date'])
 
-            graph = sankeyGraph.Graph(title)
+            graph = Graph(title)
 
             if date is not None:
                 graph.setDate(date)
@@ -133,12 +128,11 @@ class JSONReader():
 
             palette = colors.ColorGenerator(len(itemNames))
 
-            totalVotes = sum([float(i[1]) for i in itemNames])
             for name, initialVotes in itemNames:
                 color = colors.Color(next(palette))
                 item = rcvResult.Item(name, color)
                 items[name] = item
-                graph.addNode(item, float(initialVotes), totalVotes)
+                graph.addNode(item, float(initialVotes))
             return items
 
         def loadTransfer(tallyResults):
@@ -160,29 +154,6 @@ class JSONReader():
                 itemEliminated = items[nameEliminated]
                 return rcvResult.WinTransfer(itemEliminated, transfersByItem)
 
-        def getEliminationOrder(steps, items):
-            eliminationOrder = []
-            itemsRemaining = set(items.values())
-            for step in steps:
-                for elimination in step.transfers:
-                    if not isinstance(elimination, rcvResult.Elimination):
-                        continue
-                    eliminationOrder.append(elimination.item)
-                    itemsRemaining.remove(elimination.item)
-
-            # Winners are added last
-            winners = []
-            for step in steps:
-                for winner in step.winners:
-                    winners.append(winner)
-                    itemsRemaining.remove(winner)
-            winners = reversed(winners)
-
-            eliminationOrder.extend(itemsRemaining)
-            eliminationOrder.extend(winners)
-
-            return eliminationOrder
-
         def loadSteps(data):
             steps = []
             for currRound in data['results']:
@@ -196,8 +167,6 @@ class JSONReader():
                 steps.append(step)
             return steps
 
-        data = loadData(fileObj)
-
         # Apply migrations and configuration adjustments
         self.tasks = []
         loadMigrationTasks(data)
@@ -208,17 +177,7 @@ class JSONReader():
         graph = loadGraph(data)
         items = initializeMembers(data, graph)
         steps = loadSteps(data)
-        eliminationOrder = getEliminationOrder(steps, items)
 
         self.graph = graph
         self.steps = steps
-        self.eliminationOrder = eliminationOrder
-
-    def getGraph(self):
-        return self.graph
-
-    def getSteps(self):
-        return self.steps
-
-    def getEliminationOrder(self):
-        return self.eliminationOrder
+        self.items = items.values()

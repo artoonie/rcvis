@@ -69,7 +69,7 @@ class Graph:
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
 
-    def addNode(self, item, count, totalVotes):
+    def addNode(self, item, count):
         label = str(item.name)
         color = item.color.asHex()
         node = NodeData(item, label, color, count, self.numRounds-1)
@@ -103,9 +103,8 @@ class Graph:
                     if event.item == item:
                         votes -= sum(event.transfers.values())
                 allItemVotes[item] = votes
-            totalVotes = sum(allItemVotes.values())
             for item, votes in allItemVotes.items():
-                nodesThisRound[item] = self.addNode(item, votes, totalVotes)
+                nodesThisRound[item] = self.addNode(item, votes)
                 if item in self.winnersSoFar:
                     nodesThisRound[item].markWinner()
 

@@ -18,7 +18,8 @@ To run:
 virtualenv venv
 source venv/bin/activate
 pip3 install -e .
-python manage.py runserver
+pip3 install -r requirements.txt
+python3 manage.py runserver
 open localhost:8000/sankey
 ```
 
