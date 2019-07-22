@@ -65,7 +65,4 @@ class JSONReader(readJSONBase.JSONReaderBase):
 
             return graph, steps, candidateItems
 
-        import pprint
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(data)
         self.graph, self.steps, self.items = loadGraph(data)

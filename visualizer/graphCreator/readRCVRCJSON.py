@@ -81,7 +81,6 @@ class HideTransferlessRoundsTask(JSONMigrateTask):
         # fix round #
         for i in range(len(rounds)):
             rounds[i]['round'] = i+1
-        print(json.dumps(self.data, indent=4, sort_keys=True))
 
 class JSONMigration():
     """ Correct data inconsistencies in the JSON upfront,
