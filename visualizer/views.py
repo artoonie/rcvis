@@ -4,7 +4,7 @@ from .forms import UploadFileForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
-from .tabular.tabular import TabulateByRound, TabulateByCandidate
+from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate
 from visualizer.graphCreator.graphCreator import makeGraphWithFile
 
 def index(request):
@@ -65,6 +65,7 @@ def visualize(request, rcvresult):
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
     tabularByRound = TabulateByRound(graph)
+    tabularByRoundInteractive = TabulateByRoundInteractive(graph)
     return render(request, 'visualizer/visualize.html', {
         'title': graph.title,
         'date': graph.dateString,
@@ -72,5 +73,6 @@ def visualize(request, rcvresult):
         'bargraphjs': d3Bargraph.js,
         'sankeyjs': d3Sankey.js,
         'tabularByCandidate': tabularByCandidate,
-        'tabularByRound': tabularByRound
+        'tabularByRound': tabularByRound,
+        'tabularByRoundInteractive': tabularByRoundInteractive
     })

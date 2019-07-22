@@ -59,9 +59,15 @@ class CandidateInfo:
     def __init__(self, name):
         self.name = name
         self.votesAddedPerRound = []
-
-        self._currRoundNumVotes = 0
+        self.totalVotesPerRound = []
+        self.numRounds = 0
 
     def addVotes(self, amount):
-        self.votesAddedPerRound.append(amount - self._currRoundNumVotes)
-        self._currRoundNumVotes = amount
+        if len(self.totalVotesPerRound) == 0:
+            lastRoundTotalVotes = 0
+        else:
+            lastRoundTotalVotes = self.totalVotesPerRound[-1]
+        lastRoundAddedVotes = amount - lastRoundTotalVotes
+        self.totalVotesPerRound.append(amount)
+        self.votesAddedPerRound.append(lastRoundAddedVotes)
+        self.numRounds += 1

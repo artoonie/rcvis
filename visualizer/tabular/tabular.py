@@ -1,3 +1,36 @@
+class TabulateByRoundInteractive:
+    tabulation:list # A thin wrapper around graph.Summary
+
+    def __init__(self, graph):
+        summary = graph.summarize()
+        self.rounds = []
+        lastRoundEliminated = [] # eliminated only show one round later
+        allPreviousWinners = [] # winners show for all future rounds
+        for i, r in enumerate(summary.rounds):
+            allPreviousWinners.extend(r.winnerNames)
+            rnd = []
+            for item, cinfo in summary.candidates.items():
+                d = {}
+                if cinfo.name in lastRoundEliminated:
+                    # After a candidate is eliminated, show them
+                    # one last time
+                    d['change'] = votify(-cinfo.totalVotesPerRound[-1])
+                    d['total'] = 0
+                elif i >= len(cinfo.votesAddedPerRound):
+                    continue
+                else:
+                    d['change'] = votify(cinfo.votesAddedPerRound[i])
+                    d['total'] = intify(cinfo.totalVotesPerRound[i])
+                d['name'] = cinfo.name
+                d['wonThisRound'] = cinfo.name in r.winnerNames
+                d['eliminatedThisRound'] = cinfo.name in r.eliminatedNames
+                d['isWinner'] = cinfo.name in allPreviousWinners
+                d['isEliminated'] = cinfo.name in lastRoundEliminated or\
+                                    d['eliminatedThisRound']
+                rnd.append(d)
+            lastRoundEliminated = r.eliminatedNames
+            self.rounds.append(rnd)
+
 class TabulateByRound:
     tabulation:list # A thin wrapper around graph.Summary
 
@@ -99,7 +132,7 @@ def intify(v):
     if v % 1 == 0:
         return int(v)
     else:
-        return v
+        return "%0.2f" % v
 
 """ Add an "s" as needed """
 def pluralize(txt, num):
@@ -107,3 +140,10 @@ def pluralize(txt, num):
         return txt
     else:
         return txt+"s"
+
+def changify(num):
+    prefix = "+" if num >= 0 else ""
+    return prefix + str(intify(num))
+
+def votify(num):
+    return changify(num) + " votes"

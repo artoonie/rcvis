@@ -1,0 +1,80 @@
+<div class="row align-items-center">
+    <div class="col-sm"><div id="slider-step-tabular"></div></div>
+</div>
+
+<div id="tabularByRoundInteractiveContainer" style="margin-left: 20px; width 0px">
+{% for round in tabularByRoundInteractive.rounds %}
+<div id="tabbular_round_container_{{ forloop.counter }}">
+<h4>Round {{ forloop.counter }}</h4>
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col" width="40%">Candidate</th>
+            <th scope="col" width="30%">What changed</th>
+            <th scope="col" width="30%">Current total votes</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for candidate in round %}
+        {% if candidate.wonThisRound %}
+        <tr style="background-color: #BFFFCC">
+        {% elif candidate.eliminatedThisRound %}
+        <tr style="background-color: #FFBFBF">
+        {% elif candidate.isWinner %}
+        <tr style="background-color: #E8FFE9">
+        {% elif candidate.isEliminated %}
+        <tr style="background-color: #FFE8E8">
+        {% else  %}
+        <tr style="background-color: #fff">
+        {% endif %}
+            <th scope="row">{{ candidate.name }}</th>
+            <td>{{ candidate.change }}</td>
+            <td>{{ candidate.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endfor %}
+</div>
+
+<script src="https://unpkg.com/d3-simple-slider"></script>
+<script .type="text/javascript">
+{{ bargraphjs|safe }}
+
+// Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+var sliderStepTabular = d3
+  .sliderBottom()
+  .min(1)
+  .max(numRounds)
+  .width(numRounds * 50)
+    .tickFormat(function(d) { return "Round " + d;})
+  .ticks(numRounds)
+  .step(1)
+  .default(numRounds)
+  .on('onchange', round => {
+    showOnly(round)
+  });
+
+var sliderTabularWidth = numRounds * 50 + 100;
+var gStepTabular = d3
+  .select('div#slider-step-tabular')
+  .append('svg')
+  .attr('width', sliderTabularWidth)
+  .attr('height', 100)
+  .append('g')
+  .attr('transform', 'translate(30,30)');
+
+function showOnly(round) {
+    for (i = 1; i <= numRounds; i++) { 
+      document.getElementById("tabbular_round_container_"+i).style.display = "none";
+    }
+    document.getElementById("tabbular_round_container_"+round).style.display = "block";
+}
+
+document.getElementById("tabularByRoundInteractiveContainer").style.width = sliderTabularWidth + "px";
+gStepTabular.call(sliderStepTabular);
+showOnly(numRounds)
+
+</script>
