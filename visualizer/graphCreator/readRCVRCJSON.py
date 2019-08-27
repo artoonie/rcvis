@@ -43,6 +43,13 @@ class FixNoTransfersTask(JSONMigrateTask):
             if 'transfers' not in tallyResult:
                 tallyResult['transfers'] = {}
 
+class FixIgnoreResidualSurplus(JSONMigrateTask):
+    """ We don't handle residual surplus yet"""
+    def do(self):
+        for tallyResult in self._enumerateTallyResults():
+            if 'residual surplus' in tallyResult['transfers']:
+                del tallyResult['transfers']['residual surplus']
+
 class HideDecimalsTask(JSONMigrateTask):
     def do(self):
         results = self.data['results']
@@ -94,6 +101,7 @@ class JSONReader(readJSONBase.JSONReaderBase):
         def loadMigrationTasks(data):
             self.tasks.append(FixNoTransfersTask)
             self.tasks.append(FixUndeclaredUWITask)
+            self.tasks.append(FixIgnoreResidualSurplus)
 
         def loadConfigurationTasks(data, config):
             if config.hideTransferlessRounds:
