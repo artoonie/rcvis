@@ -163,7 +163,7 @@ function makeGraph(graph) {
       .attr("y", function(d) {
             return dim0(d) - roundSize0*0.2;
        } )
-      .text(function(d) { return "Round " + d.round });
+      .text(function(d) { return "Round " + (d.round+1) });
 
     // add the rectangles for the nodes
     node.append("rect")
@@ -201,6 +201,17 @@ function makeTopBar(graph) {
         )
         .append("g");
     return topbarG;
+}
+
+function makeRound1SpecialLabel(topbarG) {
+   // First round is above the sankey SVG so needs to be handled specially
+   var round1Label = topbarG.append("g").
+      append("text")
+      .attr("class", 'roundLabels' )
+      .attr("x", avgNodeSize1 * 1.5)
+      .attr("y", tmarginLength-roundSize0*.2 )
+      .text("Round 1");
+    return round1Label;
 }
 
 function populateTopBarFor(topbarG, round) {
@@ -250,8 +261,10 @@ function notifyScrolled() {
   var x = -window.pageXOffset + bodyMargin;
   if (window.pageYOffset >= sticky) {
     topbarDiv.classList.add("sticky")
+    round1SpecialLabel.style("display", "none")
   } else {
     topbarDiv.classList.remove("sticky");
+    round1SpecialLabel.style("display", "inherit")
   }
   topbarDiv.style.left = x+"px"; 
   var round = (window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
@@ -270,6 +283,7 @@ var sticky = topbarDiv.offsetTop + heightUntilSticky;
 var bodyMargin = getBodyMarginInt()
 makeGraph(graph);
 var topbarG = makeTopBar(graph);
+var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
 populateTopBarFor(topbarG, 0)
 
 </script>
