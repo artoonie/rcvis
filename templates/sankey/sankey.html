@@ -140,7 +140,10 @@ function makeGraph(graph) {
       .attr("transform", function(d) { 
           commad = commaSeparate(dim0(d), dim1(d))
           return "translate(" + commad + ")"; })
+      .attr("cursor", function(d) { return d.round != 0 ? "move" : "unset"; } )
       .call(d3.drag()
+         // don't allow dragging top row since the titles don't move with it
+        .filter(function(d){return d.round != 0;})
         .subject(function(d) {
           return d;
         })
