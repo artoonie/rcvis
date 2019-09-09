@@ -43,6 +43,16 @@ class JSONReaderBase(object):
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
 
+        # Handle "residual surplus" which should always be at the end
+        try:
+            moveToFrontIndex = [e.name for e in eliminationOrder].index('residual surplus')
+            if moveToFrontIndex:
+                eliminationOrder.insert(0, eliminationOrder.pop(moveToFrontIndex))
+        except ValueError:
+            # residual surplus not in list
+            pass
+
+        print(eliminationOrder)
         self.eliminationOrder = eliminationOrder
 
     def getEliminationOrder(self):

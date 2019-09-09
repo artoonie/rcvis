@@ -48,7 +48,7 @@ class FixIgnoreResidualSurplus(JSONMigrateTask):
     def do(self):
         for tallyResult in self._enumerateTallyResults():
             if 'residual surplus' in tallyResult['transfers']:
-                del tallyResult['transfers']['residual surplus']
+                self.data['results'][0]['tally']['residual surplus'] = 0
 
 class HideDecimalsTask(JSONMigrateTask):
     def do(self):
