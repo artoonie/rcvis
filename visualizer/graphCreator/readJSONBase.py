@@ -52,7 +52,6 @@ class JSONReaderBase(object):
             # residual surplus not in list
             pass
 
-        print(eliminationOrder)
         self.eliminationOrder = eliminationOrder
 
     def getEliminationOrder(self):
