@@ -11,9 +11,8 @@ class TabulateByRoundInteractive:
             rnd = []
             for item, cinfo in summary.candidates.items():
                 d = {}
-                if cinfo.name in lastRoundEliminated:
-                    # After a candidate is eliminated, show them
-                    # one last time
+                isEliminatedThisRound = cinfo.name in r.eliminatedNames
+                if isEliminatedThisRound:
                     d['change'] = votify(-cinfo.totalVotesPerRound[-1])
                     d['total'] = 0
                 elif i >= len(cinfo.votesAddedPerRound):
@@ -23,7 +22,7 @@ class TabulateByRoundInteractive:
                     d['total'] = intify(cinfo.totalVotesPerRound[i])
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in r.winnerNames
-                d['eliminatedThisRound'] = cinfo.name in r.eliminatedNames
+                d['eliminatedThisRound'] = isEliminatedThisRound
                 d['isWinner'] = cinfo.name in allPreviousWinners
                 d['isEliminated'] = cinfo.name in lastRoundEliminated or\
                                     d['eliminatedThisRound']

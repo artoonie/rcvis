@@ -27,7 +27,10 @@ class GraphSummary:
                 rounds[currRound].addWinner(item.name)
                 alreadyWonInPreviousRound.append(item)
         if node.isEliminated:
-            rounds[currRound].addEliminated(item.name)
+            # Eliminate the next round: in the sankey representation,
+            # eliminated candidates are shown on the previous round
+            # so they don't ever show zero-vote bars. Account for that.
+            rounds[currRound+1].addEliminated(item.name)
 
     # Create linksByNode
     linksByTargetNode = {}
