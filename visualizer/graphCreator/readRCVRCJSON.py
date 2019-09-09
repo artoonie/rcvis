@@ -120,8 +120,9 @@ class JSONReader(readJSONBase.JSONReaderBase):
         def loadGraph(data):
             title = data['config']['contest']
             date = parseDate(data['config']['date'])
+            threshold = data['config']['threshold']
 
-            graph = Graph(title)
+            graph = Graph(title, threshold)
 
             if date is not None:
                 graph.setDate(date)

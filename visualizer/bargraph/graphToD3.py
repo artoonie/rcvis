@@ -32,6 +32,7 @@ class D3Bargraph:
 
         js = f'var data = {candidatesJs};'
         js += f'\nvar candidatesRange = {list(rounds)};'
+        js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
         self.js = js

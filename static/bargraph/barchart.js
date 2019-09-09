@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive) {
+function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold) {
   var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 50};
   
   var width = 960 - margin.left - margin.right,
@@ -121,6 +121,13 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       return d;
     });
 
+  function drawTooltipText(obj, text) {
+      var xPosition = d3.mouse(obj)[0] - 35;
+      var yPosition = d3.mouse(obj)[1] - 25;
+      tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+      tooltip.select("text").text(text);
+  }
+
   eachBar
     .join("rect")
       .attr("x", d => x(d.data.candidate))
@@ -131,10 +138,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
       .on("mousemove", function(d) {
-        var xPosition = d3.mouse(this)[0] - 35;
-        var yPosition = d3.mouse(this)[1] - 25;
-        tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-        tooltip.select("text").text("Current total: " + d[1]);
+        drawTooltipText(this, "Current total: " + d[1]);
       });
 
   svg.append("g")
@@ -148,6 +152,27 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
 
   svg.append("g")
       .call(legend);
+
+  // Draw the threshold line
+  svg.append("rect")
+      .attr("x", margin.left)
+      .attr("y", barYPosFn([threshold, threshold]))
+      .attr("height", 1)
+      .attr("width", width)
+      .attr("fill", "#999")
+  // The invisible mouseover element
+  mouseOverHeight = 10
+  svg.append("rect")
+      .attr("x", margin.left)
+      .attr("y", barYPosFn([134, 134]) - mouseOverHeight/2)
+      .attr("height", mouseOverHeight)
+      .attr("width", width)
+      .attr("opacity", "0")
+      .on("mouseover", function() { tooltip.style("display", null); })
+      .on("mouseout", function() { tooltip.style("display", "none"); })
+      .on("mousemove", function(d) {
+        drawTooltipText(this, "Threshold to win");
+      });
 
   // Prep the tooltip bits, initial display is hidden
   // Place this at the end so it renders on top

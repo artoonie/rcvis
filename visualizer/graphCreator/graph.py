@@ -31,8 +31,9 @@ class NodeData:
         self.isWinner = True
 
 class Graph:
-    def __init__(self, title):
+    def __init__(self, title, threshold):
         self.title = title
+        self.threshold = threshold
         self.nodes = []
         self.links = []
         self.dateString = ""

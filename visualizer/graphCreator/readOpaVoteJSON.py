@@ -52,7 +52,7 @@ class JSONReader(readJSONBase.JSONReaderBase):
 
         def loadGraph(data):
             numRounds = len(data['rounds'])
-            graph = Graph(data['title'])
+            graph = Graph(data['title'], data['threshold'])
 
             candidateItems = initializeCandidates(data, graph)
             steps = []
