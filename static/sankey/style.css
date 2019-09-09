@@ -6,7 +6,7 @@
 .node text {
   pointer-events: none;
   text-shadow: white 0px 1px 10px, gray 0px 0px 3px;
-
+  font-size: 1.5em;
 }
 
 .link {
@@ -26,8 +26,9 @@
 }
 
 .topbar_element text {
-    stroke: white;
-    stroke-width: 0.002em;
+  stroke: white;
+  stroke-width: 0.002em;
+  font-size: 1.75em;
 }
 
 .sticky {
