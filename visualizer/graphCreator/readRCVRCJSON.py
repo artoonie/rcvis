@@ -66,7 +66,7 @@ class HideDecimalsTask(JSONMigrateTask):
 class HideTransferlessRoundsTask(JSONMigrateTask):
     def _isTransferlessRound(self, tallyResults):
         for tallyResult in tallyResults:
-            if tallyResult['transfers']:
+            if 'eliminated' in tallyResult or tallyResult['transfers']:
                 return False
         return True
 
