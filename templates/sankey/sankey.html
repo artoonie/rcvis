@@ -261,6 +261,8 @@ function getBodyMarginInt() {
 
 function notifyScrolled() {
   // TODO this only supports vertical sankey mode
+  if (!doLockTopBarOnScroll) return;
+
   var x = -window.pageXOffset + bodyMargin;
   if (window.pageYOffset >= sticky) {
     topbarDiv.classList.add("sticky")

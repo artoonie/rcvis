@@ -18,5 +18,7 @@ function commaSeparate(d0, d1) { return d1 + "," + d0; }
 var nodeSize0 = 5;
 var avgNodeSize1 = 150;
 
+var doLockTopBarOnScroll = true;
+
 textXPos = 5;
 textYPos = 20;
