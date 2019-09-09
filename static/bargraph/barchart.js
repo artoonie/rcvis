@@ -2,7 +2,7 @@
 
 // Makes a bar graph and returns a function that allows you to animate based on round
 function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive) {
-  var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 60};
+  var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 50};
   
   var width = 960 - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom;
@@ -76,11 +76,15 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var shouldColorFn = function(d) { return !isInteractive || d.numRoundsTilEliminated >= currRound; }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
   var barYPosFn   = function(d) {
+      if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
       if (!shouldDisplayFn(d)) return y(d[0]); // Place it nicely for the animation
       var yOffset = -Math.max(0, -barHeightHelperFn(d));
       return yOffset + y(d[1]);
   };
-  var barHeightFn = function(d) { if (!shouldDisplayFn(d)) return 0; return Math.abs(barHeightHelperFn(d)); };
+  var barHeightFn = function(d) {
+      if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
+      if (!shouldDisplayFn(d)) return 0; return Math.abs(barHeightHelperFn(d));
+  };
   var barColorFn = function(d) {
       if (!shouldColorFn(d)) return "#CCC"; // Color for eliminated candidates
       if (barHeightHelperFn(d) > 0)
