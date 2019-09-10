@@ -197,11 +197,10 @@ function makeGraph(graph) {
 function makeTopBar(graph) {
     var lastRound = -1;
     var topbarG = d3.select('#topbar').append("svg")
+        .style("margin-left", tmargin.left + "px") // "px" is needed on Edge browsers
+        .style("margin-top",  tmargin.top  + "px") // "px" is needed on Edge browsers
         .attr(size0string(), tmarginLength)
         .attr(size1string(), size1+size1TopbarTextPadding)
-        .attr("transform", 
-              "translate(" + tmargin.left + "," + tmargin.top + ")" ,
-        )
         .append("g");
     return topbarG;
 }
