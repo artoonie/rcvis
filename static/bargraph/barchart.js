@@ -49,7 +49,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var legend = svg => {
         const g = svg
             .attr("font-family", "sans-serif")
-            .attr("font-size", 10)
+            .attr("font-size", "0.55em")
             .attr("text-anchor", "end")
             .attr("transform", `translate(${width + margin.left},${margin.top})`)
           .selectAll("g")
