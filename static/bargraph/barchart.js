@@ -49,7 +49,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var legend = svg => {
         const g = svg
             .attr("font-family", "sans-serif")
-            .attr("font-size", "0.55em")
+            .attr("font-size", "1.55em")
             .attr("text-anchor", "end")
             .attr("transform", `translate(${width + margin.left},${margin.top})`)
           .selectAll("g")
@@ -171,7 +171,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
       .on("mousemove", function(d) {
-        drawTooltipText(this, "Threshold to win");
+        drawTooltipText(this, "Threshold to win: " + threshold);
       });
 
   // Prep the tooltip bits, initial display is hidden
@@ -182,7 +182,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       
   tooltip.append("rect")
     .attr("width", 200)
-    .attr("height", 20)
+    .attr("height", 25)
     .attr("fill", "white")
     .style("opacity", 0.5);
   
@@ -190,7 +190,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
     .attr("x", 15)
     .attr("dy", "1.2em")
     .style("text-anchor", "left")
-    .attr("font-size", "12px")
+    .attr("font-size", "1.6em")
     .attr("font-weight", "bold");
 
 
