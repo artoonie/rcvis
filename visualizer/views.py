@@ -34,30 +34,6 @@ def upload(request):
     else:
         return redirect('index')
 
-def displaySankey(request, rcvresult):
-    config = get_object_or_404(JsonConfig, slug=rcvresult)
-
-    graph = makeGraphWithFile(config)
-    d3Sankey = D3Sankey(graph)
-    return render(request, 'sankey/sankey.html', {
-        'title': graph.title,
-        'date': graph.dateString,
-        'config': config,
-        'sankeyjs': d3Sankey.js
-    })
-
-def displayBargraph(request, rcvresult):
-    config = get_object_or_404(JsonConfig, slug=rcvresult)
-
-    graph = makeGraphWithFile(config)
-    d3Bargraph = D3Bargraph(graph)
-    return render(request, 'bargraph/bargraph.html', {
-        'title': graph.title,
-        'date': graph.dateString,
-        'config': config,
-        'bargraphjs': d3Bargraph.js
-    })
-
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
