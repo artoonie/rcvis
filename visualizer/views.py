@@ -20,6 +20,7 @@ def upload(request):
         config.hideTransferlessRounds = request.POST.get('combineWinner', False) == "on"
         config.rotateNames = request.POST.get('rotateNames', False) == "on"
         config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
+        config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
         graph = makeGraphWithFile(config)
         d3Sankey = D3Sankey(graph)
 

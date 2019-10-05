@@ -10,5 +10,6 @@
 {{ bargraphjs|safe }}
 
 var interactive = true;
-makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, false, threshold);
+var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
+makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, false, threshold, doHideOverflowAndEliminated);
 </script>

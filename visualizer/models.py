@@ -9,6 +9,7 @@ class JsonConfig(models.Model):
     hideDecimals = models.BooleanField(default=False)
     rotateNames = models.BooleanField(default=False)
     onlyShowWinnersTabular = models.BooleanField(default=True)
+    doHideOverflowAndEliminated = models.BooleanField(default=False)
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)

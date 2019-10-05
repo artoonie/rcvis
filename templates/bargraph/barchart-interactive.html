@@ -35,5 +35,6 @@ var gStep = d3
 gStep.call(sliderStep);
 
 var interactive = true;
-transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold);
+var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
+transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated);
 </script>

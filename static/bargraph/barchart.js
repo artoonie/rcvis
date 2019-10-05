@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold) {
+function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated) {
   var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 50};
   
   var width = 960 - margin.left - margin.right,
@@ -71,9 +71,10 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   }
 
   // Draw everything
+  function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
   var currRound = numRounds;
   var barHeightHelperFn = function(d) { return y(d[0]) - y(d[1]); }
-  var shouldColorFn = function(d) { return !isInteractive || d.numRoundsTilEliminated >= currRound; }
+  var shouldColorFn = function(d) { return !isInteractive || !isEliminated(d); }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
   var barYPosFn   = function(d) {
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
@@ -85,12 +86,18 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
       if (!shouldDisplayFn(d)) return 0; return Math.abs(barHeightHelperFn(d));
   };
+  var eliminatedAndOverflowColor = doHideOverflowAndEliminated ? "#FFF" : "#CCC";
   var barColorFn = function(d) {
-      if (!shouldColorFn(d)) return "#CCC"; // Color for eliminated candidates
+      if (!shouldColorFn(d)) return eliminatedAndOverflowColor; // Color for eliminated candidates
       if (barHeightHelperFn(d) > 0)
           return colors[d.round];
       else
-          return "#CCC"; // Color for overflow votes
+          return eliminatedAndOverflowColor; // Color for overflow votes
+  };
+  var barTextFn = function(d) {
+      var text = !isEliminated(d) ? "Current " : "Eliminated with ";
+      text += d[1] + " votes";
+      return text;
   };
 
   var eachBar = svg.append("g")
@@ -138,7 +145,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
       .on("mousemove", function(d) {
-        drawTooltipText(this, "Current total: " + d[1]);
+        drawTooltipText(this, barTextFn(d));
       });
 
   svg.append("g")
