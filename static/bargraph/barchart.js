@@ -1,8 +1,10 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated) {
-  var margin = {top: 20, right: 180 + longestLabelApxWidth*13, bottom: 35, left: 50};
+function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
+  // right margin: leave room for legend
+  var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
+  if(isVertical) margin.left += longestLabelApxWidth;
   
   var width = 960 - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom;
@@ -26,24 +28,49 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var stackSeries = d3.stack().keys(roundNames)(data);
   
   // Set x, y and colors
-  var x = d3.scaleBand()
+  var candidatesDomain = d3.scaleBand()
         .domain(candidateNames)
-        .range([margin.left, width])
-        .padding(0.01);
-  
-  var y = d3.scaleLinear()
-        .domain([0, d3.max(stackSeries, d => d3.max(d, d => d[1]))])
-        .rangeRound([height - margin.bottom, margin.top])
+  var votesDomain = d3.scaleLinear()
+        .domain([0, d3.max(stackSeries, d => d3.max(d, d => d[1]))]);
+
+  if (isVertical) {
+      var votesRange = votesDomain
+            .rangeRound([height - margin.bottom, margin.top]);
+      var candidatesRange = candidatesDomain
+            .range([margin.left, width])
+            .padding(0.01);
+  } else {
+      var roomForLegend = 100 + longestLabelApxWidth * 13;
+      var votesRange = votesDomain
+            .rangeRound([margin.left, width - margin.right - roomForLegend])
+      var candidatesRange = candidatesDomain
+            .range([margin.top, height])
+            .padding(0.01);
+  }
   
   // Define axes
-  var yAxis = g => g
-        .attr("transform", `translate(${margin.left},0)`)
-        .call(d3.axisLeft(y).ticks(null, "s"))
-        .call(g => g.selectAll(".domain").remove())
-  var xAxis = g => g
-        .attr("transform", `translate(0,${height - margin.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0))
-        .call(g => g.selectAll(".domain").remove())
+  if (isVertical)
+  {
+    var votesAxis = g => g
+          .attr("transform", `translate(${margin.left},0)`)
+          .call(d3.axisLeft(votesRange).ticks(null, "s"))
+          .call(g => g.selectAll(".domain").remove())
+    var candidatesAxis = g => g
+          .attr("transform", `translate(0,${height - margin.bottom})`)
+          .call(d3.axisBottom(candidatesRange).tickSizeOuter(0))
+          .call(g => g.selectAll(".domain").remove())
+  }
+  else
+  {
+    var candidatesAxis = g => g
+          .attr("transform", `translate(${margin.left},0)`)
+          .call(d3.axisLeft(candidatesRange).ticks(null, "s"))
+          .call(g => g.selectAll(".domain").remove())
+    var votesAxis = g => g
+          .attr("transform", `translate(0,${height - margin.bottom + 50})`)
+          .call(d3.axisBottom(votesRange).tickSizeOuter(0))
+          .call(g => g.selectAll(".domain").remove())
+  }
   
   // Define legend
   var legend = svg => {
@@ -73,23 +100,27 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   // Draw everything
   function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
   var currRound = numRounds;
-  var barHeightHelperFn = function(d) { return y(d[0]) - y(d[1]); }
+  var barVotesSizeHelperFn = function(d) {
+      return (votesRange(d[0]) - votesRange(d[1])) * (isVertical ? 1 : -1);
+  }
   var shouldColorFn = function(d) { return !isInteractive || !isEliminated(d); }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
-  var barYPosFn   = function(d) {
+  var barVotesPosFn   = function(d) {
+      var index = isVertical ? 1 : 0;
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
-      if (!shouldDisplayFn(d)) return y(d[0]); // Place it nicely for the animation
-      var yOffset = -Math.max(0, -barHeightHelperFn(d));
-      return yOffset + y(d[1]);
+      if (!shouldDisplayFn(d)) return votesRange(d[index]); // Place it nicely for the animation
+      var offsetForOvervotes = -Math.max(0, -barVotesSizeHelperFn(d));
+      return offsetForOvervotes + votesRange(d[index]);
   };
-  var barHeightFn = function(d) {
+  var barVotesSizeFn = function(d) {
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
-      if (!shouldDisplayFn(d)) return 0; return Math.abs(barHeightHelperFn(d));
+      if (!shouldDisplayFn(d)) return 0;
+      return Math.abs(barVotesSizeHelperFn(d));
   };
   var eliminatedAndOverflowColor = doHideOverflowAndEliminated ? "#FFF" : "#CCC";
   var barColorFn = function(d) {
       if (!shouldColorFn(d)) return eliminatedAndOverflowColor; // Color for eliminated candidates
-      if (barHeightHelperFn(d) > 0)
+      if (barVotesSizeHelperFn(d) > 0)
           return colors[d.round];
       else
           return eliminatedAndOverflowColor; // Color for overflow votes
@@ -135,12 +166,24 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       tooltip.select("text").text(text);
   }
 
+  if (isVertical)
+  {
+    var candidatePosStr = "x";
+    var votesPosStr = "y";
+    var candidateSizeStr = "width";
+    var votesSizeStr = "height";
+  } else {
+    var candidatePosStr = "y";
+    var votesPosStr = "x";
+    var candidateSizeStr = "height";
+    var votesSizeStr = "width";
+  }
   eachBar
     .join("rect")
-      .attr("x", d => x(d.data.candidate))
-      .attr("y", barYPosFn)
-      .attr("height", barHeightFn)
-      .attr("width", x.bandwidth() * 0.9)
+      .attr(candidatePosStr, d => candidatesRange(d.data.candidate))
+      .attr(votesPosStr, barVotesPosFn)
+      .attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
+      .attr(votesSizeStr, barVotesSizeFn)
       .attr("fill", barColorFn)
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
@@ -149,31 +192,31 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       });
 
   svg.append("g")
-      .call(xAxis)
+      .call(candidatesAxis)
       .selectAll("text")  
         .style("text-anchor", "end")
         .attr("transform", "rotate(-45)");
 
   svg.append("g")
-      .call(yAxis);
+      .call(votesAxis);
 
   svg.append("g")
       .call(legend);
 
   // Draw the threshold line
   svg.append("rect")
-      .attr("x", margin.left)
-      .attr("y", barYPosFn([threshold, threshold]))
-      .attr("height", 1)
-      .attr("width", width)
+      .attr(candidatePosStr, isVertical ? margin.left : margin.top)
+      .attr(votesPosStr, barVotesPosFn([threshold, threshold]))
+      .attr(candidateSizeStr, isVertical ? width : height)
+      .attr(votesSizeStr, 1)
       .attr("fill", "#999")
   // The invisible mouseover element
-  mouseOverHeight = 10
+  mouseOverBorder = 10
   svg.append("rect")
-      .attr("x", margin.left)
-      .attr("y", barYPosFn([134, 134]) - mouseOverHeight/2)
-      .attr("height", mouseOverHeight)
-      .attr("width", width)
+      .attr(candidatePosStr, isVertical ? margin.left : margin.top)
+      .attr(votesPosStr, barVotesPosFn([threshold, threshold]) - mouseOverBorder/2.0)
+      .attr(candidateSizeStr, isVertical ? width : height)
+      .attr(votesSizeStr, mouseOverBorder)
       .attr("opacity", "0")
       .on("mouseover", function() { tooltip.style("display", null); })
       .on("mouseout", function() { tooltip.style("display", "none"); })
@@ -207,8 +250,8 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
     eachBar.enter().selectAll("rect").transition()
         .duration(100)
         .delay(0)
-        .attr("y", barYPosFn)
-        .attr("height", barHeightFn)
+        .attr(votesPosStr, barVotesPosFn)
+        .attr(votesSizeStr, barVotesSizeFn)
         .attr("fill", barColorFn);
   };
   return transitionEachBarForRound;

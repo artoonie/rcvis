@@ -4,9 +4,15 @@
 
 <div id="bargraph-interactive-body">
 </div>
-
 <script src="https://unpkg.com/d3-simple-slider"></script>
-<script .type="text/javascript">
+<script type="text/javascript">
+
+
+{% if false %}
+<!-- uncomment for offline use -->
+{% load static %}
+<script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
+{% endif %}
 
 {{ bargraphjs|safe }}
 
@@ -36,5 +42,6 @@ gStep.call(sliderStep);
 
 var interactive = true;
 var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
-transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated);
+var doUseHorizontalBarGraph = {% if config.doUseHorizontalBarGraph %} true {% else %} false {% endif %};
+transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
 </script>

@@ -39,7 +39,8 @@
 {% endfor %}
 </div>
 
-<script src="https://unpkg.com/d3-simple-slider"></script>
+{% load static %}
+<script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
 <script .type="text/javascript">
 {{ bargraphjs|safe }}
 

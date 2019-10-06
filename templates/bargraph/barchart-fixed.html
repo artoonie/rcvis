@@ -9,7 +9,8 @@
 
 {{ bargraphjs|safe }}
 
-var interactive = true;
+var interactive = false;
 var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
-makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, false, threshold, doHideOverflowAndEliminated);
+var doUseHorizontalBarGraph = {% if config.doUseHorizontalBarGraph %} true {% else %} false {% endif %};
+makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
 </script>

@@ -16,7 +16,7 @@ function handleFiles(files)
   <form action="upload.html" enctype="multipart/form-data" method="post" id="form">
     {% csrf_token %}
  	<div class="formArea">
-      Visualization options:
+      Global visualization options:
 	  <div class="options">
         <label><input type="checkbox" name="combineWinner"/> Combine winner-only rounds with the previous transfer round</label>
         <br/>
@@ -25,8 +25,14 @@ function handleFiles(files)
         <label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners in Tabulation</label>
         <br/>
         <label><input type="checkbox" name="rotateNames" checked/> Rotate the names of candidates on the top bar</label>
+      </div>
+
+      Bargraph visualization options:
+	  <div class="options">
         <br/>
         <label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes in bar charts?</label>
+        <br/>
+        <label><input type="checkbox" name="doUseHorizontalBarGraph"/> Make bar graphs horizontal instead of vertical?</label>
 	  </p>
 	  <br/>
 

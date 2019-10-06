@@ -10,6 +10,7 @@ class JsonConfig(models.Model):
     rotateNames = models.BooleanField(default=False)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     doHideOverflowAndEliminated = models.BooleanField(default=False)
+    doUseHorizontalBarGraph = models.BooleanField(default=False)
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)

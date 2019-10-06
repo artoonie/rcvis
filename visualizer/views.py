@@ -21,6 +21,7 @@ def upload(request):
         config.rotateNames = request.POST.get('rotateNames', False) == "on"
         config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
         config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
+        config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"
         graph = makeGraphWithFile(config)
         d3Sankey = D3Sankey(graph)
 
