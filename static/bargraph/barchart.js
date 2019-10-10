@@ -131,12 +131,14 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       return d.numRoundsTilEliminated < d.round+1;
   }
   var barVotesDataLabelPosFn = function(d) {
-      var OFFSET = 15;
-      var startOfBarPlusABit = barVotesPosFn(d) + OFFSET;
+      // I hate this function. We need to do some magic because in vertical mode,
+      // "up" is negative, whereas in horizontal, "right" is positive.
+      var offset = isVertical ? -15 : 15;
+      var startOfBarPlusABit = barVotesPosFn(d) + offset;
       if (isEliminationDataLabelFn(d))
       {
           // Eliminated candidates
-          return votesRange(0) + OFFSET;
+          return votesRange(0) + offset;
       }
       else if (doHideOverflowAndEliminated && isOverflowFn(d))
       {
@@ -144,10 +146,17 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
           return startOfBarPlusABit;
       }
 
-      return startOfBarPlusABit + barVotesSizeFn(d);
+      if (isVertical)
+      {
+        return startOfBarPlusABit;
+      }
+      else
+      {
+        return startOfBarPlusABit + barVotesSizeFn(d);
+      }
   };
   var barCandidatesDataLabalPosFn = function(d) {
-    return candidatesRange(d.data.candidate)+candidatesRange.bandwidth()/2.0;
+    return candidatesRange(d.data.candidate) + (isVertical ? 0 : candidatesRange.bandwidth()/2.0);
   };
   function isLatestRoundFor(d) {
       if(isEliminated(d))
@@ -165,7 +174,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var dataLabelTextFn = function(d) {
       if(isEliminationDataLabelFn(d))
       {
-          return "[eliminated]";
+          return isVertical ? "[x]" :  "[eliminated]";;
       }
       var text = d[1] + " votes";
       return text;
