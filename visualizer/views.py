@@ -44,6 +44,7 @@ def visualize(request, rcvresult):
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
+    offlineMode = True # Switch to True to work from an airplane :)
     return render(request, 'visualizer/visualize.html', {
         'title': graph.title,
         'date': graph.dateString,
@@ -52,5 +53,6 @@ def visualize(request, rcvresult):
         'sankeyjs': d3Sankey.js,
         'tabularByCandidate': tabularByCandidate,
         'tabularByRound': tabularByRound,
-        'tabularByRoundInteractive': tabularByRoundInteractive
+        'tabularByRoundInteractive': tabularByRoundInteractive,
+        'offlineMode': offlineMode
     })

@@ -4,15 +4,15 @@
 
 <div id="bargraph-interactive-body">
 </div>
-<script src="https://unpkg.com/d3-simple-slider"></script>
-<script type="text/javascript">
-
-
-{% if false %}
-<!-- uncomment for offline use -->
+{% if offlineMode %}
 {% load static %}
 <script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
+{% else %}
+<script src="https://unpkg.com/d3-simple-slider"></script>
 {% endif %}
+
+<script type="text/javascript">
+
 
 {{ bargraphjs|safe }}
 
