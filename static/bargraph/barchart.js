@@ -176,7 +176,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       {
           return isVertical ? "[x]" :  "[eliminated]";;
       }
-      var text = d[1] + " votes";
+      var text = Math.round(d[1]*1000)/1000.0 + " votes";
       return text;
   };
 
