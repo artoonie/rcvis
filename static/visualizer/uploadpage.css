@@ -1,7 +1,7 @@
 body{
   background: #003333;
   color: #fff;
-  font-family: Arial;
+  font-family: times;
   text-align: center;
 }
 div.content {
@@ -75,7 +75,7 @@ form button:hover{
     display:inline-block;
     cursor:pointer;
     color:#ffffff;
-    font-family:Arial;
+    font-family:times;
     font-size:15px;
     font-weight:bold;
     padding:11px 23px;
@@ -95,4 +95,8 @@ form button:hover{
 #selectFileButton:active {
     position:relative;
     top:1px;
+}
+svg {
+  shape-rendering: crispEdges;
+    font: 6px sans-serif;
 }

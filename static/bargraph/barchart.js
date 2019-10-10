@@ -75,7 +75,6 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   // Define legend
   var legend = svg => {
         const g = svg
-            .attr("font-family", "sans-serif")
             .attr("font-size", "1.55em")
             .attr("text-anchor", "end")
             .attr("transform", `translate(${width + margin.left},${margin.top})`)
@@ -103,8 +102,9 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var barVotesSizeHelperFn = function(d) {
       return (votesRange(d[0]) - votesRange(d[1])) * (isVertical ? 1 : -1);
   }
-  var shouldColorFn = function(d) { return !isInteractive || !isEliminated(d); }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
+  var isEliminatedInteractiveFn = function(d) { return isInteractive && isEliminated(d); }
+  var isOverflowFn = function(d) { return barVotesSizeHelperFn(d) <= 0; };
   var barVotesPosFn   = function(d) {
       var index = isVertical ? 1 : 0;
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
@@ -119,15 +119,62 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   };
   var eliminatedAndOverflowColor = doHideOverflowAndEliminated ? "#FFF" : "#CCC";
   var barColorFn = function(d) {
-      if (!shouldColorFn(d)) return eliminatedAndOverflowColor; // Color for eliminated candidates
-      if (barVotesSizeHelperFn(d) > 0)
-          return colors[d.round];
+      if (isEliminatedInteractiveFn(d) || isOverflowFn(d))
+          return eliminatedAndOverflowColor;
       else
-          return eliminatedAndOverflowColor; // Color for overflow votes
+          return colors[d.round];
   };
+
+
+  // Data label helper functions
+  var isEliminationDataLabelFn = function(d) {
+      return d.numRoundsTilEliminated < d.round+1;
+  }
+  var barVotesDataLabelPosFn = function(d) {
+      var OFFSET = 15;
+      var startOfBarPlusABit = barVotesPosFn(d) + OFFSET;
+      if (isEliminationDataLabelFn(d))
+      {
+          // Eliminated candidates
+          return votesRange(0) + OFFSET;
+      }
+      else if (doHideOverflowAndEliminated && isOverflowFn(d))
+      {
+          // Overvotes
+          return startOfBarPlusABit;
+      }
+
+      return startOfBarPlusABit + barVotesSizeFn(d);
+  };
+  var barCandidatesDataLabalPosFn = function(d) {
+    return candidatesRange(d.data.candidate)+candidatesRange.bandwidth()/2.0;
+  };
+  function isLatestRoundFor(d) {
+      if(isEliminated(d))
+      {
+        // If we've been eliminated by now, then check if this round is the last round alive
+        return d.numRoundsTilEliminated == d.round;
+      }
+      else
+      {
+        // Otherwise, check if this round is the latest available round
+        return currRound == d.round+1;
+      }
+  }; 
+  function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
+  var dataLabelTextFn = function(d) {
+      if(isEliminationDataLabelFn(d))
+      {
+          return "[eliminated]";
+      }
+      var text = d[1] + " votes";
+      return text;
+  };
+
+  // Hover text helper
   var barTextFn = function(d) {
       var text = !isEliminated(d) ? "Current " : "Eliminated with ";
-      text += d[1] + " votes";
+      text += dataLabelTextFn(d);
       return text;
   };
 
@@ -180,6 +227,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   }
   eachBar
     .join("rect")
+      .attr("class", "eachBar")
       .attr(candidatePosStr, d => candidatesRange(d.data.candidate))
       .attr(votesPosStr, barVotesPosFn)
       .attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
@@ -190,6 +238,17 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       .on("mousemove", function(d) {
         drawTooltipText(this, barTextFn(d));
       });
+
+  eachBar
+    .join("text")
+      .attr("class", "dataLabels")
+      .attr(candidatePosStr, barCandidatesDataLabalPosFn)
+      .attr(votesPosStr, barVotesDataLabelPosFn)
+      .attr("display", dataLabelDisplayFor)
+      .attr("font-align", "left")
+      .attr("font-size", "1.5em")
+      .attr("border", "5px")
+      .text(dataLabelTextFn);
 
   svg.append("g")
       .call(candidatesAxis)
@@ -247,12 +306,23 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   // Return animation controls
   var transitionEachBarForRound = function(round) {
     currRound = round;
-    eachBar.enter().selectAll("rect").transition()
+    eachBar.enter().selectAll("rect.eachBar").transition()
         .duration(100)
         .delay(0)
         .attr(votesPosStr, barVotesPosFn)
         .attr(votesSizeStr, barVotesSizeFn)
         .attr("fill", barColorFn);
   };
-  return transitionEachBarForRound;
+  var transitionDataLabelsForRound = function(round) {
+    currRound = round;
+    eachBar.enter().selectAll("text.dataLabels").transition()
+        .duration(50)
+        .delay(0)
+        .attr("display", dataLabelDisplayFor)
+  };
+  var transitions = function(round) {
+    transitionEachBarForRound(round);
+    transitionDataLabelsForRound(round);
+  };
+  return transitions;
 }

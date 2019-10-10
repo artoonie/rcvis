@@ -1,0 +1,11 @@
+body{
+  background: #FFF9FF;
+  color: #fff;
+  font-family: times;
+  text-align: center;
+}
+svg {
+  shape-rendering: crispEdges;
+  font-size: .45em;
+  font-family: sans-serif;
+}

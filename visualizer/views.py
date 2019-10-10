@@ -44,7 +44,7 @@ def visualize(request, rcvresult):
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
-    offlineMode = True # Switch to True to work from an airplane :)
+    offlineMode = False # Switch to True to work from an airplane :)
     return render(request, 'visualizer/visualize.html', {
         'title': graph.title,
         'date': graph.dateString,
