@@ -17,11 +17,11 @@ def upload(request):
 
         config = JsonConfig(jsonFile=visualizerJson)
         config.hideDecimals = request.POST.get('hideDecimals', False) == "on"
-        config.hideTransferlessRounds = request.POST.get('combineWinner', False) == "on"
         config.rotateNames = request.POST.get('rotateNames', False) == "on"
         config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
         config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
         config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"
+        config.excludeFinalWinnerAndEliminatedCandidate = request.POST.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
         graph = makeGraphWithFile(config)
         d3Sankey = D3Sankey(graph)
 

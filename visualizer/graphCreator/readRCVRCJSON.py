@@ -63,32 +63,6 @@ class HideDecimalsTask(JSONMigrateTask):
             for name in xfers:
                 xfers[name] = round(float(xfers[name]))
 
-class HideTransferlessRoundsTask(JSONMigrateTask):
-    def _isTransferlessRound(self, tallyResults):
-        for tallyResult in tallyResults:
-            if 'eliminated' in tallyResult or tallyResult['transfers']:
-                return False
-        return True
-
-    def do(self):
-        i = 0
-        rounds = self.data['results']
-        while i < len(rounds):
-            result = rounds[i]
-            currRoundResults = result['tallyResults']
-            if self._isTransferlessRound(currRoundResults):
-                if i == 0:
-                    rounds[i+1]['tallyResults'].extend(currRoundResults)
-                else:
-                    rounds[i-1]['tallyResults'].extend(currRoundResults)
-                rounds = rounds[:i] + rounds[i+1:]
-            else:
-                i += 1
-        self.data['results'] = rounds
-        # fix round #
-        for i in range(len(rounds)):
-            rounds[i]['round'] = i+1
-
 class JSONMigration():
     """ Correct data inconsistencies in the JSON upfront,
         rather than intermixing this code throughout the parser. """
@@ -104,8 +78,6 @@ class JSONReader(readJSONBase.JSONReaderBase):
             self.tasks.append(FixIgnoreResidualSurplus)
 
         def loadConfigurationTasks(data, config):
-            if config.hideTransferlessRounds:
-                self.tasks.append(HideTransferlessRoundsTask)
             if config.hideDecimals:
                 self.tasks.append(HideDecimalsTask)
 

@@ -17,6 +17,19 @@ def getCorrectReaderFor(config):
             raise RuntimeError(exceptions)
     return jsonReader
 
+def removeLastWinnerAndEliminated(graph):
+    haveRemovedWinner = False
+    haveRemovedEliminated = False
+    for node in reversed(graph.nodes):
+        if not haveRemovedWinner and node.isWinner:
+            node.isWinner = False
+            haveRemovedWinner = True
+        if not haveRemovedEliminated and node.isEliminated:
+            node.isEliminated = False
+            haveRemovedEliminated = True
+        if haveRemovedEliminated and haveRemovedWinner:
+            break
+
 def makeGraphWithFile(config):
     assert isinstance(config, JsonConfig)
 
@@ -34,5 +47,8 @@ def makeGraphWithFile(config):
     graph.step(steps[-1], True)
 
     graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
+
+    if config.excludeFinalWinnerAndEliminatedCandidate:
+        removeLastWinnerAndEliminated(graph)
 
     return graph

@@ -16,37 +16,70 @@ function handleFiles(files)
   <form action="upload.html" enctype="multipart/form-data" method="post" id="form">
     {% csrf_token %}
  	<div class="formArea">
-      Global visualization options:
-	  <div class="options">
-        <label><input type="checkbox" name="combineWinner"/> Combine winner-only rounds with the previous transfer round</label>
-        <br/>
-        <label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
-        <br/>
-        <label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners in Tabulation</label>
-        <br/>
-        <label><input type="checkbox" name="rotateNames" checked/> Rotate the names of candidates on the top bar</label>
-      </div>
+		<button class="collapsible">Global visualization options:</button>
+		<div class="optionscontent">
+			<p>
+			<label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
+			<br/><small>By default, we'll show up to two decimal places.</small></label>
+		<br/> <br/>
+		<label><input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate" /> Exclude the final elected and eliminated candidate?
+			<br/><small>This is useful for in-progress elections to avoid bouncing back and forth</small></label>
+			</p>
+		</div>
 
-      <br/>
-      Bargraph visualization options:
-	  <div class="options">
-        <label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes in bar charts?</label>
-        <br/>
-        <label><input type="checkbox" name="doUseHorizontalBarGraph"/> Make bar graphs horizontal instead of vertical?</label>
-	  </p>
-	  <br/>
+		<button class="collapsible">Bargraph visualization options:</button>
+		<div class="optionscontent">
+			<p>
+			<label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes in bar charts?</label>
+		    <br/> <br/>
+			<label><input type="checkbox" name="doUseHorizontalBarGraph"/> Make bar graphs horizontal instead of vertical?</label>
+			</p>
+		</div>
 
- 	  <div class="selectFileButtonWrapper">
-  	    <button id="selectFileButton">Click to select a file</button>
-	    <input type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
-	  </div>
+		<button class="collapsible">Sankey visualization options:</button>
+		<div class="optionscontent">
+			<p>
+			<label><input type="checkbox" name="rotateNames" checked/> Rotate the names of candidates on the top bar</label>
+			</p>
+		</div>
 
- 	  <div id="submitDiv">
-        <button type="submit" class="submitButton">Upload</button>
-	  </div>
-    </p>
+
+		<button class="collapsible">Tabular visualization options:</button>
+		<div class="optionscontent">
+			<p>
+			<label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners in Tabulation</label>
+			</p>
+		</div>
+
+		<br/>
+		<div class="selectFileButtonWrapper">
+			<button id="selectFileButton">Click to select a file</button>
+			<input type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+		</div>
+		<div id="submitDiv">
+			<button type="submit" class="submitButton">Upload</button>
+		</div>
+	</div>
   </form>
   </div>
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function(event) {
+    event.preventDefault();
+    console.log("NEXT");
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.maxHeight){
+      content.style.maxHeight = null;
+    } else {
+      content.style.maxHeight = content.scrollHeight + "px";
+    } 
+  });
+}
+</script>
 
   {% if uploaded_file_url %}
     <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
