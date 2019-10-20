@@ -16,7 +16,7 @@ function handleFiles(files)
   <form action="upload.html" enctype="multipart/form-data" method="post" id="form">
     {% csrf_token %}
  	<div class="formArea">
-		<button class="collapsible">Global visualization options:</button>
+		<button class="collapsible">▶ Global visualization options</button>
 		<div class="optionscontent">
 			<p>
 			<label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
@@ -27,7 +27,7 @@ function handleFiles(files)
 			</p>
 		</div>
 
-		<button class="collapsible">Bargraph visualization options:</button>
+		<button class="collapsible">▶ Bargraph visualization options</button>
 		<div class="optionscontent">
 			<p>
 			<label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes</label>
@@ -36,7 +36,7 @@ function handleFiles(files)
 			</p>
 		</div>
 
-		<button class="collapsible">Sankey visualization options:</button>
+		<button class="collapsible">▶ Sankey visualization options</button>
 		<div class="optionscontent">
 			<p>
 			<label><input type="checkbox" name="rotateNames" checked/> Rotate the names of candidates on the top bar</label>
@@ -44,7 +44,7 @@ function handleFiles(files)
 		</div>
 
 
-		<button class="collapsible">Tabular visualization options:</button>
+		<button class="collapsible">▶ Tabular visualization options</button>
 		<div class="optionscontent">
 			<p>
 			<label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners, hiding eliminated candidates</label>
@@ -69,12 +69,13 @@ var i;
 for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function(event) {
     event.preventDefault();
-    console.log("NEXT");
     this.classList.toggle("active");
     var content = this.nextElementSibling;
     if (content.style.maxHeight){
+      this.innerText = this.innerText.replace('▼', '▶');
       content.style.maxHeight = null;
     } else {
+      this.innerText = this.innerText.replace('▶', '▼');
       content.style.maxHeight = content.scrollHeight + "px";
     } 
   });
