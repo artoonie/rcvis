@@ -27,38 +27,39 @@
 <body>
     <ul class="nav nav-tabs" id="tablist" role="tablist">
         <li class="nav-item">
-            <a class="nav-link" id="home-tab" href="/" role="tab" aria-controls="home" aria-selected="true">Home</a>
+            <a class="nav-link" id="home-tab" href="/" role="tab" aria-controls="home" aria-selected="true">Upload New Tabulated Election</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="barchart-interactive-tab" data-toggle="tab" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Interactive Bar Chart</a>
+            <a class="nav-link" id="barchart-tab-interactive" data-toggle="tab" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Bar Chart</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey Visualization</a>
+            <a class="nav-link" id="barchart-tab-fixed" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Bar Chart</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="tabular-by-round-interactive-tab" data-toggle="tab" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round Interactive</a>
+            <a class="nav-link" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="barchart-fixed-tab" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Cumulative Bar Chart</a>
+            <a class="nav-link" id="tabular-by-round-tab-interactive" data-toggle="tab" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tabular-by-round-tab-fixed" data-toggle="tab" href="#tabular-by-round-fixed" role="tab" aria-controls="tabular-by-round-fixed" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" id="tabular-by-candidate-tab" data-toggle="tab" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="tabular-by-round-tab" data-toggle="tab" href="#tabular-by-round" role="tab" aria-controls="tabular-by-round" aria-selected="false">Round-by-Round Summary</a>
         </li>
     </ul>
 
     <div class="tab-content" id="myTabContent">
         <h1 style="margin-left: 20px">{{ title }}</h1>
         <h3 style="margin-left: 20px">{{ date }}</h3>
+        <h6 style="margin-left: 20px; margin-top:20px"><a id="swap-dynamic" href="#"></a></h6>
 
         <div class="tab-pane fade" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
-        <div class="tab-pane fade" id="barchart-fixed" role="tabpanel" aria-labelledby="barchart-fixed-tab">{% include "bargraph/barchart-fixed.html" %}</div>
-        <div class="tab-pane fade" id="barchart-interactive" role="tabpanel" aria-labelledby="barchart-interactive-tab">{% include "bargraph/barchart-interactive.html" %}</div>
+        <div class="tab-pane fade" id="barchart-fixed" role="tabpanel" aria-labelledby="barchart-tab-fixed">{% include "bargraph/barchart-fixed.html" %}</div>
+        <div class="tab-pane fade" id="barchart-interactive" role="tabpanel" aria-labelledby="barchart-tab-interactive">{% include "bargraph/barchart-interactive.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-candidate" role="tabpanel" aria-labelledby="tabular-by-candidate-tab">{% include "tabular/tabular-by-candidate.html" %}</div>
-        <div class="tab-pane fade" id="tabular-by-round" role="tabpanel" aria-labelledby="tabular-by-round-tab">{% include "tabular/tabular-by-round.html" %}</div>
-        <div class="tab-pane fade" id="tabular-by-round-interactive" role="tabpanel" aria-labelledby="tabular-by-round-interactive-tab">{% include "tabular/tabular-by-round-interactive.html" %}</div>
+        <div class="tab-pane fade" id="tabular-by-round-fixed" role="tabpanel" aria-labelledby="tabular-by-round-tab-fixed">{% include "tabular/tabular-by-round.html" %}</div>
+        <div class="tab-pane fade" id="tabular-by-round-interactive" role="tabpanel" aria-labelledby="tabular-by-round-tab-interactive">{% include "tabular/tabular-by-round-interactive.html" %}</div>
     </div>
 
   {% if offlineMode %}
@@ -72,21 +73,65 @@
   {% endif %}
 
   <script>
-      // c/o https://stackoverflow.com/a/9393768/1057105
-      // Javascript to enable link to tab
-      var url = document.location.toString();
-      var activeTab;
-      if (url.match('#')) {
-          activeTab = url.split('#')[1];
-      } 
-      else {
-          activeTab = "barchart-interactive";
+      function goToTab(tabName)
+      {
+          $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
       }
-      $('.nav-tabs a[href="#' + activeTab + '"]').tab('show');
+
+      function loadTabFromTag()
+      {
+          // c/o https://stackoverflow.com/a/9393768/1057105
+          // Javascript to enable link to tab
+          var url = document.location.toString();
+          if (url.match('#')) {
+              activeTab = url.split('#')[1];
+          } 
+          goToTab(activeTab);
+      }
+
+      function updateHiddenTabs()
+      {
+        var swapText = document.getElementById("swap-dynamic");
+        if(doHideFixedTabs)
+        {
+          suffixOld = "-fixed"
+          suffixNew = "-interactive"
+          swapText.innerText = "Showing interactive content. Show print-friendly instead?"
+        }
+        else
+        {
+          suffixOld = "-interactive"
+          suffixNew = "-fixed"
+          swapText.innerText = "Showing print-friendly content. Show interactive instead?"
+        }
+
+        activeTab = activeTab.replace(suffixOld, suffixNew); 
+        goToTab(activeTab);
+
+        // Iterate over all tabs and change their status
+        var i;
+        var tabs = document.getElementsByClassName("nav-link");
+        for (i = 0; i < tabs.length; i++) {
+          tabs[i].hidden = tabs[i].id.endsWith(suffixOld);
+        }
+      }
+
+      var activeTab = "barchart-interactive"; // the default tab
+      loadTabFromTag()
+      var doHideFixedTabs = !activeTab.endsWith("-fixed");
+      updateHiddenTabs();
+
+      document.getElementById("swap-dynamic").addEventListener("click", function(event) {
+        doHideFixedTabs = !doHideFixedTabs;
+        updateHiddenTabs();
+        event.preventDefault();
+        return false;
+      });
 
       // Change hash for page-reload
       $('.nav-tabs a').on('shown.bs.tab', function (e) {
-          history.pushState(null,null,e.target.hash);
+          activeTab = e.target.hash.split('#')[1]
+          history.pushState(null,null,'#' + activeTab);
           e.preventDefault();
           return false;
       })
