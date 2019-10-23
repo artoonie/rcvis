@@ -17,10 +17,17 @@ def getCorrectReaderFor(config):
             raise RuntimeError(exceptions)
     return jsonReader
 
-def removeLastWinnerAndEliminated(graph):
+def removeLastWinnerAndEliminated(graph, steps):
     haveRemovedWinner = False
     haveRemovedEliminated = False
-    for node in reversed(graph.nodes):
+
+    # Some tabulators don't mark the penultimate candidate as eliminated-
+    # they just mark a winner. Figure out if that's happening, and don't
+    # remove an extra candidate.
+    if(len(steps[-1].transfers) == 0):
+        haveRemovedEliminated = True
+
+    for node in graph.nodes:
         if not haveRemovedWinner and node.isWinner:
             node.isWinner = False
             haveRemovedWinner = True
@@ -49,6 +56,6 @@ def makeGraphWithFile(config):
     graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
 
     if config.excludeFinalWinnerAndEliminatedCandidate:
-        removeLastWinnerAndEliminated(graph)
+        removeLastWinnerAndEliminated(graph, steps)
 
     return graph
