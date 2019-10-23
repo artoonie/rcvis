@@ -66,3 +66,9 @@ Here are four ways to visualize the results of the same election.
 ![Candidate Summary](screenshots/candidatesummary.png "Candidate Summary")
 ---
 ![Round-by-Round](screenshots/roundbyround.png "Round-by-Round")
+
+
+## Inpsiration
+[City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
+[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
+
