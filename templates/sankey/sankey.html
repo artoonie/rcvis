@@ -20,10 +20,11 @@ var units = "Votes";
 var nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, the more room you want to display connections.
 var linkPadding = 50
 var roundSize0 = nodeSize0 + nodePadding + linkPadding
-var totalSize0 = (numRounds) * roundSize0
+var totalSize0 = numRounds * roundSize0
 var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 var size1TopbarTextPadding = 300; // allow room for long text on last candidate
-var heightUntilSticky = 300; // how far you scroll down before the top bar "sticks" to the top
+var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
+var stickyHysteresis = 30; // How far you scroll back up before the top bar "unsticks"
 
 var ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
 
@@ -266,7 +267,7 @@ function notifyScrolled() {
   if (window.pageYOffset >= sticky) {
     topbarDiv.classList.add("sticky")
     round1SpecialLabel.style("display", "none")
-  } else {
+  } else if (window.pageYOffset < sticky - stickyHysteresis){
     topbarDiv.classList.remove("sticky");
     round1SpecialLabel.style("display", "inherit")
   }
