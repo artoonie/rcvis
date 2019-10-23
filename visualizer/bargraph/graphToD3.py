@@ -28,6 +28,12 @@ class D3Bargraph:
         # Make round labels
         rounds = [get_label_for(rounds[i]) for i in range(numRounds)]
 
+        # Get the winners each round, flip list into dict
+        numRoundsTilWin = {}
+        for r in summary.rounds:
+            for winner in r.winnerNames:
+                numRoundsTilWin[winner] = r.round_i
+
         palette = ColorGenerator(numRounds)
         colors = [Color(next(palette)).asHex() for i in range(numRounds)]
 
@@ -39,6 +45,7 @@ class D3Bargraph:
         js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
         js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'
+        js += f'\nvar numRoundsTilWin = {numRoundsTilWin};'
         self.js = js
 
 def get_label_for(roundInfo):

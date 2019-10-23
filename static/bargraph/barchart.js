@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
+function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
   // right margin: leave room for legend
   var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
   if(isVertical) margin.left += longestLabelApxWidth;
@@ -194,15 +194,18 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       // Vertical shows "[x]" or "x votes", and percent is shown on secondaryDataLabelTextFn
       if(isEliminationDataLabelFn(d))
       {
-          return isVertical ? "[x]" :  "[eliminated]";
+          return isVertical ? "❌ "  :  "[eliminated]";
       }
+      startText = "";
+      if (d.isWinner)
+          startText = "✅ " ;
       if (isVertical)
       {
-          return votesToText(d[1], false, true);
+          return startText + votesToText(d[1], false, true);
       }
       else
       {
-          return votesAndPctToText(d[1], totalVotesPerRound[d.round], false, false);
+          return startText + votesAndPctToText(d[1], totalVotesPerRound[d.round], false, false);
       }
   };
   var secondaryDataLabelTextFn = function(d) {
@@ -225,6 +228,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
     .join("g")
     .selectAll("rect")
     .data(function(d, i) {
+      // This function is an entire round
       var numCandidates = d.length;
       var maxNumRounds = 0;
       for(var candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
@@ -234,8 +238,10 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
         // We verify that assumption by looking at the max number of rounds after this loop.
         var numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 1;
 
+        candidateName = d[candidate_i].data["candidate"]
         d[candidate_i].round = i;
         d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
+        d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= i
         maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated);
       }
 
