@@ -28,10 +28,16 @@ You will need several environment variables set. I recommend creating a `.env` f
 export RCVIS_SECRET_KEY=''
 export RCVIS_DEBUG=True
 export RCVIS_HOST=localhost
-export AWS_STORAGE_BUCKET_NAME=''
-export AWS_S3_REGION_NAME=''
-export AWS_ACCESS_KEY_ID=''
-export AWS_SECRET_ACCESS_KEY=''
+
+# Either have OFFLINE_MODE=True
+export OFFLINE_MODE=True
+
+# Or set up an AWS bucket and enter your credentials
+# export OFFLINE_MODE=False
+# export AWS_STORAGE_BUCKET_NAME=''
+# export AWS_S3_REGION_NAME=''
+# export AWS_ACCESS_KEY_ID=''
+# export AWS_SECRET_ACCESS_KEY=''
 ```
 
 And running `source .env` to set up your environment.

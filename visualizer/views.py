@@ -5,6 +5,7 @@ from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
 from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate
+from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile
 
 def index(request):
@@ -44,7 +45,7 @@ def visualize(request, rcvresult):
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
-    offlineMode = False # Switch to True to work from an airplane :)
+    offlineMode = OFFLINE_MODE
     return render(request, 'visualizer/visualize.html', {
         'title': graph.title,
         'date': graph.dateString,
