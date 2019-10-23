@@ -1,0 +1,24 @@
+{
+  "config" : {
+    "contest" : "Transfer to nonexistent candidate",
+    "date" : "2055-05-05",
+    "jurisdiction" : "Test",
+    "office" : "Test",
+    "threshold" : "1"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "Larry Edwards" : "96",
+      "Mary Hall-Rayford" : "80",
+      "Sarah Lucido" : "80",
+      "Write-In" : "64"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Write-In",
+      "transfers" : {
+        "Harvey Curley" : "64"
+      }
+    } ]
+  }
+}

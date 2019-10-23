@@ -1,0 +1,78 @@
+{
+  "config" : {
+    "contest" : "City of Eastpointe, Macomb County, MI",
+    "date" : "2019-11-05",
+    "jurisdiction" : "City of Eastpointe",
+    "office" : "Council",
+    "threshold" : "134"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "Harvey Curley" : "80",
+      "Larry Edwards" : "96",
+      "Mary Hall-Rayford" : "80",
+      "Sarah Lucido" : "80",
+      "Write-In" : "64"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Write-In",
+      "transfers" : {
+        "Harvey Curley" : "64"
+      }
+    } ]
+  }, {
+    "round" : 2,
+    "tally" : {
+      "Harvey Curley" : "144",
+      "Larry Edwards" : "96",
+      "Mary Hall-Rayford" : "80",
+      "Sarah Lucido" : "80"
+    },
+    "tallyResults" : [ {
+      "elected" : "Harvey Curley",
+      "transfers" : {
+        "Larry Edwards" : "8.8832",
+        "Mary Hall-Rayford" : "1.1104",
+        "residual surplus" : "0.0064"
+      }
+    } ]
+  }, {
+    "round" : 3,
+    "tally" : {
+      "Harvey Curley" : "134",
+      "Larry Edwards" : "104.8832",
+      "Mary Hall-Rayford" : "81.1104",
+      "Sarah Lucido" : "80"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Sarah Lucido",
+      "transfers" : {
+        "Larry Edwards" : "80"
+      }
+    } ]
+  }, {
+    "round" : 4,
+    "tally" : {
+      "Harvey Curley" : "134",
+      "Larry Edwards" : "184.8832",
+      "Mary Hall-Rayford" : "81.1104"
+    },
+    "tallyResults" : [ {
+      "elected" : "Larry Edwards",
+      "transfers" : {
+        "Mary Hall-Rayford" : "50.5632",
+        "exhausted" : "0.3040",
+        "residual surplus" : "0.0160"
+      }
+    } ]
+  }, {
+    "round" : 5,
+    "tally" : {
+      "Harvey Curley" : "134",
+      "Larry Edwards" : "134",
+      "Mary Hall-Rayford" : "131.6736"
+    },
+    "tallyResults" : [ ]
+  } ]
+}

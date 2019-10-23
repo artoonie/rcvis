@@ -2,6 +2,8 @@ from visualizer.models import JsonConfig
 import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
 
+class BadJSONError(Exception): pass
+
 def getCorrectReaderFor(config):
     # Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader.
     exceptions = {}
@@ -14,7 +16,7 @@ def getCorrectReaderFor(config):
             jsonReader = opavoteJson.JSONReader(config.jsonFile, config)
         except Exception as e1:
             exceptions["Opavote JSON Errors"] = e1
-            raise RuntimeError(exceptions)
+            raise BadJSONError(exceptions)
     return jsonReader
 
 def removeLastWinnerAndEliminated(graph, steps):

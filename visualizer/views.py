@@ -37,9 +37,7 @@ def upload(request):
     else:
         return redirect('index')
 
-def visualize(request, rcvresult):
-    config = get_object_or_404(JsonConfig, slug=rcvresult)
-
+def getDataForView(config):
     graph = makeGraphWithFile(config)
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
@@ -47,7 +45,7 @@ def visualize(request, rcvresult):
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
     offlineMode = OFFLINE_MODE
-    return render(request, 'visualizer/visualize.html', {
+    return {
         'title': graph.title,
         'date': graph.dateString,
         'config': config,
@@ -57,4 +55,9 @@ def visualize(request, rcvresult):
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'offlineMode': offlineMode
-    })
+    }
+
+def visualize(request, rcvresult):
+    config = get_object_or_404(JsonConfig, slug=rcvresult)
+    data = getDataForView(config)
+    return render(request, 'visualizer/visualize.html', data)
