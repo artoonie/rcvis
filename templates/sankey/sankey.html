@@ -11,6 +11,8 @@
 <script> {{ sankeyjs|safe }} </script>
 <script>
 
+function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound)
+{
     // TODO
     // 1. how to mouseover <text> in the middle of the sankey?
 
@@ -37,7 +39,8 @@ var cmargin = {top:  0, right: 10, bottom: 15, left: 50}, // content
 {% else %}
     tmarginLength = 40,
 {% endif %}
-    size0 = totalSize0 + size0margin(cmargin),
+    bottomLabelPadding = 20
+    size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
     hackExtraPadding = numCandidates*30, // we need extra room because the
                                          // ideal size may not be the actual size
                                          // once all the nodes are expanded to their minimum sizes
@@ -63,15 +66,15 @@ function textForNode(d) {
         s += "❌ " ;
     if(d.isWinner)
         s += "✅ " ;
-    s += ""+Math.round(d.value*100)/100.0;
+    s += votesToText(d.value, false, true)
     return s;
 }
 
-function getNodeValueText(d) {
+function getNodeVotesText(d) {
     return textForNode(d)
 }
-function getNodeValueTextTruncated(d) {
-    return hackCharsForWidth(d.dx, textForNode(d))
+function getNodePercentText(d) {
+    return percentToText(d.value, totalVotesPerRound[d.round])
 }
 
 function makeGraph(graph) {
@@ -93,7 +96,7 @@ function makeGraph(graph) {
               "translate(" + cmargin.left + "," + cmargin.top + ")");
 
     // Set the sankey diagram properties
-    var sankey = d3.sankey()
+    var sankey = d3.sankey(totalSize0)
         .nodeSize0(nodeSize0)
         .nodePadding(nodePadding)
         .size([0, idealTotalSize1]);
@@ -180,19 +183,22 @@ function makeGraph(graph) {
 
     // add in the title for the nodes
     var SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN = 100;
-    node.append('g').append("text")
-      .attr("x", function(d) { if(ddim1(d) > SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN) return textXPos; return -3; } ) // small nodes shouldn't be shifted to save space
-      .attr("y", textYPos )
+	function magicShift(d) { if(ddim1(d) > SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN) return textXPos; return 0; }
+    node.append('g')
+      .append("text")
+      .attr("x", magicShift) 
+      .attr("y", textYPos)
       .attr("dy", ".35em")
       .style("pointer-events", "all")
-      .text(getNodeValueTextTruncated)
-          .on('mouseover', function(d){
-              d3.select(this).text(getNodeValueText);
-          })
-          .on('mouseout', function(d){
-              d3.select(this).text(getNodeValueTextTruncated);
-          })
-        .call(d3.drag());
+      .text(getNodeVotesText)
+      .call(d3.drag());
+    node.append('g')
+      .append("text")
+      .attr("x", function(d) { if(ddim1(d) > SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN) return textXPos; return 0; } ) // small nodes shouldn't be shifted to save space
+      .attr("y", textYPos + 20)
+      .attr("dy", ".35em")
+      .text(getNodePercentText)
+      .call(d3.drag());
 }
 
 function makeTopBar(graph) {
@@ -291,4 +297,6 @@ var topbarG = makeTopBar(graph);
 var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
 populateTopBarFor(topbarG, 0)
 
+}
+makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound);
 </script>

@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
+function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
   // right margin: leave room for legend
   var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
   if(isVertical) margin.left += longestLabelApxWidth;
@@ -130,10 +130,10 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
   var isEliminationDataLabelFn = function(d) {
       return d.numRoundsTilEliminated < d.round+1;
   }
-  var barVotesDataLabelPosFn = function(d) {
+  var barVotesMainDataLabelPosFn = function(d) {
       // I hate this function. We need to do some magic because in vertical mode,
       // "up" is negative, whereas in horizontal, "right" is positive.
-      var offset = isVertical ? -15 : 15;
+      var offset = isVertical ? -25 : 15;
       var startOfBarPlusABit = barVotesPosFn(d) + offset;
       if (isEliminationDataLabelFn(d))
       {
@@ -156,7 +156,25 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       }
   };
   var barCandidatesDataLabalPosFn = function(d) {
-    return candidatesRange(d.data.candidate) + (isVertical ? 0 : candidatesRange.bandwidth()/2.0);
+      if (isVertical)
+      {
+        if (isEliminationDataLabelFn(d))
+        {
+          // Eliminated [x] is smaller, so center it hackily
+          offset = candidatesRange.bandwidth()/2.0 - 5;
+        }
+        else
+        {
+          // Otherwise, text is longer, left-align it
+          offset = 0;
+        }
+      }
+      else
+      {
+        // Horizontal is all at the same height
+        offset = candidatesRange.bandwidth()/2.0;
+      }
+      return candidatesRange(d.data.candidate) + offset;
   };
   function isLatestRoundFor(d) {
       if(isEliminated(d))
@@ -171,20 +189,34 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
       }
   }; 
   function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
-  var dataLabelTextFn = function(d) {
+  var mainDataLabelTextFn = function(d) {
+      // Horizontal shows "[eliminated]" or "x votes (y%)"
+      // Vertical shows "[x]" or "x votes", and percent is shown on secondaryDataLabelTextFn
       if(isEliminationDataLabelFn(d))
       {
-          return isVertical ? "[x]" :  "[eliminated]";;
+          return isVertical ? "[x]" :  "[eliminated]";
       }
-      var text = Math.round(d[1]*1000)/1000.0 + " votes";
-      return text;
+      if (isVertical)
+      {
+          return votesToText(d[1], false, true);
+      }
+      else
+      {
+          return votesAndPctToText(d[1], totalVotesPerRound[d.round], false, false);
+      }
+  };
+  var secondaryDataLabelTextFn = function(d) {
+      if(isEliminationDataLabelFn(d) || !isVertical)
+      {
+          return "";
+      }
+      return percentToText(d[1], totalVotesPerRound[d.round]);
   };
 
   // Hover text helper
   var barTextFn = function(d) {
-      var text = !isEliminated(d) ? "Current " : "Eliminated with ";
-      text += dataLabelTextFn(d);
-      return text;
+      var text = !isEliminated(d) ? "On Round " + d.round + ", has " : "Eliminated with ";
+      return text + votesAndPctToText(d[1], totalVotesPerRound[d.round], true, false);
   };
 
   var eachBar = svg.append("g")
@@ -252,12 +284,23 @@ function makeBarGraph(idOfContainer, data, candidatesRange, colors, longestLabel
     .join("text")
       .attr("class", "dataLabels")
       .attr(candidatePosStr, barCandidatesDataLabalPosFn)
-      .attr(votesPosStr, barVotesDataLabelPosFn)
+      .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
       .attr("font-align", "left")
-      .attr("font-size", "1.5em")
-      .attr("border", "5px")
-      .text(dataLabelTextFn);
+      .attr("font-size", "2.3em")
+      .text(mainDataLabelTextFn);
+  if (isVertical)
+  {
+      eachBar
+        .join("text")
+          .attr("class", "dataLabels")
+          .attr(candidatePosStr, barCandidatesDataLabalPosFn)
+          .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 20})
+          .attr("display", dataLabelDisplayFor)
+          .attr("font-align", "left")
+          .attr("font-size", "1.5em")
+          .text(secondaryDataLabelTextFn);
+   }
 
   svg.append("g")
       .call(candidatesAxis)

@@ -20,6 +20,7 @@ class GraphSummary:
 
         currRound = len(candidates[item].votesAddedPerRound)
         candidates[item].addVotes(node.count)
+        rounds[currRound].addVotes(node.count)
 
         if node.isWinner:
             # Only count winner the first time they win
@@ -48,6 +49,7 @@ class RoundInfo:
         self.round_i = round_i
         self.eliminatedNames = []
         self.winnerNames = []
+        self.totalVotes = 0 # The total number of active ballots this round
 
     def key(self):
         return self.round_i
@@ -57,6 +59,9 @@ class RoundInfo:
 
     def addWinner(self, name):
         self.winnerNames.append(name)
+
+    def addVotes(self, numVotes):
+        self.totalVotes += numVotes
 
 class CandidateInfo:
     def __init__(self, name):

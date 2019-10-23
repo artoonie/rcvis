@@ -22,6 +22,9 @@ class D3Bargraph:
                 candidateJs[get_label_for(rounds[i])] = votes
             candidatesJs.append(candidateJs)
 
+        # Get the total votes per round
+        totalVotesPerRound = [r.totalVotes for r in rounds]
+
         # Make round labels
         rounds = [get_label_for(rounds[i]) for i in range(numRounds)]
 
@@ -35,6 +38,7 @@ class D3Bargraph:
         js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
+        js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'
         self.js = js
 
 def get_label_for(roundInfo):

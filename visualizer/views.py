@@ -24,6 +24,7 @@ def upload(request):
         config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"
         config.excludeFinalWinnerAndEliminatedCandidate = request.POST.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
         graph = makeGraphWithFile(config)
+        graph.summarize()
         d3Sankey = D3Sankey(graph)
 
         # if it successfully created a graph, save it

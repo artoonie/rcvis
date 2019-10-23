@@ -1,4 +1,4 @@
-d3.sankey = function() {
+d3.sankey = function(totalSize0) {
   var sankey = {},
       nodeSize0 = 24,
       nodePadding = 8,

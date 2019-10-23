@@ -43,5 +43,5 @@ gStep.call(sliderStep);
 var interactive = true;
 var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
 var doUseHorizontalBarGraph = {% if config.doUseHorizontalBarGraph %} true {% else %} false {% endif %};
-transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
+transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body", data, candidatesRange, totalVotesPerRound, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
 </script>

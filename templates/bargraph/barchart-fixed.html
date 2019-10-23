@@ -12,5 +12,5 @@
 var interactive = false;
 var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
 var doUseHorizontalBarGraph = {% if config.doUseHorizontalBarGraph %} true {% else %} false {% endif %};
-makeBarGraph("#bargraph-fixed-body", data, candidatesRange, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
+makeBarGraph("#bargraph-fixed-body", data, candidatesRange, totalVotesPerRound, colors, longestLabelApxWidth, interactive, threshold, doHideOverflowAndEliminated, !doUseHorizontalBarGraph);
 </script>
