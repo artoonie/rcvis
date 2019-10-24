@@ -146,8 +146,8 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       }
       else if (doHideSurplusAndEliminated && isSurplusFn(d))
       {
-          // Overvotes
-          return startOfBarPlusABit;
+          // Surplus votes that are hidden - go down one bar
+          return startOfBarPlusABit + barVotesSizeFn(d);
       }
 
       if (isVertical)
@@ -162,16 +162,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   var barCandidatesDataLabalPosFn = function(d) {
       if (isVertical)
       {
-        if (isEliminationDataLabelFn(d))
-        {
-          // Eliminated [x] is smaller, so center it hackily
-          offset = candidatesRange.bandwidth()/2.0 - 5;
-        }
-        else
-        {
-          // Otherwise, text is longer, left-align it
-          offset = 0;
-        }
+        offset = candidatesRange.bandwidth()/2.0;
       }
       else
       {
@@ -296,7 +287,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .attr(candidatePosStr, barCandidatesDataLabalPosFn)
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
-      .attr("font-align", "left")
+      .attr("text-anchor", "middle")
       .attr("font-size", "2.3em")
       .text(mainDataLabelTextFn);
   if (isVertical)
@@ -307,7 +298,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 20})
           .attr("display", dataLabelDisplayFor)
-          .attr("font-align", "left")
+          .attr("text-anchor", "middle")
           .attr("font-size", "1.5em")
           .text(secondaryDataLabelTextFn);
    }

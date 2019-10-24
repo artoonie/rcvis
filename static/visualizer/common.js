@@ -21,7 +21,7 @@ function simplifyNumber(num)
 
 function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
 {
-  if (doSimplifyNumber)
+  if (doSimplifyNumber && numVotes >= 1000)
       roundedVotes = simplifyNumber(numVotes);
   else
       roundedVotes = Math.round(numVotes*1000/10.0) / 100;
