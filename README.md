@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/artoonie/rcvis.png?branch=master)](https://travis-ci.org/artoonie/rcvis)
+
 # Ranked Choice Voting Visualization
 Visualize ranked-choice voting results using d3.js and django.
 
@@ -70,5 +72,5 @@ Here are four ways to visualize the results of the same election.
 
 ## Inpsiration
 [City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
-[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
 
+[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
