@@ -1,0 +1,19 @@
+git:
+  depth: 3
+
+branches:
+  only:
+  - /.*/
+
+language: python
+python:
+  - '3.6'
+
+install:
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip3 install -e .
+  - pip3 install -r requirements.txt
+
+script:
+  - python3 manage.py test
