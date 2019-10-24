@@ -20,5 +20,5 @@ var avgNodeSize1 = 150;
 
 var doLockTopBarOnScroll = true;
 
-textXPos = 5;
-textYPos = 20;
+function textXPos(d) { return 5; }
+function textYPos(d) { return 20; }

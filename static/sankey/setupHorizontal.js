@@ -15,10 +15,10 @@ function size0margin(margin) { return margin.left + margin.right; }
 function size1margin(margin) { return margin.top + margin.bottom; }
 function commaSeparate(d0, d1) { return d0 + "," + d1; }
 
-var nodeSize0 = 200;
-var avgNodeSize1 = 50;
+var nodeSize0 = 10;
+var avgNodeSize1 = 70;
 
 function textXPos(d) { return 6; }
-function textYPos(d) { return ddim1(d) / 2; }
+function textYPos(d) { return ddim1(d) / 2 - 10; }
 
 var doLockTopBarOnScroll = false;

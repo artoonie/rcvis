@@ -19,6 +19,7 @@ def upload(request):
         config = JsonConfig(jsonFile=visualizerJson)
         config.hideDecimals = request.POST.get('hideDecimals', False) == "on"
         config.rotateNames = request.POST.get('rotateNames', False) == "on"
+        config.horizontalSankey = request.POST.get('horizontalSankey', False) == "on"
         config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
         config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
         config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"

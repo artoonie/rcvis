@@ -7,6 +7,7 @@ class JsonConfig(models.Model):
     uploadedAt = models.DateTimeField(auto_now_add=True)
     hideDecimals = models.BooleanField(default=False)
     rotateNames = models.BooleanField(default=False)
+    horizontalSankey = models.BooleanField(default=False)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     doHideOverflowAndEliminated = models.BooleanField(default=False)
     doUseHorizontalBarGraph = models.BooleanField(default=False)
