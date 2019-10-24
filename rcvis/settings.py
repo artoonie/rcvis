@@ -25,9 +25,12 @@ SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 
+# I'm not proud of this. Add hosts - one per environment variable
 ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
 if 'RCVIS_HOST_ALIAS' in os.environ:
     ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
+if 'RCVIS_HOST_ALIAS_2' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS_2'])
 
 
 # Application definition
