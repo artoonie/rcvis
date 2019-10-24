@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/artoonie/rcvis.png?branch=master)](https://travis-ci.org/artoonie/rcvis)
+[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=master)](https://travis-ci.com/artoonie/rcvis)
 
 # Ranked Choice Voting Visualization
 Visualize ranked-choice voting results using d3.js and django.
