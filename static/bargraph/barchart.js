@@ -146,8 +146,8 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       }
       else if (doHideSurplusAndEliminated && isSurplusFn(d))
       {
-          // Overvotes
-          return startOfBarPlusABit;
+          // Surplus votes that are hidden - go down one bar
+          return startOfBarPlusABit + barVotesSizeFn(d);
       }
 
       if (isVertical)
