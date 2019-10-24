@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideOverflowAndEliminated, isVertical) {
+function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical) {
   // right margin: leave room for legend
   var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
   if(isVertical) margin.left += longestLabelApxWidth;
@@ -104,7 +104,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   }
   var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
   var isEliminatedInteractiveFn = function(d) { return isInteractive && isEliminated(d); }
-  var isOverflowFn = function(d) { return barVotesSizeHelperFn(d) <= 0; };
+  var isSurplusFn = function(d) { return barVotesSizeHelperFn(d) <= 0; };
   var barVotesPosFn   = function(d) {
       var index = isVertical ? 1 : 0;
       if (isNaN(d[0]) || isNaN(d[1])) return 0; // not sure why this happens
@@ -117,10 +117,14 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       if (!shouldDisplayFn(d)) return 0;
       return Math.abs(barVotesSizeHelperFn(d));
   };
-  var eliminatedAndOverflowColor = doHideOverflowAndEliminated ? "#FFF" : "#CCC";
+  var eliminatedColor = doHideSurplusAndEliminated ? "#FFF" : "#CCC";
+  var surplusColor = doHideSurplusAndEliminated ? "#FFF" : "#666";
   var barColorFn = function(d) {
-      if (isEliminatedInteractiveFn(d) || isOverflowFn(d))
-          return eliminatedAndOverflowColor;
+      if (isEliminatedInteractiveFn(d))
+          return eliminatedColor;
+      else if(isSurplusFn(d))
+          // TODO in here, hatch the original color maybe?
+          return surplusColor;
       else
           return colors[d.round];
   };
@@ -140,7 +144,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
           // Eliminated candidates
           return votesRange(0) + offset;
       }
-      else if (doHideOverflowAndEliminated && isOverflowFn(d))
+      else if (doHideSurplusAndEliminated && isSurplusFn(d))
       {
           // Overvotes
           return startOfBarPlusABit;
