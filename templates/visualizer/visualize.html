@@ -6,10 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <!-- Add additional CSS in static file -->
   {% load static %}
-  <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
-  <link rel="stylesheet" href="{% static "sankey/style.css" %}">
-  <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
-
   {% if offlineMode %}
   <script src="{% static 'localdeps/d3.js' %}"></script>
   <link rel="stylesheet" href="{% static 'localdeps/bootstrap.min.css' %}" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -22,6 +18,10 @@
   <!-- Shared resources for multiple visualizations-->
   <script src="{% static 'bargraph/barchart.js' %}"></script>
   <script src="{% static 'visualizer/common.js' %}"></script>
+
+  <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
+  <link rel="stylesheet" href="{% static "sankey/style.css" %}">
+  <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
 
 </head>
 <body>
