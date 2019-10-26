@@ -1,8 +1,9 @@
 body{
-  background: #FFF9FF;
-  color: #fff;
-  font-family: times;
-  text-align: center;
+  background: #FFFAFF;
+  color: #002c59;
+  font-family: sans-serif;
+  text-align: left;
+  margin: 25px;
 }
 svg {
   shape-rendering: crispEdges;
