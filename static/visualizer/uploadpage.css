@@ -4,13 +4,18 @@ body{
   font-family: sans-serif;
   text-align: center;
 }
+a:link {
+  color: #DEFFE9;
+}
+a:visited {
+  color: #B19CD9;
+}
 div.content {
-  width: 550px;
+  width: 100%;
   height: 100px;
   margin: 50 auto;
 }
 div.options {
-  width: 500px;
   text-align: left;
   line-height: 30px;
   padding-left: 20px;
