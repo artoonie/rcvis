@@ -8,11 +8,14 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   
   var width = 960 - margin.left - margin.right,
       height = 600 - margin.top - margin.bottom;
+
+  var viewboxWidth = width + margin.left + margin.right;
+  var viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth*13;
   
   var svg = d3.select(idOfContainer)
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom + longestLabelApxWidth*13)
+    .attr("class", "col-md-auto")
+    .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
