@@ -2,7 +2,7 @@
 {% if config.horizontalSankey %}
     <div id="topbar" style="position: absolute"></div>
 {% else %}
-    <div id="topbar"></div>
+    <div id="topbar" style="width: 100%"></div>
 {% endif %}
     <div id="content"></div>
 </div>
@@ -52,6 +52,9 @@ var cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNa
                                          // once all the nodes are expanded to their minimum sizes
     size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
 
+var viewboxSize0 = size0 + size0margin(cmargin);
+var viewboxSize1 = size1 + size1margin(cmargin);
+
 function hackCharsForWidth(width, text) {
     var length = width/ESTIMATED_CHAR_WIDTH
     if(length >= text.length - 3) {
@@ -83,6 +86,11 @@ function getNodePercentText(d) {
     return percentToText(d.value, totalVotesPerRound[d.round])
 }
 
+function makeViewboxSizeString(size0, size1) {
+    return size0string() == "width" ? size0 + " " + size1
+                                    : size1 + " " + size0;
+}
+
 function makeGraph(graph) {
     // format variables
     var formatNumber = d3.format(",.2f");    // two decimal places
@@ -95,8 +103,7 @@ function makeGraph(graph) {
 
     // append the svg object to the body of the page
     var svg = d3.select("#sankey-body").append("svg")
-        .attr(size0string(), size0 + size0margin(cmargin))
-        .attr(size1string(), size1 + size1margin(cmargin))
+        .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
       .append("g")
         .attr("transform", 
               "translate(" + cmargin.left + "," + cmargin.top + ")");
@@ -221,12 +228,11 @@ function makeGraph(graph) {
 
 function makeTopBar(graph) {
     var lastRound = -1;
+    var viewboxLeft = -tmargin.left
     var topbarG = d3.select('#topbar').append("svg")
-        .style("margin-left", tmargin.left + "px") // "px" is needed on Edge browsers
-        .style("margin-top",  tmargin.top  + "px") // "px" is needed on Edge browsers
-        .attr(size0string(), tmarginLength)
-        .attr(size1string(), size1+size1TopbarTextPadding)
-        .append("g");
+        .attr("width", "100%")
+        .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
+        .append("g")
     return topbarG;
 }
 
@@ -305,7 +311,8 @@ function notifyScrolled() {
     round1SpecialLabel.style("display", "inherit")
   }
   topbarDiv.style.left = x+"px"; 
-  var round = (window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
+  var viewportScale = 0.7; // TODO figure this out for proper scaling
+  var round = viewportScale*(window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
   round = Math.floor(round);
   round = Math.min(round, numRounds)
   round = Math.max(round - 1, 0)
