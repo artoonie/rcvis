@@ -117,8 +117,9 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       if (!shouldDisplayFn(d)) return 0;
       return Math.abs(barVotesSizeHelperFn(d));
   };
-  var eliminatedColor = doHideSurplusAndEliminated ? "#FFF" : "#CCC";
-  var surplusColor = doHideSurplusAndEliminated ? "#FFF" : "#666";
+  var bgColor = window.getComputedStyle(document.body, null).getPropertyValue('background-color');
+  var eliminatedColor = doHideSurplusAndEliminated ? bgColor : "#CCC";
+  var surplusColor = doHideSurplusAndEliminated ? bgColor : "#666";
   var barColorFn = function(d) {
       if (isEliminatedInteractiveFn(d))
           return eliminatedColor;
