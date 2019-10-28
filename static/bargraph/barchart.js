@@ -37,7 +37,19 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-  
+
+  var surplusPatternId = "diagonalHatch"+idOfContainer;
+  svg.append("defs")
+    .append("pattern")
+    .attr("id", surplusPatternId)
+    .attr("patternUnits", "userSpaceOnUse")
+    .attr("width", 4)
+    .attr("height", 4)
+    .append("path")
+        .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" )
+        .style("stroke", "white")
+        .style("stroke-width", 1);
+
   // Transpose the data into layers
   mappedData = candidatesRange.map(function(roundInfo) {
     return data.map(function(d) {
@@ -148,11 +160,11 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           return eliminatedColor;
       else if(isSurplusFn(d))
           // TODO in here, hatch the original color maybe?
-          return surplusColor;
+          //return surplusColor;
+          return "url(#"+surplusPatternId+")";
       else
           return colors[d.round];
   };
-
 
   // Data label helper functions
   var isEliminationDataLabelFn = function(d) {
