@@ -29,7 +29,11 @@ var roundSize0 = nodeSize0 + nodePadding + linkPadding
 var totalSize0 = numRounds * roundSize0
 var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 var size1TopbarTextPadding = 300; // allow room for long text on last candidate
-var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
+var disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
+if(disableMagicTopBar)
+    var heightUntilSticky = 20000000;
+else
+    var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
 var stickyHysteresis = 180; // How far you scroll back up before the top bar "unsticks"
 
 var ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
@@ -311,12 +315,14 @@ function notifyScrolled() {
     round1SpecialLabel.style("display", "inherit")
   }
   topbarDiv.style.left = x+"px"; 
-  var viewportScale = 0.7; // TODO figure this out for proper scaling
-  var round = viewportScale*(window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
+  var desiredHeight = size1string() == "height" ? viewboxSize1 : viewboxSize0;
+  var actualHeight = document.getElementById('sankey-body').offsetHeight;
+  var viewportScale =  actualHeight/desiredHeight
+  var round = (window.pageYOffset + tmarginLength)/(viewportScale*roundSize0) - viewportScale*cmargin.top
   round = Math.floor(round);
   round = Math.min(round, numRounds)
   round = Math.max(round - 1, 0)
-  if(round != lastRound) {
+  if(round != lastRound && !disableMagicTopBar) {
       populateTopBarFor(topbarG, round)
   }
 }
