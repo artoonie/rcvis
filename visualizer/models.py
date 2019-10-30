@@ -12,6 +12,8 @@ class JsonConfig(models.Model):
     doHideOverflowAndEliminated = models.BooleanField(default=False)
     doUseHorizontalBarGraph = models.BooleanField(default=False)
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
+    hideSankey = models.BooleanField(default=False)
+    hideTabular = models.BooleanField(default=False)
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)

@@ -24,6 +24,8 @@ def upload(request):
         config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
         config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"
         config.excludeFinalWinnerAndEliminatedCandidate = request.POST.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
+        config.hideSankey = request.POST.get('hideSankey', False) == "on"
+        config.hideTabular = request.POST.get('hideTabular', False) == "on"
         graph = makeGraphWithFile(config)
         graph.summarize()
         d3Sankey = D3Sankey(graph)
