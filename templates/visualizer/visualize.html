@@ -35,9 +35,12 @@
         <li class="nav-item">
             <a class="nav-link" id="barchart-tab-fixed" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Bar Chart</a>
         </li>
+        {% if not config.hideSankey %}
         <li class="nav-item">
             <a class="nav-link" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
         </li>
+        {% endif %}
+        {% if not config.hideTabular %}
         <li class="nav-item">
             <a class="nav-link" id="tabular-by-round-tab-interactive" data-toggle="tab" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round</a>
         </li>
@@ -47,6 +50,7 @@
         <li class="nav-item">
             <a class="nav-link" id="tabular-by-candidate-tab" data-toggle="tab" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
         </li>
+        {% endif %}
     </ul>
 
     <div class="tab-content" id="myTabContent">

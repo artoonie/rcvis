@@ -51,6 +51,9 @@ function handleFiles(files)
 		<button class="collapsible">▶ Sankey visualization options</button>
 		<div class="optionscontent">
 			<p>
+			<label><input type="checkbox" name="hideSankey"/> Hide the sankey altogether</label>
+			</p>
+			<p>
 			<label><input type="checkbox" name="rotateNames" checked/> Rotate the names of candidates on the top bar</label>
 			</p>
 			<p>
@@ -61,6 +64,9 @@ function handleFiles(files)
 
 		<button class="collapsible">▶ Tabular visualization options</button>
 		<div class="optionscontent">
+			<p>
+			<label><input type="checkbox" name="hideTabular"/> Hide both tabular formats altogether</label>
+			</p>
 			<p>
 			<label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners, hiding eliminated candidates</label>
 			</p>
