@@ -5,14 +5,25 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   // right margin: leave room for legend
   var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
   if(isVertical) margin.left += longestLabelApxWidth;
+
+  var maxWidth = 1360, maxHeight = 550; // TODO sync this 1360 with the one in barchart-interactive.html
+    // TODO hacky way of making it taller if it's on a tall screen (mobile)
+  if (window.innerHeight > window.innerWidth) {
+      var tmp = maxWidth;
+      maxHeight = maxWidth;
+      maxWidth = tmp;
+  }
   
-  var width = 960 - margin.left - margin.right,
-      height = 600 - margin.top - margin.bottom;
+  var width = maxWidth - margin.left - margin.right,
+      height = maxHeight - margin.top - margin.bottom;
+
+  var viewboxWidth = width + margin.left + margin.right;
+  var viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth*13;
   
   var svg = d3.select(idOfContainer)
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom + longestLabelApxWidth*13)
+    .attr("class", "col-md-auto")
+    .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
   
@@ -75,7 +86,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   // Define legend
   var legend = svg => {
         const g = svg
-            .attr("font-size", "1.55em")
+            .attr("font-size", "2.55em")
             .attr("text-anchor", "end")
             .attr("transform", `translate(${width + margin.left},${margin.top})`)
           .selectAll("g")
@@ -308,6 +319,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .call(candidatesAxis)
       .selectAll("text")  
         .style("text-anchor", "end")
+        .attr("font-size", "3em")
         .attr("transform", "rotate(-45)");
 
   svg.append("g")
@@ -353,7 +365,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
     .attr("x", 15)
     .attr("dy", "1.2em")
     .style("text-anchor", "left")
-    .attr("font-size", "1.6em")
+    .attr("font-size", "3.6em")
     .attr("font-weight", "bold");
 
 

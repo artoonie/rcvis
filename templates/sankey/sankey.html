@@ -2,7 +2,7 @@
 {% if config.horizontalSankey %}
     <div id="topbar" style="position: absolute"></div>
 {% else %}
-    <div id="topbar"></div>
+    <div id="topbar" style="width: 100%"></div>
 {% endif %}
     <div id="content"></div>
 </div>
@@ -29,7 +29,11 @@ var roundSize0 = nodeSize0 + nodePadding + linkPadding
 var totalSize0 = numRounds * roundSize0
 var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
 var size1TopbarTextPadding = 300; // allow room for long text on last candidate
-var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
+var disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
+if(disableMagicTopBar)
+    var heightUntilSticky = 20000000;
+else
+    var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
 var stickyHysteresis = 180; // How far you scroll back up before the top bar "unsticks"
 
 var ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
@@ -51,6 +55,9 @@ var cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNa
                                          // ideal size may not be the actual size
                                          // once all the nodes are expanded to their minimum sizes
     size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
+
+var viewboxSize0 = size0 + size0margin(cmargin);
+var viewboxSize1 = size1 + size1margin(cmargin);
 
 function hackCharsForWidth(width, text) {
     var length = width/ESTIMATED_CHAR_WIDTH
@@ -83,6 +90,11 @@ function getNodePercentText(d) {
     return percentToText(d.value, totalVotesPerRound[d.round])
 }
 
+function makeViewboxSizeString(size0, size1) {
+    return size0string() == "width" ? size0 + " " + size1
+                                    : size1 + " " + size0;
+}
+
 function makeGraph(graph) {
     // format variables
     var formatNumber = d3.format(",.2f");    // two decimal places
@@ -95,8 +107,7 @@ function makeGraph(graph) {
 
     // append the svg object to the body of the page
     var svg = d3.select("#sankey-body").append("svg")
-        .attr(size0string(), size0 + size0margin(cmargin))
-        .attr(size1string(), size1 + size1margin(cmargin))
+        .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
       .append("g")
         .attr("transform", 
               "translate(" + cmargin.left + "," + cmargin.top + ")");
@@ -221,12 +232,11 @@ function makeGraph(graph) {
 
 function makeTopBar(graph) {
     var lastRound = -1;
+    var viewboxLeft = -tmargin.left
     var topbarG = d3.select('#topbar').append("svg")
-        .style("margin-left", tmargin.left + "px") // "px" is needed on Edge browsers
-        .style("margin-top",  tmargin.top  + "px") // "px" is needed on Edge browsers
-        .attr(size0string(), tmarginLength)
-        .attr(size1string(), size1+size1TopbarTextPadding)
-        .append("g");
+        .attr("width", "100%")
+        .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
+        .append("g")
     return topbarG;
 }
 
@@ -305,11 +315,14 @@ function notifyScrolled() {
     round1SpecialLabel.style("display", "inherit")
   }
   topbarDiv.style.left = x+"px"; 
-  var round = (window.pageYOffset + tmarginLength)/roundSize0 - cmargin.top
+  var desiredHeight = size1string() == "height" ? viewboxSize1 : viewboxSize0;
+  var actualHeight = document.getElementById('sankey-body').offsetHeight;
+  var viewportScale =  actualHeight/desiredHeight
+  var round = (window.pageYOffset + tmarginLength)/(viewportScale*roundSize0) - viewportScale*cmargin.top
   round = Math.floor(round);
   round = Math.min(round, numRounds)
   round = Math.max(round - 1, 0)
-  if(round != lastRound) {
+  if(round != lastRound && !disableMagicTopBar) {
       populateTopBarFor(topbarG, round)
   }
 }

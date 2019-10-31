@@ -1,9 +1,17 @@
-<div class="row align-items-center">
-    <div class="col-sm" style="margin-left: 50px"><div id="slider-step"></div></div>
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'bargraph/style.css' %}">
+
+<div class="row d-flex justify-content-left">
+  <div class="col-s-2 col-md-9 col-s-2" id="bargraph-container">
+    <div class="row align-items-center">
+      <div class="col-sm"><div id="slider-step"></div></div>
+    </div>
+  
+    <div id="bargraph-interactive-body">
+    </div>
+  </div>
 </div>
 
-<div id="bargraph-interactive-body">
-</div>
 {% if offlineMode %}
 {% load static %}
 <script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
@@ -16,12 +24,28 @@
 
 {{ bargraphjs|safe }}
 
+// For slider
+var viewboxWidth = numRounds * 50 + 120;
+var viewboxHeight = 100;
+
+// Fix the max height to not be too wide
+var pixelRatio = 0;
+function fixMaxWidth() {
+    if(pixelRatio == window.devicePixelRatio) return;
+    pixelRatio = window.devicePixelRatio;
+    // TODO sync this 1360 with the one in barchart.js
+    document.getElementById('bargraph-container').style.maxWidth = pixelRatio*1360 + "px";
+}
+fixMaxWidth();
+window.onresize = fixMaxWidth;
+
 // Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
 var sliderStep = d3
   .sliderBottom()
   .min(1)
   .max(numRounds)
-  .width(numRounds * 50)
+  .width(numRounds * 45)
+  .height(50)
     .tickFormat(function(d) { return "Round " + d;})
   .ticks(numRounds)
   .step(1)
@@ -33,10 +57,9 @@ var sliderStep = d3
 var gStep = d3
   .select('div#slider-step')
   .append('svg')
-  .attr('width', numRounds * 50 + 100)
-  .attr('height', 100)
+  .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
   .append('g')
-  .attr('transform', 'translate(30,30)');
+  .attr('transform', 'translate(100,30)');
 
 gStep.call(sliderStep);
 

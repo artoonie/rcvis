@@ -11,3 +11,9 @@ path.domain {
 .y .tick line {
     stroke: #ddd;
 }
+.slider text {
+  font-size: 1.3em;
+}
+.tick {
+  font-size: 0.7em;
+}
