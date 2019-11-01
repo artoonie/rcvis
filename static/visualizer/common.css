@@ -10,3 +10,12 @@ svg {
   font-size: .45em;
   font-family: sans-serif;
 }
+h1 {
+  font-size: 1.5em;
+}
+h3 {
+  font-size: 1.2em;
+}
+h6 {
+  font-size: 0.8em;
+}
