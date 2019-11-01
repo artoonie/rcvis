@@ -8,7 +8,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
 
   var maxWidth = 1360; // TODO sync this 1360 with the one in barchart-interactive.html
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
-  var roomForStuffAboveUs = 300;
+  var roomForStuffAboveUs = 100;
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   var maxHeight = Math.max(maxWidth * aspectRatio, 550);
   
@@ -49,7 +49,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
             .range([margin.left, width])
             .padding(0.01);
   } else {
-      var roomForLegend = 100 + longestLabelApxWidth * 13;
+      var roomForLegend = 200 + longestLabelApxWidth * 17;
       var votesRange = votesDomain
             .rangeRound([margin.left, width - margin.right - roomForLegend])
       var candidatesRange = candidatesDomain
@@ -304,7 +304,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .attr(candidatePosStr, barCandidatesDataLabalPosFn)
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
-      .attr("text-anchor", "middle")
+      .attr("text-anchor", isVertical ? "middle" : "start")
       .attr("font-size", "2.3em")
       .text(mainDataLabelTextFn);
   if (isVertical)
@@ -324,11 +324,13 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .call(candidatesAxis)
       .selectAll("text")  
         .style("text-anchor", "end")
-        .attr("font-size", "3em")
+        .attr("font-size", "2.2em")
         .attr("transform", "rotate(-45)");
 
   svg.append("g")
-      .call(votesAxis);
+      .call(votesAxis)
+      .selectAll("text")  
+        .attr("font-size", "2.2em");
 
   svg.append("g")
       .call(legend);
