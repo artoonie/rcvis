@@ -69,6 +69,7 @@ var viewboxHeight = 100;
 var sliderTabularWidth = numRounds * 50 + 100;
 var gStepTabular = d3
   .select('div#slider-step-tabular')
+  .style("max-width", window.devicePixelRatio*viewboxWidth + "px")
   .append('svg')
   .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
   .append('g')
