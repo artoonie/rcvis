@@ -109,6 +109,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
 
   // Draw everything
   function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
+  function isWinner(d) { return d.numRoundsTilWin < currRound; }
   var currRound = numRounds;
   var barVotesSizeHelperFn = function(d) {
       return (votesRange(d[0]) - votesRange(d[1])) * (isVertical ? 1 : -1);
@@ -189,6 +190,11 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
         // If we've been eliminated by now, then check if this round is the last round alive
         return d.numRoundsTilEliminated == d.round;
       }
+      else if(isWinner(d))
+      {
+        // A candidate can win at any time. Only include the round on which they won.
+        return d.numRoundsTilWin == d.round;
+      }
       else
       {
         // Otherwise, check if this round is the latest available round
@@ -248,6 +254,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
         candidateName = d[candidate_i].data["candidate"]
         d[candidate_i].round = i;
         d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
+        d[candidate_i].numRoundsTilWin = numRoundsTilWin[candidateName]
         d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= i
         maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated);
       }
