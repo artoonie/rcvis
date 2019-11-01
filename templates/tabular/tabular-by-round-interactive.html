@@ -2,7 +2,7 @@
     <div class="col-sm"><div id="slider-step-tabular"></div></div>
 </div>
 
-<div id="tabularByRoundInteractiveContainer" style="margin-left: 20px; width 0px">
+<div id="tabularByRoundInteractiveContainer" class="table-responsive-md" style="margin-left: 20px;">
 {% for round in tabularByRoundInteractive.rounds %}
 <div id="tabbular_round_container_{{ forloop.counter }}">
 <h4>Round {{ forloop.counter }}</h4>
@@ -62,12 +62,15 @@ var sliderStepTabular = d3
     showOnly(round)
   });
 
+// For slider TODO sync with barchart-interactive.html
+var viewboxWidth = numRounds * 50 + 120;
+var viewboxHeight = 100;
+
 var sliderTabularWidth = numRounds * 50 + 100;
 var gStepTabular = d3
   .select('div#slider-step-tabular')
   .append('svg')
-  .attr('width', sliderTabularWidth)
-  .attr('height', 100)
+  .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
   .append('g')
   .attr('transform', 'translate(30,30)');
 
@@ -78,7 +81,6 @@ function showOnly(round) {
     document.getElementById("tabbular_round_container_"+round).style.display = "block";
 }
 
-document.getElementById("tabularByRoundInteractiveContainer").style.width = sliderTabularWidth + "px";
 gStepTabular.call(sliderStepTabular);
 showOnly(numRounds)
 

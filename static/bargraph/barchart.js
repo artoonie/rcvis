@@ -6,13 +6,11 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
   if(isVertical) margin.left += longestLabelApxWidth;
 
-  var maxWidth = 1360, maxHeight = 550; // TODO sync this 1360 with the one in barchart-interactive.html
-    // TODO hacky way of making it taller if it's on a tall screen (mobile)
-  if (window.innerHeight > window.innerWidth) {
-      var tmp = maxWidth;
-      maxHeight = maxWidth;
-      maxWidth = tmp;
-  }
+  var maxWidth = 1360; // TODO sync this 1360 with the one in barchart-interactive.html
+  // TODO hacky way of matching the initial, and only the initial, aspect ratio
+  var roomForStuffAboveUs = 300;
+  var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
+  var maxHeight = Math.max(maxWidth * aspectRatio, 550);
   
   var width = maxWidth - margin.left - margin.right,
       height = maxHeight - margin.top - margin.bottom;
