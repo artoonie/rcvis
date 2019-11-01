@@ -93,7 +93,7 @@
           goToTab(activeTab);
       }
 
-      function updateHiddenTabs()
+      function getTabNameWithCorrectDynamismAndFixSwapText(tabName)
       {
         var swapText = document.getElementById("swap-dynamic");
         if(doHideFixedTabs)
@@ -109,7 +109,12 @@
           swapText.innerText = "Showing print-friendly content. Show interactive instead?"
         }
 
-        activeTab = activeTab.replace(suffixOld, suffixNew); 
+        return tabName.replace(suffixOld, suffixNew); 
+      }
+
+      function updateHiddenTabs()
+      {
+        activeTab = getTabNameWithCorrectDynamismAndFixSwapText(activeTab);
         goToTab(activeTab);
 
         // Iterate over all tabs and change their status
@@ -125,8 +130,25 @@
       var doHideFixedTabs = !activeTab.endsWith("-fixed");
       updateHiddenTabs();
 
+      function refreshContentByTabAndDynamism(tabName)
+      {
+          var oldTab = activeTab
+          activeTab = getTabNameWithCorrectDynamismAndFixSwapText(tabName);
+
+          var doHideToggle = !activeTab.endsWith("-fixed") && !activeTab.endsWith("-interactive");
+          var swapText = document.getElementById("swap-dynamic");
+          swapText.style.display = doHideToggle ? "none" : "block";
+
+          if (oldTab != activeTab)
+          {
+              history.pushState(null,null,'#' + activeTab);
+          }
+      }
+
       document.getElementById("swap-dynamic").addEventListener("click", function(event) {
+        // Changing dynamism
         doHideFixedTabs = !doHideFixedTabs;
+        refreshContentByTabAndDynamism(activeTab);
         updateHiddenTabs();
         event.preventDefault();
         return false;
@@ -134,11 +156,18 @@
 
       // Change hash for page-reload
       $('.nav-tabs a').on('shown.bs.tab', function (e) {
-          activeTab = e.target.hash.split('#')[1]
-          history.pushState(null,null,'#' + activeTab);
+          // Changing tabs
+          refreshContentByTabAndDynamism(e.target.hash.split('#')[1]);
           e.preventDefault();
           return false;
       })
+      $(window).on("popstate", function (e) {
+          // Back/forward button
+          loadTabFromTag();
+          e.preventDefault();
+          return false;
+      });
+
   </script>
 </body>
 </html>
