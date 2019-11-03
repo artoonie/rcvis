@@ -1,22 +1,35 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical) {
-  // right margin: leave room for legend
-  var margin = {top: 20, right: 60 + longestLabelApxWidth, bottom: 35, left: 50};
-  if(isVertical) margin.left += longestLabelApxWidth;
+function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical) {
+  longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
+  var margin = {top: 10, right: 10, bottom: 35, left: 20};
+  if(isVertical) {
+      margin.left += longestLabelApxWidth * .707; // Room for candidate name on left
+      margin.bottom += longestLabelApxWidth; // Room for candidate name at bottom
+      margin.top += 20; // Room for data label
+  }
+  else {
+      margin.left += longestLabelApxWidth + 20;// Room for candidate name
+      margin.bottom += 20; // Room for candidate name diagonally down
+      margin.right += 50; // Room for data label
+  }
 
-  var maxWidth = 1360; // TODO sync this 1360 with the one in barchart-interactive.html
+  var numCandidates = candidatesRange.length;
+  // 550 is not the final width, but the width of the viewbox.
+  // We don't want it to even be that wide if there are just a few candidates.
+  var maxWidth = Math.min(550, numCandidates*100);
+
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
-  var roomForStuffAboveUs = 100;
+  var roomForStuffAboveUs = 150;
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
-  var maxHeight = Math.max(maxWidth * aspectRatio, 550);
+  var maxHeight = Math.max(maxWidth * aspectRatio, 350);
   
   var width = maxWidth - margin.left - margin.right,
       height = maxHeight - margin.top - margin.bottom;
 
   var viewboxWidth = width + margin.left + margin.right;
-  var viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth*13;
+  var viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth;
   
   var svg = d3.select(idOfContainer)
     .append("svg")
@@ -49,9 +62,8 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
             .range([margin.left, width])
             .padding(0.01);
   } else {
-      var roomForLegend = 200 + longestLabelApxWidth * 17;
       var votesRange = votesDomain
-            .rangeRound([margin.left, width - margin.right - roomForLegend])
+            .rangeRound([margin.left, width - margin.right])
       var candidatesRange = candidatesDomain
             .range([margin.top, height])
             .padding(0.01);
@@ -84,24 +96,25 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   // Define legend
   var legend = svg => {
         const g = svg
-            .attr("font-size", "2.55em")
-            .attr("text-anchor", "end")
-            .attr("transform", `translate(${width + margin.left},${margin.top})`)
           .selectAll("g")
           .data(roundNames)
           .join("g")
-            .attr("transform", (d, i) => `translate(0,${i * 20})`);
+          .append("div")
+          .style("float", "left")
+          .style("width", "100%")
 
-        g.append("rect")
-            .attr("x", -19)
-            .attr("width", 19)
-            .attr("height", 19)
-            .attr("fill",  function(d, i) { return colors[i]; });
+        g.append("div")
+          .style("padding", "10px")
+          .style("margin", "2px")
+          .style("float", "left")
+          .style("background-color", function(d, i) { return colors[i]; })
 
-        g.append("text")
-            .attr("x", -24)
-            .attr("y", 9.5)
-            .attr("dy", "0.35em")
+        g.append("div")
+          .style("float", "none")
+          .style("width", "auto")
+          .style("white-space", "nowrap")
+          .style("margin-top", "4px")
+          .style("font-size", "0.8em")
             .text(d => d);
   }
 
@@ -148,7 +161,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
   var barVotesMainDataLabelPosFn = function(d) {
       // I hate this function. We need to do some magic because in vertical mode,
       // "up" is negative, whereas in horizontal, "right" is positive.
-      var offset = isVertical ? -25 : 15;
+      var offset = isVertical ? -15 : 15;
       var startOfBarPlusABit = barVotesPosFn(d) + offset;
       if (isEliminationDataLabelFn(d))
       {
@@ -305,7 +318,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
       .attr("text-anchor", isVertical ? "middle" : "start")
-      .attr("font-size", "2.3em")
+      .attr("font-size", "1.5em")
       .text(mainDataLabelTextFn);
   if (isVertical)
   {
@@ -313,10 +326,10 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
         .join("text")
           .attr("class", "dataLabels")
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
-          .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 20})
+          .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
           .attr("text-anchor", "middle")
-          .attr("font-size", "1.5em")
+          .attr("font-size", "1.0em")
           .text(secondaryDataLabelTextFn);
    }
 
@@ -324,15 +337,16 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
       .call(candidatesAxis)
       .selectAll("text")  
         .style("text-anchor", "end")
-        .attr("font-size", "2.2em")
+        .attr("font-size", "2em")
         .attr("transform", "rotate(-45)");
 
   svg.append("g")
       .call(votesAxis)
       .selectAll("text")  
-        .attr("font-size", "2.2em");
+        .attr("font-size", "1.0em");
 
-  svg.append("g")
+  d3.select(idOfLegendDiv)
+    .append("g")
       .call(legend);
 
   // Draw the threshold line
@@ -372,7 +386,7 @@ function makeBarGraph(idOfContainer, data, candidatesRange, totalVotesPerRound, 
     .attr("x", 15)
     .attr("dy", "1.2em")
     .style("text-anchor", "left")
-    .attr("font-size", "3.6em")
+    .attr("font-size", "1.6em")
     .attr("font-weight", "bold");
 
 
