@@ -1,17 +1,13 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'bargraph/style.css' %}">
 
-<div class="row d-flex justify-content-left">
-    <div class="col-s-2 col-md-9 col-s-2" id="bargraph-container">
-        <div class="row align-items-center" id="bargraph-slider-container">
-            <div class="col-sm"><div id="slider-step"></div></div>
-        </div>
-
-        <div class="row d-flex">
-            <div class="col" id="bargraph-interactive-body">
-            </div>
-            <div class="col" id="bargraph-interactive-legend">
-            </div>
+<div class="container-fluid">
+    <div class="row d-flex justify-content-left align-items-start" id="bargraph-container">
+        <div class="col-12" id="bargraph-slider-container"> <div id="slider-step"></div></div>
+        <div class="col-l-12 col-xl-11" id="bargraph-interactive-body"> </div>
+        <div class="col-l-12 col-xl-1" id="bargraph-interactive-legend">
+            Legend
+            <hr>
         </div>
     </div>
 </div>
@@ -35,11 +31,12 @@ var viewboxHeight = 70;
 // Fix the max height to not be too wide
 var pixelRatio = 0;
 function fixMaxWidth() {
-    if(pixelRatio == window.devicePixelRatio) return;
-    pixelRatio = window.devicePixelRatio;
-    // TODO sync this 1360 with the one in barchart.js
-    document.getElementById('bargraph-container').style.maxWidth = pixelRatio*1360 + "px";
-    document.getElementById('bargraph-slider-container').style.maxWidth = pixelRatio * viewboxWidth + "px";
+    var currPixelRatio = window.devicePixelRatio;
+    currPixelRatio = Math.min(currPixelRatio, 1.5); // TODO hack, this looks nicer
+    if(pixelRatio == currPixelRatio) return;
+    pixelRatio = currPixelRatio;
+    // TODO sync this 550 with the one in barchart.js
+    document.getElementById('bargraph-container').style.maxWidth = pixelRatio*550 + "px";
 }
 fixMaxWidth();
 window.onresize = fixMaxWidth;
@@ -63,6 +60,7 @@ var gStep = d3
   .select('div#slider-step')
   .append('svg')
   .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
+  .attr("width", "100%")
   .append('g')
   .attr('transform', 'translate(100,30)');
 

@@ -2,11 +2,12 @@
 
 // Makes a bar graph and returns a function that allows you to animate based on round
 function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical) {
-  longestLabelApxWidth *= 1.2;
-  var margin = {top: 30, right: 10, bottom: 35, left: 20};
+  longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
+  var margin = {top: 10, right: 10, bottom: 35, left: 20};
   if(isVertical) {
-      margin.left += longestLabelApxWidth * .707;
-      margin.bottom += longestLabelApxWidth;
+      margin.left += longestLabelApxWidth * .707; // Room for candidate name on left
+      margin.bottom += longestLabelApxWidth; // Room for candidate name at bottom
+      margin.top += 20; // Room for data label
   }
   else {
       margin.left += longestLabelApxWidth + 20;// Room for candidate name
@@ -14,7 +15,11 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       margin.right += 50; // Room for data label
   }
 
-  var maxWidth = 550;
+  var numCandidates = candidatesRange.length;
+  // 550 is not the final width, but the width of the viewbox.
+  // We don't want it to even be that wide if there are just a few candidates.
+  var maxWidth = Math.min(550, numCandidates*100);
+
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   var roomForStuffAboveUs = 150;
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
@@ -28,7 +33,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   
   var svg = d3.select(idOfContainer)
     .append("svg")
-    .attr("class", "col-xl-auto")
+    .attr("class", "col-md-auto")
     .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -381,7 +386,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     .attr("x", 15)
     .attr("dy", "1.2em")
     .style("text-anchor", "left")
-    .attr("font-size", "3.6em")
+    .attr("font-size", "1.6em")
     .attr("font-weight", "bold");
 
 
