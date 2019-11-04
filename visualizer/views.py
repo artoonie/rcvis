@@ -6,7 +6,7 @@ from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
 from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate
 from rcvis.settings import OFFLINE_MODE
-from visualizer.graphCreator.graphCreator import makeGraphWithFile
+from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
 def index(request):
     form = UploadFileForm()
@@ -26,9 +26,15 @@ def upload(request):
         config.excludeFinalWinnerAndEliminatedCandidate = request.POST.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
         config.hideSankey = request.POST.get('hideSankey', False) == "on"
         config.hideTabular = request.POST.get('hideTabular', False) == "on"
-        graph = makeGraphWithFile(config)
-        graph.summarize()
-        d3Sankey = D3Sankey(graph)
+        try:
+          graph = makeGraphWithFile(config)
+          graph.summarize()
+          d3Sankey = D3Sankey(graph)
+        except BadJSONError:
+          return render(request, 'visualizer/errorBadJson.html')
+        except:
+          # TODO make an error page for this, too
+          return redirect(request, '/')
 
         # if it successfully created a graph, save it
         config.save()

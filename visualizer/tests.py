@@ -34,3 +34,21 @@ class MyTest(TestCase):
                 config = JsonConfig(jsonFile=f)
                 config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
                 getDataForView(config)
+
+    def test_home_page(self):
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_upload_file(self):
+        with open('testData/macomb-multiwinner-surplus.json') as f:
+          response = self.client.post('/upload.html', {'rcvJson': f})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'],
+                         "/visualize=macomb-multiwinner-surplusjson")
+
+    def test_upload_file_failure(self):
+        with open('testData/test-baddata.json') as f:
+          response = self.client.post('/upload.html', {'rcvJson': f})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.templates[0].name,
+                         'visualizer/errorBadJson.html')
