@@ -85,10 +85,10 @@ function handleFiles(files)
         <br/>
 		<div class="selectFileButtonWrapper">
 			<button id="selectFileButton">Click to select a file</button>
-			<input type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+			<input id="uploadFileInput" type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
 		</div>
 		<div id="submitDiv">
-			<button type="submit" class="submitButton">Upload</button>
+			<button id="uploadButton" type="submit" class="submitButton">Upload</button>
 		</div>
 	</div>
   </form>
