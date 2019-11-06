@@ -2,7 +2,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'bargraph/style.css' %}">
 
 <div class="container-fluid">
-    <div class="row d-flex justify-content-left align-items-start" id="bargraph-container">
+    <div class="row d-flex justify-content-left align-items-start">
         <div class="col-12" id="bargraph-slider-container"> <div id="slider-step"></div></div>
         <div class="col-l-12 col-xl-11" id="bargraph-interactive-body"> </div>
         <div class="col-l-12 col-xl-1" id="bargraph-interactive-legend">
@@ -28,18 +28,9 @@
 var viewboxWidth = numRounds * 50 + 120;
 var viewboxHeight = 70;
 
-// Fix the max height to not be too wide
-var pixelRatio = 0;
-function fixMaxWidth() {
-    var currPixelRatio = window.devicePixelRatio;
-    currPixelRatio = Math.min(currPixelRatio, 1.5); // TODO hack, this looks nicer
-    if(pixelRatio == currPixelRatio) return;
-    pixelRatio = currPixelRatio;
-    // TODO sync this 550 with the one in barchart.js
-    document.getElementById('bargraph-container').style.maxWidth = pixelRatio*550 + "px";
-}
-fixMaxWidth();
-window.onresize = fixMaxWidth;
+fixMaxWidthFor('bargraph-interactive-body', 0);
+fixMaxWidthFor('slider-step', 200);
+// window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
 
 // Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
 var sliderStep = d3

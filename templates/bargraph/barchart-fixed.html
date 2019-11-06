@@ -1,5 +1,5 @@
 <div class="row d-flex justify-content-left">
-    <div class="col-s-2 col-md-9 col-s-2">
+    <div id="bargraph-fixed-container" class="col-s-2 col-md-9 col-s-2">
         <div id="bargraph-fixed-body">
         </div>
     </div>
@@ -16,6 +16,8 @@
 // Setup svg using Bostock's margin convention
 
 {{ bargraphjs|safe }}
+
+fixMaxWidthFor('bargraph-fixed-container', false);
 
 var interactive = false;
 var doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
