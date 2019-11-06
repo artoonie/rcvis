@@ -338,5 +338,14 @@ var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
 populateTopBarFor(topbarG, 0)
 
 }
-makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound);
+if (numRounds > 1)
+{
+  makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound);
+}
+else
+{
+  d3.select("#sankey-body").append("text")
+        .text("Sankey diagrams show a flow from one round to the next. This single-round election cannot be displayed as a Sankey diagram.")
+        .style("margin-left", "50px")
+}
 </script>

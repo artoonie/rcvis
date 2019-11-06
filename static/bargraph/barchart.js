@@ -15,9 +15,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       margin.right += 50; // Room for data label
   }
 
-  var numCandidates = candidatesRange.length;
+  var numCandidates = data.length;
   // 550 is not the final width, but the width of the viewbox.
   // We don't want it to even be that wide if there are just a few candidates.
+  // TODO sync this 550 and numCandidates*100 with the one in barchart-interactive.html
   var maxWidth = Math.min(550, numCandidates*100);
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
