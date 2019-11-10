@@ -44,11 +44,23 @@ class FixNoTransfersTask(JSONMigrateTask):
                 tallyResult['transfers'] = {}
 
 class FixIgnoreResidualSurplus(JSONMigrateTask):
-    """ We don't handle residual surplus yet"""
     def do(self):
         for tallyResult in self._enumerateTallyResults():
             if 'residual surplus' in tallyResult['transfers']:
                 self.data['results'][0]['tally']['residual surplus'] = 0
+
+class MakeTalliesANumber(JSONMigrateTask):
+    def do(self):
+        results = self.data['results']
+        for result in results:
+            tally = result['tally']
+            for name in tally:
+                tally[name] = float(tally[name])
+
+        for tallyResult in self._enumerateTallyResults():
+            xfers = tallyResult['transfers']
+            for name in xfers:
+                xfers[name] = float(xfers[name])
 
 class HideDecimalsTask(JSONMigrateTask):
     def do(self):
@@ -56,12 +68,29 @@ class HideDecimalsTask(JSONMigrateTask):
         for result in results:
             tally = result['tally']
             for name in tally:
-                tally[name] = round(float(tally[name]))
+                tally[name] = round(tally[name])
 
         for tallyResult in self._enumerateTallyResults():
             xfers = tallyResult['transfers']
             for name in xfers:
-                xfers[name] = round(float(xfers[name]))
+                xfers[name] = round(xfers[name])
+
+class MakeExhaustedACandidate(JSONMigrateTask):
+    def _makeExhaustedACandidate(self):
+        numExhausted = 0
+        results = self.data['results']
+        for result in results:
+            result['tally']['exhausted'] = numExhausted
+            for tallyResult in result['tallyResults']:
+                if 'exhausted' in tallyResult['transfers']:
+                    numExhausted += tallyResult['transfers']['exhausted']
+
+    def do(self):
+        for tallyResult in self._enumerateTallyResults():
+            if 'exhausted' in tallyResult['transfers']:
+                self._makeExhaustedACandidate()
+                return
+
 
 class JSONMigration():
     """ Correct data inconsistencies in the JSON upfront,
@@ -76,6 +105,8 @@ class JSONReader(readJSONBase.JSONReaderBase):
             self.tasks.append(FixNoTransfersTask)
             self.tasks.append(FixUndeclaredUWITask)
             self.tasks.append(FixIgnoreResidualSurplus)
+            self.tasks.append(MakeTalliesANumber)
+            self.tasks.append(MakeExhaustedACandidate)
 
         def loadConfigurationTasks(data, config):
             if config.hideDecimals:
@@ -119,9 +150,6 @@ class JSONReader(readJSONBase.JSONReaderBase):
             transfersByName = tallyResults['transfers']
             transfersByItem = {}
             for toName,numTransferred in transfersByName.items():
-                if toName == "exhausted":
-                    # Ignoring exhausted votes for now
-                    continue
                 transfersByItem[items[toName]] = float(numTransferred)
 
             if 'eliminated' in tallyResults:
