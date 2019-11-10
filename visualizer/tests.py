@@ -3,7 +3,10 @@ from django.test import TestCase
 
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver import Firefox
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.remote.remote_connection import RemoteConnection
+
 
 from .models import JsonConfig
 from .views import getDataForView
@@ -71,8 +74,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.browser = Firefox()
-        cls.browser.implicitly_wait(10)
+        if "TRAVIS_BUILD_NUMBER" in os.environ:
+            username = os.environ["SAUCE_USERNAME"]
+            access_key = os.environ["SAUCE_ACCESS_KEY"]
+            capabilities = DesiredCapabilities.FIREFOX.copy()
+            capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
+            capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
+            capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
+            hub_url = "%s:%s@localhost:4445" % (username, access_key)
+            cls.browser = webdriver.Remote(desired_capabilities=capabilities, command_executor="http://%s/wd/hub" % hub_url)
+        else:
+            cls.browser = webdriver.Firefox()
 
     @classmethod
     def tearDownClass(cls):
