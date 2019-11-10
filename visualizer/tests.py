@@ -13,6 +13,7 @@ from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
+FILENAME_ONE_ROUND = 'testData/oneRound.json'
 
 class SimpleTests(TestCase):
     def _get_data_for_view(self, fn):
@@ -70,7 +71,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.browser = Firefox(executable_path='/usr/local/bin/geckodriver')
+        cls.browser = Firefox()
         cls.browser.implicitly_wait(10)
 
     @classmethod
@@ -81,35 +82,50 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def open(self, url):
         self.browser.get("%s%s" % (self.live_server_url, url))
 
-    def test_render(self):
+    def _upload(self, fn):
         self.open('/upload.html')
-
         fileUpload = self.browser.find_element_by_id("uploadFileInput")
-        fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_MULTIWINNER))
+        fileUpload.send_keys(os.path.join(os.getcwd(), fn))
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
 
-        def getWidth(elementId):
-            return self.browser.find_elements_by_id(elementId)[0].size['width']
+    def _getWidth(self, elementId):
+        return self.browser.find_elements_by_id(elementId)[0].size['width']
 
-        def assertWidth(elementId, width):
-            assert getWidth(elementId) == width
+    def _getHeight(self, elementId):
+        return self.browser.find_elements_by_id(elementId)[0].size['height']
+
+
+    def test_render(self):
+        def fits_inside(element_width, page_width):
+            # Checks that the element takes up most or all of the page, but not more
+            PERCENT_ROOM_FOR_MARGINS = 0.1
+            min_width = page_width * (1-PERCENT_ROOM_FOR_MARGINS)
+            return element_width <= page_width and \
+                   element_width > min_width
 
         def testSaneResizingOf(elementId, maxSize):
             self.browser.set_window_size(200,600)
-            assert getWidth(elementId) > 200 # don't make too small
+            assert self._getWidth(elementId) > 200 # don't make too small
 
             self.browser.set_window_size(400,600)
-            assert getWidth(elementId) == 400 # should fit!
+            assert fits_inside(self._getWidth(elementId), 400)
 
             self.browser.set_window_size(600,600)
-            assert getWidth(elementId) == 600 # should fit!
+            assert fits_inside(self._getWidth(elementId), 600)
 
             self.browser.set_window_size(maxSize,600)
-            assert getWidth(elementId) < maxSize # don't make too big
+            assert self._getWidth(elementId) < maxSize # don't make too big
 
+        self._upload(FILENAME_MULTIWINNER)
         testSaneResizingOf("bargraph-interactive-body", 1200)
 
-        assert getWidth("sankey-body") == 0 # not yet visible
+        assert self._getWidth("sankey-body") == 0 # not yet visible
         self.browser.find_elements_by_id("sankey-tab")[0].click()
         testSaneResizingOf("sankey-body", 3000) # sankey doesn't currently have an upper limit, though it should. Unit-driven testing? Fix this.
+
+    def test_oneround(self):
+        # Regression test
+        self.browser.set_window_size(800,800)
+        self._upload(FILENAME_ONE_ROUND)
+        assert self._getHeight("bargraph-interactive-body") < 800

@@ -1,0 +1,20 @@
+{
+  "config" : {
+    "contest" : "One round",
+    "date" : "2019-11-05",
+    "jurisdiction" : "Sample Data",
+    "office" : "Council",
+    "threshold" : "134"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "Did Not Win" : "500",
+      "Won" : "501"
+    },
+    "tallyResults" : [ {
+      "elected" : "Won"
+    } ]
+  }
+  ]
+}
