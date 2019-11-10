@@ -43,14 +43,17 @@ class JSONReaderBase(object):
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
 
-        # Handle "residual surplus" which should always be at the end
-        try:
-            moveToFrontIndex = [e.name for e in eliminationOrder].index('residual surplus')
-            if moveToFrontIndex:
-                eliminationOrder.insert(0, eliminationOrder.pop(moveToFrontIndex))
-        except ValueError:
-            # residual surplus not in list
-            pass
+        # Handle "residual surplus" and "exhausted" which should always be at the end
+        def moveToFront(candidateName):
+            try:
+                moveToFrontIndex = [e.name for e in eliminationOrder].index(candidateName)
+                if moveToFrontIndex:
+                    eliminationOrder.insert(0, eliminationOrder.pop(moveToFrontIndex))
+            except ValueError:
+                # not every election has these two
+                pass
+        moveToFront('residual surplus')
+        moveToFront('exhausted')
 
         self.eliminationOrder = eliminationOrder
 
