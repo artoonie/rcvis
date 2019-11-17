@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=master)](https://travis-ci.com/artoonie/rcvis)
+[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=master)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie)
 
 # Ranked Choice Voting Visualization
 Visualize ranked-choice voting results using d3.js and django.
@@ -74,3 +74,6 @@ Here are four ways to visualize the results of the same election.
 [City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
 
 [Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
+
+## Testing
+Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).
