@@ -40,6 +40,11 @@ export OFFLINE_MODE=True
 # export AWS_S3_REGION_NAME=''
 # export AWS_ACCESS_KEY_ID=''
 # export AWS_SECRET_ACCESS_KEY=''
+
+# To run the SauceLabs integration tests, you will need
+export SAUCE_USERNAME=''
+export SAUCE_ACCESS_KEY=''
+
 ```
 
 And running `source .env` to set up your environment.
