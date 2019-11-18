@@ -102,6 +102,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def open(self, url):
         self.browser.get("%s%s" % (self.live_server_url, url))
 
+        # Always verify the page is error-free
+        log = self.browser.get_log('browser')
+        assert(len(log) == 0)
+
     def _upload(self, fn):
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("uploadFileInput")
