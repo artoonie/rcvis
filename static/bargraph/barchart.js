@@ -367,8 +367,8 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr(candidatePosStr, isVertical ? margin.left : margin.top)
       .attr(votesPosStr, barVotesPosFn([threshold, threshold]))
       .attr(candidateSizeStr, isVertical ? width : height)
-      .attr(votesSizeStr, 1)
-      .attr("fill", "#999")
+      .attr(votesSizeStr, 0.5)
+      .attr("fill", "#AAA")
   // The invisible mouseover element
   mouseOverBorder = 10
   svg.append("rect")

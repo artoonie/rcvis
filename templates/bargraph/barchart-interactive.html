@@ -39,7 +39,7 @@ var sliderStep = d3
   .width(numRounds * 45)
   .height(50)
     .tickFormat(function(d) { return "Round " + d;})
-  .ticks(numRounds)
+  .ticks(numRounds-1)
   .step(1)
   .default(numRounds)
   .on('onchange', val => {
