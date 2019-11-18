@@ -3,7 +3,10 @@ from django.test import TestCase
 
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium.webdriver import Firefox
+from selenium import webdriver
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.remote.remote_connection import RemoteConnection
+
 
 from .models import JsonConfig
 from .views import getDataForView
@@ -66,21 +69,42 @@ class SimpleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
 
-import time
 class LiveBrowserTests(StaticLiveServerTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.browser = Firefox()
-        cls.browser.implicitly_wait(10)
+    def setUp(self):
+        super(LiveBrowserTests, self).setUp()
+        if "TRAVIS_BUILD_NUMBER" in os.environ:
+            username = os.environ["SAUCE_USERNAME"]
+            access_key = os.environ["SAUCE_ACCESS_KEY"]
+            capabilities = {}
+            capabilities["platform"] = "Windows 10"
+            capabilities["browserName"] = "chrome"
+            capabilities["version"] = "70.0"
+            capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
+            capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
+            capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
+            capabilities["commandTimeout"] = 100
+            capabilities["maxDuration"] = 1200
+            capabilities["sauceSeleniumAddress"] = "localhost:4445/wd/hub"
+            capabilities["captureHtml"] = True
+            capabilities["webdriverRemoteQuietExceptions"] = False
+            hub_url = "%s:%s@localhost:4445" % (username, access_key)
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super().tearDownClass()
+            self.browser = webdriver.Remote(desired_capabilities=capabilities, command_executor="http://%s/wd/hub" % hub_url)
+        else:
+            self.browser = webdriver.Firefox()
+
+        self.browser.implicitly_wait(10)
+
+    def tearDown(self):
+        self.browser.quit()
+        super(LiveBrowserTests, self).tearDown()
 
     def open(self, url):
         self.browser.get("%s%s" % (self.live_server_url, url))
+
+        # Always verify the page is error-free
+        log = self.browser.get_log('browser')
+        assert(len(log) == 0)
 
     def _upload(self, fn):
         self.open('/upload.html')
