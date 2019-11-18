@@ -75,9 +75,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         if "TRAVIS_BUILD_NUMBER" in os.environ:
             username = os.environ["SAUCE_USERNAME"]
             access_key = os.environ["SAUCE_ACCESS_KEY"]
-            capabilities = DesiredCapabilities.FIREFOX.copy()
+            capabilities = {}
             capabilities["platform"] = "Windows 10"
             capabilities["browserName"] = "chrome"
+            capabilities["version"] = "70.0"
             capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
             capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
             capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
@@ -87,7 +88,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["captureHtml"] = True
             capabilities["webdriverRemoteQuietExceptions"] = False
             hub_url = "%s:%s@localhost:4445" % (username, access_key)
-            self.hub_url = "https://%s:%s@ondemand.saucelabs.com:443/wd/hub" % (username, access_key)
+
             self.browser = webdriver.Remote(desired_capabilities=capabilities, command_executor="http://%s/wd/hub" % hub_url)
         else:
             self.browser = webdriver.Firefox()
@@ -103,7 +104,6 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _upload(self, fn):
         self.open('/upload.html')
-        print(self.browser.page_source)
         fileUpload = self.browser.find_element_by_id("uploadFileInput")
         fileUpload.send_keys(os.path.join(os.getcwd(), fn))
         uploadButton = self.browser.find_element_by_id("uploadButton")
