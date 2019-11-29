@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.db import models
 from django.utils.text import slugify
 
@@ -28,3 +29,7 @@ class JsonConfig(models.Model):
         if not self.slug:
             self.slug = self._get_unique_slug()
         super().save(*args, **kwargs)
+
+@admin.register(JsonConfig)
+class JsonAdmin(admin.ModelAdmin):
+  list_display = ('slug', 'uploadedAt')
