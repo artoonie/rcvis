@@ -1,0 +1,52 @@
+{
+  "config" : {
+    "contest" : "Favorite ice cream flavors",
+    "date" : "2019-11-17",
+    "jurisdiction" : "Sample Data",
+    "office" : "Council",
+    "threshold" : "600"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "Vanilla" : "500",
+      "Blackberry" : "350",
+      "Banana" : "100",
+      "Strawberry" : "250"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Banana",
+      "transfers" : {
+        "Vanilla" : "50",
+        "Blackberry" : "25",
+        "Strawberry" : "25"
+      }
+    } ]
+  },
+  {
+    "round" : 2,
+    "tally" : {
+      "Vanilla" : "550",
+      "Blackberry" : "375",
+      "Strawberry" : "275"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Strawberry",
+      "transfers" : {
+        "Vanilla" : "25",
+        "Blackberry" : "250"
+      }
+    } ]
+  },
+  {
+    "round" : 3,
+    "tally" : {
+      "Vanilla" : "575",
+      "Blackberry" : "625"
+    },
+    "tallyResults" : [ {
+      "elected" : "Blackberry"
+    } ]
+  }
+  ]
+}

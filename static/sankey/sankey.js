@@ -255,7 +255,7 @@ d3.sankey = function(totalSize0) {
         });
     })
     nodes.forEach(function(node) {
-        if(ddim1(node) < size1) {
+        if(ddim1(node) < size1 && ddim1(node) != 0 /* Prevent division by zero */) {
             ddim1scalar = size1/ddim1(node);
             set_dim1(node, dim1(node))
             set_ddim1(node, size1)
