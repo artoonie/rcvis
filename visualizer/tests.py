@@ -17,6 +17,7 @@ FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
+FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
 class SimpleTests(TestCase):
     def _get_data_for_view(self, fn):
@@ -146,7 +147,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         assert self._getWidth("sankey-body") == 0 # not yet visible
         self.browser.find_elements_by_id("sankey-tab")[0].click()
-        testSaneResizingOf("sankey-body", 3000) # sankey doesn't currently have an upper limit, though it should. Unit-driven testing? Fix this.
+        testSaneResizingOf("sankey-body", 1200)
+
+        self._upload(FILENAME_THREE_ROUND)
+        testSaneResizingOf("sankey-body", 900)
 
     def test_oneround(self):
         # Regression test
