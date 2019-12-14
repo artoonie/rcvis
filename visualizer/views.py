@@ -9,8 +9,7 @@ from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
 def index(request):
-    form = UploadFileForm()
-    return render(request, 'visualizer/uploadFile.html', {'form': form})
+    return render(request, 'visualizer/index.html', {})
 
 def upload(request):
     if request.method == 'POST' and request.FILES.get('rcvJson'):
@@ -44,7 +43,8 @@ def upload(request):
         }
         return redirect('visualize', rcvresult=config.slug);
     else:
-        return redirect('index')
+        form = UploadFileForm()
+        return render(request, 'visualizer/uploadFile.html', {'form': form})
 
 def getDataForView(config):
     graph = makeGraphWithFile(config)
