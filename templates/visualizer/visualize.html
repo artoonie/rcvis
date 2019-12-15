@@ -1,28 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151309356-1"></script>
-<script>
-      window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
+{% extends "visualizer/base.html" %}
+{% load static %}
 
-gtag('config', 'UA-151309356-1');
-</script>
+{% block title %}<title>{{ title }} - Ranked Choice Voting Visualization</title>{% endblock %}
 
-  {% block title %}<title>{{ title }} - Ranked Choice Voting Visualization</title>{% endblock %}
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <!-- Add additional CSS in static file -->
-  {% load static %}
+{% block header %}
   {% if offlineMode %}
   <script src="{% static 'localdeps/d3.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'localdeps/bootstrap.min.css' %}" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   {% else %}
   <!-- for online use -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.0/d3.js"></script>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   {% endif %}
 
   <!-- Shared resources for multiple visualizations-->
@@ -30,44 +16,58 @@ gtag('config', 'UA-151309356-1');
   <script src="{% static 'bargraph/barchart-common.js' %}"></script>
   <script src="{% static 'visualizer/common.js' %}"></script>
 
-  <link rel="shortcut icon" type="image/png" href="{% static "visualizer/favicon.ico" %}"/>
   <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
   <link rel="stylesheet" href="{% static "sankey/style.css" %}">
   <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
+{% endblock %} 
 
-</head>
-<body>
+{% block navlinks %}
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#examples">Sample Elections</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#types">Visualization Types</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html">Upload</a>
+</li>
+{% endblock %}
+
+{% block maincontent %}
+  <!-- Masthead -->
+  <header class="masthead bg-primary text-white text-left pb-0" style="padding-top: 8rem">
+      <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</p>
+      <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ date }}</p>
+    <div class="container d-flex align-items-left flex-column ml-0">
+
     <ul class="nav nav-tabs" id="tablist" role="tablist">
         <li class="nav-item">
-            <a class="nav-link" id="home-tab" href="/" role="tab" aria-controls="home" aria-selected="true">Upload New Tabulated Election</a>
+            <a class="nav-link btn btn-outline-light" id="barchart-tab-interactive" data-toggle="changeviz" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Bar Chart</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="barchart-tab-interactive" data-toggle="tab" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Bar Chart</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="barchart-tab-fixed" data-toggle="tab" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Bar Chart</a>
+            <a class="nav-link btn btn-outline-light" id="barchart-tab-fixed" data-toggle="changeviz" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Bar Chart</a>
         </li>
         {% if not config.hideSankey %}
         <li class="nav-item">
-            <a class="nav-link" id="sankey-tab" data-toggle="tab" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
+            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
         </li>
         {% endif %}
         {% if not config.hideTabular %}
         <li class="nav-item">
-            <a class="nav-link" id="tabular-by-round-tab-interactive" data-toggle="tab" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-interactive" data-toggle="changeviz" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="tabular-by-round-tab-fixed" data-toggle="tab" href="#tabular-by-round-fixed" role="tab" aria-controls="tabular-by-round-fixed" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-fixed" data-toggle="changeviz" href="#tabular-by-round-fixed" role="tab" aria-controls="tabular-by-round-fixed" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" id="tabular-by-candidate-tab" data-toggle="tab" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
         </li>
         {% endif %}
     </ul>
+    </div>
+  </header>
 
-    <div class="tab-content" id="myTabContent">
-        <h1 style="margin-left: 20px; margin-top: 20px;">{{ title }}</h1>
-        <h3 style="margin-left: 20px">{{ date }}</h3>
+    <div class="tab-content mb-5" id="myTabContent">
         <h6 style="margin-left: 20px; margin-top:20px"><a id="swap-dynamic" href="#"></a></h6>
 
         <div class="tab-pane fade" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
@@ -87,7 +87,9 @@ gtag('config', 'UA-151309356-1');
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   {% endif %}
+{% endblock %}
 
+{% block etc %}
   <script>
       function goToTab(tabName)
       {
@@ -167,7 +169,8 @@ gtag('config', 'UA-151309356-1');
       });
 
       // Change hash for page-reload
-      $('.nav-tabs a').on('shown.bs.tab', function (e) {
+      //$('.nav-tabs a').on('shown.bs.tab', function (e) {
+      $(document).on('shown.bs.tab', 'a[data-toggle="changeviz"]', function (e) {
           // Changing tabs
           refreshContentByTabAndDynamism(e.target.hash.split('#')[1]);
           e.preventDefault();
@@ -181,5 +184,4 @@ gtag('config', 'UA-151309356-1');
       });
 
   </script>
-</body>
-</html>
+{% endblock %}

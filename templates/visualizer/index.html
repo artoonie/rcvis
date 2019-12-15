@@ -1,0 +1,164 @@
+{% extends "visualizer/base.html" %}
+{% load static %}
+
+{% block navlinks %}
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Sample Elections</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">Visualization Types</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Upload</a>
+</li>
+{% endblock %}
+
+{% block maincontent %}
+  <!-- Masthead -->
+  <header class="masthead bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+      <!-- Masthead Heading -->
+      <h1 class="masthead-heading text-uppercase mb-0">Election Visualizations</h1>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Masthead Subheading -->
+      <p class="masthead-subheading font-weight-light mb-0">Sankey Diagrams, Bar Charts, and Tabular visualizations for Ranked-Choice Voting elections</p>
+
+    </div>
+  </header>
+
+  <!-- Portfolio Section -->
+  <section class="page-section portfolio" id="whatis">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked-Choice Voting?</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+
+      <div class="row">
+        <div class="col-lg-8 ml-auto mr-auto">
+            <p class="lead">With Ranked-Choice Voting, if your top candidate doesn't win the election, your vote still counts: your vote is <i>transferred</i> to your next pick. Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked-Choice Voting</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-section bg-primary text-white mb-0" id="examples">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-white">Sample Visualizations</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+        <div class="col-lg-4 ml-auto mb-3">
+          <p class="lead mb-0 mt-0">Utah County 2019 Elections</p>
+          <p class="mb-0 mt-0">Used during the election cycle by <a class="btn-outline-light" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=payson-2019-11-12_13-46-26_summary_1json">2019 Payson City Council Seat 1</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=payson-2019-11-12_13-46-26_summary_2json">2019 Payson City Council Seat 2</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=payson-2019-11-12_13-46-26_summary_3json">2019 Payson City Council Seat 3</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=vineyard-2019-11-12_13-49-22_summary_1json">2019 Vineyard City Council Seat 1</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=vineyard-2019-11-12_13-49-22_summary_2json">2019 Vineyard City Council Seat 2</a>
+        </div>
+        <div class="col-lg-4 mr-auto">
+          <p class="lead mb-0 mt-0">Additional Elections</p>
+          <p class="mb-0 mt-0">Using real data, but not during the election cycle.</p>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=opavote2json">2019 FairVote Primary Poll</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=2018_maine_gov_primary_demjson">2018 Maine Gubernatorial Primary</a>
+          <br/><a class="btn btn-m btn-outline-light mb-3" href="/visualize=2015_portland_mayorjson">2015 Portland Mayoral Race</a>
+          <br/>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- About Section -->
+  <section class="page-section portfolio" id="types">
+    <div class="container">
+
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+
+        <!-- Portfolio Item 1 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-signal fa-3x"></i>
+                Bar Charts
+              </div>
+            </div>
+            <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="">
+          </div>
+        </div>
+
+        <!-- Portfolio Item 2 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-project-diagram fa-3x"></i>
+                Sankey Diagrams
+              </div>
+            </div>
+            <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="">
+          </div>
+        </div>
+
+        <!-- Portfolio Item 3 -->
+        <div class="col-md-6 col-lg-4">
+          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal3">
+            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
+              <div class="portfolio-item-caption-content text-center text-white">
+                <i class="fas fa-table fa-3x"></i>
+                Round-by-Round
+              </div>
+            </div>
+            <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="">
+          </div>
+        </div>
+      </div>
+      <!-- /.row -->
+
+    </div>
+  </section>
+{% endblock %}

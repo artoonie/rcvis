@@ -1,30 +1,23 @@
+{% extends "visualizer/base.html" %}
 {% load static %}
 
-<head>
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-151309356-1"></script>
-<script>
-      window.dataLayer = window.dataLayer || [];
-function gtag(){dataLayer.push(arguments);}
-gtag('js', new Date());
-
-gtag('config', 'UA-151309356-1');
-</script>
-
-<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Ranked Choice Voting Visualization</title>
-{% if offlineMode %}
-<script src="{% static 'localdeps/d3.js' %}"></script>
-<link rel="stylesheet" href="{% static 'localdeps/bootstrap.min.css' %}" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-{% else %}
-<!-- for online use -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.0/d3.js"></script>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-{% endif %}
+{% block header %}
 <link rel="stylesheet" type="text/css" href="{% static 'visualizer/uploadpage.css' %}">
-<link rel="shortcut icon" type="image/png" href="{% static 'visualizer/favicon.ico' %}"/>
-</head>
+{% endblock %}
 
+{% block navlinks %}
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#examples">Sample Elections</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#types">Visualization Types</a>
+</li>
+<li class="nav-item mx-0 mx-lg-1">
+  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html">Home</a>
+</li>
+{% endblock %}
+
+{% block maincontent %}
 <script>
 function handleFiles(files)
 {
@@ -32,16 +25,77 @@ function handleFiles(files)
 }
 </script>
 
-{% block content %}
-  <div class="row d-flex justify-content-center">
-  <div class=".col-s-2 col-md-7 col-s-2">
-  <div class="content">
-  <form action="upload.html" enctype="multipart/form-data" method="post" id="form">
+  <header class="masthead bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+      <!-- Masthead Heading -->
+      <h1 class="page-section-heading text-center text-uppercase mb-0">Upload Tabulated Election Results</h1>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Masthead Subheading -->
+      <p class="masthead-subheading font-weight-light mb-0">Accepted formats include JSONs from the
+          <a class="text-secondary" href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> and
+          <a class="text-secondary" href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>.
+          </p>
+
+    </div>
+  </header>
+
+<form action="upload.html" enctype="multipart/form-data" method="post" id="form">
+  <section class="page-section">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 1: File Selection</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+		<div class="selectFileButtonWrapper">
+			<button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
+			<input id="uploadFileInput" type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+		</div>
+      </div>
+    </div>
+  </section>
+  <section class="page-section bg-primary text-white mb-0" id="examples">
+    <div class="container">
+
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text mb-0">Step 2: Customization</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+        <div class="col-lg-12">
+
     {% csrf_token %}
  	<div class="formArea">
 		<button class="collapsible">▶ Global visualization options</button>
 		<div class="optionscontent">
-			<p>
+			<p class="mt-3">
 			<label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
 			<br/><small>By default, we'll show up to two decimal places.</small></label>
 		<br/> <br/>
@@ -52,7 +106,7 @@ function handleFiles(files)
 
 		<button class="collapsible">▶ Bargraph visualization options</button>
 		<div class="optionscontent">
-			<p>
+			<p class="mt-3">
 			<label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes</label>
 		    <br/> <br/>
 			<label><input type="checkbox" name="doUseHorizontalBarGraph"/> Make horizontal instead of vertical</label>
@@ -61,7 +115,7 @@ function handleFiles(files)
 
 		<button class="collapsible">▶ Sankey visualization options</button>
 		<div class="optionscontent">
-			<p>
+			<p class="mt-3">
 			<label><input type="checkbox" name="hideSankey"/> Hide the sankey altogether</label>
 			</p>
 			<p>
@@ -75,55 +129,46 @@ function handleFiles(files)
 
 		<button class="collapsible">▶ Tabular visualization options</button>
 		<div class="optionscontent">
-			<p>
+			<p class="mt-3">
 			<label><input type="checkbox" name="hideTabular"/> Hide both tabular formats altogether</label>
 			</p>
 			<p>
 			<label><input type="checkbox" name="onlyShowWinnersTabular" checked/> Only show winners, hiding eliminated candidates</label>
 			</p>
 		</div>
-
-        <br/>
-		<div class="selectFileButtonWrapper">
-			<button id="selectFileButton">Click to select a file</button>
-			<input id="uploadFileInput" type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
-		</div>
-		<div id="submitDiv">
-			<button id="uploadButton" type="submit" class="submitButton">Upload</button>
-		</div>
 	</div>
-  </form>
-  <div class="row text-left" style="margin-top:30px">
-      <div class="col">
-          <strong>JSON formats accepted:</strong>
-          <br/><a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a>
-          <br/><a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>
-      </div>
-      <div class="col">
-          <strong>Sample Elections:</strong>
-          <br/><a href="/visualize=payson-2019-11-12_13-46-26_summary_1json">2019 Payson City Council Seat 1*</a>
-          <br/><a href="/visualize=payson-2019-11-12_13-46-26_summary_2json">2019 Payson City Council Seat 2*</a>
-          <br/><a href="/visualize=payson-2019-11-12_13-46-26_summary_3json">2019 Payson City Council Seat 3*</a>
-          <br/><a href="/visualize=vineyard-2019-11-12_13-49-22_summary_1json">2019 Vineyard City Council Seat 1*</a>
-          <br/><a href="/visualize=vineyard-2019-11-12_13-49-22_summary_2json">2019 Vineyard City Council Seat 2*</a>
-          <br/><a href="/visualize=opavote2json">2019 FairVote Primary Poll</a>
-          <br/><a href="/visualize=2018_maine_gov_primary_demjson">2018 Maine Gubernatorial Primary</a>
-          <br/><a href="/visualize=2015_portland_mayorjson">2015 Portland Mayoral Race</a>
-          <br/>
-          <br/><small>* Used in November 2019 for <a href="http://utahcounty.gov/Dept/ClerkAud/Elections/ResultsTracking.html">Utah County's Preliminary Election Results</a>. The other elections completed before this visualizer was built</small>.
-      </div>
-      <div class="col">
-      <strong>About:</strong>
-          <br/><a href="https://github.com/artoonie/rcvis">Source Code</a>
-          <br/><a href="https://github.com/artoonie/rcvis/projects/1">Bug Reports & Feature Requests</a>
-          <br/><a href="mailto:team@rcvis.com">team@rcvis.com</a>
-      </div>
-  </div>
+    </div>
+    </div>
+  </section>
+  <section class="page-section">
+    <div class="container">
 
-		<br/>
-  </div>
-  </div>
-  </div>
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 3: Upload</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+		<div class="col" id="submitDiv">
+			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Click to run the visualizer</button>
+		</div>
+      </div>
+    </div>
+  </section>
+
+  </form>
+{% endblock %}
+
+
+{% block etc %}
 <script>
 var coll = document.getElementsByClassName("collapsible");
 var i;
@@ -143,9 +188,4 @@ for (i = 0; i < coll.length; i++) {
   });
 }
 </script>
-
-  {% if uploaded_file_url %}
-    <p>File uploaded at: <a href="{{ uploaded_file_url }}">{{ uploaded_file_url }}</a></p>
-  {% endif %}
-
 {% endblock %}
