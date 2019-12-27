@@ -1,6 +1,6 @@
 <div id="sankey-body">
 {% if config.horizontalSankey %}
-    <div id="topbar" style="position: absolute"></div>
+    <div id="topbar" style="position: absolute; width: 0px;"></div>
 {% else %}
     <div id="topbar" style="width: 100%"></div>
 {% endif %}
@@ -174,6 +174,19 @@ function makeGraph(graph) {
         })
         .on("drag", dragmove));
 
+    {% if config.horizontalSankey %}
+    // For horizontal sankey, labels go on the first-round nodes,
+    // not on the top bar
+    node
+      .filter(function(d) { return d.round == 0 })
+      .append("text")
+      .attr("x", -5)
+      .attr("y", function(d) { return textYPos(d); } )
+      .attr("dy", ".35em")
+      .attr("text-anchor", "end")
+      .text(getNodeLabelText);
+    {% endif %}
+
     svg.append("g").selectAll(".roundLabels")
         // TODO we shouldn't assume dim1 is at zero but
         // this is the easiest way to get unique values
@@ -281,9 +294,6 @@ function populateTopBarFor(topbarG, round) {
       .attr("x", 0 )
       .attr("y", 30 )
       .attr("dy", ".35em")
-      {% if config.horizontalSankey %}
-      .text(getNodeLabelText)
-      {% else %}
       .text(getNodeLabelTextTruncated)
         .on('mouseover', function(d){
             d3.select(this).text(getNodeLabelText);
@@ -291,7 +301,6 @@ function populateTopBarFor(topbarG, round) {
         .on('mouseout', function(d){
             d3.select(this).text(getNodeLabelTextTruncated);
         })
-      {% endif %}
         .call(d3.drag());
       {% endif %}
     topbar.exit().remove();
@@ -328,15 +337,19 @@ function notifyScrolled() {
   }
 }
 
-window.onscroll = function() {notifyScrolled()};
-
 var topbarDiv = document.getElementById("topbar");
 var sticky = topbarDiv.offsetTop + heightUntilSticky;
 var bodyMargin = getBodyMarginInt()
 makeGraph(graph);
 var topbarG = makeTopBar(graph);
-var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
-populateTopBarFor(topbarG, 0)
+{% if not config.horizontalSankey %}
+  if (!disableMagicTopBar)
+  {
+    window.onscroll = function() {notifyScrolled()};
+  }
+  var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
+  populateTopBarFor(topbarG, 0)
+{% endif %}
 
 }
 if (numRounds > 1)
