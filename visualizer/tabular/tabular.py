@@ -13,12 +13,12 @@ class TabulateByRoundInteractive:
                 d = {}
                 isEliminatedThisRound = cinfo.name in r.eliminatedNames
                 if isEliminatedThisRound:
-                    d['change'] = votify(-cinfo.totalVotesPerRound[-1])
+                    d['change'] = votify(changify(-cinfo.totalVotesPerRound[-1]))
                     d['total'] = 0
                 elif i >= len(cinfo.votesAddedPerRound):
                     continue
                 else:
-                    d['change'] = votify(cinfo.votesAddedPerRound[i])
+                    d['change'] = votify(changify(cinfo.votesAddedPerRound[i]))
                     d['total'] = intify(cinfo.totalVotesPerRound[i])
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in r.winnerNames
@@ -42,8 +42,57 @@ class TabulateByRound:
                            'winners': '<br/>'.join(r.winnerNames)})
         self.tabulation = rounds
 
+class TabularCandidateByRound:
+    tabulation:list # A list of CandidateTabulation
+    rounds:int
+
+    def __init__(self, graph):
+        summary = graph.summarize()
+        self.rounds = range(len(summary.rounds))
+        self.tabulation = []
+
+        candidates = summary.candidates
+        for item in candidates:
+            self.tabulation.append(CandidateTabulationByRound(graph, item))
+
+""" A summary of one candidate, prepared for tabulation, with every round """
+class CandidateTabulationByRound:
+    name:str
+    eachRound:list
+
+    def __init__(self, graph, item):
+        self.name = item.name
+        summary = graph.summarize()
+        numRounds = len(summary.rounds)
+        candidateInfo = summary.candidates[item]
+        self.eachRound = []
+        self.rounds = range(numRounds)
+        for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
+            thisRoundSummary = summary.rounds[i]
+            self.eachRound.append(OneCandidateOneRound(thisRoundSummary, myNumVotes, self.name))
+
+        # We want all rounds filled out - pad the remaining rounds
+        numRoundsThisCandidate = len(candidateInfo.totalVotesPerRound)
+        padding = [None] * (numRounds-numRoundsThisCandidate)
+        self.eachRound.extend(padding)
+
+class OneCandidateOneRound:
+    totalVotes:float
+    percentVotes:float
+    isWinner:bool
+    isEliminated:bool
+    def __init__(self, thisRoundSummary, myNumVotes, name):
+        allVotes = thisRoundSummary.totalVotes
+
+        self.totalVotes = votify(myNumVotes)
+        self.percentVotes = percentify(myNumVotes / allVotes)
+
+        self.isWinner     = name in thisRoundSummary.winnerNames
+        self.isEliminated = name in thisRoundSummary.eliminatedNames
+
 class TabulateByCandidate:
     tabulation:list # A list of CandidateTabulation
+    rounds:int
 
     def __init__(self, graph, onlyShowWinners):
         summary = graph.summarize()
@@ -53,6 +102,7 @@ class TabulateByCandidate:
             candidates = [c for c in candidates if c in graph.winnersSoFar]
         for item in candidates:
             self.tabulation.append(CandidateTabulation(graph, item))
+        self.rounds = range(len(summary.rounds))
 
 """ A summary of one candidate, prepared for tabulation """
 class CandidateTabulation:
@@ -133,6 +183,10 @@ def intify(v):
     else:
         return "%0.2f" % v
 
+""" Turn a float into a percentage string """
+def percentify(v):
+    return str(int(1000.0*v)/10.0) + "%"
+
 """ Add an "s" as needed """
 def pluralize(txt, num):
     if num == 1:
@@ -145,4 +199,8 @@ def changify(num):
     return prefix + str(intify(num))
 
 def votify(num):
-    return changify(num) + " votes"
+    if not isinstance(num, str):
+      # c/o https://stackoverflow.com/a/10507593
+      # Only show decimal place if needed
+      num = "{0}".format(str(round(num, 1) if num % 1 else int(num)))
+    return num + " votes"
