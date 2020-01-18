@@ -80,5 +80,7 @@ Here are four ways to visualize the results of the same election.
 
 [Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
 
+[FairVote's 2018 Santa Fe Visualization](https://www.fairvote.org/2018_election)
+
 ## Testing
 Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).

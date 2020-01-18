@@ -62,6 +62,9 @@
         <li class="nav-item">
             <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link btn btn-outline-light" id="tabular-candidate-by-round-tab" data-toggle="changeviz" href="#tabular-candidate-by-round" role="tab" aria-controls="tabular-candidate-by-round" aria-selected="false">Single Table Summary</a>
+        </li>
         {% endif %}
     </ul>
     </div>
@@ -76,6 +79,7 @@
         <div class="tab-pane fade" id="tabular-by-candidate" role="tabpanel" aria-labelledby="tabular-by-candidate-tab">{% include "tabular/tabular-by-candidate.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-round-fixed" role="tabpanel" aria-labelledby="tabular-by-round-tab-fixed">{% include "tabular/tabular-by-round.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-round-interactive" role="tabpanel" aria-labelledby="tabular-by-round-tab-interactive">{% include "tabular/tabular-by-round-interactive.html" %}</div>
+        <div class="tab-pane fade" id="tabular-candidate-by-round" role="tabpanel" aria-labelledby="tabular-candidate-by-round-tab">{% include "tabular/tabular-candidate-by-round.html" %}</div>
     </div>
 
   {% if offlineMode %}
@@ -143,6 +147,7 @@
       loadTabFromTag()
       var doHideFixedTabs = !activeTab.endsWith("-fixed");
       updateHiddenTabs();
+      refreshContentByTabAndDynamism(activeTab);
 
       function refreshContentByTabAndDynamism(tabName)
       {

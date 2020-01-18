@@ -1,0 +1,34 @@
+<div class="table-responsive-md" style="margin-left: 20px; margin-right: 20px;">
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">Candidate name </th>
+            {% for roundTabulation in tabularCandidateByRound.rounds %}
+                <th scope="col">Round {{ forloop.counter }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for candidateTabulation in tabularCandidateByRound.tabulation %}
+        <tr>
+            <th scope="row">{{ candidateTabulation.name }}</th>
+            {% for round in candidateTabulation.eachRound %}
+                {% if not round %}
+                 <td style="background-color: #FFBFBF"></td>
+                 {% else %}
+                 <td
+                     {% if round.isWinner %}
+                     style="background-color: #BFFFCC"
+                     {% endif %}
+                 >
+                      <h3>{{ round.percentVotes }}</h3><br/>
+                          {{ round.totalVotes }}
+                 </td>
+                 {% endif %}
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

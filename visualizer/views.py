@@ -4,7 +4,7 @@ from .forms import UploadFileForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .bargraph.graphToD3 import D3Bargraph
-from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate
+from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate, TabularCandidateByRound
 from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
@@ -51,6 +51,7 @@ def getDataForView(config):
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
+    tabularCandidateByRound = TabularCandidateByRound(graph)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
     offlineMode = OFFLINE_MODE
@@ -61,6 +62,7 @@ def getDataForView(config):
         'bargraphjs': d3Bargraph.js,
         'sankeyjs': d3Sankey.js,
         'tabularByCandidate': tabularByCandidate,
+        'tabularCandidateByRound': tabularCandidateByRound,
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'offlineMode': offlineMode
