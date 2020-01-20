@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=master)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie)
 
+# RCVIS.com
+This repo is live at [rcvis.com](https://www.rcvis.com).
+
 # Ranked Choice Voting Visualization
 Visualize ranked-choice voting results using d3.js and django.
 
@@ -7,12 +10,9 @@ Visualize ranked-choice voting results using d3.js and django.
 
 **Why RCV?** RCV is spreading. In an RCV election, you can't spoil votes. Third-party candidates don't waste votes. Similar candidates help each other instead of hurting each other. They're less polarized and more fair. Multi-winner RCV elections mitigate the effects of gerrymandering. For more information, check out [FairVote's guide to the benefits of RCV elections](https://www.fairvote.org/rcv#rcvbenefits).
 
-**Why the visualizer?** It takes more time to understand the results of an RCV election. Instead of looking at just the number of votes, voters want to know how votes got transferred as candidates get eliminated. This can be a lot of information, so how you visualize it depends on your audience, the complexity of the election, your medium (print vs web), and more. This repo provides several visualizations, including:
-- Sankey Diagrams
-- Stacked bar charts
-- Tabular data
+**Why the visualizer?** In a traditional election, the results are easy to understand: how many votes did each candidate get? In an RCV election, it can be a harder to understand how a candidate one, based on what happens in each round. Our goal is to create a series of visualizations which can work for a variety of audiences on a variety of mediums: print, web, and TV.
 
-Interactivity is coming soon.
+Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
 ## Installation & running
 To run:
@@ -22,7 +22,7 @@ source venv/bin/activate
 pip3 install -e .
 pip3 install -r requirements.txt
 python3 manage.py runserver
-open localhost:8000/sankey
+open localhost:8000
 ```
 
 You will need several environment variables set. I recommend creating a `.env` file with the following:
@@ -49,8 +49,26 @@ export SAUCE_ACCESS_KEY=''
 
 And running `source .env` to set up your environment.
 
-## Functionality & manual testing of the Sankey diagram
-As the functionality is changing rapidly, we do not yet have automated tests. The following is a set of regression tests to verify the Sankey diagram.:
+## Examples
+Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
+
+| Barchart | Round-by-Round |
+| --- | --- |
+| ![Barchart](static/visualizer/icon_interactivebar.gif "Interactive Barchart") | ![Round-by-Round](static/visualizer/icon_interactiveroundbyround.gif "Round-by-Round") |
+
+| Sankey | Tabular Summary |
+| --- | --- |
+| ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
+
+## Inpsiration
+[City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
+
+[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
+
+[FairVote's 2018 Santa Fe Visualization](https://www.fairvote.org/2018_election)
+
+## Functionality specifics of the Sankey diagram
+We have added a lot of complexity to the Sankey diagram to support elections with many candidates. Let this serve both as a list of specific features, and as a list of manual tests to run whenever modifying the Sankey diagram. (Yes, we have automated integration testing, but not all of these features have integration tests yet.)
 
 - Top bar of candidate names
     - *Sticky*: On a short screen, when you scroll down far enough, it should become sticky and lock to the top of the page.
@@ -63,24 +81,7 @@ As the functionality is changing rapidly, we do not yet have automated tests. Th
 - Long candidate names
     - Candidate names should not overlap in the top bar. If a candidate name is very long, or a candidate’s number of votes makes its bar short, the name should automatically truncate to ellipses.
     - When you hover over these ellipses, they should reveal the candidate’s full name
-
-## Examples
-Here are four ways to visualize the results of the same election.
-![Sankey](screenshots/sankey.png "Sankey")
----
-![Barchart](screenshots/barchart.png "Barchart")
----
-![Candidate Summary](screenshots/candidatesummary.png "Candidate Summary")
----
-![Round-by-Round](screenshots/roundbyround.png "Round-by-Round")
-
-
-## Inpsiration
-[City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
-
-[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
-
-[FairVote's 2018 Santa Fe Visualization](https://www.fairvote.org/2018_election)
+    - There is an option to have either a horizontal or vertical sankey diagram.
 
 ## Testing
 Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).
