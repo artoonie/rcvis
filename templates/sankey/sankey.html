@@ -95,6 +95,10 @@ function makeViewboxSizeString(size0, size1) {
                                     : size1 + " " + size0;
 }
 
+function getMaxWidth() {
+  return (size0string() == "width" ? viewboxSize0 : viewboxSize1) + "px";
+}
+
 function makeGraph(graph) {
     // format variables
     var formatNumber = d3.format(",.2f");    // two decimal places
@@ -108,7 +112,7 @@ function makeGraph(graph) {
     // append the svg object to the body of the page
     var svg = d3.select("#sankey-body").append("svg")
         .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
-        .style("max-width", size0string() == "width" ? viewboxSize0 : viewboxSize1)
+        .style("max-width", getMaxWidth())
       .append("g")
         .attr("transform", 
               "translate(" + cmargin.left + "," + cmargin.top + ")");
@@ -249,7 +253,7 @@ function makeTopBar(graph) {
     var viewboxLeft = -tmargin.left
     var topbarG = d3.select('#topbar').append("svg")
         .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
-        .style("max-width", size0string() == "width" ? viewboxSize0 : viewboxSize1)
+        .style("max-width", getMaxWidth())
         .append("g")
     return topbarG;
 }
