@@ -39,7 +39,7 @@ svg {
   outline: none;
   font-size: 15px;
 }
-.active, .collapsible:hover {
+.active .collapsible:hover {
   background-color: #7FDBFF;
   color: #00060c;
 }

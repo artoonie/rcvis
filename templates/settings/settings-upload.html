@@ -1,0 +1,110 @@
+{% extends  "settings/base.html" %}
+{% load static %}
+
+{% block beforeOptions %}
+<script>
+function handleFiles(files)
+{
+  document.getElementById("selectFileButton").innerHTML = files[0].name
+}
+</script>
+
+  <header class="masthead bg-primary text-white text-center">
+    <div class="container d-flex align-items-center flex-column">
+      <!-- Masthead Heading -->
+      <h1 class="page-section-heading text-center text-uppercase mb-0">Upload Tabulated Election Results</h1>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Masthead Subheading -->
+      <p class="masthead-subheading font-weight-light mb-0">Accepted formats include JSONs from the
+          <a class="text-secondary" href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> and
+          <a class="text-secondary" href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>.
+          </p>
+
+    </div>
+  </header>
+
+<form action="upload.html" enctype="multipart/form-data" method="post" id="form">
+  <section class="page-section">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 1: File Selection</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+		<div class="selectFileButtonWrapper">
+			<button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
+			<input id="uploadFileInput" type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+		</div>
+      </div>
+    </div>
+  </section>
+  <section class="page-section bg-primary text-white mb-0" id="examples">
+    <div class="container">
+
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text mb-0">Step 2: Customization</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom divider-light">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+        <div class="col-lg-12">
+
+    {% csrf_token %}
+{% endblock %}
+
+{% block afterOptions %}
+    </div>
+    </div>
+  </section>
+  <section class="page-section">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 3: Upload</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row">
+		<div class="col" id="submitDiv">
+			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Click to run the visualizer</button>
+		</div>
+      </div>
+    </div>
+  </section>
+
+  </form>
+{% endblock %}

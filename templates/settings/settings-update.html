@@ -1,0 +1,14 @@
+{% extends  "settings/base.html" %}
+{% load static %}
+
+{% block beforeOptions %}
+  <form action="" enctype="multipart/form-data" method="get" id="form">
+{% endblock %}
+
+{% block afterOptions %}
+      <div class="row">
+		<div class="col" id="submitDiv">
+			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Update Settings</button>
+		</div>
+      </div>
+{% endblock %}
