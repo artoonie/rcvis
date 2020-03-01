@@ -1,0 +1,56 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'settings/settings.css' %}">
+              
+{% block beforeOptions %}
+{% endblock %}
+
+ 	<div class="formArea">
+		<button class="collapsible">▶ Global visualization options</button>
+		<div class="optionscontent" id="globalOptions">
+			<p class="mt-3">
+            <label><input type="checkbox" name="hideDecimals" {% if config.hideDecimals %} checked {% endif %} /> Hide decimal places</label>
+			<br/><small>By default, we'll show up to two decimal places.</small></label>
+		<br/> <br/>
+		<label><input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate" {% if config.excludeFinalWinnerAndEliminatedCandidate %} checked {% endif %} /> Exclude the final elected and eliminated candidate
+			<br/><small>This is useful for in-progress elections to avoid bouncing back and forth</small></label>
+			</p>
+		</div>
+
+		<button class="collapsible" id="bargraphOptions">▶ Bargraph visualization options</button>
+		<div class="optionscontent">
+			<p class="mt-3">
+			<label><input type="checkbox" name="doHideOverflowAndEliminated" {% if config.doHideOverflowAndEliminated %} checked {% endif %} /> Hide overflow and eliminated votes</label>
+		    <br/> <br/>
+			<label><input type="checkbox" name="doUseHorizontalBarGraph" {% if config.doUseHorizontalBarGraph %} checked {% endif %}/> Make horizontal instead of vertical</label>
+			</p>
+		</div>
+
+		<button class="collapsible" id="sankeyOptions">▶ Sankey visualization options</button>
+		<div class="optionscontent">
+			<p class="mt-3">
+			<label><input type="checkbox" name="hideSankey" {% if config.hideSankey %} checked {% endif %} /> Hide the sankey altogether</label>
+			</p>
+			<p>
+			<label><input type="checkbox" name="rotateNames" {% if config.rotateNames %} checked {% endif %} /> Rotate the names of candidates on the top bar</label>
+			</p>
+			<p>
+			<label><input type="checkbox" name="horizontalSankey" {% if config.horizontalSankey %} checked {% endif %} /> Make it horizontal (default is vertical)</label>
+			</p>
+		</div>
+
+		<button class="collapsible" id="tabularOptions">▶ Tabular visualization options</button>
+		<div class="optionscontent">
+			<p class="mt-3">
+			<label><input type="checkbox" name="hideTabular" {% if config.hideTabular %} checked {% endif %} /> Hide all tabular formats</label>
+			</p>
+			<p>
+			<label><input type="checkbox" name="onlyShowWinnersTabular" {% if config.onlyShowWinnersTabular %} checked {% endif %} /> Only show winners, hiding eliminated candidates</label>
+			</p>
+		</div>
+	</div>
+
+{% block afterOptions %}
+{% endblock %}
+
+<script src="{% static 'settings/settings.js' %}"></script>

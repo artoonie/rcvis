@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponseRedirect
 from .forms import UploadFileForm
 
 from .models import JsonConfig
@@ -11,20 +12,28 @@ from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 def index(request):
     return render(request, 'visualizer/index.html', {})
 
+""" leaveDefaultInsteadOfAssumeOff: if set, then data not in requestData is not updated
+        in config. Otherwise, data not in requestData is assumed to be OFF. """
+def updateConfigWithData(config, requestData):
+    def fillOption(optionName):
+        config.__dict__[optionName] = requestData.get(optionName, False) == "on"
+
+    fillOption('hideDecimals')
+    fillOption('rotateNames')
+    fillOption('horizontalSankey')
+    fillOption('onlyShowWinnersTabular')
+    fillOption('doHideOverflowAndEliminated')
+    fillOption('doUseHorizontalBarGraph')
+    fillOption('excludeFinalWinnerAndEliminatedCandidate')
+    fillOption('hideSankey')
+    fillOption('hideTabular')
+
 def upload(request):
     if request.method == 'POST' and request.FILES.get('rcvJson'):
         visualizerJson = request.FILES['rcvJson']
-
         config = JsonConfig(jsonFile=visualizerJson)
-        config.hideDecimals = request.POST.get('hideDecimals', False) == "on"
-        config.rotateNames = request.POST.get('rotateNames', False) == "on"
-        config.horizontalSankey = request.POST.get('horizontalSankey', False) == "on"
-        config.onlyShowWinnersTabular = request.POST.get('onlyShowWinnersTabular', True) == "on"
-        config.doHideOverflowAndEliminated = request.POST.get('doHideOverflowAndEliminated', True) == "on"
-        config.doUseHorizontalBarGraph = request.POST.get('doUseHorizontalBarGraph', True) == "on"
-        config.excludeFinalWinnerAndEliminatedCandidate = request.POST.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
-        config.hideSankey = request.POST.get('hideSankey', False) == "on"
-        config.hideTabular = request.POST.get('hideTabular', False) == "on"
+        updateConfigWithData(config, request.POST)
+
         try:
           graph = makeGraphWithFile(config)
           graph.summarize()
@@ -38,13 +47,13 @@ def upload(request):
         # if it successfully created a graph, save it
         config.save()
 
-        context = {
-            'rcvresult': config.slug
-        }
         return redirect('visualize', rcvresult=config.slug);
     else:
-        form = UploadFileForm()
-        return render(request, 'visualizer/uploadFile.html', {'form': form})
+        data = {
+          'config': JsonConfig(), # default config to check default boxes
+          'form': UploadFileForm()
+        }
+        return render(request, 'visualizer/uploadFile.html', data)
 
 def getDataForView(config):
     graph = makeGraphWithFile(config)
@@ -70,5 +79,15 @@ def getDataForView(config):
 
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
+
+    if 'overrideSettings' in request.GET:
+        try:
+            updateConfigWithData(config, request.GET)
+        except:
+            # For debugging: display request
+            # raise
+            # For prod: this should never happen, the data is sanitary...
+            return HttpResponseRedirect("index")
+
     data = getDataForView(config)
     return render(request, 'visualizer/visualize.html', data)

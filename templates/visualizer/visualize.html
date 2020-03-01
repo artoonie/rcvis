@@ -42,35 +42,38 @@
 
     <ul class="nav nav-tabs" id="tablist" role="tablist">
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="barchart-tab-interactive" data-toggle="changeviz" href="#barchart-interactive" role="tab" aria-controls="barchart-interactive" aria-selected="false">Bar Chart</a>
+            <a class="nav-link btn btn-outline-light" id="barchart-tab-interactive" data-toggle="changeviz" href="#barchart-interactive" role="tab" aria-controls="scrollToHere" aria-selected="false">Bar Chart</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="barchart-tab-fixed" data-toggle="changeviz" href="#barchart-fixed" role="tab" aria-controls="barchart-fixed" aria-selected="false">Bar Chart</a>
+            <a class="nav-link btn btn-outline-light" id="barchart-tab-fixed" data-toggle="changeviz" href="#barchart-fixed" role="tab" aria-controls="scrollToHere" aria-selected="false">Bar Chart</a>
         </li>
         {% if not config.hideSankey %}
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
+            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="scrollToHere" aria-selected="false">Sankey</a>
         </li>
         {% endif %}
         {% if not config.hideTabular %}
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-interactive" data-toggle="changeviz" href="#tabular-by-round-interactive" role="tab" aria-controls="tabular-by-round-interactive" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-interactive" data-toggle="changeviz" href="#tabular-by-round-interactive" role="tab" aria-controls="scrollToHere" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-fixed" data-toggle="changeviz" href="#tabular-by-round-fixed" role="tab" aria-controls="tabular-by-round-fixed" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-fixed" data-toggle="changeviz" href="#tabular-by-round-fixed" role="tab" aria-controls=="scrollToHere" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="tabular-by-candidate" aria-selected="false">Candidate Summary</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="scrollToHere" aria-selected="false">Candidate Summary</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="tabular-candidate-by-round-tab" data-toggle="changeviz" href="#tabular-candidate-by-round" role="tab" aria-controls="tabular-candidate-by-round" aria-selected="false">Single Table Summary</a>
+            <a class="nav-link btn btn-outline-light" id="tabular-candidate-by-round-tab" data-toggle="changeviz" href="#tabular-candidate-by-round" role="tab" aria-controls="scrollToHere" aria-selected="false">Single Table Summary</a>
         </li>
         {% endif %}
+        <li class="nav-item">
+            <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_settings.png' %}" width="20"/></a>
+        </li>
     </ul>
     </div>
   </header>
 
-    <div class="tab-content mb-5" id="myTabContent">
+    <div class="tab-content mb-5" id="scrollToHere">
         <h6 style="margin-left: 20px; margin-top:20px"><a id="swap-dynamic" href="#"></a></h6>
 
         <div class="tab-pane fade" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">{% include "sankey/sankey.html" %}</div>
@@ -80,6 +83,7 @@
         <div class="tab-pane fade" id="tabular-by-round-fixed" role="tabpanel" aria-labelledby="tabular-by-round-tab-fixed">{% include "tabular/tabular-by-round.html" %}</div>
         <div class="tab-pane fade" id="tabular-by-round-interactive" role="tabpanel" aria-labelledby="tabular-by-round-tab-interactive">{% include "tabular/tabular-by-round-interactive.html" %}</div>
         <div class="tab-pane fade" id="tabular-candidate-by-round" role="tabpanel" aria-labelledby="tabular-candidate-by-round-tab">{% include "tabular/tabular-candidate-by-round.html" %}</div>
+        <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">{% include "settings/settings-update.html" %}</div>
     </div>
 
   {% if offlineMode %}
