@@ -163,3 +163,30 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.set_window_size(800,800)
         self._upload(FILENAME_ONE_ROUND)
         assert self._getHeight("bargraph-interactive-body") < 800
+
+    def test_settingsTab(self):
+        # Upload with non-default setting: hiding sankey tab.
+        self.open('/upload.html')
+        fileUpload = self.browser.find_element_by_id("uploadFileInput")
+        fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_element_by_id("uploadButton").click()       # Hit upload
+        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+
+        # Go to the settings tab
+        self.browser.find_elements_by_id("settings-tab")[0].click()
+
+        # Then, toggle on the sankey tab from the settings page
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
+        assert len(self.browser.find_elements_by_id("sankey-tab")) == 1
+
+        # Finally, toggle it back off
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
+        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+
+        self._verify_error_free()

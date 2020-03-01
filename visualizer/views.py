@@ -12,16 +12,21 @@ from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 def index(request):
     return render(request, 'visualizer/index.html', {})
 
+""" leaveDefaultInsteadOfAssumeOff: if set, then data not in requestData is not updated
+        in config. Otherwise, data not in requestData is assumed to be OFF. """
 def updateConfigWithData(config, requestData):
-    config.hideDecimals = requestData.get('hideDecimals', False) == "on"
-    config.rotateNames = requestData.get('rotateNames', False) == "on"
-    config.horizontalSankey = requestData.get('horizontalSankey', False) == "on"
-    config.onlyShowWinnersTabular = requestData.get('onlyShowWinnersTabular', True) == "on"
-    config.doHideOverflowAndEliminated = requestData.get('doHideOverflowAndEliminated', True) == "on"
-    config.doUseHorizontalBarGraph = requestData.get('doUseHorizontalBarGraph', True) == "on"
-    config.excludeFinalWinnerAndEliminatedCandidate = requestData.get('excludeFinalWinnerAndEliminatedCandidate', False) == "on"
-    config.hideSankey = requestData.get('hideSankey', False) == "on"
-    config.hideTabular = requestData.get('hideTabular', False) == "on"
+    def fillOption(optionName):
+        config.__dict__[optionName] = requestData.get(optionName, False) == "on"
+
+    fillOption('hideDecimals')
+    fillOption('rotateNames')
+    fillOption('horizontalSankey')
+    fillOption('onlyShowWinnersTabular')
+    fillOption('doHideOverflowAndEliminated')
+    fillOption('doUseHorizontalBarGraph')
+    fillOption('excludeFinalWinnerAndEliminatedCandidate')
+    fillOption('hideSankey')
+    fillOption('hideTabular')
 
 def upload(request):
     if request.method == 'POST' and request.FILES.get('rcvJson'):
@@ -44,8 +49,11 @@ def upload(request):
 
         return redirect('visualize', rcvresult=config.slug);
     else:
-        form = UploadFileForm()
-        return render(request, 'visualizer/uploadFile.html', {'form': form})
+        data = {
+          'config': JsonConfig(), # default config to check default boxes
+          'form': UploadFileForm()
+        }
+        return render(request, 'visualizer/uploadFile.html', data)
 
 def getDataForView(config):
     graph = makeGraphWithFile(config)
@@ -72,7 +80,7 @@ def getDataForView(config):
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
-    if request.method == 'GET':
+    if 'overrideSettings' in request.GET:
         try:
             updateConfigWithData(config, request.GET)
         except:

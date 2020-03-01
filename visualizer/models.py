@@ -7,7 +7,7 @@ class JsonConfig(models.Model):
     slug = models.SlugField(unique=True)
     uploadedAt = models.DateTimeField(auto_now_add=True)
     hideDecimals = models.BooleanField(default=False)
-    rotateNames = models.BooleanField(default=False)
+    rotateNames = models.BooleanField(default=True)
     horizontalSankey = models.BooleanField(default=False)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     doHideOverflowAndEliminated = models.BooleanField(default=False)
