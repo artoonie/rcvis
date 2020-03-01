@@ -185,6 +185,19 @@
           e.preventDefault();
           return false;
       })
+
+      // Prevent HTML from scrolling to tag after bootstrap tab load completes.
+      // Without  this, clicking on the same tab twice would scroll down
+      $('.nav-tabs a').click(function (e) {
+          var scrollHeight = $(document).scrollTop();
+
+          $(this).tab('show');
+
+          setTimeout(function() {
+              $(window).scrollTop(scrollHeight );
+           }, 5);
+      });
+
       $(window).on("popstate", function (e) {
           // Back/forward button
           loadTabFromTag();
