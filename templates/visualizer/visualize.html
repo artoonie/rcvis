@@ -112,6 +112,7 @@
           if (url.match('#')) {
               activeTab = url.split('#')[1];
           } 
+          preventScrollAfterTabLoad();
           goToTab(activeTab);
       }
 
@@ -178,7 +179,6 @@
       });
 
       // Change hash for page-reload
-      //$('.nav-tabs a').on('shown.bs.tab', function (e) {
       $(document).on('shown.bs.tab', 'a[data-toggle="changeviz"]', function (e) {
           // Changing tabs
           refreshContentByTabAndDynamism(e.target.hash.split('#')[1]);
@@ -186,23 +186,25 @@
           return false;
       })
 
-      // Prevent HTML from scrolling to tag after bootstrap tab load completes.
-      // Without  this, clicking on the same tab twice would scroll down
-      $('.nav-tabs a').click(function (e) {
-          var scrollHeight = $(document).scrollTop();
-
-          $(this).tab('show');
-
-          setTimeout(function() {
-              $(window).scrollTop(scrollHeight );
-           }, 5);
-      });
-
       $(window).on("popstate", function (e) {
           // Back/forward button
           loadTabFromTag();
           e.preventDefault();
           return false;
+      });
+
+      // Prevent HTML from scrolling to tag after bootstrap tab load completes.
+      // Without this, clicking on the same tab twice would scroll down
+      function preventScrollAfterTabLoad()
+      {
+          var scrollHeight = $(document).scrollTop();
+
+          setTimeout(function() {
+              $(window).scrollTop(scrollHeight);
+           }, 5);
+      }
+      $('.nav-tabs a').click(function (e) {
+          preventScrollAfterTabLoad();
       });
 
   </script>
