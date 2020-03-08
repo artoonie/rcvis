@@ -4,6 +4,7 @@ from django.test import TestCase
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 
@@ -190,3 +191,47 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
 
         self._verify_error_free()
+
+    def test_oembed(self):
+        # Just so this test can be run out-of-order, but note that this is probably
+        # the third time this file is uploaded so the actual slug for this instance would be
+        # oneRoundjson-3
+        self._upload(FILENAME_MULTIWINNER)
+
+        # Sanity check that a json exists
+        uploaded_url = "/" + self.browser.current_url.split('/')[-1]
+        embedded_url = uploaded_url.replace('visualize', 'visualizeEmbedded')
+
+        # Sanity check
+        self.open(uploaded_url)
+
+        # Verify base URL for embedded visualization does not have errors
+        self.open(embedded_url)
+
+        valid_vistypes = ["sankey",
+                          "barchart-fixed",
+                          "barchart-interactive",
+                          "tabular-by-candidate",
+                          "tabular-by-round",
+                          "tabular-by-round-interactive",
+                          "tabular-candidate-by-round"]
+
+        # None of the valid vistypes have errors
+        for vistype in valid_vistypes:
+            embedded_url_with_vistype = embedded_url + "?vistype=" + vistype
+            self.open(embedded_url_with_vistype)
+            # Try to avoid looking for elements that don't exist
+            # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
+            self.browser.find_element_by_id("embedded_body") # Will throw exception if does not exist
+
+        # And even an invalid URL does not have errors - but it does show the error message
+        error_url = embedded_url + "?vistype=no_such_vistype"
+        self.open(error_url)
+        self.browser.find_element_by_id("no-such-vistype-message") # Will throw exception if does not exist
+
+        try:
+            # Final sanity check - does getElementById do what we want? It should throw an exception here.
+            self.browser.find_element_by_id("sankey")
+            assert False
+        except NoSuchElementException:
+            pass

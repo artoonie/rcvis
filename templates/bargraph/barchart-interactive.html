@@ -25,6 +25,7 @@
 {{ bargraphjs|safe }}
 
 // For slider TODO sync with tabular-by-round-interactive.html
+var numRounds = {{ tabularByRoundInteractive.rounds|length }};
 var viewboxWidth = numRounds * 50 + 120;
 var viewboxHeight = 70;
 

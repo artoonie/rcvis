@@ -48,6 +48,11 @@
 <script .type="text/javascript">
 {{ bargraphjs|safe }}
 
+// For slider TODO sync with barchart-interactive.html
+var numRounds = {{ tabularByRoundInteractive.rounds|length }};
+var viewboxWidth = numRounds * 50 + 120;
+var viewboxHeight = 70;
+
 // Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
 var sliderStepTabular = d3
   .sliderBottom()
@@ -61,10 +66,6 @@ var sliderStepTabular = d3
   .on('onchange', round => {
     showOnly(round)
   });
-
-// For slider TODO sync with barchart-interactive.html
-var viewboxWidth = numRounds * 50 + 120;
-var viewboxHeight = 100;
 
 var sliderTabularWidth = numRounds * 50 + 100;
 var gStepTabular = d3
