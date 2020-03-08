@@ -7,4 +7,5 @@ urlpatterns = [
     path('index.html', views.index, name='index'),
     path('upload.html', views.upload, name='upload'),
     path('visualize=<rcvresult>', views.visualize, name='visualize'),
+    path('oembed', views.oembed, name='oembed'),
 ]
