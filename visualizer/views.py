@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import UploadFileForm
 
@@ -104,7 +105,7 @@ def visualizeEmbedded(request, rcvresult):
 
 def oembed(request):
     requestData = request.GET
-    url = str(requestData.get('url')) # only required field
+    slug = str(requestData.get('url')) # only required field
     maxwidth = int(requestData.get('maxwidth', 1440))
     maxheight = int(requestData.get('maxheight', 1080))
     returnType = str(requestData.get('type', 'json'))
@@ -113,7 +114,13 @@ def oembed(request):
         # not implemented
         return HttpResponse(status=501)
 
-    renderData = { 'width': maxwidth, 'height': maxheight, 'url': url}
+    vistype = request.GET.get('vistype', 'barchart-interactive')
+    scheme = request.is_secure() and 'https' or 'http'
+    host = request.META['HTTP_HOST']
+    iframe_url = reverse("visualizeEmbedded", kwargs={'rcvresult': slug})
+    iframe_url = f"{scheme}://{host}{iframe_url}?vistype={vistype}"
+
+    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': iframe_url}
     httpResponse = render(request, 'visualizer/oembed.html', renderData)
 
     jsonData = {
@@ -128,7 +135,7 @@ def oembed(request):
     jsonData['type'] = "rich"
     jsonData['width'] = maxwidth
     jsonData['height'] = maxheight
-    jsonData['url'] = url
+    jsonData['url'] = "/"+slug
     jsonData['html'] = httpResponse.content.decode('utf-8')
 
     return HttpResponse(json.dumps(jsonData), content_type='application/json')
