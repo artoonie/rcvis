@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+{% include "visualizer/common-header.html" %}
+{% include "visualizer/common-visualizer-header.html" %}
+</head>
+
+<body id="embedded_body">
+{% if vistype == "sankey" %}
+    {% include "sankey/sankey.html" %}
+{% elif vistype == "barchart-fixed" %}
+    {% include "bargraph/barchart-fixed.html" %}
+{% elif vistype == "barchart-interactive" %}
+    {% include "bargraph/barchart-interactive.html" %}
+{% elif vistype == "tabular-by-candidate" %}
+    {% include "tabular/tabular-by-candidate.html" %}
+{% elif vistype == "tabular-by-round" %}
+    {% include "tabular/tabular-by-round.html" %}
+{% elif vistype == "tabular-by-round-interactive" %}
+    {% include "tabular/tabular-by-round-interactive.html" %}
+{% elif vistype == "tabular-candidate-by-round" %}
+    {% include "tabular/tabular-candidate-by-round.html" %}
+{% else %}
+<p id="no-such-vistype-message">Invalid visualization type requested - remove "vistype" from the URL. Don't expect this error? Contact team@rcvis.com for help.</p>
+{% endif %}
+
+  <!-- Footer -->
+  <section class="copyright py-4 text-center text-white">
+    <div class="container">
+        <small><a href="/visualize={{ config.slug }}">Additional visualizations at rcvis.com</a></small>
+    </div>
+  </section>
+
+
+{% include "visualizer/common-visualizer-libs.html" %}
+
+</body>
+
+</html>

@@ -80,7 +80,6 @@ def getDataForView(config):
         'offlineMode': offlineMode
     }
 
-@xframe_options_exempt
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
@@ -95,6 +94,13 @@ def visualize(request, rcvresult):
 
     data = getDataForView(config)
     return render(request, 'visualizer/visualize.html', data)
+
+@xframe_options_exempt
+def visualizeEmbedded(request, rcvresult):
+    config = get_object_or_404(JsonConfig, slug=rcvresult)
+    data = getDataForView(config)
+    data['vistype'] = request.GET.get('vistype', 'barchart-interactive')
+    return render(request, 'visualizer/visualize-embedded.html', data)
 
 def oembed(request):
     requestData = request.GET

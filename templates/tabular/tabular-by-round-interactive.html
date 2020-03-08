@@ -63,8 +63,9 @@ var sliderStepTabular = d3
   });
 
 // For slider TODO sync with barchart-interactive.html
+var numRounds = {{ tabularByRoundInteractive.rounds|length }};
 var viewboxWidth = numRounds * 50 + 120;
-var viewboxHeight = 100;
+var viewboxHeight = 70;
 
 var sliderTabularWidth = numRounds * 50 + 100;
 var gStepTabular = d3
