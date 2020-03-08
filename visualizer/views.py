@@ -125,8 +125,9 @@ def oembed(request):
         jsonData['html'] = httpResponse.content.decode('utf-8')
         return HttpResponse(json.dumps(jsonData), content_type='application/json')
     elif fmt == 'photo':
-        HttpResponse(status=204)
+        return HttpResponse(status=501)
     elif fmt == 'video':
-        HttpResponse(status=204)
+        return HttpResponse(status=501)
     elif fmt == 'link':
-        HttpResponse(status=204)
+        return HttpResponse(status=501)
+    return HttpResponse(status=501)
