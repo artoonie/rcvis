@@ -95,39 +95,32 @@ def visualize(request, rcvresult):
     return render(request, 'visualizer/visualize.html', data)
 
 def oembed(request):
+    requestData = request.GET
+    url = str(requestData.get('url')) # only required field
+    maxwidth = int(requestData.get('maxwidth', 1440))
+    maxheight = int(requestData.get('maxheight', 1080))
+    returnType = str(requestData.get('type', 'json'))
+
+    if returnType == 'xml':
+        # not implemented
+        return HttpResponse(status=501)
+
+    renderData = { 'width': maxwidth, 'height': maxheight, 'url': url}
+    httpResponse = render(request, 'visualizer/oembed.html', renderData)
+
     jsonData = {
         "version": "1.0",
-        "title": "ZB8T0193",
+        "title": "Ranked Choice Voting Visualization",
         "cache_age": "86400", # one day
         "author_name": "rcvis.com",
         "author_url": "http://www.rcvis.com/",
         "provider_name": "rcvis.com",
         "provider_url": "http://www.rcvis.com/"
     }
-    requestData = request.GET
-    url = str(requestData.get('url')) # only required field
-    maxwidth = int(requestData.get('maxwidth', 1440))
-    maxheight = int(requestData.get('maxheight', 1080))
-    fmt = str(requestData.get('format', 'rich'))
-
-    jsonData['type'] = fmt
+    jsonData['type'] = "rich"
     jsonData['width'] = maxwidth
     jsonData['height'] = maxheight
     jsonData['url'] = url
+    jsonData['html'] = httpResponse.content.decode('utf-8')
 
-    if fmt == 'rich':
-        renderData = {
-           'width': maxwidth,
-           'height': maxheight,
-           'url': url
-        }
-        httpResponse = render(request, 'visualizer/oembed.html', renderData)
-        jsonData['html'] = httpResponse.content.decode('utf-8')
-        return HttpResponse(json.dumps(jsonData), content_type='application/json')
-    elif fmt == 'photo':
-        return HttpResponse(status=501)
-    elif fmt == 'video':
-        return HttpResponse(status=501)
-    elif fmt == 'link':
-        return HttpResponse(status=501)
-    return HttpResponse(status=501)
+    return HttpResponse(json.dumps(jsonData), content_type='application/json')
