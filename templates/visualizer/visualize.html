@@ -19,6 +19,12 @@
   <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
   <link rel="stylesheet" href="{% static "sankey/style.css" %}">
   <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
+
+  <link rel="alternate"
+        type="application/json+oembed"
+        href="oembed?url={{ request.get_full_path }}&format=json"
+        title="{{ title }}" />
+
 {% endblock %} 
 
 {% block navlinks %}
