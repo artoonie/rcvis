@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from .forms import UploadFileForm
+
+import json
 
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
@@ -91,3 +93,40 @@ def visualize(request, rcvresult):
 
     data = getDataForView(config)
     return render(request, 'visualizer/visualize.html', data)
+
+def oembed(request):
+    jsonData = {
+        "version": "1.0",
+        "title": "ZB8T0193",
+        "cache_age": "86400", # one day
+        "author_name": "rcvis.com",
+        "author_url": "http://www.rcvis.com/",
+        "provider_name": "rcvis.com",
+        "provider_url": "http://www.rcvis.com/"
+    }
+    requestData = request.GET
+    url = str(requestData.get('url')) # only required field
+    maxwidth = int(requestData.get('maxwidth', 1440))
+    maxheight = int(requestData.get('maxheight', 1080))
+    fmt = str(requestData.get('format', 'rich'))
+
+    jsonData['type'] = fmt
+    jsonData['width'] = maxwidth
+    jsonData['height'] = maxheight
+    jsonData['url'] = url
+
+    if fmt == 'rich':
+        renderData = {
+           'width': maxwidth,
+           'height': maxheight,
+           'url': url
+        }
+        httpResponse = render(request, 'visualizer/oembed.html', renderData)
+        jsonData['html'] = httpResponse.content.decode('utf-8')
+        return HttpResponse(json.dumps(jsonData), content_type='application/json')
+    elif fmt == 'photo':
+        HttpResponse(status=204)
+    elif fmt == 'video':
+        HttpResponse(status=204)
+    elif fmt == 'link':
+        HttpResponse(status=204)
