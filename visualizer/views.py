@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
+from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import UploadFileForm
 
 import json
@@ -79,6 +80,7 @@ def getDataForView(config):
         'offlineMode': offlineMode
     }
 
+@xframe_options_exempt
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
