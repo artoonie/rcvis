@@ -94,6 +94,16 @@ def visualize(request, rcvresult):
             return HttpResponseRedirect("index")
 
     data = getDataForView(config)
+
+    # oembed href
+    scheme = request.is_secure() and 'https' or 'http'
+    host = request.META['HTTP_HOST']
+    iframe_url = reverse("visualizeEmbedded", kwargs={'rcvresult': rcvresult})
+    iframe_url = f"{scheme}://{host}{iframe_url}"
+    oembed_url = reverse("oembed")
+    oembed_url = f"{scheme}://{host}{oembed_url}?url={iframe_url}"
+    data['oembed_url'] = oembed_url
+
     return render(request, 'visualizer/visualize.html', data)
 
 @xframe_options_exempt
@@ -105,7 +115,7 @@ def visualizeEmbedded(request, rcvresult):
 
 def oembed(request):
     requestData = request.GET
-    slug = str(requestData.get('url')) # only required field
+    url = str(requestData.get('url')) # only required field
     maxwidth = int(requestData.get('maxwidth', 1440))
     maxheight = int(requestData.get('maxheight', 1080))
     returnType = str(requestData.get('type', 'json'))
@@ -114,13 +124,7 @@ def oembed(request):
         # not implemented
         return HttpResponse(status=501)
 
-    vistype = request.GET.get('vistype', 'barchart-interactive')
-    scheme = request.is_secure() and 'https' or 'http'
-    host = request.META['HTTP_HOST']
-    iframe_url = reverse("visualizeEmbedded", kwargs={'rcvresult': slug})
-    iframe_url = f"{scheme}://{host}{iframe_url}?vistype={vistype}"
-
-    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': iframe_url}
+    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url}
     httpResponse = render(request, 'visualizer/oembed.html', renderData)
 
     jsonData = {
@@ -135,7 +139,7 @@ def oembed(request):
     jsonData['type'] = "rich"
     jsonData['width'] = maxwidth
     jsonData['height'] = maxheight
-    jsonData['url'] = "/"+slug
+    jsonData['url'] = url
     jsonData['html'] = httpResponse.content.decode('utf-8')
 
     return HttpResponse(json.dumps(jsonData), content_type='application/json')

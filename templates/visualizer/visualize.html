@@ -8,7 +8,7 @@
   <link id="oembed"
         rel="alternate"
         type="application/json+oembed"
-        href="oembed?url={{ config.slug }}&format=json"
+        href="{{ oembed_url }}"
         title="{{ title }}" />
 
 {% endblock %} 
@@ -104,7 +104,7 @@
           $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
 
           // Not sure if this will work...
-          document.getElementById("oembed").href = "oembed?url={{ config.slug }}&format=json&vistype=" + tabName
+          document.getElementById("oembed").href = "{{ oembed_url }}&vistype=" + tabName
       }
 
       function loadTabFromTag()
