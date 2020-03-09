@@ -82,6 +82,11 @@ def getDataForView(config):
         'offlineMode': offlineMode
     }
 
+def _makeCompleteUrl(request, urlWithoutDomain):
+    scheme = request.is_secure() and 'https' or 'http'
+    host = request.META['HTTP_HOST']
+    return f"{scheme}://{host}{urlWithoutDomain}"
+
 def visualize(request, rcvresult):
     config = get_object_or_404(JsonConfig, slug=rcvresult)
 
@@ -98,15 +103,10 @@ def visualize(request, rcvresult):
 
     # oembed href
     iframe_url = _makeCompleteUrl(request, reverse("visualizeEmbedded", kwargs={'rcvresult': rcvresult}))
-    oembed_url = _makeCompleteUrl(request, reverse("oembed"))
+    oembed_url = _makeCompleteUrl(request, reverse("oembed")) + f"?url={iframe_url}"
     data['oembed_url'] = oembed_url
 
     return render(request, 'visualizer/visualize.html', data)
-
-def _makeCompleteUrl(request, urlWithoutDomain):
-    scheme = request.is_secure() and 'https' or 'http'
-    host = request.META['HTTP_HOST']
-    return f"{scheme}://{host}{urlWithoutDomain}"
 
 @xframe_options_exempt
 def visualizeEmbedded(request, rcvresult):
