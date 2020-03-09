@@ -1,3 +1,4 @@
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
@@ -96,15 +97,16 @@ def visualize(request, rcvresult):
     data = getDataForView(config)
 
     # oembed href
-    scheme = request.is_secure() and 'https' or 'http'
-    host = request.META['HTTP_HOST']
-    iframe_url = reverse("visualizeEmbedded", kwargs={'rcvresult': rcvresult})
-    iframe_url = f"{scheme}://{host}{iframe_url}"
-    oembed_url = reverse("oembed")
-    oembed_url = f"{scheme}://{host}{oembed_url}?url={iframe_url}"
+    iframe_url = _makeCompleteUrl(request, reverse("visualizeEmbedded", kwargs={'rcvresult': rcvresult}))
+    oembed_url = _makeCompleteUrl(request, reverse("oembed"))
     data['oembed_url'] = oembed_url
 
     return render(request, 'visualizer/visualize.html', data)
+
+def _makeCompleteUrl(request, urlWithoutDomain):
+    scheme = request.is_secure() and 'https' or 'http'
+    host = request.META['HTTP_HOST']
+    return f"{scheme}://{host}{urlWithoutDomain}"
 
 @xframe_options_exempt
 def visualizeEmbedded(request, rcvresult):
@@ -134,7 +136,8 @@ def oembed(request):
         "author_name": "rcvis.com",
         "author_url": "http://www.rcvis.com/",
         "provider_name": "rcvis.com",
-        "provider_url": "http://www.rcvis.com/"
+        "provider_url": "http://www.rcvis.com/",
+        "thumbnail":  _makeCompleteUrl(request, static("visualizer/icon_interactivebar.gif"))
     }
     jsonData['type'] = "rich"
     jsonData['width'] = maxwidth
