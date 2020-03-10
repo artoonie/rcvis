@@ -6,6 +6,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import UploadFileForm
 
 import json
+import urllib.parse
 
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
@@ -102,14 +103,16 @@ def visualize(request, rcvresult):
     data = getDataForView(config)
 
     # oembed href
-    iframe_url = _makeCompleteUrl(request, reverse("visualizeEmbedded", kwargs={'rcvresult': rcvresult}))
-    oembed_url = _makeCompleteUrl(request, reverse("oembed")) + f"?url={iframe_url}"
+    iframe_url = _makeCompleteUrl(request, reverse("visualizeEmbedded")) + f"?rcvresult={rcvresult}"
+    iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
+    oembed_url = _makeCompleteUrl(request, reverse("oembed")) + f"?url={iframe_url_embedded}"
     data['oembed_url'] = oembed_url
 
     return render(request, 'visualizer/visualize.html', data)
 
 @xframe_options_exempt
-def visualizeEmbedded(request, rcvresult):
+def visualizeEmbedded(request):
+    rcvresult = request.GET.get('rcvresult')
     config = get_object_or_404(JsonConfig, slug=rcvresult)
     data = getDataForView(config)
     data['vistype'] = request.GET.get('vistype', 'barchart-interactive')
@@ -121,12 +124,14 @@ def oembed(request):
     maxwidth = int(requestData.get('maxwidth', 1440))
     maxheight = int(requestData.get('maxheight', 1080))
     returnType = str(requestData.get('type', 'json'))
+    vistype = str(requestData.get('vistype', 'barchart-interactive'))
 
     if returnType == 'xml':
         # not implemented
         return HttpResponse(status=501)
 
-    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url}
+    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url, 'vistype': vistype}
+
     httpResponse = render(request, 'visualizer/oembed.html', renderData)
 
     jsonData = {

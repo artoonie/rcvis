@@ -107,8 +107,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             print("Log information: ", log)
         assert(len(log) == 0)
 
-    def open(self, url):
-        self.browser.get("%s%s" % (self.live_server_url, url))
+    def open(self, url, prepend_server=True):
+        if prepend_server:
+            url = "%s%s" % (self.live_server_url, url)
+        self.browser.get(url)
         self._verify_error_free()
 
     def _upload(self, fn):
@@ -200,10 +202,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Sanity check that a json exists
         uploaded_url = "/" + self.browser.current_url.split('/')[-1]
-        embedded_url = uploaded_url.replace('visualize', 'visualizeEmbedded')
+        oembed_json_url = self.browser.find_element_by_id("oembed").get_attribute('href')
+        embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded?rcvresult=')
 
         # Sanity check
         self.open(uploaded_url)
+
+        # Verify discoverability. Don't verify error free - the response is a JSON, and there is
+        # an error about missing favicons.
+        self.browser.get(oembed_json_url)
+        log = self.browser.get_log('browser') # clear out the errors for the next check
+        assert(len(log) == 1) # favicon not provided here
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embedded_url)
@@ -218,14 +227,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # None of the valid vistypes have errors
         for vistype in valid_vistypes:
-            embedded_url_with_vistype = embedded_url + "?vistype=" + vistype
+            embedded_url_with_vistype = embedded_url + "&vistype=" + vistype
             self.open(embedded_url_with_vistype)
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
             self.browser.find_element_by_id("embedded_body") # Will throw exception if does not exist
 
         # And even an invalid URL does not have errors - but it does show the error message
-        error_url = embedded_url + "?vistype=no_such_vistype"
+        error_url = embedded_url + "&vistype=no_such_vistype"
         self.open(error_url)
         self.browser.find_element_by_id("no-such-vistype-message") # Will throw exception if does not exist
 
