@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import UploadFileForm
 
+from bakery.views import BuildableTemplateView, BuildableDetailView
 import json
 import urllib.parse
 
@@ -15,11 +16,10 @@ from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, Tabula
 from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
-def index(request):
-    return render(request, 'visualizer/index.html', {})
+class Index(BuildableTemplateView):
+  template_name = 'visualizer/index.html'
+  build_path = 'index.html'
 
-""" leaveDefaultInsteadOfAssumeOff: if set, then data not in requestData is not updated
-        in config. Otherwise, data not in requestData is assumed to be OFF. """
 def updateConfigWithData(config, requestData):
     def fillOption(optionName):
         config.__dict__[optionName] = requestData.get(optionName, False) == "on"
@@ -41,7 +41,7 @@ def upload(request):
         updateConfigWithData(config, request.POST)
 
         try:
-          graph = makeGraphWithFile(config)
+          graph = makeGraphWithFile(config.jsonFile, config.excludeFinalWinnerAndEliminatedCandidate)
           graph.summarize()
           d3Sankey = D3Sankey(graph)
         except BadJSONError:
@@ -53,7 +53,7 @@ def upload(request):
         # if it successfully created a graph, save it
         config.save()
 
-        return redirect('visualize', rcvresult=config.slug);
+        return redirect('visualize/'+config.slug);
     else:
         data = {
           'config': JsonConfig(), # default config to check default boxes
@@ -61,8 +61,8 @@ def upload(request):
         }
         return render(request, 'visualizer/uploadFile.html', data)
 
-def getDataForView(config):
-    graph = makeGraphWithFile(config)
+def _getDataForView(config):
+    graph = makeGraphWithFile(config.jsonFile, config.excludeFinalWinnerAndEliminatedCandidate)
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
@@ -83,38 +83,40 @@ def getDataForView(config):
         'offlineMode': offlineMode
     }
 
-def _makeCompleteUrl(request, urlWithoutDomain):
-    scheme = request.is_secure() and 'https' or 'http'
-    host = request.META['HTTP_HOST']
+def _makeCompleteUrl(urlWithoutDomain):
+    # For ombed, always assume we're on the production site
+    #scheme = request.is_secure() and 'https' or 'http'
+    #host = request.META['HTTP_HOST']
+    scheme = "https"
+    host = "www.rcvis.com"
     return f"{scheme}://{host}{urlWithoutDomain}"
 
-def visualize(request, rcvresult):
-    config = get_object_or_404(JsonConfig, slug=rcvresult)
 
-    if 'overrideSettings' in request.GET:
-        try:
-            updateConfigWithData(config, request.GET)
-        except:
-            # For debugging: display request
-            # raise
-            # For prod: this should never happen, the data is sanitary...
-            return HttpResponseRedirect("index")
+class Visualize(BuildableDetailView):
+    model = JsonConfig
+    template_name = 'visualizer/visualize.html'
+    queryset = JsonConfig.objects.all()
 
-    data = getDataForView(config)
+    def get_context_data(self, **kwargs):
+        config = super().get_context_data(**kwargs)
+        print(config['jsonconfig'])
 
-    # oembed href
-    iframe_url = _makeCompleteUrl(request, reverse("visualizeEmbedded")) + f"?rcvresult={rcvresult}"
-    iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
-    oembed_url = _makeCompleteUrl(request, reverse("oembed")) + f"?url={iframe_url_embedded}"
-    data['oembed_url'] = oembed_url
+        data = _getDataForView(config['jsonconfig'])
 
-    return render(request, 'visualizer/visualize.html', data)
+        # oembed href
+        slug = config['jsonconfig'].slug
+        iframe_url = _makeCompleteUrl(reverse("visualizeEmbedded")) + f"?rcvresult={slug}"
+        iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
+        oembed_url = _makeCompleteUrl(reverse("oembed")) + f"?url={iframe_url_embedded}"
+        data['oembed_url'] = oembed_url
+
+        return data
 
 @xframe_options_exempt
 def visualizeEmbedded(request):
     rcvresult = request.GET.get('rcvresult')
     config = get_object_or_404(JsonConfig, slug=rcvresult)
-    data = getDataForView(config)
+    data = _getDataForView(config)
     data['vistype'] = request.GET.get('vistype', 'barchart-interactive')
     return render(request, 'visualizer/visualize-embedded.html', data)
 
@@ -142,7 +144,7 @@ def oembed(request):
         "author_url": "http://www.rcvis.com/",
         "provider_name": "rcvis.com",
         "provider_url": "http://www.rcvis.com/",
-        "thumbnail":  _makeCompleteUrl(request, static("visualizer/icon_interactivebar.gif"))
+        "thumbnail":  _makeCompleteUrl(static("visualizer/icon_interactivebar.gif"))
     }
     jsonData['type'] = "rich"
     jsonData['width'] = maxwidth

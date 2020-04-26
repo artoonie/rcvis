@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'visualizer',
+    'bakery',
     'storages',
 ]
 
@@ -137,8 +138,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = '/home/artoonie/projects/rcvis/static_build_files/'
 STATICFILES_DIRS = (
-      os.path.join(BASE_DIR, 'static/'),
+    os.path.join(BASE_DIR, 'static/'),
+)
+
+# For the bakery
+BUILD_DIR = os.environ['BAKED_DIRECTORY']
+BAKERY_VIEWS = (
+    'visualizer.views.Index',
+    'visualizer.views.Visualize',
 )
 
 # Uploaded media

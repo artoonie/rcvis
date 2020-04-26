@@ -45,6 +45,8 @@ export OFFLINE_MODE=True
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
+export BAKED_DIRECTORY='/baked/'
+
 ```
 
 And running `source .env` to set up your environment.

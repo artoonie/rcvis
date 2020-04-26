@@ -3,8 +3,8 @@ import json
 from . import rcvResult
 
 class JSONReaderBase(object):
-    def __init__(self, fileObj, config):
-        self.parseJsonData(json.load(fileObj), config)
+    def __init__(self, fileObj):
+        self.parseJsonData(json.load(fileObj))
         self.setEliminationOrder(self.steps, self.items)
 
     """ Override this and set self.graph and self.steps and self.items:
@@ -13,7 +13,7 @@ class JSONReaderBase(object):
         self.steps is a list of Step objects
         self.items is a list of Item objects
         """
-    def readJson(fileObj, config):
+    def readJson(fileObj):
         assert False
 
     def getGraph(self):

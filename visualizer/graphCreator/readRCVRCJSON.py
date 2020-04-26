@@ -100,17 +100,13 @@ class JSONMigration():
         self.fixNoTransfers(data)
     
 class JSONReader(readJSONBase.JSONReaderBase):
-    def parseJsonData(self, data, config):
+    def parseJsonData(self, data):
         def loadMigrationTasks(data):
             self.tasks.append(FixNoTransfersTask)
             self.tasks.append(FixUndeclaredUWITask)
             self.tasks.append(FixIgnoreResidualSurplus)
             self.tasks.append(MakeTalliesANumber)
             self.tasks.append(MakeExhaustedACandidate)
-
-        def loadConfigurationTasks(data, config):
-            if config.hideDecimals:
-                self.tasks.append(HideDecimalsTask)
 
         def parseDate(date):
             if not date:
@@ -178,7 +174,6 @@ class JSONReader(readJSONBase.JSONReaderBase):
         # Apply migrations and configuration adjustments
         self.tasks = []
         loadMigrationTasks(data)
-        loadConfigurationTasks(data, config)
         for task in self.tasks:
             task(data).do()
 

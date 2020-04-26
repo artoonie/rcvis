@@ -1,4 +1,7 @@
 // The diagram flows across dimension0, vertically
+if (!config.horizontalSankey)
+{
+
 function dim0(v) { return v.y; }
 function dim1(v) { return v.x; }
 function ddim0(v) { return v.dy; }
@@ -22,3 +25,5 @@ var doLockTopBarOnScroll = true;
 
 function textXPos(d) { return 5; }
 function textYPos(d) { return 20; }
+
+}

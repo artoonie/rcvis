@@ -4,7 +4,7 @@ from . import readJSONBase
 from .graph import Graph
 
 class JSONReader(readJSONBase.JSONReaderBase):
-    def parseJsonData(self, data, config):
+    def parseJsonData(self, data):
         def initializeCandidates(data, graph):
             candidateNames = data['candidates']
             firstRoundVotes = data['rounds'][0]['count']
