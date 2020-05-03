@@ -3,9 +3,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
-from .forms import UploadFileForm
+from .forms import JsonConfigForm
 
 from bakery.views import BuildableTemplateView, BuildableDetailView
+from django.views.generic.edit import CreateView
+
 import json
 import urllib.parse
 
@@ -20,46 +22,30 @@ class Index(BuildableTemplateView):
   template_name = 'visualizer/index.html'
   build_path = 'index.html'
 
-def updateConfigWithData(config, requestData):
-    def fillOption(optionName):
-        config.__dict__[optionName] = requestData.get(optionName, False) == "on"
+class Upload(CreateView):
+  template_name = 'visualizer/uploadFile.html'
+  success_url = 'visualize={slug}'
+  model = JsonConfig
+  form_class = JsonConfigForm
 
-    fillOption('hideDecimals')
-    fillOption('rotateNames')
-    fillOption('horizontalSankey')
-    fillOption('onlyShowWinnersTabular')
-    fillOption('doHideOverflowAndEliminated')
-    fillOption('doUseHorizontalBarGraph')
-    fillOption('excludeFinalWinnerAndEliminatedCandidate')
-    fillOption('hideSankey')
-    fillOption('hideTabular')
+  def form_valid(self, form):
+    # updateConfigWithData(form.instance, form.cleaned_data)
 
-def upload(request):
-    if request.method == 'POST' and request.FILES.get('rcvJson'):
-        visualizerJson = request.FILES['rcvJson']
-        config = JsonConfig(jsonFile=visualizerJson)
-        updateConfigWithData(config, request.POST)
+    try:
+      graph = makeGraphWithFile(form.cleaned_data['jsonFile'], form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
+      graph.summarize()
+      d3Sankey = D3Sankey(graph)
+    except BadJSONError:
+      return self.form_invalid(form)
+    except Exception as e:
+      # TODO make an error page for this, too
+      return redirect(self.request, '/')
 
-        try:
-          graph = makeGraphWithFile(config.jsonFile, config.excludeFinalWinnerAndEliminatedCandidate)
-          graph.summarize()
-          d3Sankey = D3Sankey(graph)
-        except BadJSONError:
-          return render(request, 'visualizer/errorBadJson.html')
-        except:
-          # TODO make an error page for this, too
-          return redirect(request, '/')
+    form.save()
+    return super().form_valid(form)
 
-        # if it successfully created a graph, save it
-        config.save()
-
-        return redirect('visualize/'+config.slug);
-    else:
-        data = {
-          'config': JsonConfig(), # default config to check default boxes
-          'form': UploadFileForm()
-        }
-        return render(request, 'visualizer/uploadFile.html', data)
+  def form_invalid(self, form):
+      return render(self.request, 'visualizer/errorBadJson.html')
 
 def _getDataForView(config):
     graph = makeGraphWithFile(config.jsonFile, config.excludeFinalWinnerAndEliminatedCandidate)
@@ -99,7 +85,6 @@ class Visualize(BuildableDetailView):
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
-        print(config['jsonconfig'])
 
         data = _getDataForView(config['jsonconfig'])
 

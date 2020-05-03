@@ -52,7 +52,7 @@ function handleFiles(files)
       <div class="row">
 		<div class="selectFileButtonWrapper">
 			<button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-			<input id="uploadFileInput" type="file" class="selectFileDefaultInput" name="rcvJson" accept="application/json"  onchange="handleFiles(this.files)"/>
+			<input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json"  onchange="handleFiles(this.files)"/>
 		</div>
       </div>
     </div>
@@ -82,11 +82,9 @@ function handleFiles(files)
 		<button class="collapsible">▶ Global visualization options</button>
 		<div class="optionscontent" id="globalOptions">
 			<p class="mt-3">
-            <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
             <label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
 			<br/><small>By default, we'll show up to two decimal places.</small></label>
 		<br/><br/>
-            <input type="hidden" name="excludeFinalWinnerAndEliminatedCandidate"/><!-- To be sent in GET/POST if unchecked -->
 		    <label><input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate"/> Exclude the final elected and eliminated candidate
 			<br/><small>This is useful for in-progress elections to avoid bouncing back and forth</small></label>
 			</p>
