@@ -29,8 +29,6 @@ class Upload(CreateView):
   form_class = JsonConfigForm
 
   def form_valid(self, form):
-    # updateConfigWithData(form.instance, form.cleaned_data)
-
     try:
       graph = makeGraphWithFile(form.cleaned_data['jsonFile'], form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
       graph.summarize()

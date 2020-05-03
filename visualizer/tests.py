@@ -10,7 +10,7 @@ from selenium.webdriver.remote.remote_connection import RemoteConnection
 
 
 from .models import JsonConfig
-from .views import getDataForView
+from .views import _getDataForView
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
 
@@ -24,11 +24,11 @@ class SimpleTests(TestCase):
     def _get_data_for_view(self, fn):
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=f)
-            return getDataForView(config)
+            return _getDataForView(config)
 
     def _get_multiwinner_upload_response(self):
         with open(FILENAME_MULTIWINNER) as f:
-            response = self.client.post('/upload.html', {'rcvJson': f})
+            response = self.client.post('/upload.html', {'jsonFile': f})
         return response
 
     def test_opavote_loads(self):
@@ -53,7 +53,7 @@ class SimpleTests(TestCase):
             with open(fn, 'r+') as f:
                 config = JsonConfig(jsonFile=f)
                 config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
-                getDataForView(config)
+                _getDataForView(config)
 
     def test_home_page(self):
         response = self.client.get('/')
@@ -63,11 +63,11 @@ class SimpleTests(TestCase):
         response = self._get_multiwinner_upload_response()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         "/visualize=macomb-multiwinner-surplusjson")
+                         "visualize=macomb-multiwinner-surplusjson")
 
     def test_upload_file_failure(self):
         with open(FILENAME_BAD_DATA) as f:
-          response = self.client.post('/upload.html', {'rcvJson': f})
+          response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
 
@@ -115,7 +115,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _upload(self, fn):
         self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("uploadFileInput")
+        fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), fn))
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
@@ -170,12 +170,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_settingsTab(self):
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("uploadFileInput")
+        fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
         self.browser.find_element_by_id("uploadButton").click()       # Hit upload
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+        assert self._getWidth("sankey-tab") == 0
 
         # Go to the settings tab
         self.browser.find_elements_by_id("settings-tab")[0].click()
@@ -184,13 +184,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 1
+        assert self._getWidth("sankey-tab") > 0
 
         # Finally, toggle it back off
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+        assert self._getWidth("sankey-tab") == 0
 
         self._verify_error_free()
 
