@@ -173,7 +173,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_element_by_id("uploadButton").click()       # Hit upload
         assert self._getWidth("sankey-tab") == 0
 
@@ -182,13 +182,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Then, toggle on the sankey tab from the settings page
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
         assert self._getWidth("sankey-tab") > 0
 
         # Finally, toggle it back off
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
         assert self._getWidth("sankey-tab") == 0
 
