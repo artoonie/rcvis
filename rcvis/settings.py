@@ -138,17 +138,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.environ['STATIC_ROOT']
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
 )
 
-# For the bakery
-BUILD_DIR = os.environ['BAKED_DIRECTORY']
+# Options for the bakery
+BUILD_DIR = os.path.join(BASE_DIR, os.environ['BAKED_DIRECTORY'])
 BAKERY_VIEWS = (
     'visualizer.views.Index',
     'visualizer.views.Visualize',
 )
+STATIC_ROOT = os.path.join(BASE_DIR, os.environ['STATIC_ROOT'])
+AWS_BUCKET_NAME = 'rcvis-bakery'
 
 # Uploaded media
 OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"

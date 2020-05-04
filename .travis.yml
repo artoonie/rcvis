@@ -36,6 +36,7 @@ install:
 script:
   - python3 manage.py test
 
+
 deploy:
   provider: elasticbeanstalk
   access_key_id: "$AWS_ACCESS_KEY_ID"
@@ -44,5 +45,18 @@ deploy:
   app: rcvis
   env: django-env-try2
   on:
-    repo: artoonie/rcvis
+    branch: master
   bucket_name: elasticbeanstalk-us-west-1-872212457283
+
+deploy:
+  provider: elasticbeanstalk
+  access_key_id: "$AWS_ACCESS_KEY_ID"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY"
+  region: us-west-1
+  app: rcvis
+  env: rcvis-staging
+  on:
+    branch: staging
+  bucket_name: elasticbeanstalk-us-west-1-872212457283
+
+after_deploy: "python manage.py makemigrations && python manage.py build && python manage.py publish"
