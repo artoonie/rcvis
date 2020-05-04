@@ -4,7 +4,7 @@ from django.test import TestCase
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 
@@ -101,8 +101,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
 
+    def _get_log(self):
+        try:
+            return self.browser.get_log('browser')
+        except WebDriverException:
+            print("Cannot read log - for somme reason, this only works on travis.")
+            if not os.environ['RCVIS_HOST'] == 'localhost':
+                raise
+            return ""
+
     def _verify_error_free(self):
-        log = self.browser.get_log('browser')
+        log = self._get_log()
         if (len(log) != 0):
             print("Log information: ", log)
         assert(len(log) == 0)
@@ -203,7 +212,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Sanity check that a json exists
         uploaded_url = "/" + self.browser.current_url.split('/')[-1]
         oembed_json_url = self.browser.find_element_by_id("oembed").get_attribute('href')
-        embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded?rcvresult=')
+        embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded=')
 
         # Sanity check
         self.open(uploaded_url)
@@ -211,7 +220,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Verify discoverability. Don't verify error free - the response is a JSON, and there is
         # an error about missing favicons.
         self.browser.get(oembed_json_url)
-        log = self.browser.get_log('browser') # clear out the errors for the next check
+        log = self._get_log() # clear out the errors for the next check
         assert(len(log) == 1) # favicon not provided here
 
         # Verify base URL for embedded visualization does not have errors
@@ -227,14 +236,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # None of the valid vistypes have errors
         for vistype in valid_vistypes:
-            embedded_url_with_vistype = embedded_url + "&vistype=" + vistype
+            embedded_url_with_vistype = embedded_url + "?vistype=" + vistype
             self.open(embedded_url_with_vistype)
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
             self.browser.find_element_by_id("embedded_body") # Will throw exception if does not exist
 
         # And even an invalid URL does not have errors - but it does show the error message
-        error_url = embedded_url + "&vistype=no_such_vistype"
+        error_url = embedded_url + "?vistype=no_such_vistype"
         self.open(error_url)
         self.browser.find_element_by_id("no-such-vistype-message") # Will throw exception if does not exist
 

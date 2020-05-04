@@ -1,5 +1,51 @@
 {% load static %}
 
+<!-- This needs to be the first bit of js loaded to get the correct configs throughout -->
+<script>
+  var getUrlParameter = function getUrlParameter(sParam)
+  {
+      // Courtesy of https://stackoverflow.com/a/21903119/1057105
+      var sPageURL = window.location.search.substring(1),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+  
+      for (i = 0; i < sURLVariables.length; i++) {
+          sParameterName = sURLVariables[i].split('=');
+  
+          if (sParameterName[0] === sParam) {
+              return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+          }
+      }
+  };
+
+  var config = {};
+
+  // 1. Load from django (happens once on baking)
+  config.rotateNames = {% if config.rotateNames %} true {% else %} false {% endif %};
+  config.horizontalSankey = {% if config.horizontalSankey %} true {% else %} false {% endif %};
+  config.onlyShowWinnersTabular = {% if config.onlyShowWinnersTabular %} true {% else %} false {% endif %};
+  config.doHideOverflowAndEliminated = {% if config.doHideOverflowAndEliminated %} true {% else %} false {% endif %};
+  config.doUseHorizontalBarGraph = {% if config.doUseHorizontalBarGraph %} true {% else %} false {% endif %};
+  config.hideSankey = {% if config.hideSankey %} true {% else %} false {% endif %};
+  config.hideTabular = {% if config.hideTabular %} true {% else %} false {% endif %};
+
+  // 2. Load any overrides (not supported in Internet Explorer)
+  let searchParams = new URLSearchParams(window.location.search);
+  for (var key in config) {
+    if (searchParams.has(key))
+    {
+      // We use hidden fields to make sure all checkboxes get sent over GET when updating settings.
+      // There seems to be some protocol that claims the last one is the valid one...so grab the last.
+      allValues = searchParams.getAll(key)
+      lastValue = allValues[allValues.length - 1]
+      console.log("Key: " + key + "    =   " + lastValue)
+      config[key] = lastValue == "on";
+    }
+  }
+
+</script>
+
 {% if offlineMode %}
 <script src="{% static 'localdeps/d3.js' %}"></script>
 {% else %}

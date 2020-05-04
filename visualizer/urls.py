@@ -7,6 +7,6 @@ urlpatterns = [
     path('index.html', views.Index.as_view()),
     path('visualize=<slug>', views.Visualize.as_view()),
     path('upload.html', views.Upload.as_view(), name='upload'),
-    path('visualizeEmbedded', views.visualizeEmbedded, name='visualizeEmbedded'),
-    path('oembed', views.oembed, name='oembed'),
+    path('visualizeEmbedded=<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
+    path('oembed', views.Oembed.as_view(), name='oembed'),
 ]

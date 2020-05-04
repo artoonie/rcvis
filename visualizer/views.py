@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.utils.decorators import method_decorator
 from .forms import JsonConfigForm
 
 from bakery.views import BuildableTemplateView, BuildableDetailView
@@ -75,7 +76,6 @@ def _makeCompleteUrl(urlWithoutDomain):
     host = "www.rcvis.com"
     return f"{scheme}://{host}{urlWithoutDomain}"
 
-
 class Visualize(BuildableDetailView):
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
@@ -88,51 +88,65 @@ class Visualize(BuildableDetailView):
 
         # oembed href
         slug = config['jsonconfig'].slug
-        iframe_url = _makeCompleteUrl(reverse("visualizeEmbedded")) + f"?rcvresult={slug}"
+        iframe_url = _makeCompleteUrl(reverse("visualizeEmbedded", args=(slug,)))
         iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
         oembed_url = _makeCompleteUrl(reverse("oembed")) + f"?url={iframe_url_embedded}"
         data['oembed_url'] = oembed_url
 
         return data
 
-@xframe_options_exempt
-def visualizeEmbedded(request):
-    rcvresult = request.GET.get('rcvresult')
-    config = get_object_or_404(JsonConfig, slug=rcvresult)
-    data = _getDataForView(config)
-    data['vistype'] = request.GET.get('vistype', 'barchart-interactive')
-    return render(request, 'visualizer/visualize-embedded.html', data)
+@method_decorator(xframe_options_exempt, name='dispatch')
+class VisualizeEmbedded(BuildableDetailView):
+  model = JsonConfig
+  template_name = 'visualizer/visualize-embedded.html'
+  queryset = JsonConfig.objects.all()
 
-def oembed(request):
-    requestData = request.GET
-    url = str(requestData.get('url')) # only required field
-    maxwidth = int(requestData.get('maxwidth', 1440))
-    maxheight = int(requestData.get('maxheight', 1080))
-    returnType = str(requestData.get('type', 'json'))
-    vistype = str(requestData.get('vistype', 'barchart-interactive'))
+  def get_context_data(self, **kwargs):
+    config = super().get_context_data(**kwargs)
 
-    if returnType == 'xml':
-        # not implemented
-        return HttpResponse(status=501)
+    data = _getDataForView(config['jsonconfig'])
 
-    renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url, 'vistype': vistype}
+    # oembed href
+    data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
 
-    httpResponse = render(request, 'visualizer/oembed.html', renderData)
+    return data
 
-    jsonData = {
-        "version": "1.0",
-        "title": "Ranked Choice Voting Visualization",
-        "cache_age": "86400", # one day
-        "author_name": "rcvis.com",
-        "author_url": "http://www.rcvis.com/",
-        "provider_name": "rcvis.com",
-        "provider_url": "http://www.rcvis.com/",
-        "thumbnail":  _makeCompleteUrl(static("visualizer/icon_interactivebar.gif"))
-    }
-    jsonData['type'] = "rich"
-    jsonData['width'] = maxwidth
-    jsonData['height'] = maxheight
-    jsonData['url'] = url
-    jsonData['html'] = httpResponse.content.decode('utf-8')
+@method_decorator(xframe_options_exempt, name='dispatch')
+class Oembed(BuildableDetailView):
+    model = JsonConfig
+    template_name = 'visualizer/visualize.html'
+    queryset = JsonConfig.objects.all()
 
-    return HttpResponse(json.dumps(jsonData), content_type='application/json')
+    def get(self, request, *args, **kwargs):
+        requestData = request.GET
+        url = str(requestData.get('url')) # only required field
+        maxwidth = int(requestData.get('maxwidth', 1440))
+        maxheight = int(requestData.get('maxheight', 1080))
+        returnType = str(requestData.get('type', 'json'))
+        vistype = str(requestData.get('vistype', 'barchart-interactive'))
+
+        if returnType == 'xml':
+            # not implemented
+            return HttpResponse(status=501)
+
+        renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url, 'vistype': vistype}
+
+        httpResponse = render(request, 'visualizer/oembed.html', renderData)
+
+        jsonData = {
+            "version": "1.0",
+            "title": "Ranked Choice Voting Visualization",
+            "cache_age": "86400", # one day
+            "author_name": "rcvis.com",
+            "author_url": "http://www.rcvis.com/",
+            "provider_name": "rcvis.com",
+            "provider_url": "http://www.rcvis.com/",
+            "thumbnail":  _makeCompleteUrl(static("visualizer/icon_interactivebar.gif"))
+        }
+        jsonData['type'] = "rich"
+        jsonData['width'] = maxwidth
+        jsonData['height'] = maxheight
+        jsonData['url'] = url
+        jsonData['html'] = httpResponse.content.decode('utf-8')
+
+        return HttpResponse(json.dumps(jsonData), content_type='application/json')
