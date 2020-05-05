@@ -37,9 +37,6 @@ class JsonConfig(BuildableModel):
             self.slug = self._get_unique_slug()
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
-        return '/visualize/%s/' % self.slug
-
 @admin.register(JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
   list_display = ('slug', 'uploadedAt')
