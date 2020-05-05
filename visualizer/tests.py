@@ -217,9 +217,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Sanity check
         self.open(uploaded_url)
 
-        # Verify discoverability. Don't verify error free - the response is a JSON, and there is
-        # an error about missing favicons.
+        # Verify discoverability.
+        # The response is a JSON, which means on the first load without cache, there is
+        # an error about missing favicons. Hard-refresh without cache to ensure we get
+        # this error; without this, re-runs of the same TravisCI run will not have
+        # this error.
         self.browser.get(oembed_json_url)
+        self.browser.execute_script("location.reload(true);")
         log = self._get_log() # clear out the errors for the next check
         assert(len(log) == 1) # favicon not provided here
 
