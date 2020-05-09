@@ -6,7 +6,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.decorators import method_decorator
 from .forms import JsonConfigForm
 
-from bakery.views import BuildableTemplateView, BuildableDetailView
+from bakery.views import BuildableTemplateView, BuildableDetailView, BuildableMixin
 from django.views.generic.edit import CreateView
 
 import json
@@ -23,11 +23,13 @@ class Index(BuildableTemplateView):
   template_name = 'visualizer/index.html'
   build_path = 'index.html'
 
-class Upload(CreateView):
+# TODO - how can we build/publish this while allowing the CSRF token to change
+class Upload(BuildableCreateView):
   template_name = 'visualizer/uploadFile.html'
   success_url = 'visualize={slug}'
   model = JsonConfig
   form_class = JsonConfigForm
+  build_path = "upload.html"
 
   def form_valid(self, form):
     try:
@@ -117,21 +119,22 @@ class Oembed(BuildableDetailView):
     template_name = 'visualizer/visualize.html'
     queryset = JsonConfig.objects.all()
 
-    def get(self, request, *args, **kwargs):
-        requestData = request.GET
+    def get_context_data(self, **kwargs):
+        requestData = self.request.GET
         url = str(requestData.get('url')) # only required field
         maxwidth = int(requestData.get('maxwidth', 1440))
         maxheight = int(requestData.get('maxheight', 1080))
         returnType = str(requestData.get('type', 'json'))
         vistype = str(requestData.get('vistype', 'barchart-interactive'))
 
-        if returnType == 'xml':
-            # not implemented
-            return HttpResponse(status=501)
+        # TODO - handle 501 error on requesting XML:
+        # if returnType == 'xml':
+        #     # not implemented
+        #     return HttpResponse(status=501)
 
         renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url, 'vistype': vistype}
 
-        httpResponse = render(request, 'visualizer/oembed.html', renderData)
+        httpResponse = render(self.request, 'visualizer/oembed.html', renderData)
 
         jsonData = {
             "version": "1.0",
@@ -149,4 +152,4 @@ class Oembed(BuildableDetailView):
         jsonData['url'] = url
         jsonData['html'] = httpResponse.content.decode('utf-8')
 
-        return HttpResponse(json.dumps(jsonData), content_type='application/json')
+        return jsonData

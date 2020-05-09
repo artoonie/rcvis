@@ -1,9 +1,9 @@
 from django.contrib import admin
 from django.db import models
 from django.utils.text import slugify
-from bakery.models import BuildableModel
+from bakery.models import AutoPublishingBuildableModel
 
-class JsonConfig(BuildableModel):
+class JsonConfig(AutoPublishingBuildableModel):
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
@@ -36,6 +36,12 @@ class JsonConfig(BuildableModel):
         if not self.slug:
             self.slug = self._get_unique_slug()
         super().save(*args, **kwargs)
+
+    def get_publication_status(self):
+        return True
+
+    def get_absolute_url(self):
+        return 'visualize=%s' % self.slug
 
 @admin.register(JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
