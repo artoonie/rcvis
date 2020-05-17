@@ -58,5 +58,3 @@ deploy:
   on:
     branch: staging
   bucket_name: elasticbeanstalk-us-west-1-872212457283
-
-after_deploy: "python manage.py makemigrations && python manage.py build && python manage.py publish"

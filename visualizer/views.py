@@ -6,8 +6,9 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.decorators import method_decorator
 from .forms import JsonConfigForm
 
-from bakery.views import BuildableTemplateView, BuildableDetailView, BuildableMixin
 from django.views.generic.edit import CreateView
+from django.views.generic.detail import DetailView
+from django.views.generic.base import TemplateView
 
 import json
 import urllib.parse
@@ -19,12 +20,11 @@ from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, Tabula
 from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
-class Index(BuildableTemplateView):
+class Index(TemplateView):
   template_name = 'visualizer/index.html'
   build_path = 'index.html'
 
-# TODO - how can we build/publish this while allowing the CSRF token to change
-class Upload(BuildableCreateView):
+class Upload(CreateView):
   template_name = 'visualizer/uploadFile.html'
   success_url = 'visualize={slug}'
   model = JsonConfig
@@ -78,7 +78,7 @@ def _makeCompleteUrl(urlWithoutDomain):
     host = "www.rcvis.com"
     return f"{scheme}://{host}{urlWithoutDomain}"
 
-class Visualize(BuildableDetailView):
+class Visualize(DetailView):
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
     queryset = JsonConfig.objects.all()
@@ -98,7 +98,7 @@ class Visualize(BuildableDetailView):
         return data
 
 @method_decorator(xframe_options_exempt, name='dispatch')
-class VisualizeEmbedded(BuildableDetailView):
+class VisualizeEmbedded(DetailView):
   model = JsonConfig
   template_name = 'visualizer/visualize-embedded.html'
   queryset = JsonConfig.objects.all()
@@ -114,7 +114,7 @@ class VisualizeEmbedded(BuildableDetailView):
     return data
 
 @method_decorator(xframe_options_exempt, name='dispatch')
-class Oembed(BuildableDetailView):
+class Oembed(DetailView):
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
     queryset = JsonConfig.objects.all()
