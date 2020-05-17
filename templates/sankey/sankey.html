@@ -1,20 +1,20 @@
 <div id="sankey-body">
-{% if config.horizontalSankey %}
-    <div id="topbar" style="position: absolute; width: 0px;"></div>
-{% else %}
-    <div id="topbar" style="width: 100%"></div>
-{% endif %}
+    <div id="topbar"></div>
     <div id="content"></div>
 </div>
+
+<script>
+var style;
+if (config.horizontalSankey) style = "position: absolute; width: 0px;";
+else                         style = "width: 100%";
+$('#topbar').attr("style", style);
+</script>
 
 {% load static %}
 
 <script src="{% static 'sankey/sankey.js' %}"></script>
-{% if config.horizontalSankey %}
 <script src="{% static 'sankey/setupHorizontal.js' %}"></script>
-{% else %}
 <script src="{% static 'sankey/setupVertical.js' %}"></script>
-{% endif %}
 <script> {{ sankeyjs|safe }} </script>
 <script>
 
@@ -39,22 +39,24 @@ var stickyHysteresis = 180; // How far you scroll back up before the top bar "un
 var ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
 
 // set the dimensions and margins of the graph
-var leftPadForHorizontalNames = {% if config.horizontalSankey %} longestLabelApxWidth * ESTIMATED_CHAR_WIDTH {% else %} 0 {% endif %}
+var leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth * ESTIMATED_CHAR_WIDTH : 0;
 var cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNames}, // content
     tmargin = {top:  0,                        left: 50}, // topbar
-
-{% if config.rotateNames %}
-    tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5, // +5 handles one-char names well
-    rotationOffset = {% if config.horizontalSankey %} tmarginLength*.7071067/2.0 {% else %} tmarginLength*.7071067 {% endif %},
-{% else %}
-    tmarginLength = {% if config.horizontalSankey %} leftPadForHorizontalNames {% else %} 40 {% endif %},
-{% endif %}
     bottomLabelPadding = 20
     size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
     hackExtraPadding = numCandidates*30, // we need extra room because the
                                          // ideal size may not be the actual size
                                          // once all the nodes are expanded to their minimum sizes
     size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
+if (config.rotateNames)
+{
+    var tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5; // +5 handles one-char names well
+    var rotationOffset = config.horizontalSankey ? tmarginLength*.7071067/2.0 : tmarginLength*.7071067;
+}
+else
+{
+    var tmarginLength = config.horizontalSankey ? leftPadForHorizontalNames : 40;
+}
 
 var viewboxSize0 = size0 + size0margin(cmargin);
 var viewboxSize1 = size1 + size1margin(cmargin);
@@ -178,7 +180,8 @@ function makeGraph(graph) {
         })
         .on("drag", dragmove));
 
-    {% if config.horizontalSankey %}
+    if (config.horizontalSankey)
+    {
     // For horizontal sankey, labels go on the first-round nodes,
     // not on the top bar
     node
@@ -189,32 +192,37 @@ function makeGraph(graph) {
       .attr("dy", ".35em")
       .attr("text-anchor", "end")
       .text(getNodeLabelText);
-    {% endif %}
+    }
 
-    svg.append("g").selectAll(".roundLabels")
+    var labels = svg.append("g").selectAll(".roundLabels")
         // TODO we shouldn't assume dim1 is at zero but
         // this is the easiest way to get unique values
         // and computing the height based on nodeSize0
         // didn't work for some reason?
       .data(graph.nodes.filter(function(d){return dim1(d) == 0;}))
       .enter().append("text")
-      .attr("class", 'roundLabels' )
-    {% if config.horizontalSankey %}
+      .attr("class", 'roundLabels' );
+    if (config.horizontalSankey)
+    {
+      labels
       .attr("x", function(d) {
             return dim0(d) - roundSize0*0.4 - 50;
-       } )
+       })
       .attr("y", function(d) {
             return avgNodeSize1 * 1.5
-       } )
-    {% else %}
+       })
+    }
+    else
+    {
+      labels
       .attr("x", function(d) {
             return avgNodeSize1 * 1.5
-       } )
+      })
       .attr("y", function(d) {
             return dim0(d) - roundSize0*0.2;
-       } )
-    {% endif %}
-      .text(function(d) { return "Round " + (d.round+1) });
+      })
+    }
+    labels.text(function(d) { return "Round " + (d.round+1) });
 
     // add the rectangles for the nodes
     node.append("rect")
@@ -262,15 +270,19 @@ function makeRound1SpecialLabel(topbarG) {
    // First round is above the sankey SVG so needs to be handled specially
    var round1Label = topbarG.append("g").
       append("text")
-      .attr("class", 'roundLabels' )
-    {% if config.horizontalSankey %}
-      .attr("x", tmarginLength-roundSize0*.2 - 75)
-      .attr("y",  avgNodeSize1 * 1.5)
-    {% else %}
-      .attr("x", avgNodeSize1 * 1.5)
-      .attr("y", tmarginLength-roundSize0*.2 )
-    {% endif %}
-      .text("Round 1");
+      .attr("class", 'roundLabels' );
+
+    if (config.horizontalSankey) {
+      round1Label
+        .attr("x", tmarginLength-roundSize0*.2 - 75)
+        .attr("y",  avgNodeSize1 * 1.5);
+    } else {
+      round1Label
+        .attr("x", avgNodeSize1 * 1.5)
+        .attr("y", tmarginLength-roundSize0*.2 );
+    }
+
+    round1Label.text("Round 1");
     return round1Label;
 }
 
@@ -281,20 +293,22 @@ function populateTopBarFor(topbarG, round) {
       .selectAll(".topbar_element")
       .data(data, function(d) { return d; });
 
-    topbar.enter().append("g")
+    var topbar_g = topbar.enter().append("g")
       .attr('class', 'topbar_element')
       .attr("transform", function(d) { 
           commad = commaSeparate(0, dim1(d))
           return "translate(" + commad + ")"; })
       .attr(size1string(), function(d) { return ddim1(d); })
       .attr(size0string(), nodeSize0)
-      .append("text")
-      {% if config.rotateNames %}
+      .append("text");
+    if (config.rotateNames) {
+      topbar_g
       .attr("dx", -rotationOffset + 5)
       .attr("dy", rotationOffset + 5)
       .attr("transform", "rotate(-45)")
       .text(getNodeLabelText)
-      {% else %}
+    } else {
+      topbar_g
       .attr("x", 0 )
       .attr("y", 30 )
       .attr("dy", ".35em")
@@ -306,7 +320,7 @@ function populateTopBarFor(topbarG, round) {
             d3.select(this).text(getNodeLabelTextTruncated);
         })
         .call(d3.drag());
-      {% endif %}
+    }
     topbar.exit().remove();
 }
 
@@ -346,14 +360,14 @@ var sticky = topbarDiv.offsetTop + heightUntilSticky;
 var bodyMargin = getBodyMarginInt()
 makeGraph(graph);
 var topbarG = makeTopBar(graph);
-{% if not config.horizontalSankey %}
+if (!config.horizontalSankey) {
   if (!disableMagicTopBar)
   {
     window.onscroll = function() {notifyScrolled()};
   }
   var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
   populateTopBarFor(topbarG, 0)
-{% endif %}
+}
 
 }
 if (numRounds > 1)

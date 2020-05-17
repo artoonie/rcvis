@@ -4,13 +4,13 @@ from django.test import TestCase
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.remote.remote_connection import RemoteConnection
 
 
 from .models import JsonConfig
-from .views import getDataForView
+from .views import _getDataForView
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
 
 
@@ -24,11 +24,11 @@ class SimpleTests(TestCase):
     def _get_data_for_view(self, fn):
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=f)
-            return getDataForView(config)
+            return _getDataForView(config)
 
     def _get_multiwinner_upload_response(self):
         with open(FILENAME_MULTIWINNER) as f:
-            response = self.client.post('/upload.html', {'rcvJson': f})
+            response = self.client.post('/upload.html', {'jsonFile': f})
         return response
 
     def test_opavote_loads(self):
@@ -53,7 +53,7 @@ class SimpleTests(TestCase):
             with open(fn, 'r+') as f:
                 config = JsonConfig(jsonFile=f)
                 config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
-                getDataForView(config)
+                _getDataForView(config)
 
     def test_home_page(self):
         response = self.client.get('/')
@@ -63,11 +63,11 @@ class SimpleTests(TestCase):
         response = self._get_multiwinner_upload_response()
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         "/visualize=macomb-multiwinner-surplusjson")
+                         "visualize=macomb-multiwinner-surplusjson")
 
     def test_upload_file_failure(self):
         with open(FILENAME_BAD_DATA) as f:
-          response = self.client.post('/upload.html', {'rcvJson': f})
+          response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
 
@@ -101,8 +101,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
 
+    def _get_log(self):
+        try:
+            return self.browser.get_log('browser')
+        except WebDriverException:
+            print("Cannot read log - for somme reason, this only works on travis.")
+            if not os.environ['RCVIS_HOST'] == 'localhost':
+                raise
+            return ""
+
     def _verify_error_free(self):
-        log = self.browser.get_log('browser')
+        log = self._get_log()
         if (len(log) != 0):
             print("Log information: ", log)
         assert(len(log) == 0)
@@ -115,7 +124,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _upload(self, fn):
         self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("uploadFileInput")
+        fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), fn))
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
@@ -170,27 +179,27 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_settingsTab(self):
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("uploadFileInput")
+        fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_element_by_id("uploadButton").click()       # Hit upload
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+        assert self._getWidth("sankey-tab") == 0
 
         # Go to the settings tab
         self.browser.find_elements_by_id("settings-tab")[0].click()
 
         # Then, toggle on the sankey tab from the settings page
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 1
+        assert self._getWidth("sankey-tab") > 0
 
         # Finally, toggle it back off
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[0].click()   # Check the box
+        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
-        assert len(self.browser.find_elements_by_id("sankey-tab")) == 0
+        assert self._getWidth("sankey-tab") == 0
 
         self._verify_error_free()
 
@@ -203,15 +212,19 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Sanity check that a json exists
         uploaded_url = "/" + self.browser.current_url.split('/')[-1]
         oembed_json_url = self.browser.find_element_by_id("oembed").get_attribute('href')
-        embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded?rcvresult=')
+        embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded=')
 
         # Sanity check
         self.open(uploaded_url)
 
-        # Verify discoverability. Don't verify error free - the response is a JSON, and there is
-        # an error about missing favicons.
+        # Verify discoverability.
+        # The response is a JSON, which means on the first load without cache, there is
+        # an error about missing favicons. Hard-refresh without cache to ensure we get
+        # this error; without this, re-runs of the same TravisCI run will not have
+        # this error.
         self.browser.get(oembed_json_url)
-        log = self.browser.get_log('browser') # clear out the errors for the next check
+        self.browser.execute_script("location.reload(true);")
+        log = self._get_log() # clear out the errors for the next check
         assert(len(log) == 1) # favicon not provided here
 
         # Verify base URL for embedded visualization does not have errors
@@ -227,14 +240,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # None of the valid vistypes have errors
         for vistype in valid_vistypes:
-            embedded_url_with_vistype = embedded_url + "&vistype=" + vistype
+            embedded_url_with_vistype = embedded_url + "?vistype=" + vistype
             self.open(embedded_url_with_vistype)
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
             self.browser.find_element_by_id("embedded_body") # Will throw exception if does not exist
 
         # And even an invalid URL does not have errors - but it does show the error message
-        error_url = embedded_url + "&vistype=no_such_vistype"
+        error_url = embedded_url + "?vistype=no_such_vistype"
         self.open(error_url)
         self.browser.find_element_by_id("no-such-vistype-message") # Will throw exception if does not exist
 

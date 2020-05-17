@@ -10,7 +10,6 @@
         type="application/json+oembed"
         href="{{ oembed_url }}"
         title="{{ title }}" />
-
 {% endblock %} 
 
 {% block navlinks %}
@@ -27,7 +26,7 @@
 
 {% block maincontent %}
   <!-- Masthead -->
-  <header class="masthead bg-primary text-white text-left pb-0" style="padding-top: 8rem">
+  <header class="masthead bg-primary text-white text-left pb-0" style="padding-top: 8rem; display:none" id="masthead"> <!-- dynamically loaded later -->
       <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</p>
       <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ date }}</p>
     <div class="container d-flex align-items-left flex-column ml-0">
@@ -39,25 +38,21 @@
         <li class="nav-item">
             <a class="nav-link btn btn-outline-light" id="barchart-tab-fixed" data-toggle="changeviz" href="#barchart-fixed" role="tab" aria-controls="scrollToHere" aria-selected="false">Bar Chart</a>
         </li>
-        {% if not config.hideSankey %}
-        <li class="nav-item">
+        <li class="nav-item" name="li_hideable_sankey">
             <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="scrollToHere" aria-selected="false">Sankey</a>
         </li>
-        {% endif %}
-        {% if not config.hideTabular %}
-        <li class="nav-item">
+        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-interactive" data-toggle="changeviz" href="#tabular-by-round-interactive" role="tab" aria-controls="scrollToHere" aria-selected="false">Round-by-Round</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-fixed" data-toggle="changeviz" href="#tabular-by-round-fixed" role="tab" aria-controls=="scrollToHere" aria-selected="false">Round-by-Round</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="scrollToHere" aria-selected="false">Candidate Summary</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="tabular-candidate-by-round-tab" data-toggle="changeviz" href="#tabular-candidate-by-round" role="tab" aria-controls="scrollToHere" aria-selected="false">Single Table Summary</a>
         </li>
-        {% endif %}
         <li class="nav-item">
             <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_settings.png' %}" width="20"/></a>
         </li>
@@ -210,5 +205,21 @@
           preventScrollAfterTabLoad();
       });
 
+      function hideTabsBasedOnConfig()
+      {
+        if (config.hideTabular)
+        {
+          $("li[name='li_hideable_tabular']").css("display","none");
+        }
+        if (config.hideSankey)
+        {
+          $("li[name='li_hideable_sankey']").css("display","none");
+        }
+
+        // Dynamically load this when everything else finishes loading so it doesn't flicker the above two tabs
+        $("#masthead").css("display","block");
+      }
+
+      hideTabsBasedOnConfig();
   </script>
 {% endblock %}
