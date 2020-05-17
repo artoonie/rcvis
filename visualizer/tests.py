@@ -7,6 +7,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.remote.remote_connection import RemoteConnection
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 from .models import JsonConfig
@@ -116,9 +117,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             print("Log information: ", log)
         assert(len(log) == 0)
 
+    def _makeUrl(self, url):
+        return "%s%s" % (self.live_server_url, url)
+
     def open(self, url, prepend_server=True):
         if prepend_server:
-            url = "%s%s" % (self.live_server_url, url)
+            url = self._makeUrl(url)
         self.browser.get(url)
         self._verify_error_free()
 
@@ -257,3 +261,42 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             assert False
         except NoSuchElementException:
             pass
+
+    def test_cache(self):
+        # Verify that the django.core.cache middleware works as expected
+        def measureLoadTime(url):
+            # Use a fresh browser - we never want to hit the cache, and there doesn't seem to be an easy
+            # way to skip the cache every time: https://stackoverflow.com/a/9563341/1057105
+            localBrowser = webdriver.Firefox()
+
+            # First, navigate to a random URL to cache the static files
+            localBrowser.get(self._makeUrl("/upload.html"))
+
+            # Then, go to the URL we care about
+            localBrowser.get(self._makeUrl(url))
+
+            WebDriverWait(localBrowser, timeout=5, poll_frequency=0.05).until(\
+                lambda d: d.find_element_by_id("page-top"))
+
+            tic = localBrowser.execute_script('return performance.timing.fetchStart')
+            toc = localBrowser.execute_script('return performance.timing.domLoading')
+            return toc-tic
+
+        def isCacheMuchFaster():
+            load_without_cache = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
+            load_with_cache    = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
+            # Verify that it's at least 4x faster with cache (closer to 10x on selenium, 200x in real life)
+            return load_without_cache > load_with_cache * 4
+
+        # Upload a file, check cache
+        self._upload(FILENAME_OPAVOTE)
+        fn1 = "/visualize=opavote-fairvotejson"
+        assert isCacheMuchFaster()
+
+        # Uploading should clear all cache
+        self._upload(FILENAME_ONE_ROUND)
+        assert isCacheMuchFaster()
+
+        # But just visiting the upload page and returning should not clear cache
+        self.open("/upload.html")
+        assert not isCacheMuchFaster()
