@@ -35,6 +35,15 @@ class JsonConfig(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._get_unique_slug()
+
+        # Clear the cache. This is not useful in most cases, but is useful when:
+        # 1. The admin page changes something
+        # 2. In unit tests, where the db gets cleared for each test, and you don't want to see
+        #    the previous test's cached results
+        # TODO - this is overkill, how can we just clear the cache for this model?
+        from django.core.cache import cache
+        cache.clear()
+
         super().save(*args, **kwargs)
 
 @admin.register(JsonConfig)
