@@ -38,23 +38,21 @@ script:
 
 
 deploy:
-  provider: elasticbeanstalk
-  access_key_id: "$AWS_ACCESS_KEY_ID"
-  secret_access_key: "$AWS_SECRET_ACCESS_KEY"
-  region: us-west-1
-  app: rcvis
-  env: django-env-try2
-  on:
-    branch: master
-  bucket_name: elasticbeanstalk-us-west-1-872212457283
-
-deploy:
-  provider: elasticbeanstalk
-  access_key_id: "$AWS_ACCESS_KEY_ID"
-  secret_access_key: "$AWS_SECRET_ACCESS_KEY"
-  region: us-west-1
-  app: rcvis
-  env: rcvis-staging
-  on:
-    branch: staging
-  bucket_name: elasticbeanstalk-us-west-1-872212457283
+  - provider: elasticbeanstalk
+    access_key_id: "$AWS_ACCESS_KEY_ID"
+    secret_access_key: "$AWS_SECRET_ACCESS_KEY"
+    region: us-west-1
+    app: rcvis
+    env: django-env-try2
+    on:
+      branch: master
+    bucket_name: elasticbeanstalk-us-west-1-872212457283
+  - provider: elasticbeanstalk
+    access_key_id: "$AWS_ACCESS_KEY_ID"
+    secret_access_key: "$AWS_SECRET_ACCESS_KEY"
+    region: us-west-1
+    app: rcvis
+    env: rcvis-staging
+    on:
+      branch: staging
+    bucket_name: elasticbeanstalk-us-west-1-872212457283
