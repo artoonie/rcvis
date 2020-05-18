@@ -1,3 +1,5 @@
+from visualizer.graphCreator import rcvResult
+
 class GraphSummary:
   rounds: list # List of RoundInfo
   candidates:dict # Map: Graph.Item to CandidateInfo
@@ -20,7 +22,7 @@ class GraphSummary:
 
         currRound = len(candidates[item].votesAddedPerRound)
         candidates[item].addVotes(node.count)
-        rounds[currRound].addVotes(node.count)
+        rounds[currRound].addVotes(item, node.count)
 
         if node.isWinner:
             # Only count winner the first time they win
@@ -49,7 +51,7 @@ class RoundInfo:
         self.round_i = round_i
         self.eliminatedNames = []
         self.winnerNames = []
-        self.totalVotes = 0 # The total number of active ballots this round
+        self.totalActiveVotes = 0 # The total number of active ballots this round
 
     def key(self):
         return self.round_i
@@ -60,8 +62,12 @@ class RoundInfo:
     def addWinner(self, name):
         self.winnerNames.append(name)
 
-    def addVotes(self, numVotes):
-        self.totalVotes += numVotes
+    def addVotes(self, candidateItem, numVotes):
+        assert isinstance(candidateItem, rcvResult.Item)
+        if not candidateItem.isActive:
+            return
+
+        self.totalActiveVotes += numVotes
 
 class CandidateInfo:
     def __init__(self, name):

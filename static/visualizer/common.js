@@ -28,13 +28,17 @@ function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
   return roundedVotes + " " + (includeWordVotes ? "votes" : "");
 }
 
-function percentToText(numVotes, totalVotes)
+function percentToText(candidateName, numVotes, totalVotes)
 {
+  // Inactive ballots should not show %
+  if (candidateName == "Inactive Ballots")
+    return "no choices left";
+
   percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
   return "(" + percentVotes + "%)";
 }
 
-function votesAndPctToText(numVotes, totalVotes, includeWordVotes, doSimplifyNumber)
+function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes, doSimplifyNumber)
 {
-  return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(numVotes, totalVotes);
+  return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
 }

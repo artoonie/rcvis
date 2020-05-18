@@ -242,7 +242,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       }
       else
       {
-          return startText + votesAndPctToText(d[1], totalVotesPerRound[d.round], false, false);
+          return startText + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], false, false);
       }
   };
   var secondaryDataLabelTextFn = function(d) {
@@ -250,13 +250,13 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       {
           return "";
       }
-      return percentToText(d[1], totalVotesPerRound[d.round]);
+      return percentToText(d.data["candidate"], d[1], totalVotesPerRound[d.round]);
   };
 
   // Hover text helper
   var barTextFn = function(d) {
       var text = !isEliminated(d) ? "On Round " + d.round + ", has " : "Eliminated with ";
-      return text + votesAndPctToText(d[1], totalVotesPerRound[d.round], true, false);
+      return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
   };
 
   var eachBar = svg.append("g")

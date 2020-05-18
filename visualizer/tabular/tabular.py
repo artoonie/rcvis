@@ -1,3 +1,12 @@
+def makePrimarySecondaryLabels(numVotes, allVotes, item):
+    if item.isActive:
+        primaryLabel = percentify(numVotes / allVotes)
+        secondaryLabel = votify(numVotes)
+    else:
+        primaryLabel = intify(numVotes)
+        secondaryLabel = "ballots with no choices left"
+    return (primaryLabel, secondaryLabel)
+
 class TabulateByRoundInteractive:
     tabulation:list # A thin wrapper around graph.Summary
 
@@ -14,12 +23,15 @@ class TabulateByRoundInteractive:
                 isEliminatedThisRound = cinfo.name in r.eliminatedNames
                 if isEliminatedThisRound:
                     d['change'] = votify(changify(-cinfo.totalVotesPerRound[-1]))
-                    d['total'] = 0
+                    d['primaryLabel'] = 0
+                    d['secondaryLabel'] = ""
                 elif i >= len(cinfo.votesAddedPerRound):
                     continue
                 else:
                     d['change'] = votify(changify(cinfo.votesAddedPerRound[i]))
-                    d['total'] = intify(cinfo.totalVotesPerRound[i])
+                    myNumVotes = cinfo.totalVotesPerRound[i]
+                    allVotes = r.totalActiveVotes
+                    d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(myNumVotes, allVotes, item)
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in r.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
@@ -69,7 +81,7 @@ class CandidateTabulationByRound:
         self.rounds = range(numRounds)
         for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
             thisRoundSummary = summary.rounds[i]
-            self.eachRound.append(OneCandidateOneRound(thisRoundSummary, myNumVotes, self.name))
+            self.eachRound.append(OneCandidateOneRound(thisRoundSummary, myNumVotes, item))
 
         # We want all rounds filled out - pad the remaining rounds
         numRoundsThisCandidate = len(candidateInfo.totalVotesPerRound)
@@ -77,18 +89,18 @@ class CandidateTabulationByRound:
         self.eachRound.extend(padding)
 
 class OneCandidateOneRound:
-    totalVotes:float
+    primaryLabel:str
+    secondaryLabel:str
     percentVotes:float
     isWinner:bool
     isEliminated:bool
-    def __init__(self, thisRoundSummary, myNumVotes, name):
-        allVotes = thisRoundSummary.totalVotes
+    def __init__(self, thisRoundSummary, myNumVotes, item):
+        allVotes = thisRoundSummary.totalActiveVotes
 
-        self.totalVotes = votify(myNumVotes)
-        self.percentVotes = percentify(myNumVotes / allVotes)
+        self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(myNumVotes, allVotes, item)
 
-        self.isWinner     = name in thisRoundSummary.winnerNames
-        self.isEliminated = name in thisRoundSummary.eliminatedNames
+        self.isWinner     = item.name in thisRoundSummary.winnerNames
+        self.isEliminated = item.name in thisRoundSummary.eliminatedNames
 
 class TabulateByCandidate:
     tabulation:list # A list of CandidateTabulation
@@ -125,21 +137,25 @@ class CandidateTabulation:
                 # No incoming nodes this round (always true on first round)
                 linksForThisNode = []
 
-            totalVotes = intify(node.count)
-            self.rounds.append(RoundTabulation(totalVotes, i, item, summary.rounds[i], linksForThisNode))
+            totalActiveVotes = intify(node.count)
+            self.rounds.append(RoundTabulation(totalActiveVotes, i, item, summary.rounds[i], linksForThisNode))
 
 """ A summary of each round for one candidate """
 class RoundTabulation:
     # summary:str
-    # totalVotes:float
+    # primaryLabel:str
+    # secondaryLabel:str
     # round_i:int
 
-    def __init__(self, totalVotes, round_i, item, thisRoundInfo, linksForThisNode):
-        self.totalVotes = totalVotes
+    def __init__(self, totalActiveVotes, round_i, item, thisRoundInfo, linksForThisNode):
         self.round_i = round_i + 1
+
+        allVotes = thisRoundInfo.totalActiveVotes
+        myNumVotes = float(totalActiveVotes)
+        self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(myNumVotes, allVotes, item)
         
         if round_i == 0:
-            self.summary = f"{totalVotes} first-round votes"
+            self.summary = f"{totalActiveVotes} first-round votes"
             return 
 
         transfers = []
@@ -185,7 +201,7 @@ def intify(v):
 
 """ Turn a float into a percentage string """
 def percentify(v):
-    return str(int(1000.0*v)/10.0) + "%"
+    return str(round(1000.0*v)/10.0) + "%"
 
 """ Add an "s" as needed """
 def pluralize(txt, num):

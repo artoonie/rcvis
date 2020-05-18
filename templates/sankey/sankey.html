@@ -89,7 +89,7 @@ function getNodeVotesText(d) {
     return textForNode(d)
 }
 function getNodePercentText(d) {
-    return percentToText(d.value, totalVotesPerRound[d.round])
+    return percentToText(d.name, d.value, totalVotesPerRound[d.round])
 }
 
 function makeViewboxSizeString(size0, size1) {
