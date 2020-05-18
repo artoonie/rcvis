@@ -23,7 +23,7 @@ class D3Bargraph:
             candidatesJs.append(candidateJs)
 
         # Get the total votes per round
-        totalVotesPerRound = [r.totalVotes for r in rounds]
+        totalVotesPerRound = [r.totalActiveVotes for r in rounds]
 
         # Make round labels
         rounds = [get_label_for(rounds[i]) for i in range(numRounds)]

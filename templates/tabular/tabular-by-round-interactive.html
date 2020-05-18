@@ -30,7 +30,8 @@
         {% endif %}
             <th scope="row">{{ candidate.name }}</th>
             <td>{{ candidate.change }}</td>
-            <td>{{ candidate.total }}</td>
+            <td><strong>{{ candidate.primaryLabel }}</strong><br/>
+                {{ candidate.secondaryLabel }}</td>
         </tr>
         {% endfor %}
     </tbody>

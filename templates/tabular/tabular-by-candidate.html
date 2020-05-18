@@ -15,7 +15,8 @@
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
             <td>{{ roundTabulation.summary }}</td>
-            <td>{{ roundTabulation.totalVotes }}</td>
+            <td><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
+                {{ roundTabulation.secondaryLabel }}</td>
         </tr>
         {% endfor %}
     </tbody>
