@@ -285,8 +285,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         def isCacheMuchFaster():
             load_without_cache = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
             load_with_cache    = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
-            # Verify that it's at least 4x faster with cache (closer to 10x on selenium, 200x in real life)
-            return load_without_cache > load_with_cache * 4
+            # Verify that it's at least 2x faster with cache (closer to 5x on selenium, 200x in real life)
+            return load_without_cache > load_with_cache * 2
 
         # Upload a file, check cache
         self._upload(FILENAME_OPAVOTE)
