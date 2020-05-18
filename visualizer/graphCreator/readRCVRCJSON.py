@@ -4,6 +4,7 @@ from . import colors
 from . import rcvResult
 from . import readJSONBase
 from .graph import Graph
+from visualizer import common
 
 class JSONMigrateTask():
     def __init__(self, jsonData):
@@ -14,6 +15,18 @@ class JSONMigrateTask():
         for result in results:
             for tallyResult in result['tallyResults']:
                 yield tallyResult
+
+    def rename(self, fromStr, toStr):
+        results = self.data['results']
+        for result in results:
+            if fromStr in result['tally']:
+                result['tally'][toStr] = result['tally'][fromStr]
+                del result['tally'][fromStr]
+
+            for tallyResult in result['tallyResults']:
+                if fromStr in tallyResult['transfers']:
+                    tallyResult['transfers'][toStr] = tallyResult['transfers'][fromStr]
+                    del tallyResult['transfers'][fromStr]
 
     def do(self):
         assert False
@@ -91,6 +104,13 @@ class MakeExhaustedACandidate(JSONMigrateTask):
                 self._makeExhaustedACandidate()
                 return
 
+class RenameCapitalizeResidualSurplus(JSONMigrateTask):
+    def do(self):
+        self.rename('residual surplus', common.residualSurplusText)
+
+class RenameExhaustedToInactive(JSONMigrateTask):
+    def do(self):
+        self.rename('exhausted', common.inactiveText)
 
 class JSONMigration():
     """ Correct data inconsistencies in the JSON upfront,
@@ -107,6 +127,8 @@ class JSONReader(readJSONBase.JSONReaderBase):
             self.tasks.append(FixIgnoreResidualSurplus)
             self.tasks.append(MakeTalliesANumber)
             self.tasks.append(MakeExhaustedACandidate)
+            self.tasks.append(RenameCapitalizeResidualSurplus)
+            self.tasks.append(RenameExhaustedToInactive)
 
         def parseDate(date):
             if not date:

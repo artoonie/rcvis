@@ -1,6 +1,7 @@
 import json
 
 from . import rcvResult
+from visualizer import common
 
 class JSONReaderBase(object):
     def __init__(self, fileObj):
@@ -43,7 +44,7 @@ class JSONReaderBase(object):
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
 
-        # Handle "residual surplus" and "exhausted" which should always be at the end
+        # Place "residual surplus" and "inactive ballots" at the end
         def moveToFront(candidateName):
             try:
                 moveToFrontIndex = [e.name for e in eliminationOrder].index(candidateName)
@@ -52,8 +53,8 @@ class JSONReaderBase(object):
             except ValueError:
                 # not every election has these two
                 pass
-        moveToFront('residual surplus')
-        moveToFront('exhausted')
+        moveToFront(common.residualSurplusText)
+        moveToFront(common.inactiveText)
 
         self.eliminationOrder = eliminationOrder
 
