@@ -13,7 +13,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from visualizer.graphCreator.graphCreator import BadJSONError
 from .models import JsonConfig
-from .views import _getDataForView
+from .views import _get_data_for_view
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
@@ -29,7 +29,7 @@ class SimpleTests(TestCase):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=f)
-            return _getDataForView(config)
+            return _get_data_for_view(config)
 
     def _get_multiwinner_upload_response(self):
         """ Uploads the multiwinner json file and returns a response """
@@ -69,7 +69,7 @@ class SimpleTests(TestCase):
                 config = JsonConfig(jsonFile=f)
                 config.__dict__[configBoolToToggle] = not config.__dict__[
                     configBoolToToggle]
-                _getDataForView(config)
+                _get_data_for_view(config)
 
     def test_home_page(self):
         """ Tests that the home page loads """

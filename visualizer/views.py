@@ -1,7 +1,9 @@
+""" The django views file """
+
 import urllib.parse
 
 from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -17,15 +19,21 @@ from .bargraph.graphToD3 import D3Bargraph
 from .forms import JsonConfigForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
-from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate, TabularCandidateByRound
+from .tabular.tabular import TabulateByRoundInteractive,\
+                             TabulateByRound,\
+                             TabulateByCandidate,\
+                             TabularCandidateByRound
 
 
 class Index(TemplateView):
+    """ The homepage """
     template_name = 'visualizer/index.html'
     build_path = 'index.html'
 
 
+#pylint: disable=too-many-ancestors
 class Upload(CreateView):
+    """ The upload page """
     template_name = 'visualizer/uploadFile.html'
     success_url = 'visualize={slug}'
     model = JsonConfig
@@ -38,10 +46,10 @@ class Upload(CreateView):
                 form.cleaned_data['jsonFile'],
                 form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
             graph.summarize()
-            d3Sankey = D3Sankey(graph)
+            D3Sankey(graph) # sanity check the graph can be created
         except BadJSONError:
             return self.form_invalid(form)
-        except Exception as e:
+        except Exception: # pylint: disable=broad-except
             # TODO make an error page for this, too
             return redirect(self.request, '/')
 
@@ -52,7 +60,7 @@ class Upload(CreateView):
         return render(self.request, 'visualizer/errorBadJson.html')
 
 
-def _getDataForView(config):
+def _get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
     d3Bargraph = D3Bargraph(graph)
@@ -77,44 +85,42 @@ def _getDataForView(config):
     }
 
 
-def _makeCompleteUrl(request, urlWithoutDomain):
-    scheme = request.is_secure() and 'https' or 'http'
+def _make_complete_url(request, urlWithoutDomain):
+    scheme = 'https' if request.is_secure() else 'http'
     host = request.META['HTTP_HOST']
     return f"{scheme}://{host}{urlWithoutDomain}"
 
 
 class Visualize(DetailView):
+    """ Visualizing a single JsonConfig """
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = _getDataForView(config['jsonconfig'])
+        data = _get_data_for_view(config['jsonconfig'])
 
         # oembed href
         slug = config['jsonconfig'].slug
-        iframe_url = _makeCompleteUrl(
-            self.request, reverse(
-                "visualizeEmbedded", args=(
-                    slug,)))
-        iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
-        oembed_url = _makeCompleteUrl(self.request, reverse(
-            "oembed")) + f"?url={iframe_url_embedded}"
-        data['oembed_url'] = oembed_url
+        iframeUrl = _make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
+        iframeUrl = urllib.parse.quote_plus(iframeUrl)
+        oembedUrl = _make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
+        data['oembedUrl'] = oembedUrl
 
         return data
 
 
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeEmbedded(DetailView):
+    """ The embedded visualization, pointed to from Oembed """
     model = JsonConfig
     template_name = 'visualizer/visualize-embedded.html'
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = _getDataForView(config['jsonconfig'])
+        data = _get_data_for_view(config['jsonconfig'])
 
         # oembed href
         data['vistype'] = self.request.GET.get(
@@ -125,7 +131,10 @@ class VisualizeEmbedded(DetailView):
 
 @method_decorator(xframe_options_exempt, name='dispatch')
 class Oembed(View):
+    """ The oembed protocol, pointing to VisualizeEmbedded """
+    #pylint: disable=no-self-use
     def get(self, request):
+        """ Overriding the getter for this class-based view """
         requestData = request.GET
         url = str(requestData.get('url'))  # only required field
         maxwidth = int(requestData.get('maxwidth', 1440))
@@ -133,10 +142,9 @@ class Oembed(View):
         returnType = str(requestData.get('type', 'json'))
         vistype = str(requestData.get('vistype', 'barchart-interactive'))
 
-        # TODO - handle 501 error on requesting XML:
-        # if returnType == 'xml':
-        #     # not implemented
-        #     return HttpResponse(status=501)
+        if returnType == 'xml':
+            # not implemented
+            return HttpResponse(status=501)
 
         renderData = {
             'width': maxwidth,
@@ -154,7 +162,7 @@ class Oembed(View):
             "author_url": "http://www.rcvis.com/",
             "provider_name": "rcvis.com",
             "provider_url": "http://www.rcvis.com/",
-            "thumbnail": _makeCompleteUrl(request, static("visualizer/icon_interactivebar.gif"))
+            "thumbnail": _make_complete_url(request, static("visualizer/icon_interactivebar.gif"))
         }
         jsonData['type'] = "rich"
         jsonData['width'] = maxwidth

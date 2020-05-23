@@ -1,3 +1,4 @@
+""" Class which reads an opavote-formatted JSON file """
 from . import colors
 from . import rcvResult
 from . import readJSONBase
@@ -5,8 +6,10 @@ from .graph import Graph
 
 
 class JSONReader(readJSONBase.JSONReaderBase):
-    def parseJsonData(self, data):
-        def initializeCandidates(data, graph):
+    """ Reads an opavote-formatted JSON file """
+
+    def parse_json_data(self, data):
+        def initialize_candidates(data, graph):
             candidateNames = data['candidates']
             firstRoundVotes = data['rounds'][0]['count']
 
@@ -17,19 +20,19 @@ class JSONReader(readJSONBase.JSONReaderBase):
                 color = colors.Color(next(palette))
                 initialVotes = firstRoundVotes[candidate_i]
                 item = rcvResult.Item(candidateName, color)
-                graph.addNode(item, initialVotes)
+                graph.add_node(item, initialVotes)
                 candidateItems.append(item)
             return candidateItems
 
-        def loadRound(roundData, lastRoundData, candidateItems):
+        def load_round(roundData, lastRoundData, candidateItems):
             # or we could just store a running tally instead of recreating
             oldLosers = set(lastRoundData['losers'])
             losers = [l for l in roundData['losers'] if l not in oldLosers]
             # Look at previous round to see who won
             winners = lastRoundData['winners']
-            round = rcvResult.Round()
+            rnd = rcvResult.Round()
             for winner_i in winners:
-                round.winners.append(candidateItems[winner_i])
+                rnd.winners.append(candidateItems[winner_i])
             for loser_i in losers:
                 loserItem = candidateItems[loser_i]
 
@@ -55,29 +58,28 @@ class JSONReader(readJSONBase.JSONReaderBase):
                         continue
                     voteDiff *= thisLosersWeight
                     transfersByItem[candidateItems[continuing_i]] = voteDiff
-                round.transfers.append(
+                rnd.transfers.append(
                     rcvResult.Elimination(
                         loserItem, transfersByItem))
-            return round
+            return rnd
 
-        def loadGraph(data):
+        def load_graph(data):
             numRounds = len(data['rounds'])
             graph = Graph(data['title'], 0)
 
-            candidateItems = initializeCandidates(data, graph)
+            candidateItems = initialize_candidates(data, graph)
             rounds = []
             for round_i in range(1, numRounds):
-                round = loadRound(data['rounds'][round_i],
-                                  data['rounds'][round_i - 1], candidateItems)
-                rounds.append(round)
-            # One last "round" to mark winners (since we only check them in prev
-            # round)
-            round = loadRound(
+                rnd = load_round(data['rounds'][round_i],
+                                 data['rounds'][round_i - 1], candidateItems)
+                rounds.append(rnd)
+            # One last "round" to mark winners (since we only check them in prev round)
+            rnd = load_round(
                 data['rounds'][round_i],
                 data['rounds'][round_i],
                 candidateItems)
-            rounds.append(round)
+            rounds.append(rnd)
 
             return graph, rounds, candidateItems
 
-        self.graph, self.rounds, self.items = loadGraph(data)
+        self.graph, self.rounds, self.items = load_graph(data)

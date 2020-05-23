@@ -52,9 +52,9 @@ def make_graph_with_file(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
     except RuntimeError as runtimeException:
         raise runtimeException
 
-    graph = jsonReader.getGraph()
-    rounds = jsonReader.getRounds()
-    eliminationOrder = jsonReader.getEliminationOrder()
+    graph = jsonReader.get_graph()
+    rounds = jsonReader.get_rounds()
+    eliminationOrder = jsonReader.get_elimination_order()
 
     for r in rounds[:-1]:
         graph.add_round(r, False)

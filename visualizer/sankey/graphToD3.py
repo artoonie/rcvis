@@ -1,9 +1,9 @@
-from visualizer.jsUtils import approxLength
+from visualizer.jsUtils import approx_length
 
 
 class D3Sankey:
     def __init__(self, graph):
-        longestLabelApxWidth = max([approxLength(n.label)
+        longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
         totalVotesPerRound = [r.totalActiveVotes for r in graph.summary.rounds]
         js = ''

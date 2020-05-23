@@ -1,16 +1,17 @@
+""" Data that holds the entire Graph, as well as utilities for parsers to interactively
+    build the graph. You probably don't want to use this directly, but instead,
+    want to use the GraphSummary which is more user-friendly.
+    To get the summary, use graph.summarize(). """
+
 import datetime
 
 from . import rcvResult
 from .graphSummary import GraphSummary
 
 
-# Toggle to show percentages instead of absolute votes.
-# Gets confusing because the percentages can change as
-# undervotes occur, meaning the same number of votes
-# will change percentages each round.
-
-
+#pylint: disable=too-few-public-methods
 class LinkData:
+    """ Data about a single "link": a transfer from the source to target """
     def __init__(self, source, target, value, color):
         self.source = source
         self.target = target
@@ -19,6 +20,8 @@ class LinkData:
 
 
 class NodeData:
+    """ Data about a single "node": a candidate in a single round """
+    #pylint: disable=too-many-arguments
     def __init__(self, item, label, color, count, roundNum):
         self.item = item
         self.label = label
@@ -28,14 +31,18 @@ class NodeData:
         self.isWinner = False
         self.isEliminated = False
 
-    def markEliminated(self):
+    def mark_eliminated(self):
+        """ Marks the given node as the node in which this candidate was eliminated """
         self.isEliminated = True
 
-    def markWinner(self):
+    def mark_winner(self):
+        """ Marks the given node as the node in which this candidate won """
         self.isWinner = True
 
 
+#pylint: disable=too-many-instance-attributes
 class Graph:
+    """ Data about the entire graph, including nodes and links between thhem """
     def __init__(self, title, threshold):
         self.title = title
         self.threshold = threshold
@@ -50,21 +57,29 @@ class Graph:
         self.summary = None
 
     def summarize(self):
+        """ Returns the graph summary - or creates it if it hasn't been requested yet """
         if self.summary is None:
             self.summary = GraphSummary(self)
         return self.summary
 
-    def setDate(self, date):
+    def set_date(self, date):
+        """ Sets the date of this election """
         assert isinstance(date, datetime.datetime)
         self.dateString = datetime.date.strftime(date, format='%A, %B %-d, %Y')
 
-    def currRoundNodes(self):
+    def _curr_round_nodes(self):
+        """ Returns how many nodes are in the "current round".
+            Only meaningful while graph creation is in progress. """
         return self.nodesPerRound[self.numRounds - 1]
 
-    def prevRoundNodes(self):
+    def _prev_round_nodes(self):
+        """ Returns how many nodes are in the "previous round".
+            Only meaningful while graph creation is in progress. """
         return self.nodesPerRound[self.numRounds - 2]
 
-    def addConnection(self, sourceNode, targetNode, value):
+    def _add_connection(self, sourceNode, targetNode, value):
+        """ Adds a Link between the source and target.
+            Only meaningful while graph creation is in progress. """
         white = rcvResult.Color([1] * 3)
         if sourceNode.item == targetNode.item:
             alpha = .2
@@ -76,33 +91,39 @@ class Graph:
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
 
-    def addNode(self, item, count):
+    def add_node(self, item, count):
+        """ Creates a node with the given count.
+            Only meaningful while graph creation is in progress. """
         label = str(item.name)
         color = item.color.as_hex()
         node = NodeData(item, label, color, count, self.numRounds - 1)
         self.nodes.append(node)
 
-        self.currRoundNodes()[item] = node
+        self._curr_round_nodes()[item] = node
 
         return node
 
-    def markNextRound(self):
+    def mark_next_round(self):
+        """ Marks the start of a new round.
+            Only meaningful while graph creation is in progress. """
         self.nodesPerRound.append({})
         self.numRounds += 1
 
-    def add_round(self, round, isLastRound):
-        def getPreviousRoundWinners():
-            self.winnersSoFar.update(round.winners)
+    def add_round(self, rnd, isLastRound):
+        """ Adds and buildds info about theh next round.
+            Only meaningful while graph creation is in progress. """
+        def get_previous_round_winners():
+            self.winnersSoFar.update(rnd.winners)
 
-        def getPassthroughVotes():
-            eliminatedItems = set([e.item for e in round.transfers
-                                   if isinstance(e, rcvResult.Elimination)])
+        def get_passthrough_votes():
+            eliminatedItemsSet = {e.item for e in rnd.transfers
+                                  if isinstance(e, rcvResult.Elimination)}
             allItemVotes = {}
             for item in nodesPrevRound:
-                if item in eliminatedItems:
+                if item in eliminatedItemsSet:
                     continue
                 votes = nodesPrevRound[item].count
-                for event in round.transfers:
+                for event in rnd.transfers:
                     # If votes are being transferred to us:
                     if item in event.transfers:
                         votes += event.transfers[item]
@@ -112,43 +133,43 @@ class Graph:
                         votes -= sum(event.transfers.values())
                 allItemVotes[item] = votes
             for item, votes in allItemVotes.items():
-                nodesThisRound[item] = self.addNode(item, votes)
+                nodesThisRound[item] = self.add_node(item, votes)
                 if item in self.winnersSoFar:
-                    nodesThisRound[item].markWinner()
+                    nodesThisRound[item].mark_winner()
 
                 # Minimum of: everything we had in the previous round, or the number
                 # of votes in the next round that are not transferred away
                 votesTransferredToSelf = min(votes, nodesPrevRound[item].count)
-                self.addConnection(sourceNode=nodesPrevRound[item],
-                                   targetNode=nodesThisRound[item],
-                                   value=votesTransferredToSelf)
+                self._add_connection(sourceNode=nodesPrevRound[item],
+                                     targetNode=nodesThisRound[item],
+                                     value=votesTransferredToSelf)
 
-        def markWinnersForLastRound():
-            nodesLastRound = self.currRoundNodes()
-            for item in round.winners:
-                nodesLastRound[item].markWinner()
+        def mark_winners_for_last_round():
+            nodesLastRound = self._curr_round_nodes()
+            for item in rnd.winners:
+                nodesLastRound[item].mark_winner()
 
-        def getTransferVotes():
-            for event in round.transfers:
+        def get_transfer_votes():
+            for event in rnd.transfers:
                 if isinstance(event, rcvResult.Elimination):
-                    nodesPrevRound[event.item].markEliminated()
+                    nodesPrevRound[event.item].mark_eliminated()
                 for transferItem, transferNumber in event.transfers.items():
                     sourceNode = nodesPrevRound[event.item]
                     targetNode = nodesThisRound[transferItem]
-                    self.addConnection(sourceNode=sourceNode,
-                                       targetNode=targetNode,
-                                       value=transferNumber)
+                    self._add_connection(sourceNode=sourceNode,
+                                         targetNode=targetNode,
+                                         value=transferNumber)
 
-        getPreviousRoundWinners()
+        get_previous_round_winners()
 
         if not isLastRound:
-            self.markNextRound()
+            self.mark_next_round()
             nodesThisRound = {}
-            nodesPrevRound = self.prevRoundNodes()
+            nodesPrevRound = self._prev_round_nodes()
 
-            getPassthroughVotes()
-            getTransferVotes()
+            get_passthrough_votes()
+            get_transfer_votes()
         else:
             # Last round shouldn't create info for extra rounds,
             # it should just mark what happened
-            markWinnersForLastRound()
+            mark_winners_for_last_round()

@@ -1,5 +1,5 @@
 from visualizer.graphCreator.colors import ColorGenerator, Color
-from visualizer.jsUtils import approxLength
+from visualizer.jsUtils import approx_length
 
 
 class D3Bargraph:
@@ -38,7 +38,7 @@ class D3Bargraph:
         palette = ColorGenerator(numRounds)
         colors = [Color(next(palette)).as_hex() for i in range(numRounds)]
 
-        longestLabelApxWidth = max([approxLength(n.label)
+        longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
 
         js = f'var data = {candidatesJs};'

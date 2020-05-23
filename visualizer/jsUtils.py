@@ -1,25 +1,26 @@
+""" A helper function for javascript-generating python """
+
 import string
 
 
-# c/o https://stackoverflow.com/a/16008023/1057105
-
-
-def approxLength(st):
+def approx_length(stringToMeasure):
+    """ c/o https://stackoverflow.com/a/16008023/1057105 -
+        measure the approximate pixels of the given string """
     size = 0  # in milinches
-    for s in st:
-        if s in 'lij|\' ':
+    for char in stringToMeasure:
+        if char in 'lij|\' ':
             size += 37
-        elif s in '![]fI.,:;/\\t':
+        elif char in '![]fI.,:;/\\t':
             size += 50
-        elif s in '`-(){}r"':
+        elif char in '`-(){}r"':
             size += 60
-        elif s in '*^zcsJkvxy':
+        elif char in '*^zcsJkvxy':
             size += 85
-        elif s in 'aebdhnopqug#$L+<>=?_~FZT' + string.digits:
+        elif char in 'aebdhnopqug#$L+<>=?_~FZT' + string.digits:
             size += 95
-        elif s in 'BSPEAKVXY&UwNRCHD':
+        elif char in 'BSPEAKVXY&UwNRCHD':
             size += 112
-        elif s in 'QGOMm%W@':
+        elif char in 'QGOMm%W@':
             size += 135
         else:
             size += 50

@@ -1,9 +1,14 @@
+""" The django object models """
+
 from django.contrib import admin
+from django.core.cache import cache
 from django.db import models
 from django.utils.text import slugify
 
 
 class JsonConfig(models.Model):
+    """ A Json file representing a single election, and its configuration """
+
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
@@ -26,13 +31,17 @@ class JsonConfig(models.Model):
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)
-        unique_slug = slug
+        uniqueSlug = slug
         num = 1
-        while JsonConfig.objects.filter(slug=unique_slug).exists():
-            unique_slug = '{}-{}'.format(slug, num)
-            num += 1
-        return unique_slug
 
+        #pylint: disable=no-member
+        while JsonConfig.objects.filter(slug=uniqueSlug).exists():
+            uniqueSlug = '{}-{}'.format(slug, num)
+            num += 1
+
+        return uniqueSlug
+
+    #pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._get_unique_slug()
@@ -42,7 +51,6 @@ class JsonConfig(models.Model):
         # 2. In unit tests, where the db gets cleared for each test, and you don't want to see
         #    the previous test's cached results
         # TODO - this is overkill, how can we just clear the cache for this model?
-        from django.core.cache import cache
         cache.clear()
 
         super().save(*args, **kwargs)
@@ -50,4 +58,5 @@ class JsonConfig(models.Model):
 
 @admin.register(JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
+    """ The admin page to modify JsonConfig """
     list_display = ('slug', 'uploadedAt')
