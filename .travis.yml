@@ -35,7 +35,7 @@ install:
 
 script:
   - python3 manage.py test
-  - ./validateLinter.sh
+  - ./test_code_quality.sh
   - bash <(curl -s https://codecov.io/bash)
 
 deploy:
