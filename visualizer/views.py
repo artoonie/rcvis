@@ -106,7 +106,7 @@ class Visualize(DetailView):
         iframeUrl = _make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
         iframeUrl = urllib.parse.quote_plus(iframeUrl)
         oembedUrl = _make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
-        data['oembedUrl'] = oembedUrl
+        data['oembed_url'] = oembedUrl
 
         return data
 
