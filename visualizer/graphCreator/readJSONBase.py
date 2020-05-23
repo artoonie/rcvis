@@ -3,13 +3,14 @@ import json
 from . import rcvResult
 from visualizer import common
 
+
 class JSONReaderBase(object):
     def __init__(self, fileObj):
         self.parseJsonData(json.load(fileObj))
         self.setEliminationOrder(self.steps, self.items)
 
     """ Override this and set self.graph and self.steps and self.items:
-        
+
         self.graph is a Graph object which is partially initialized (TODO how partially?)
         self.steps is a list of Step objects
         self.items is a list of Item objects
@@ -47,9 +48,11 @@ class JSONReaderBase(object):
         # Place "residual surplus" and "inactive ballots" at the end
         def moveToFront(candidateName):
             try:
-                moveToFrontIndex = [e.name for e in eliminationOrder].index(candidateName)
+                moveToFrontIndex = [
+                    e.name for e in eliminationOrder].index(candidateName)
                 if moveToFrontIndex:
-                    eliminationOrder.insert(0, eliminationOrder.pop(moveToFrontIndex))
+                    eliminationOrder.insert(
+                        0, eliminationOrder.pop(moveToFrontIndex))
             except ValueError:
                 # not every election has these two
                 pass

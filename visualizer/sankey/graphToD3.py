@@ -1,8 +1,10 @@
 from visualizer.jsUtils import approxLength
 
+
 class D3Sankey:
     def __init__(self, graph):
-        longestLabelApxWidth = max([approxLength(n.label) for n in graph.nodesPerRound[0].values()])
+        longestLabelApxWidth = max([approxLength(n.label)
+                                    for n in graph.nodesPerRound[0].values()])
         totalVotesPerRound = [r.totalActiveVotes for r in graph.summary.rounds]
         js = ''
         js += 'numRounds = %d;\n' % graph.numRounds
@@ -33,8 +35,8 @@ class D3Sankey:
 
             sourceIndex = nodeIndices[link.source]
             targetIndex = nodeIndices[link.target]
-            js += 'graph.links.push({ "source": %d,\n'       % sourceIndex
-            js += '                   "target": %d,\n'       % targetIndex
-            js += '                   "color": "%s",\n'      % link.color
+            js += 'graph.links.push({ "source": %d,\n' % sourceIndex
+            js += '                   "target": %d,\n' % targetIndex
+            js += '                   "color": "%s",\n' % link.color
             js += '                   "value":  %0.3f });\n' % link.value
         self.js = js

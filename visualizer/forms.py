@@ -1,6 +1,7 @@
 from django.forms import ModelForm
 from .models import JsonConfig
 
+
 class JsonConfigForm(ModelForm):
     class Meta:
         model = JsonConfig

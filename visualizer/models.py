@@ -3,6 +3,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.db import models
 
+
 class JsonConfig(models.Model):
     detail_views = ('visualizer.views.Visualize',)
 
@@ -20,7 +21,8 @@ class JsonConfig(models.Model):
     hideTabular = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
-    excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
+    excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(
+        default=False)
     hideDecimals = models.BooleanField(default=False)
 
     def _get_unique_slug(self):
@@ -46,6 +48,7 @@ class JsonConfig(models.Model):
 
         super().save(*args, **kwargs)
 
+
 @admin.register(JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
-  list_display = ('slug', 'uploadedAt')
+    list_display = ('slug', 'uploadedAt')

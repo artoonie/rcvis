@@ -2,22 +2,27 @@ from visualizer.models import JsonConfig
 import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
 
-class BadJSONError(Exception): pass
+
+class BadJSONError(Exception):
+    pass
+
 
 def getCorrectReaderFor(jsonFile):
-    # Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader.
+    # Try to use the rcvrc json reader. If it doesn't work, try the OPAVote
+    # reader.
     exceptions = {}
     try:
         jsonReader = rcvrcJson.JSONReader(jsonFile)
     except Exception as e0:
         try:
             exceptions["RCVRC JSON Errors"] = e0
-            jsonFile.seek(0) # reset file position
+            jsonFile.seek(0)  # reset file position
             jsonReader = opavoteJson.JSONReader(jsonFile)
         except Exception as e1:
             exceptions["Opavote JSON Errors"] = e1
             raise BadJSONError(exceptions)
     return jsonReader
+
 
 def removeLastWinnerAndEliminated(graph, steps):
     haveRemovedWinner = False
@@ -39,9 +44,10 @@ def removeLastWinnerAndEliminated(graph, steps):
         if haveRemovedEliminated and haveRemovedWinner:
             break
 
+
 def makeGraphWithFile(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
     try:
-      jsonReader = getCorrectReaderFor(jsonFile)
+        jsonReader = getCorrectReaderFor(jsonFile)
     except RuntimeError as e:
         raise e
 
@@ -53,7 +59,11 @@ def makeGraphWithFile(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
         graph.step(step, False)
     graph.step(steps[-1], True)
 
-    graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
+    graph.nodes = sorted(
+        graph.nodes,
+        key=lambda x: -
+        eliminationOrder.index(
+            x.item))
 
     if excludeFinalWinnerAndEliminatedCandidate:
         removeLastWinnerAndEliminated(graph, steps)

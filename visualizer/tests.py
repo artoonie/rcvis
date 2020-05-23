@@ -21,6 +21,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
+
 class SimpleTests(TestCase):
     def _get_data_for_view(self, fn):
         with open(fn, 'r+') as f:
@@ -46,14 +47,19 @@ class SimpleTests(TestCase):
         assert False
 
     def test_various_configs(self):
-        configBoolsToToggle = {'hideDecimals', 'rotateNames', 'onlyShowWinnersTabular',
-                               'doHideOverflowAndEliminated', 'doUseHorizontalBarGraph',
-                               'excludeFinalWinnerAndEliminatedCandidate'}
+        configBoolsToToggle = {
+            'hideDecimals',
+            'rotateNames',
+            'onlyShowWinnersTabular',
+            'doHideOverflowAndEliminated',
+            'doUseHorizontalBarGraph',
+            'excludeFinalWinnerAndEliminatedCandidate'}
         fn = FILENAME_MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:
                 config = JsonConfig(jsonFile=f)
-                config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
+                config.__dict__[configBoolToToggle] = not config.__dict__[
+                    configBoolToToggle]
                 _getDataForView(config)
 
     def test_home_page(self):
@@ -68,9 +74,10 @@ class SimpleTests(TestCase):
 
     def test_upload_file_failure(self):
         with open(FILENAME_BAD_DATA) as f:
-          response = self.client.post('/upload.html', {'jsonFile': f})
+            response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
+
 
 class LiveBrowserTests(StaticLiveServerTestCase):
     def setUp(self):
@@ -92,7 +99,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["webdriverRemoteQuietExceptions"] = False
             hub_url = "%s:%s@localhost:4445" % (username, access_key)
 
-            self.browser = webdriver.Remote(desired_capabilities=capabilities, command_executor="http://%s/wd/hub" % hub_url)
+            self.browser = webdriver.Remote(
+                desired_capabilities=capabilities,
+                command_executor="http://%s/wd/hub" %
+                hub_url)
         else:
             self.browser = webdriver.Firefox()
 
@@ -112,7 +122,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             return ""
 
     def _assert_log_len(self, num):
-        log = self._get_log();
+        log = self._get_log()
         if len(log) != num:
             print("Log information: ", log)
         assert(len(log) == num)
@@ -140,33 +150,33 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def _getHeight(self, elementId):
         return self.browser.find_elements_by_id(elementId)[0].size['height']
 
-
     def test_render(self):
         def fits_inside(element_width, page_width):
-            # Checks that the element takes up most or all of the page, but not more
+            # Checks that the element takes up most or all of the page, but not
+            # more
             PERCENT_ROOM_FOR_MARGINS = 0.1
-            min_width = page_width * (1-PERCENT_ROOM_FOR_MARGINS)
+            min_width = page_width * (1 - PERCENT_ROOM_FOR_MARGINS)
             return element_width <= page_width and \
-                   element_width > min_width
+                element_width > min_width
 
         def testSaneResizingOf(elementId, maxSize):
             # TODO - maybe it's okay that it becomes too small
             # self.browser.set_window_size(200,600)
             # assert self._getWidth(elementId) > 200 # don't make too small
 
-            self.browser.set_window_size(400,600)
+            self.browser.set_window_size(400, 600)
             assert fits_inside(self._getWidth(elementId), 400)
 
-            self.browser.set_window_size(600,600)
+            self.browser.set_window_size(600, 600)
             assert fits_inside(self._getWidth(elementId), 600)
 
-            self.browser.set_window_size(maxSize,600)
-            assert self._getWidth(elementId) < maxSize # don't make too big
+            self.browser.set_window_size(maxSize, 600)
+            assert self._getWidth(elementId) < maxSize  # don't make too big
 
         self._upload(FILENAME_MULTIWINNER)
         testSaneResizingOf("bargraph-interactive-body", 1200)
 
-        assert self._getWidth("sankey-body") == 0 # not yet visible
+        assert self._getWidth("sankey-body") == 0  # not yet visible
         self.browser.find_elements_by_id("sankey-tab")[0].click()
         testSaneResizingOf("sankey-body", 1200)
 
@@ -176,7 +186,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_oneround(self):
         # Regression test
-        self.browser.set_window_size(800,800)
+        self.browser.set_window_size(800, 800)
         self._upload(FILENAME_ONE_ROUND)
         assert self._getHeight("bargraph-interactive-body") < 800
 
@@ -185,24 +195,33 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
-        self.browser.find_element_by_id("uploadButton").click()       # Hit upload
+        self.browser.find_elements_by_id("sankeyOptions")[
+            0].click()  # Open the dropdown
+        # Check the box (the second one, which isn't hidden)
+        self.browser.find_elements_by_name("hideSankey")[1].click()
+        self.browser.find_element_by_id(
+            "uploadButton").click()       # Hit upload
         assert self._getWidth("sankey-tab") == 0
 
         # Go to the settings tab
         self.browser.find_elements_by_id("settings-tab")[0].click()
 
         # Then, toggle on the sankey tab from the settings page
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
+        self.browser.find_elements_by_id("sankeyOptions")[
+            0].click()  # Open the dropdown
+        # Check the box (the second one, which isn't hidden)
+        self.browser.find_elements_by_name("hideSankey")[1].click()
+        self.browser.find_elements_by_id("updateSettings")[
+            0].click()  # Hit submit
         assert self._getWidth("sankey-tab") > 0
 
         # Finally, toggle it back off
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        self.browser.find_elements_by_name("hideSankey")[1].click()   # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
+        self.browser.find_elements_by_id("sankeyOptions")[
+            0].click()  # Open the dropdown
+        # Check the box (the second one, which isn't hidden)
+        self.browser.find_elements_by_name("hideSankey")[1].click()
+        self.browser.find_elements_by_id("updateSettings")[
+            0].click()  # Hit submit
         assert self._getWidth("sankey-tab") == 0
 
         self._assert_log_len(0)
@@ -215,7 +234,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Sanity check that a json exists
         uploaded_url = "/" + self.browser.current_url.split('/')[-1]
-        oembed_json_url = self.browser.find_element_by_id("oembed").get_attribute('href')
+        oembed_json_url = self.browser.find_element_by_id(
+            "oembed").get_attribute('href')
         embedded_url = uploaded_url.replace('visualize=', 'visualizeEmbedded=')
 
         # Sanity check
@@ -228,7 +248,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # this error.
         self.browser.get(oembed_json_url)
         self.browser.execute_script("location.reload(true);")
-        self._assert_log_len(1) # favicon not provided here
+        self._assert_log_len(1)  # favicon not provided here
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embedded_url)
@@ -247,15 +267,19 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.open(embedded_url_with_vistype)
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
-            self.browser.find_element_by_id("embedded_body") # Will throw exception if does not exist
+            # Will throw exception if does not exist
+            self.browser.find_element_by_id("embedded_body")
 
-        # And even an invalid URL does not have errors - but it does show the error message
+        # And even an invalid URL does not have errors - but it does show the
+        # error message
         error_url = embedded_url + "?vistype=no_such_vistype"
         self.open(error_url)
-        self.browser.find_element_by_id("no-such-vistype-message") # Will throw exception if does not exist
+        # Will throw exception if does not exist
+        self.browser.find_element_by_id("no-such-vistype-message")
 
         try:
-            # Final sanity check - does getElementById do what we want? It should throw an exception here.
+            # Final sanity check - does getElementById do what we want? It
+            # should throw an exception here.
             self.browser.find_element_by_id("sankey")
             assert False
         except NoSuchElementException:
@@ -265,7 +289,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Verify that the django.core.cache middleware works as expected
         def measureLoadTime(url):
             # Use a fresh browser - we never want to hit the cache, and there doesn't seem to be an easy
-            # way to skip the cache every time: https://stackoverflow.com/a/9563341/1057105
+            # way to skip the cache every time:
+            # https://stackoverflow.com/a/9563341/1057105
             localBrowser = webdriver.Firefox()
 
             # First, navigate to a random URL to cache the static files
@@ -274,17 +299,22 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Then, go to the URL we care about
             localBrowser.get(self._makeUrl(url))
 
-            WebDriverWait(localBrowser, timeout=5, poll_frequency=0.05).until(\
+            WebDriverWait(localBrowser, timeout=5, poll_frequency=0.05).until(
                 lambda d: d.find_element_by_id("page-top"))
 
-            tic = localBrowser.execute_script('return performance.timing.fetchStart')
-            toc = localBrowser.execute_script('return performance.timing.domLoading')
-            return toc-tic
+            tic = localBrowser.execute_script(
+                'return performance.timing.fetchStart')
+            toc = localBrowser.execute_script(
+                'return performance.timing.domLoading')
+            return toc - tic
 
         def isCacheMuchFaster():
-            load_without_cache = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
-            load_with_cache    = measureLoadTime(f"{fn1}?doHideOverflowAndEliminated=on")
-            # Verify that it's at least 2x faster with cache (closer to 5x on selenium, 200x in real life)
+            load_without_cache = measureLoadTime(
+                f"{fn1}?doHideOverflowAndEliminated=on")
+            load_with_cache = measureLoadTime(
+                f"{fn1}?doHideOverflowAndEliminated=on")
+            # Verify that it's at least 2x faster with cache (closer to 5x on
+            # selenium, 200x in real life)
             return load_without_cache > load_with_cache * 2
 
         # Upload a file, check cache
@@ -296,6 +326,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._upload(FILENAME_ONE_ROUND)
         assert isCacheMuchFaster()
 
-        # But just visiting the upload page and returning should not clear cache
+        # But just visiting the upload page and returning should not clear
+        # cache
         self.open("/upload.html")
         assert not isCacheMuchFaster()

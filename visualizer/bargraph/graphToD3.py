@@ -1,8 +1,9 @@
 from visualizer.graphCreator.colors import ColorGenerator, Color
 from visualizer.jsUtils import approxLength
 
+
 class D3Bargraph:
-    js: str # We just...throw all the javascript into here
+    js: str  # We just...throw all the javascript into here
 
     def __init__(self, graph):
         numRounds = len(graph.nodesPerRound)
@@ -37,7 +38,8 @@ class D3Bargraph:
         palette = ColorGenerator(numRounds)
         colors = [Color(next(palette)).asHex() for i in range(numRounds)]
 
-        longestLabelApxWidth = max([approxLength(n.label) for n in graph.nodesPerRound[0].values()])
+        longestLabelApxWidth = max([approxLength(n.label)
+                                    for n in graph.nodesPerRound[0].values()])
 
         js = f'var data = {candidatesJs};'
         js += f'\nvar candidatesRange = {list(rounds)};'
@@ -48,14 +50,15 @@ class D3Bargraph:
         js += f'\nvar numRoundsTilWin = {numRoundsTilWin};'
         self.js = js
 
+
 def get_label_for(roundInfo):
     def getStringFor(nameList):
         if len(nameList) == 0:
-          return ''
+            return ''
         elif len(nameList) <= 3:
-          return ' & '.join(nameList)
+            return ' & '.join(nameList)
         else:
-          return f' ({len(nameList)} candidates)'
+            return f' ({len(nameList)} candidates)'
 
     elimStr = getStringFor(roundInfo.eliminatedNames)
     winStr = getStringFor(roundInfo.winnerNames)

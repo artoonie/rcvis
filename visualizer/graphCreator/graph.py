@@ -7,12 +7,15 @@ from .graphSummary import GraphSummary
 # Gets confusing because the percentages can change as
 # undervotes occur, meaning the same number of votes
 # will change percentages each round.
+
+
 class LinkData:
     def __init__(self, source, target, value, color):
         self.source = source
         self.target = target
         self.value = value
         self.color = color
+
 
 class NodeData:
     def __init__(self, item, label, color, count, stepNum):
@@ -29,6 +32,7 @@ class NodeData:
 
     def markWinner(self):
         self.isWinner = True
+
 
 class Graph:
     def __init__(self, title, threshold):
@@ -54,18 +58,19 @@ class Graph:
         self.dateString = datetime.date.strftime(date, format='%A, %B %-d, %Y')
 
     def currStepNodes(self):
-        return self.nodesPerRound[self.numRounds-1]
+        return self.nodesPerRound[self.numRounds - 1]
 
     def prevStepNodes(self):
-        return self.nodesPerRound[self.numRounds-2]
+        return self.nodesPerRound[self.numRounds - 2]
 
     def addConnection(self, sourceNode, targetNode, value):
-        white = rcvResult.Color([1]*3)
+        white = rcvResult.Color([1] * 3)
         if sourceNode.item == targetNode.item:
             alpha = .2
         else:
             alpha = .8
-        faded = rcvResult.Color.interpolate(white, sourceNode.item.color, alpha)
+        faded = rcvResult.Color.interpolate(
+            white, sourceNode.item.color, alpha)
         color = faded.asHex()
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
@@ -73,7 +78,7 @@ class Graph:
     def addNode(self, item, count):
         label = str(item.name)
         color = item.color.asHex()
-        node = NodeData(item, label, color, count, self.numRounds-1)
+        node = NodeData(item, label, color, count, self.numRounds - 1)
         self.nodes.append(node)
 
         self.currStepNodes()[item] = node
@@ -90,7 +95,7 @@ class Graph:
 
         def getPassthroughVotes():
             eliminatedItems = set([e.item for e in step.transfers
-                                if isinstance(e, rcvResult.Elimination)])
+                                   if isinstance(e, rcvResult.Elimination)])
             allItemVotes = {}
             for item in nodesPrevRound:
                 if item in eliminatedItems:
@@ -100,7 +105,8 @@ class Graph:
                     # If votes are being transferred to us:
                     if item in event.transfers:
                         votes += event.transfers[item]
-                    # If votes are being transferred away, but we're not eliminated:
+                    # If votes are being transferred away, but we're not
+                    # eliminated:
                     if event.item == item:
                         votes -= sum(event.transfers.values())
                 allItemVotes[item] = votes
@@ -112,9 +118,10 @@ class Graph:
                 # Minimum of: everything we had in the previous round, or the number
                 # of votes in the next round that are not transferred away
                 votesTransferredToSelf = min(votes, nodesPrevRound[item].count)
-                self.addConnection(sourceNode = nodesPrevRound[item],
-                                   targetNode = nodesThisRound[item],
-                                   value  = votesTransferredToSelf)
+                self.addConnection(sourceNode=nodesPrevRound[item],
+                                   targetNode=nodesThisRound[item],
+                                   value=votesTransferredToSelf)
+
         def markWinnersForLastStep():
             nodesLastRound = self.currStepNodes()
             for item in step.winners:
@@ -127,9 +134,9 @@ class Graph:
                 for transferItem, transferNumber in event.transfers.items():
                     sourceNode = nodesPrevRound[event.item]
                     targetNode = nodesThisRound[transferItem]
-                    self.addConnection(sourceNode = sourceNode,
-                                        targetNode = targetNode,
-                                        value  = transferNumber)
+                    self.addConnection(sourceNode=sourceNode,
+                                       targetNode=targetNode,
+                                       value=transferNumber)
 
         getPreviousRoundWinners()
 

@@ -6,6 +6,7 @@ from . import readJSONBase
 from .graph import Graph
 from visualizer import common
 
+
 class JSONMigrateTask():
     def __init__(self, jsonData):
         self.data = jsonData
@@ -31,9 +32,10 @@ class JSONMigrateTask():
     def do(self):
         assert False
 
+
 class FixUndeclaredUWITask(JSONMigrateTask):
     def do(self):
-        """ Undeclared votes are sometimes marked as 'UWI' instead 
+        """ Undeclared votes are sometimes marked as 'UWI' instead
             of 'Undeclared' """
         results = self.data['results']
 
@@ -50,17 +52,20 @@ class FixUndeclaredUWITask(JSONMigrateTask):
             firstTally['Undeclared'] = firstTally['UWI']
             del firstTally['UWI']
 
+
 class FixNoTransfersTask(JSONMigrateTask):
     def do(self):
         for tallyResult in self._enumerateTallyResults():
             if 'transfers' not in tallyResult:
                 tallyResult['transfers'] = {}
 
+
 class FixIgnoreResidualSurplus(JSONMigrateTask):
     def do(self):
         for tallyResult in self._enumerateTallyResults():
             if 'residual surplus' in tallyResult['transfers']:
                 self.data['results'][0]['tally']['residual surplus'] = 0
+
 
 class MakeTalliesANumber(JSONMigrateTask):
     def do(self):
@@ -75,6 +80,7 @@ class MakeTalliesANumber(JSONMigrateTask):
             for name in xfers:
                 xfers[name] = float(xfers[name])
 
+
 class HideDecimalsTask(JSONMigrateTask):
     def do(self):
         results = self.data['results']
@@ -87,6 +93,7 @@ class HideDecimalsTask(JSONMigrateTask):
             xfers = tallyResult['transfers']
             for name in xfers:
                 xfers[name] = round(xfers[name])
+
 
 class MakeExhaustedACandidate(JSONMigrateTask):
     def _makeExhaustedACandidate(self):
@@ -104,21 +111,26 @@ class MakeExhaustedACandidate(JSONMigrateTask):
                 self._makeExhaustedACandidate()
                 return
 
+
 class RenameCapitalizeResidualSurplus(JSONMigrateTask):
     def do(self):
         self.rename('residual surplus', common.residualSurplusText)
+
 
 class RenameExhaustedToInactive(JSONMigrateTask):
     def do(self):
         self.rename('exhausted', common.inactiveText)
 
+
 class JSONMigration():
     """ Correct data inconsistencies in the JSON upfront,
         rather than intermixing this code throughout the parser. """
+
     def __init__(self, data):
         self.fixUndeclaredUWI(data)
         self.fixNoTransfers(data)
-    
+
+
 class JSONReader(readJSONBase.JSONReaderBase):
     def parseJsonData(self, data):
         def loadMigrationTasks(data):
@@ -133,8 +145,8 @@ class JSONReader(readJSONBase.JSONReaderBase):
         def parseDate(date):
             if not date:
                 return None
-            yr  = int(date[0:4])
-            mo  = int(date[5:7])
+            yr = int(date[0:4])
+            mo = int(date[5:7])
             day = int(date[8:10])
             return datetime.datetime(yr, mo, day)
 
@@ -167,7 +179,7 @@ class JSONReader(readJSONBase.JSONReaderBase):
         def loadTransfer(tallyResults):
             transfersByName = tallyResults['transfers']
             transfersByItem = {}
-            for toName,numTransferred in transfersByName.items():
+            for toName, numTransferred in transfersByName.items():
                 transfersByItem[items[toName]] = float(numTransferred)
 
             if 'eliminated' in tallyResults:
