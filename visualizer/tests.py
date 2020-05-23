@@ -21,6 +21,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
+
 class SimpleTests(TestCase):
     """ Simple tests that do not require a live browser """
 

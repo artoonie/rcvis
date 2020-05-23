@@ -41,6 +41,7 @@ class JSONMigrateTask():
 
 class FixUndeclaredUWITask(JSONMigrateTask):
     """ Undeclared votes are sometimes marked as 'UWI' instead of 'Undeclared' """
+
     def do(self):
         """ Run the migration """
         results = self.data['results']
@@ -61,6 +62,7 @@ class FixUndeclaredUWITask(JSONMigrateTask):
 
 class FixNoTransfersTask(JSONMigrateTask):
     """ The JSON prefers no key named "transfers" instead of an empty list. We do not. """
+
     def do(self):
         """ Run the migration """
         for tallyResult in self._enumerate_tally_results():
@@ -71,6 +73,7 @@ class FixNoTransfersTask(JSONMigrateTask):
 class FixIgnoreResidualSurplus(JSONMigrateTask):
     """ Creates a "residual surplus" candidate in the first round if we find it in other rounds,
         since we look to the first round for all candidates (or places votes can be transferred) """
+
     def do(self):
         """ Run the migration """
         for tallyResult in self._enumerate_tally_results():
@@ -80,6 +83,7 @@ class FixIgnoreResidualSurplus(JSONMigrateTask):
 
 class MakeTalliesANumber(JSONMigrateTask):
     """ Converts tally strings to numbers """
+
     def do(self):
         """ Run the migration """
         results = self.data['results']
@@ -96,6 +100,7 @@ class MakeTalliesANumber(JSONMigrateTask):
 
 class HideDecimalsTask(JSONMigrateTask):
     """ If the config desired it - remove all decimal places """
+
     def do(self):
         """ Run the migration """
         results = self.data['results']
@@ -112,6 +117,7 @@ class HideDecimalsTask(JSONMigrateTask):
 
 class MakeExhaustedACandidate(JSONMigrateTask):
     """ If there are "exhausted" ballots, make them a first-class citizen candidate """
+
     def _make_exhausted_a_candidate(self):
         """ Call this if exhausted was found. """
         numExhausted = 0
@@ -132,6 +138,7 @@ class MakeExhaustedACandidate(JSONMigrateTask):
 
 class RenameCapitalizeResidualSurplus(JSONMigrateTask):
     """ s/residual surplus/Residual Surplus """
+
     def do(self):
         """ Run the migration """
         self.rename('residual surplus', common.RESIDUAL_SURPLUS_TEXT)
@@ -139,6 +146,7 @@ class RenameCapitalizeResidualSurplus(JSONMigrateTask):
 
 class RenameExhaustedToInactive(JSONMigrateTask):
     """ s/exhausted/Inactive Ballots """
+
     def do(self):
         """ Run the migration """
         self.rename('exhausted', common.INACTIVE_TEXT)
@@ -146,6 +154,7 @@ class RenameExhaustedToInactive(JSONMigrateTask):
 
 class JSONReader(readJSONBase.JSONReaderBase):
     """ The class which reads the JSON and performs migrations """
+
     def parse_json_data(self, data):
         def get_migration_tasks():
             return [FixNoTransfersTask,

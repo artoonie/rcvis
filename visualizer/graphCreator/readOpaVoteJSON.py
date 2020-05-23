@@ -50,9 +50,9 @@ class JSONReader(readJSONBase.JSONReaderBase):
 
                 transfersByItem = {}
                 for continuing_i in roundData['continuing'] + \
-                                    roundData['winners']:
+                        roundData['winners']:
                     voteDiff = roundData['count'][continuing_i] - \
-                               lastRoundData['count'][continuing_i]
+                        lastRoundData['count'][continuing_i]
                     if voteDiff == 0:
                         # No votes transeferred to this candidate
                         continue

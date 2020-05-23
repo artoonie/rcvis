@@ -12,6 +12,7 @@ from .graphSummary import GraphSummary
 #pylint: disable=too-few-public-methods
 class LinkData:
     """ Data about a single "link": a transfer from the source to target """
+
     def __init__(self, source, target, value, color):
         self.source = source
         self.target = target
@@ -22,6 +23,7 @@ class LinkData:
 class NodeData:
     """ Data about a single "node": a candidate in a single round """
     #pylint: disable=too-many-arguments
+
     def __init__(self, item, label, color, count, roundNum):
         self.item = item
         self.label = label
@@ -43,6 +45,7 @@ class NodeData:
 #pylint: disable=too-many-instance-attributes
 class Graph:
     """ Data about the entire graph, including nodes and links between thhem """
+
     def __init__(self, title, threshold):
         self.title = title
         self.threshold = threshold

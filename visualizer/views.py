@@ -20,9 +20,9 @@ from .forms import JsonConfigForm
 from .models import JsonConfig
 from .sankey.graphToD3 import D3Sankey
 from .tabular.tabular import TabulateByRoundInteractive,\
-                             TabulateByRound,\
-                             TabulateByCandidate,\
-                             TabularCandidateByRound
+    TabulateByRound,\
+    TabulateByCandidate,\
+    TabularCandidateByRound
 
 
 class Index(TemplateView):
@@ -46,10 +46,10 @@ class Upload(CreateView):
                 form.cleaned_data['jsonFile'],
                 form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
             graph.summarize()
-            D3Sankey(graph) # sanity check the graph can be created
+            D3Sankey(graph)  # sanity check the graph can be created
         except BadJSONError:
             return self.form_invalid(form)
-        except Exception: # pylint: disable=broad-except
+        except Exception:  # pylint: disable=broad-except
             # TODO make an error page for this, too
             return redirect(self.request, '/')
 
@@ -133,6 +133,7 @@ class VisualizeEmbedded(DetailView):
 class Oembed(View):
     """ The oembed protocol, pointing to VisualizeEmbedded """
     #pylint: disable=no-self-use
+
     def get(self, request):
         """ Overriding the getter for this class-based view """
         requestData = request.GET
