@@ -362,14 +362,16 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     .append("g")
       .call(legend);
 
-  // Draw the threshold line
-  svg.append("rect")
-      .attr(candidatePosStr, isVertical ? margin.left : margin.top)
-      .attr(votesPosStr, barVotesPosFn([threshold, threshold]))
-      .attr(candidateSizeStr, isVertical ? width : height)
-      .attr(votesSizeStr, 0.5)
-      .attr("fill", "#AAA")
-  // The invisible mouseover element
+  // Draw the threshold dashed line
+  var thresh_x1 = isVertical ? margin.left : margin.top;
+  var thresh_y1 = barVotesPosFn([threshold, threshold]);
+  svg.append("line")
+      .attr(candidatePosStr + "1", thresh_x1)
+      .attr(votesPosStr     + "1", thresh_y1)
+      .attr(candidatePosStr + "2", thresh_x1 + isVertical ? width : height)
+      .attr(votesPosStr     + "2", thresh_y1 + 0.5)
+       .style("stroke", "#AAA")
+       .style("stroke-dasharray", ("5, 5"))
   mouseOverBorder = 10
   svg.append("rect")
       .attr(candidatePosStr, isVertical ? margin.left : margin.top)

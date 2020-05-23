@@ -111,11 +111,11 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                 raise
             return ""
 
-    def _verify_error_free(self):
-        log = self._get_log()
-        if (len(log) != 0):
+    def _assert_log_len(self, num):
+        log = self._get_log();
+        if len(log) != num:
             print("Log information: ", log)
-        assert(len(log) == 0)
+        assert(len(log) == num)
 
     def _makeUrl(self, url):
         return "%s%s" % (self.live_server_url, url)
@@ -124,7 +124,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         if prepend_server:
             url = self._makeUrl(url)
         self.browser.get(url)
-        self._verify_error_free()
+        self._assert_log_len(0)
 
     def _upload(self, fn):
         self.open('/upload.html')
@@ -132,7 +132,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         fileUpload.send_keys(os.path.join(os.getcwd(), fn))
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
-        self._verify_error_free()
+        self._assert_log_len(0)
 
     def _getWidth(self, elementId):
         return self.browser.find_elements_by_id(elementId)[0].size['width']
@@ -205,7 +205,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.find_elements_by_id("updateSettings")[0].click() # Hit submit
         assert self._getWidth("sankey-tab") == 0
 
-        self._verify_error_free()
+        self._assert_log_len(0)
 
     def test_oembed(self):
         # Just so this test can be run out-of-order, but note that this is probably
@@ -228,8 +228,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # this error.
         self.browser.get(oembed_json_url)
         self.browser.execute_script("location.reload(true);")
-        log = self._get_log() # clear out the errors for the next check
-        assert(len(log) == 1) # favicon not provided here
+        self._assert_log_len(1) # favicon not provided here
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embedded_url)

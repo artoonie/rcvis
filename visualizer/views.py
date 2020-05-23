@@ -1,6 +1,6 @@
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.decorators import method_decorator
@@ -9,6 +9,7 @@ from .forms import JsonConfigForm
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from django.views.generic.base import TemplateView
+from django.views import View
 
 import json
 import urllib.parse
@@ -70,18 +71,14 @@ def _getDataForView(config):
         'offlineMode': offlineMode
     }
 
-def _makeCompleteUrl(urlWithoutDomain):
-    # For ombed, always assume we're on the production site
-    #scheme = request.is_secure() and 'https' or 'http'
-    #host = request.META['HTTP_HOST']
-    scheme = "https"
-    host = "www.rcvis.com"
+def _makeCompleteUrl(request, urlWithoutDomain):
+    scheme = request.is_secure() and 'https' or 'http'
+    host = request.META['HTTP_HOST']
     return f"{scheme}://{host}{urlWithoutDomain}"
 
 class Visualize(DetailView):
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
-    queryset = JsonConfig.objects.all()
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
@@ -90,9 +87,9 @@ class Visualize(DetailView):
 
         # oembed href
         slug = config['jsonconfig'].slug
-        iframe_url = _makeCompleteUrl(reverse("visualizeEmbedded", args=(slug,)))
+        iframe_url = _makeCompleteUrl(self.request, reverse("visualizeEmbedded", args=(slug,)))
         iframe_url_embedded = urllib.parse.quote_plus(iframe_url)
-        oembed_url = _makeCompleteUrl(reverse("oembed")) + f"?url={iframe_url_embedded}"
+        oembed_url = _makeCompleteUrl(self.request, reverse("oembed")) + f"?url={iframe_url_embedded}"
         data['oembed_url'] = oembed_url
 
         return data
@@ -101,7 +98,6 @@ class Visualize(DetailView):
 class VisualizeEmbedded(DetailView):
   model = JsonConfig
   template_name = 'visualizer/visualize-embedded.html'
-  queryset = JsonConfig.objects.all()
 
   def get_context_data(self, **kwargs):
     config = super().get_context_data(**kwargs)
@@ -114,13 +110,9 @@ class VisualizeEmbedded(DetailView):
     return data
 
 @method_decorator(xframe_options_exempt, name='dispatch')
-class Oembed(DetailView):
-    model = JsonConfig
-    template_name = 'visualizer/visualize.html'
-    queryset = JsonConfig.objects.all()
-
-    def get_context_data(self, **kwargs):
-        requestData = self.request.GET
+class Oembed(View):
+    def get(self, request):
+        requestData = request.GET
         url = str(requestData.get('url')) # only required field
         maxwidth = int(requestData.get('maxwidth', 1440))
         maxheight = int(requestData.get('maxheight', 1080))
@@ -134,7 +126,7 @@ class Oembed(DetailView):
 
         renderData = {'width': maxwidth, 'height': maxheight, 'iframe_url': url, 'vistype': vistype}
 
-        httpResponse = render(self.request, 'visualizer/oembed.html', renderData)
+        httpResponse = render(request, 'visualizer/oembed.html', renderData)
 
         jsonData = {
             "version": "1.0",
@@ -144,7 +136,7 @@ class Oembed(DetailView):
             "author_url": "http://www.rcvis.com/",
             "provider_name": "rcvis.com",
             "provider_url": "http://www.rcvis.com/",
-            "thumbnail":  _makeCompleteUrl(static("visualizer/icon_interactivebar.gif"))
+            "thumbnail":  _makeCompleteUrl(request, static("visualizer/icon_interactivebar.gif"))
         }
         jsonData['type'] = "rich"
         jsonData['width'] = maxwidth
@@ -152,4 +144,4 @@ class Oembed(DetailView):
         jsonData['url'] = url
         jsonData['html'] = httpResponse.content.decode('utf-8')
 
-        return jsonData
+        return JsonResponse({'data': jsonData})
