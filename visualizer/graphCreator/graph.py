@@ -19,12 +19,12 @@ class LinkData:
 
 
 class NodeData:
-    def __init__(self, item, label, color, count, stepNum):
+    def __init__(self, item, label, color, count, roundNum):
         self.item = item
         self.label = label
         self.color = color
         self.count = count
-        self.stepNum = stepNum
+        self.roundNum = roundNum
         self.isWinner = False
         self.isEliminated = False
 
@@ -58,10 +58,10 @@ class Graph:
         assert isinstance(date, datetime.datetime)
         self.dateString = datetime.date.strftime(date, format='%A, %B %-d, %Y')
 
-    def currStepNodes(self):
+    def currRoundNodes(self):
         return self.nodesPerRound[self.numRounds - 1]
 
-    def prevStepNodes(self):
+    def prevRoundNodes(self):
         return self.nodesPerRound[self.numRounds - 2]
 
     def addConnection(self, sourceNode, targetNode, value):
@@ -72,37 +72,37 @@ class Graph:
             alpha = .8
         faded = rcvResult.Color.interpolate(
             white, sourceNode.item.color, alpha)
-        color = faded.asHex()
+        color = faded.as_hex()
         link = LinkData(sourceNode, targetNode, value, color)
         self.links.append(link)
 
     def addNode(self, item, count):
         label = str(item.name)
-        color = item.color.asHex()
+        color = item.color.as_hex()
         node = NodeData(item, label, color, count, self.numRounds - 1)
         self.nodes.append(node)
 
-        self.currStepNodes()[item] = node
+        self.currRoundNodes()[item] = node
 
         return node
 
-    def markNextStep(self):
+    def markNextRound(self):
         self.nodesPerRound.append({})
         self.numRounds += 1
 
-    def step(self, step, isLastRound):
+    def add_round(self, round, isLastRound):
         def getPreviousRoundWinners():
-            self.winnersSoFar.update(step.winners)
+            self.winnersSoFar.update(round.winners)
 
         def getPassthroughVotes():
-            eliminatedItems = set([e.item for e in step.transfers
+            eliminatedItems = set([e.item for e in round.transfers
                                    if isinstance(e, rcvResult.Elimination)])
             allItemVotes = {}
             for item in nodesPrevRound:
                 if item in eliminatedItems:
                     continue
                 votes = nodesPrevRound[item].count
-                for event in step.transfers:
+                for event in round.transfers:
                     # If votes are being transferred to us:
                     if item in event.transfers:
                         votes += event.transfers[item]
@@ -123,13 +123,13 @@ class Graph:
                                    targetNode=nodesThisRound[item],
                                    value=votesTransferredToSelf)
 
-        def markWinnersForLastStep():
-            nodesLastRound = self.currStepNodes()
-            for item in step.winners:
+        def markWinnersForLastRound():
+            nodesLastRound = self.currRoundNodes()
+            for item in round.winners:
                 nodesLastRound[item].markWinner()
 
         def getTransferVotes():
-            for event in step.transfers:
+            for event in round.transfers:
                 if isinstance(event, rcvResult.Elimination):
                     nodesPrevRound[event.item].markEliminated()
                 for transferItem, transferNumber in event.transfers.items():
@@ -142,13 +142,13 @@ class Graph:
         getPreviousRoundWinners()
 
         if not isLastRound:
-            self.markNextStep()
+            self.markNextRound()
             nodesThisRound = {}
-            nodesPrevRound = self.prevStepNodes()
+            nodesPrevRound = self.prevRoundNodes()
 
             getPassthroughVotes()
             getTransferVotes()
         else:
             # Last round shouldn't create info for extra rounds,
             # it should just mark what happened
-            markWinnersForLastStep()
+            markWinnersForLastRound()

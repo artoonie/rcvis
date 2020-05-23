@@ -21,14 +21,15 @@ class Transfer:
 
 
 class Elimination(Transfer):
-    pass
+    """ Syntactic sugar for an Elimination, which is kind of like a transfer """
 
 
 class WinTransfer(Transfer):
-    pass
+    """ Syntactic sugar for a Win, which is kind of like a transfer """
 
 
-class Step:
+class Round:
+    """ A single Round, with data about who won and where votes were transferred """
     def __init__(self):
         self.winners = []
         self.transfers = []

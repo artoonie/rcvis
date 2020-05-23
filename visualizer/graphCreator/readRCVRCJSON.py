@@ -183,18 +183,18 @@ class JSONReader(readJSONBase.JSONReaderBase):
                 itemEliminated = items[nameEliminated]
                 return rcvResult.WinTransfer(itemEliminated, transfersByItem)
 
-        def loadSteps(data):
-            steps = []
+        def loadRounds(data):
+            rounds = []
             for currRound in data['results']:
-                step = rcvResult.Step()
+                round = rcvResult.Round()
                 for tallyResults in currRound['tallyResults']:
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
                         winnerItem = items[winnerName]
-                        step.winners.append(winnerItem)
-                    step.transfers.append(loadTransfer(tallyResults))
-                steps.append(step)
-            return steps
+                        round.winners.append(winnerItem)
+                    round.transfers.append(loadTransfer(tallyResults))
+                rounds.append(round)
+            return rounds
 
         # Apply migrations and configuration adjustments
         self.tasks = []
@@ -204,8 +204,8 @@ class JSONReader(readJSONBase.JSONReaderBase):
 
         graph = loadGraph(data)
         items = initializeMembers(data, graph)
-        steps = loadSteps(data)
+        rounds = loadRounds(data)
 
         self.graph = graph
-        self.steps = steps
+        self.rounds = rounds
         self.items = items.values()

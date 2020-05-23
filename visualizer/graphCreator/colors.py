@@ -1,18 +1,25 @@
+""" Helpers for creating a set of colors, with perceptually-lineararity and interpolation"""
+
 import math
 
 
 class Color:
+    """ A simple color class built for interpolation """
+
     def __init__(self, rgbAsFloat):
-        assert (all([x <= 1 and x >= 0 for x in rgbAsFloat]))
+        """ Initialize with an [r,g,b] triple """
+        assert all([0 <= x <= 1 for x in rgbAsFloat])
         self.rgb = rgbAsFloat
 
-    def asHex(self):
+    def as_hex(self):
+        """ Returns hex string """
         rgbInt = [int(c * 255) for c in self.rgb]
         # c/o https://stackoverflow.com/a/3380739
         return '#%02x%02x%02x' % (rgbInt[0], rgbInt[1], rgbInt[2])
 
     @classmethod
     def interpolate(cls, color0, color1, alpha):
+        """ Interpolation between two Color objects """
         rgb = []
         for i in range(len(color0.rgb)):
             rgb.append((1 - alpha) * color0.rgb[i] + alpha * color1.rgb[i])
@@ -20,6 +27,8 @@ class Color:
 
 
 class ColorGenerator():
+    """ Generates perceptually-spaced colors """
+
     def __init__(self, totalToGenerate):
         self.total = totalToGenerate
         self.curr = 0
@@ -31,10 +40,10 @@ class ColorGenerator():
         # c/o https://stackoverflow.com/a/30296361/1057105
         if self.curr >= self.total:
             raise StopIteration
-        v = self.curr / self.total  # [0, 1]
+        alpha = self.curr / self.total  # [0, 1]
         r = 100
-        a = r * math.sin(2 * math.pi * v)
-        b = r * math.cos(2 * math.pi * v)
+        a = r * math.sin(2 * math.pi * alpha)
+        b = r * math.cos(2 * math.pi * alpha)
         lab = [80, a, b]
         self.curr += 1
         return lab2rgb(lab)
@@ -47,6 +56,8 @@ class ColorGenerator():
 
 
 def lab2rgb(lab):
+    """ Convert LAB to RGB """
+
     y = (lab[0] + 16) / 116
     x = lab[1] / 500 + y
     z = y - lab[2] / 200
@@ -72,6 +83,8 @@ def lab2rgb(lab):
 
 
 def rgb2lab(rgb):
+    """ Convert RGB to LAB """
+
     r = rgb[0] / 255
     g = rgb[1] / 255
     b = rgb[2] / 255

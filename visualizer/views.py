@@ -12,7 +12,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 
 from rcvis.settings import OFFLINE_MODE
-from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
+from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
 from .bargraph.graphToD3 import D3Bargraph
 from .forms import JsonConfigForm
 from .models import JsonConfig
@@ -34,7 +34,7 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            graph = makeGraphWithFile(
+            graph = make_graph_with_file(
                 form.cleaned_data['jsonFile'],
                 form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
             graph.summarize()
@@ -53,8 +53,8 @@ class Upload(CreateView):
 
 
 def _getDataForView(config):
-    graph = makeGraphWithFile(config.jsonFile,
-                              config.excludeFinalWinnerAndEliminatedCandidate)
+    graph = make_graph_with_file(config.jsonFile,
+                                 config.excludeFinalWinnerAndEliminatedCandidate)
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(

@@ -36,7 +36,7 @@ class D3Bargraph:
                 numRoundsTilWin[winner] = r.round_i
 
         palette = ColorGenerator(numRounds)
-        colors = [Color(next(palette)).asHex() for i in range(numRounds)]
+        colors = [Color(next(palette)).as_hex() for i in range(numRounds)]
 
         longestLabelApxWidth = max([approxLength(n.label)
                                     for n in graph.nodesPerRound[0].values()])
