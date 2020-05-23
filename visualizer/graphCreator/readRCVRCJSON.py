@@ -122,15 +122,6 @@ class RenameExhaustedToInactive(JSONMigrateTask):
         self.rename('exhausted', common.inactiveText)
 
 
-class JSONMigration():
-    """ Correct data inconsistencies in the JSON upfront,
-        rather than intermixing this code throughout the parser. """
-
-    def __init__(self, data):
-        self.fixUndeclaredUWI(data)
-        self.fixNoTransfers(data)
-
-
 class JSONReader(readJSONBase.JSONReaderBase):
     def parseJsonData(self, data):
         def loadMigrationTasks(data):
