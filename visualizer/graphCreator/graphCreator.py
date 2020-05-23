@@ -1,6 +1,5 @@
-from visualizer.models import JsonConfig
-import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
+import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 
 
 class BadJSONError(Exception):
@@ -31,7 +30,7 @@ def removeLastWinnerAndEliminated(graph, steps):
     # Some tabulators don't mark the penultimate candidate as eliminated-
     # they just mark a winner. Figure out if that's happening, and don't
     # remove an extra candidate.
-    if(len(steps[-1].transfers) == 0):
+    if (len(steps[-1].transfers) == 0):
         haveRemovedEliminated = True
 
     for node in graph.nodes:

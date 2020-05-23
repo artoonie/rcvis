@@ -47,9 +47,9 @@ class JSONReader(readJSONBase.JSONReaderBase):
 
                 transfersByItem = {}
                 for continuing_i in stepData['continuing'] + \
-                        stepData['winners']:
+                                    stepData['winners']:
                     voteDiff = stepData['count'][continuing_i] - \
-                        lastStepData['count'][continuing_i]
+                               lastStepData['count'][continuing_i]
                     if voteDiff == 0:
                         # No votes transeferred to this candidate
                         continue

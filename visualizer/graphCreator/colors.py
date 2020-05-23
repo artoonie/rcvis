@@ -3,7 +3,7 @@ import math
 
 class Color:
     def __init__(self, rgbAsFloat):
-        assert(all([x <= 1 and x >= 0 for x in rgbAsFloat]))
+        assert (all([x <= 1 and x >= 0 for x in rgbAsFloat]))
         self.rgb = rgbAsFloat
 
     def asHex(self):
@@ -38,6 +38,7 @@ class ColorGenerator():
         lab = [80, a, b]
         self.curr += 1
         return lab2rgb(lab)
+
 
 # Converted from the Javascript at
 # https://github.com/antimatter15/rgb-lab/blob/master/color.js

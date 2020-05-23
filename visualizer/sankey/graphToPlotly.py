@@ -1,4 +1,6 @@
 import plotly.offline as py
+
+
 # Use this instead to render to the web
 # import plotly.plotly as py
 

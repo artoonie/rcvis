@@ -1,10 +1,10 @@
-from .colors import Color
 from visualizer import common
+from .colors import Color
 
 
 class Item:
     def __init__(self, name, color):
-        assert(isinstance(color, Color))
+        assert (isinstance(color, Color))
         self.name = name
         self.color = color
 

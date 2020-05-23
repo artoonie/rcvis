@@ -1,10 +1,10 @@
 import datetime
 
+from visualizer import common
 from . import colors
 from . import rcvResult
 from . import readJSONBase
 from .graph import Graph
-from visualizer import common
 
 
 class JSONMigrateTask():
@@ -47,8 +47,8 @@ class FixUndeclaredUWITask(JSONMigrateTask):
 
         firstTally = results[0]['tally']
         if 'UWI' in firstTally and \
-           'Undeclared' not in firstTally and \
-           'Undeclared' in firstEliminated:
+                'Undeclared' not in firstTally and \
+                'Undeclared' in firstEliminated:
             firstTally['Undeclared'] = firstTally['UWI']
             del firstTally['UWI']
 

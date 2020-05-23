@@ -3,6 +3,7 @@ import datetime
 from . import rcvResult
 from .graphSummary import GraphSummary
 
+
 # Toggle to show percentages instead of absolute votes.
 # Gets confusing because the percentages can change as
 # undervotes occur, meaning the same number of votes

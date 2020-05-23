@@ -1,25 +1,23 @@
-from django.contrib.staticfiles.templatetags.staticfiles import static
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.urls import reverse
-from django.views.decorators.clickjacking import xframe_options_exempt
-from django.utils.decorators import method_decorator
-from .forms import JsonConfigForm
-
-from django.views.generic.edit import CreateView
-from django.views.generic.detail import DetailView
-from django.views.generic.base import TemplateView
-from django.views import View
-
-import json
 import urllib.parse
 
-from .models import JsonConfig
-from .sankey.graphToD3 import D3Sankey
-from .bargraph.graphToD3 import D3Bargraph
-from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate, TabularCandidateByRound
+from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView
+
 from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
+from .bargraph.graphToD3 import D3Bargraph
+from .forms import JsonConfigForm
+from .models import JsonConfig
+from .sankey.graphToD3 import D3Sankey
+from .tabular.tabular import TabulateByRoundInteractive, TabulateByRound, TabulateByCandidate, TabularCandidateByRound
 
 
 class Index(TemplateView):

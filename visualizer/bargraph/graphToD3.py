@@ -12,7 +12,7 @@ class D3Bargraph:
         summary = graph.summarize()
         candidates = summary.candidates
         rounds = summary.rounds
-        assert(len(rounds) == numRounds)
+        assert (len(rounds) == numRounds)
 
         # Convert the candidates structure to one for the javascript:
         # A list of dictionaries, each dict mapping a label to a vote count
@@ -76,4 +76,4 @@ def get_label_for(roundInfo):
     else:
         extraStr = ''
 
-    return f'Round {roundInfo.round_i+1}' + extraStr
+    return f'Round {roundInfo.round_i + 1}' + extraStr

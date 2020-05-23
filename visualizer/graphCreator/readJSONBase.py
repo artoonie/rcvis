@@ -1,7 +1,7 @@
 import json
 
-from . import rcvResult
 from visualizer import common
+from . import rcvResult
 
 
 class JSONReaderBase(object):
@@ -15,6 +15,7 @@ class JSONReaderBase(object):
         self.steps is a list of Step objects
         self.items is a list of Item objects
         """
+
     def readJson(fileObj):
         assert False
 
@@ -56,6 +57,7 @@ class JSONReaderBase(object):
             except ValueError:
                 # not every election has these two
                 pass
+
         moveToFront(common.residualSurplusText)
         moveToFront(common.inactiveText)
 

@@ -1,19 +1,15 @@
 import os
-from django.test import TestCase
 
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import TestCase
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.remote.remote_connection import RemoteConnection
 from selenium.webdriver.support.ui import WebDriverWait
 
-
+from visualizer.graphCreator.graphCreator import BadJSONError
 from .models import JsonConfig
 from .views import _getDataForView
-from visualizer.graphCreator.graphCreator import makeGraphWithFile, BadJSONError
-
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
@@ -102,7 +98,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser = webdriver.Remote(
                 desired_capabilities=capabilities,
                 command_executor="http://%s/wd/hub" %
-                hub_url)
+                                 hub_url)
         else:
             self.browser = webdriver.Firefox()
 
@@ -125,7 +121,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         log = self._get_log()
         if len(log) != num:
             print("Log information: ", log)
-        assert(len(log) == num)
+        assert (len(log) == num)
 
     def _makeUrl(self, url):
         return "%s%s" % (self.live_server_url, url)
@@ -157,7 +153,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             PERCENT_ROOM_FOR_MARGINS = 0.1
             min_width = page_width * (1 - PERCENT_ROOM_FOR_MARGINS)
             return element_width <= page_width and \
-                element_width > min_width
+                   element_width > min_width
 
         def testSaneResizingOf(elementId, maxSize):
             # TODO - maybe it's okay that it becomes too small
@@ -200,7 +196,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_element_by_id(
-            "uploadButton").click()       # Hit upload
+            "uploadButton").click()  # Hit upload
         assert self._getWidth("sankey-tab") == 0
 
         # Go to the settings tab

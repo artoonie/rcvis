@@ -39,8 +39,8 @@ class TabulateByRoundInteractive:
                 d['wonThisRound'] = cinfo.name in r.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
                 d['isWinner'] = cinfo.name in allPreviousWinners
-                d['isEliminated'] = cinfo.name in lastRoundEliminated or\
-                    d['eliminatedThisRound']
+                d['isEliminated'] = cinfo.name in lastRoundEliminated or \
+                                    d['eliminatedThisRound']
                 rnd.append(d)
             lastRoundEliminated = r.eliminatedNames
             self.rounds.append(rnd)
