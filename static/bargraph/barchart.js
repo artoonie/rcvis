@@ -255,7 +255,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
 
   // Hover text helper
   var barTextFn = function(d) {
-      var text = !isEliminated(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated with ";
+      var text = !isEliminated(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
       return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
   };
 
@@ -291,13 +291,6 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       return d;
     });
 
-  function drawTooltipText(obj, text) {
-      var xPosition = d3.mouse(obj)[0] - 35;
-      var yPosition = d3.mouse(obj)[1] - 25;
-      tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-      tooltip.select("text").text(text);
-  }
-
   if (isVertical)
   {
     var candidatePosStr = "x";
@@ -318,11 +311,8 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
       .attr(votesSizeStr, barVotesSizeFn)
       .attr("fill", barColorFn)
-      .on("mouseover", function() { tooltip.style("display", null); })
-      .on("mouseout", function() { tooltip.style("display", "none"); })
-      .on("mousemove", function(d) {
-        drawTooltipText(this, barTextFn(d));
-      });
+      .attr("data-toggle", "tooltip")
+      .attr("title", function(d) { return barTextFn(d); });
 
   eachBar
     .join("text")
@@ -379,11 +369,8 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr(candidateSizeStr, isVertical ? width : height)
       .attr(votesSizeStr, mouseOverBorder)
       .attr("opacity", "0")
-      .on("mouseover", function() { tooltip.style("display", null); })
-      .on("mouseout", function() { tooltip.style("display", "none"); })
-      .on("mousemove", function(d) {
-        drawTooltipText(this, "Threshold to win: " + threshold);
-      });
+      .attr("data-toggle", "tooltip")
+      .attr("title", function(d) { return "Threshold to win: " + threshold; });
 
   // Prep the tooltip bits, initial display is hidden
   // Place this at the end so it renders on top
@@ -426,5 +413,9 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     transitionEachBarForRound(round);
     transitionDataLabelsForRound(round);
   };
+
+  // Enable the bootstrap tooltip
+  $('[data-toggle="tooltip"]').tooltip();
+
   return transitions;
 }
