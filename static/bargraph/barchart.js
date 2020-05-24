@@ -255,7 +255,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
 
   // Hover text helper
   var barTextFn = function(d) {
-      var text = !isEliminated(d) ? "On Round " + d.round + ", has " : "Eliminated with ";
+      var text = !isEliminated(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated with ";
       return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
   };
 
