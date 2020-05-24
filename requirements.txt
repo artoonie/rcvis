@@ -10,3 +10,8 @@ autopep8==1.5.2
 coverage==5.1
 django-nose==1.4.6
 pylint==2.5.2
+
+# For docs
+recommonmark==0.6.0
+Sphinx==3.0.3
+m2r==0.2.1

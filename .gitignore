@@ -3,6 +3,8 @@ __pycache__
 rcvis.egg-info
 .env
 db.sqlite3
+docs/build
+.coverage
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
