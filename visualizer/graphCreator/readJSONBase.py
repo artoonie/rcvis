@@ -1,33 +1,45 @@
+""" Abstract base class for JSON file readers. This is C++, right? """
+import abc
 import json
 
-from . import rcvResult
 from visualizer import common
+from . import rcvResult
 
-class JSONReaderBase(object):
-    def __init__(self, fileObj):
-        self.parseJsonData(json.load(fileObj))
-        self.setEliminationOrder(self.steps, self.items)
 
-    """ Override this and set self.graph and self.steps and self.items:
-        
+class JSONReaderBase():
+    """ Override this and set self.graph and self.rounds and self.items:
+
         self.graph is a Graph object which is partially initialized (TODO how partially?)
-        self.steps is a list of Step objects
+        self.rounds is a list of Round objects
         self.items is a list of Item objects
         """
-    def readJson(fileObj):
-        assert False
+    graph: object
+    rounds: list
+    items: list
 
-    def getGraph(self):
+    def __init__(self, fileObj):
+        self.parse_json_data(json.load(fileObj))
+        self.set_elimination_order(self.rounds, self.items)
+
+    @abc.abstractmethod
+    def parse_json_data(self, data):
+        """ Override this to parse the values into whatever data structure you like,
+            as long as you set the required fields denoted by the class docstring """
+
+    def get_graph(self):
+        """ Returns the Graph object """
         return self.graph
 
-    def getSteps(self):
-        return self.steps
+    def get_rounds(self):
+        """ Returns the list of rounds """
+        return self.rounds
 
-    def setEliminationOrder(self, steps, items):
+    def set_elimination_order(self, rounds, items):
+        """ Sets the elimination order given each round and a list of Items """
         eliminationOrder = []
         itemsRemaining = set(items)
-        for step in steps:
-            for elimination in step.transfers:
+        for rnd in rounds:
+            for elimination in rnd.transfers:
                 if not isinstance(elimination, rcvResult.Elimination):
                     continue
                 eliminationOrder.append(elimination.item)
@@ -35,8 +47,8 @@ class JSONReaderBase(object):
 
         # Winners are added last
         winners = []
-        for step in steps:
-            for winner in step.winners:
+        for rnd in rounds:
+            for winner in rnd.winners:
                 winners.append(winner)
                 itemsRemaining.remove(winner)
         winners = reversed(winners)
@@ -45,18 +57,23 @@ class JSONReaderBase(object):
         eliminationOrder.extend(winners)
 
         # Place "residual surplus" and "inactive ballots" at the end
-        def moveToFront(candidateName):
+        def move_to_front(candidateName):
             try:
-                moveToFrontIndex = [e.name for e in eliminationOrder].index(candidateName)
+                moveToFrontIndex = [
+                    e.name for e in eliminationOrder].index(candidateName)
                 if moveToFrontIndex:
-                    eliminationOrder.insert(0, eliminationOrder.pop(moveToFrontIndex))
+                    eliminationOrder.insert(
+                        0, eliminationOrder.pop(moveToFrontIndex))
             except ValueError:
                 # not every election has these two
                 pass
-        moveToFront(common.residualSurplusText)
-        moveToFront(common.inactiveText)
+
+        move_to_front(common.RESIDUAL_SURPLUS_TEXT)
+        move_to_front(common.INACTIVE_TEXT)
 
         self.eliminationOrder = eliminationOrder
 
-    def getEliminationOrder(self):
+    def get_elimination_order(self):
+        """ Returns the elimination order:
+            a list of names in the order in whhich they were eliminated """
         return self.eliminationOrder

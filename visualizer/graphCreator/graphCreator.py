@@ -1,32 +1,38 @@
-from visualizer.models import JsonConfig
-import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
+""" Helper functions to load a graph from a file """
+
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
+import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 
-class BadJSONError(Exception): pass
 
-def getCorrectReaderFor(jsonFile):
-    # Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader.
+class BadJSONError(Exception):
+    """ An exception to be thrown if the JSON has errors """
+
+
+def get_correct_reader_for(jsonFile):
+    """ Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader. """
     exceptions = {}
     try:
         jsonReader = rcvrcJson.JSONReader(jsonFile)
-    except Exception as e0:
+    except Exception as rcvrcException:  # pylint: disable=broad-except
         try:
-            exceptions["RCVRC JSON Errors"] = e0
-            jsonFile.seek(0) # reset file position
+            exceptions["RCVRC JSON Errors"] = rcvrcException
+            jsonFile.seek(0)  # reset file position
             jsonReader = opavoteJson.JSONReader(jsonFile)
-        except Exception as e1:
-            exceptions["Opavote JSON Errors"] = e1
+        except Exception as opavoteException:  # pylint: disable=broad-except
+            exceptions["Opavote JSON Errors"] = opavoteException
             raise BadJSONError(exceptions)
     return jsonReader
 
-def removeLastWinnerAndEliminated(graph, steps):
+
+def remove_last_winner_and_eliminated(graph, rounds):
+    """ Some tabulators don't mark the penultimate candidate as eliminated-
+        they just mark a winner. Figure out if that's happening, and don't
+        remove an extra candidate. """
+
     haveRemovedWinner = False
     haveRemovedEliminated = False
 
-    # Some tabulators don't mark the penultimate candidate as eliminated-
-    # they just mark a winner. Figure out if that's happening, and don't
-    # remove an extra candidate.
-    if(len(steps[-1].transfers) == 0):
+    if len(rounds[-1].transfers) == 0:
         haveRemovedEliminated = True
 
     for node in graph.nodes:
@@ -39,23 +45,29 @@ def removeLastWinnerAndEliminated(graph, steps):
         if haveRemovedEliminated and haveRemovedWinner:
             break
 
-def makeGraphWithFile(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
+
+def make_graph_with_file(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
+    """ Load the given filename, create and return a graph """
     try:
-      jsonReader = getCorrectReaderFor(jsonFile)
-    except RuntimeError as e:
-        raise e
+        jsonReader = get_correct_reader_for(jsonFile)
+    except RuntimeError as runtimeException:
+        raise runtimeException
 
-    graph = jsonReader.getGraph()
-    steps = jsonReader.getSteps()
-    eliminationOrder = jsonReader.getEliminationOrder()
+    graph = jsonReader.get_graph()
+    rounds = jsonReader.get_rounds()
+    eliminationOrder = jsonReader.get_elimination_order()
 
-    for step in steps[:-1]:
-        graph.step(step, False)
-    graph.step(steps[-1], True)
+    for r in rounds[:-1]:
+        graph.add_round(r, False)
+    graph.add_round(rounds[-1], True)
 
-    graph.nodes = sorted(graph.nodes, key=lambda x:-eliminationOrder.index(x.item))
+    graph.nodes = sorted(
+        graph.nodes,
+        key=lambda x: -
+        eliminationOrder.index(
+            x.item))
 
     if excludeFinalWinnerAndEliminatedCandidate:
-        removeLastWinnerAndEliminated(graph, steps)
+        remove_last_winner_and_eliminated(graph, rounds)
 
     return graph

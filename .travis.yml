@@ -35,7 +35,8 @@ install:
 
 script:
   - python3 manage.py test
-
+  - ./test_code_quality.sh
+  - bash <(curl -s https://codecov.io/bash)
 
 deploy:
   - provider: elasticbeanstalk

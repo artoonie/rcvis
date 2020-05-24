@@ -1,8 +1,9 @@
 from visualizer.graphCreator.colors import ColorGenerator, Color
-from visualizer.jsUtils import approxLength
+from visualizer.jsUtils import approx_length
+
 
 class D3Bargraph:
-    js: str # We just...throw all the javascript into here
+    js: str  # We just...throw all the javascript into here
 
     def __init__(self, graph):
         numRounds = len(graph.nodesPerRound)
@@ -11,7 +12,7 @@ class D3Bargraph:
         summary = graph.summarize()
         candidates = summary.candidates
         rounds = summary.rounds
-        assert(len(rounds) == numRounds)
+        assert (len(rounds) == numRounds)
 
         # Convert the candidates structure to one for the javascript:
         # A list of dictionaries, each dict mapping a label to a vote count
@@ -35,9 +36,10 @@ class D3Bargraph:
                 numRoundsTilWin[winner] = r.round_i
 
         palette = ColorGenerator(numRounds)
-        colors = [Color(next(palette)).asHex() for i in range(numRounds)]
+        colors = [Color(next(palette)).as_hex() for i in range(numRounds)]
 
-        longestLabelApxWidth = max([approxLength(n.label) for n in graph.nodesPerRound[0].values()])
+        longestLabelApxWidth = max([approx_length(n.label)
+                                    for n in graph.nodesPerRound[0].values()])
 
         js = f'var data = {candidatesJs};'
         js += f'\nvar candidatesRange = {list(rounds)};'
@@ -48,14 +50,15 @@ class D3Bargraph:
         js += f'\nvar numRoundsTilWin = {numRoundsTilWin};'
         self.js = js
 
+
 def get_label_for(roundInfo):
     def getStringFor(nameList):
         if len(nameList) == 0:
-          return ''
+            return ''
         elif len(nameList) <= 3:
-          return ' & '.join(nameList)
+            return ' & '.join(nameList)
         else:
-          return f' ({len(nameList)} candidates)'
+            return f' ({len(nameList)} candidates)'
 
     elimStr = getStringFor(roundInfo.eliminatedNames)
     winStr = getStringFor(roundInfo.winnerNames)
@@ -73,4 +76,4 @@ def get_label_for(roundInfo):
     else:
         extraStr = ''
 
-    return f'Round {roundInfo.round_i+1}' + extraStr
+    return f'Round {roundInfo.round_i + 1}' + extraStr
