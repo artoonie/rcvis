@@ -1,13 +1,17 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
+
 <div id="tabular-body">
 </div>
 
-<div class="table-responsive-md" style="padding-left: 20px; padding-right: 20px;">
+<div class="responsive-table-wrapper">
+<div id="tabularByRoundInteractiveContainer" class="table-responsive-md responsive-table">
 <table class="table">
     <thead class="thead-light">
         <tr>
-            <th scope="col" width="100">Round</th>
-            <th scope="col" width="250">Eliminated</th>
-            <th scope="col" width="250">Winners</th>
+            <th scope="col">Round</th>
+            <th scope="col" class="cell-with-padding">Eliminated</th>
+            <th scope="col" class="cell-with-padding">Winners</th>
         </tr>
     </thead>
 
@@ -15,10 +19,11 @@
         {% for roundTabulation in tabularByRound.tabulation %}
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
-            <td>{{ roundTabulation.eliminated|safe }}</td>
-            <td>{{ roundTabulation.winners|safe }}</td>
+            <td class="cell-with-padding">{{ roundTabulation.eliminated|safe }}</td>
+            <td class="cell-with-padding">{{ roundTabulation.winners|safe }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+</div>
 </div>
