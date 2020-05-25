@@ -206,8 +206,8 @@ class RoundTabulation:
         ONLY_SHOW_TEXT_RELEVANT_TO_ME = True
         if ONLY_SHOW_TEXT_RELEVANT_TO_ME:
             # Only show info relevant to this candidate
-            winnerText = "Elected! " if item.name in thisRoundInfo.winnerNames else ""
-            eliminatedText = "Eliminated. " if item.name in thisRoundInfo.eliminatedNames else ""
+            winnerText = "Elected " if item.name in thisRoundInfo.winnerNames else ""
+            eliminatedText = "Eliminated " if item.name in thisRoundInfo.eliminatedNames else ""
             self.summary = winnerText + eliminatedText + transferText
         else:
             # Show info from everybody
