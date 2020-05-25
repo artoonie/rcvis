@@ -3,11 +3,13 @@ Unit and integration tests
 """
 
 import os
+import time
 
 # For selenium live tests
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -168,11 +170,28 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _get_width(self, elementId):
         """ Gets the width of the element """
-        return self.browser.find_elements_by_id(elementId)[0].size['width']
+        elem = self.browser.find_elements_by_id(elementId)[0]
+        try:
+            ActionChains(self.browser).move_to_element(elem).perform()
+        except WebDriverException:
+            return 0  # cannot be scrolled into view
+        return elem.size['width']
 
     def _get_height(self, elementId):
         """ Gets the height of the element """
         return self.browser.find_elements_by_id(elementId)[0].size['height']
+
+    def _go_to_tab(self, tabId):
+        # Scroll to the top to make the menu visible
+        self.browser.execute_script("document.documentElement.scrollTop = 0")
+
+        # click
+        self.browser.find_elements_by_id(tabId)[0].click()
+
+        # Implicit wait doesn't work since the elements are loaded,
+        # just not visible. Explicitly wait for things to load.
+        # TODO replace this with an implicit wait
+        time.sleep(0.5)
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -184,9 +203,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             return minWidth < elementWidth <= pageWidth
 
         def test_sane_resizing_of(elementId, maxSize):
-            # TODO - maybe it's okay that it becomes too small
-            # self.browser.set_window_size(200,600)
-            # assert self._get_width(elementId) > 200 # don't make too small
+            self.browser.set_window_size(200, 600)
+            assert self._get_width(elementId) > 200  # don't make too small
 
             self.browser.set_window_size(400, 600)
             assert fits_inside(self._get_width(elementId), 400)
@@ -195,18 +213,22 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             assert fits_inside(self._get_width(elementId), 600)
 
             self.browser.set_window_size(maxSize, 600)
-            assert self._get_width(elementId) < maxSize  # don't make too big
+            assert self._get_width(elementId) <= maxSize  # don't make too big
 
         self._upload(FILENAME_MULTIWINNER)
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
-        assert self._get_width("sankey-body") == 0  # not yet visible
-        self.browser.find_elements_by_id("sankey-tab")[0].click()
+        assert self._get_width("sankey-body") == 0
+        self._go_to_tab("sankey-tab")
+        assert self._get_width("sankey-body") > 0
         test_sane_resizing_of("sankey-body", 1200)
 
         self._upload(FILENAME_THREE_ROUND)
-        self.browser.find_elements_by_id("sankey-tab")[0].click()
+        self._go_to_tab("sankey-tab")
         test_sane_resizing_of("sankey-body", 900)
+
+        self._go_to_tab("tabular-candidate-by-round-tab")
+        test_sane_resizing_of("tabular-by-round-wrapper", 1200)
 
     def test_oneround(self):
         """ Tests we do something sane in a single-round election """
@@ -221,24 +243,20 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
-        self.browser.find_elements_by_id("sankeyOptions")[
-            0].click()  # Open the dropdown
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_element_by_id(
-            "uploadButton").click()  # Hit upload
-        assert self._get_width("sankey-tab") == 0
+        self.browser.find_element_by_id("uploadButton").click()  # Hit upload
+        assert self._get_width("sankey-body") == 0
 
         # Go to the settings tab
-        self.browser.find_elements_by_id("settings-tab")[0].click()
+        self._go_to_tab("settings-tab")
 
         # Then, toggle on the sankey tab from the settings page
-        self.browser.find_elements_by_id("sankeyOptions")[
-            0].click()  # Open the dropdown
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[
-            0].click()  # Hit submit
+        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
         assert self._get_width("sankey-tab") > 0
 
         # Finally, toggle it back off
@@ -246,8 +264,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[
-            0].click()  # Hit submit
+        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
         assert self._get_width("sankey-tab") == 0
 
         self._assert_log_len(0)
