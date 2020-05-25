@@ -1,0 +1,14 @@
+.responsive-table {
+    white-space: nowrap;
+    width: 1%;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.responsive-table-wrapper {
+    width: 100%;
+    overflow-x: scroll;
+}
+.cell-with-padding {
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+}

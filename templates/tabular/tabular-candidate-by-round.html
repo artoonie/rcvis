@@ -1,10 +1,14 @@
-<div class="table-responsive-md" style="padding-left: 20px; padding-right: 20px;">
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
+
+<div class="responsive-table-wrapper">
+<div class="table-responsive-md responsive-table">
 <table class="table">
     <thead class="thead-light">
         <tr>
-            <th scope="col">Candidate name </th>
+            <th scope="col" class="col-auto">Candidate name </th>
             {% for roundTabulation in tabularCandidateByRound.rounds %}
-                <th scope="col">Round {{ forloop.counter }}</th>
+                <th scope="col" class="col-auto cell-with-padding">Round {{ forloop.counter }}</th>
             {% endfor %}
         </tr>
     </thead>
@@ -18,6 +22,7 @@
                  <td style="background-color: #FFBFBF"></td>
                  {% else %}
                  <td
+                     class="cell-with-padding"
                      {% if round.isWinner %}
                      style="background-color: #BFFFCC"
                      {% endif %}
@@ -31,4 +36,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 </div>

@@ -1,4 +1,8 @@
-<div class="table-responsive-md" style="padding-left: 20px; padding-right: 20px;">
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
+
+<div class="responsive-table-wrapper">
+<div class="table-responsive-md responsive-table">
 {% for candidateTabulation in tabularByCandidate.tabulation %}
 <table class="table">
     <h4> {{ candidateTabulation.name }} </h4>
@@ -15,11 +19,12 @@
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
             <td>{{ roundTabulation.summary }}</td>
-            <td><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
-                {{ roundTabulation.secondaryLabel }}</td>
+            <td class="cell-with-padding"><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
+                                                  {{ roundTabulation.secondaryLabel }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% endfor %}
+</div>
 </div>

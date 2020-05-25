@@ -1,17 +1,21 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
+
 <div class="row align-items-center">
     <div class="col-sm"><div id="slider-step-tabular"></div></div>
 </div>
 
-<div id="tabularByRoundInteractiveContainer" class="table-responsive-md" style="padding-left: 20px; padding-right: 20px;">
+<div class="responsive-table-wrapper">
+<div id="tabularByRoundInteractiveContainer" class="table-responsive-md responsive-table">
 {% for round in tabularByRoundInteractive.rounds %}
 <div id="tabbular_round_container_{{ forloop.counter }}">
 <h4>Round {{ forloop.counter }}</h4>
 <table class="table">
     <thead class="thead-light">
         <tr>
-            <th scope="col" width="40%">Candidate</th>
-            <th scope="col" width="30%">What changed</th>
-            <th scope="col" width="30%">Current total votes</th>
+            <th scope="col">Candidate</th>
+            <th scope="col" class="cell-with-padding">What changed</th>
+            <th scope="col" class="cell-with-padding">Current total votes</th>
         </tr>
     </thead>
 
@@ -29,15 +33,16 @@
         <tr style="background-color: #fff">
         {% endif %}
             <th scope="row">{{ candidate.name }}</th>
-            <td>{{ candidate.change }}</td>
-            <td><strong>{{ candidate.primaryLabel }}</strong><br/>
-                {{ candidate.secondaryLabel }}</td>
+            <td class="cell-with-padding">{{ candidate.change }}</td>
+            <td class="cell-with-padding"><strong>{{ candidate.primaryLabel }}</strong><br/>
+                                                  {{ candidate.secondaryLabel }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 </div>
 {% endfor %}
+</div>
 </div>
 
 {% if offlineMode %}
