@@ -171,4 +171,4 @@ class Oembed(View):
         jsonData['url'] = url
         jsonData['html'] = httpResponse.content.decode('utf-8')
 
-        return JsonResponse({'data': jsonData})
+        return JsonResponse(jsonData)
