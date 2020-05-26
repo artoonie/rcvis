@@ -2,6 +2,7 @@
 Unit and integration tests
 """
 
+import json
 import os
 import time
 
@@ -278,8 +279,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Sanity check that a json exists
         uploadedUrl = "/" + self.browser.current_url.split('/')[-1]
-        oembedJsonUrl = self.browser.find_element_by_id(
-            "oembed").get_attribute('href')
+        oembedJsonUrl = self.browser.find_element_by_id("oembed").get_attribute('href')
         embeddedUrl = uploadedUrl.replace('visualize=', 'visualizeEmbedded=')
 
         # Sanity check
@@ -292,7 +292,18 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # this error.
         self.browser.get(oembedJsonUrl)
         self.browser.execute_script("location.reload(true);")
+        time.sleep(0.2)  # some breathing room after the refresh
         self._assert_log_len(1)  # favicon not provided here
+
+        # Verify the JSON is sane and has all required fields
+        self.browser.get("view-source:" + oembedJsonUrl)
+        responseText = self.browser.find_element_by_tag_name("pre").text
+        responseData = json.loads(responseText)
+        assert responseData['version'] == "1.0"
+        assert responseData['type'] == "rich"
+        assert responseData['width']
+        assert responseData['height']
+        assert responseData['html']
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embeddedUrl)
@@ -314,8 +325,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Will throw exception if does not exist
             self.browser.find_element_by_id("embedded_body")
 
-        # And even an invalid URL does not have errors - but it does show the
-        # error message
+        # And even an invalid URL does not have errors - but it does show the error message
         errorUrl = embeddedUrl + "?vistype=no_such_vistype"
         self.open(errorUrl)
         # Will throw exception if does not exist
