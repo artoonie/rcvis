@@ -23,6 +23,7 @@ class JsonConfig(models.Model):
     doUseHorizontalBarGraph = models.BooleanField(default=False)
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
+    doDimPrevRoundColors = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(

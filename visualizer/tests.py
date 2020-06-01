@@ -17,6 +17,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from visualizer.graphCreator.graphCreator import BadJSONError
 from .models import JsonConfig
 from .views import _get_data_for_view
+from .forms import JsonConfigForm
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
@@ -60,13 +61,7 @@ class SimpleTests(TestCase):
     #pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
-        configBoolsToToggle = {
-            'hideDecimals',
-            'rotateNames',
-            'onlyShowWinnersTabular',
-            'doHideOverflowAndEliminated',
-            'doUseHorizontalBarGraph',
-            'excludeFinalWinnerAndEliminatedCandidate'}
+        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t != 'jsonFile']
         fn = FILENAME_MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:

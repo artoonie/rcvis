@@ -1,7 +1,7 @@
 // Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
 
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical) {
+function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
   longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
   var margin = {top: 10, right: 10, bottom: 35, left: 20};
   if(isVertical) {
@@ -158,13 +158,27 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var surplusColor = doHideSurplusAndEliminated ? bgColor : "#666";
   var barColorFn = function(d) {
       if (isEliminatedInteractiveFn(d))
+      {
           return eliminatedColor;
+      }
       else if(isSurplusFn(d))
+      {
           // TODO in here, hatch the original color maybe?
           //return surplusColor;
           return "url(#"+surplusPatternId+")";
+      }
       else
-          return colors[d.round];
+      {
+          if (!doDimPrevRoundColors || !isInteractive)
+              // Don't dim previous round colors: either not requestsed, or this is the print view
+              return colors[d.round]
+          if (d.round == currRound-1)
+              // Dimming on. Only the last round gets full colors.
+              return colors[d.round];
+          else
+              // All previous rounds are dimmed
+			  return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.7))
+      }
   };
 
   // Data label helper functions
