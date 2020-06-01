@@ -20,4 +20,5 @@ class JsonConfigForm(ModelForm):
                   'doUseHorizontalBarGraph',
                   'excludeFinalWinnerAndEliminatedCandidate',
                   'hideSankey',
-                  'hideTabular']
+                  'hideTabular',
+                  'doDimPrevRoundColors']
