@@ -46,7 +46,7 @@ deploy:
     app: rcvis
     env: django-env-try2
     on:
-      branch: master
+      branch: main
     bucket_name: elasticbeanstalk-us-west-1-872212457283
   - provider: elasticbeanstalk
     access_key_id: "$AWS_ACCESS_KEY_ID"
