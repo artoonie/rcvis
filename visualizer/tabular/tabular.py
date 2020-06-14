@@ -15,22 +15,35 @@ class TabulateByRoundInteractive:
         summary = graph.summarize()
         self.rounds = []
         lastRoundEliminated = []  # eliminated only show one round later
-        allPreviousWinners = []  # winners show for all future rounds
+        alreadyWonInRound = {}  # Contains winners in previous rounds, 1-indexed
         for i, r in enumerate(summary.rounds):
-            allPreviousWinners.extend(r.winnerNames)
+            for winnerName in r.winnerNames:
+                alreadyWonInRound[winnerName] = (i + 1)
             rnd = []
             for item, cinfo in summary.candidates.items():
                 d = {}
                 isEliminatedThisRound = cinfo.name in r.eliminatedNames
+                isElectedThisRound = cinfo.name in r.winnerNames
+                isElectedPrevRound = cinfo.name in alreadyWonInRound
                 if isEliminatedThisRound:
-                    d['change'] = votify(
-                        changify(-cinfo.totalVotesPerRound[-1]))
-                    d['primaryLabel'] = 0
+                    d['change'] = "Eliminated: " + changify(-cinfo.totalVotesPerRound[-1])
+                    d['primaryLabel'] = ""
                     d['secondaryLabel'] = ""
                 elif i >= len(cinfo.votesAddedPerRound):
                     continue
                 else:
-                    d['change'] = votify(changify(cinfo.votesAddedPerRound[i]))
+                    votesAddedThisRound = cinfo.votesAddedPerRound[i]
+
+                    if i == 0:
+                        num = intify(votesAddedThisRound)
+                        d['change'] = f"{num} votes in the first round"
+                    elif isElectedThisRound:
+                        d['change'] = "Elected: " + changify(votesAddedThisRound)
+                    elif isElectedPrevRound:
+                        d['change'] = f"No change (elected in Round {alreadyWonInRound[cinfo.name]})"
+                    else:
+                        d['change'] = changify(votesAddedThisRound)
+
                     myNumVotes = cinfo.totalVotesPerRound[i]
                     allVotes = r.totalActiveVotes
                     d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(
@@ -38,7 +51,7 @@ class TabulateByRoundInteractive:
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in r.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
-                d['isWinner'] = cinfo.name in allPreviousWinners
+                d['isWinner'] = isElectedPrevRound
                 d['isEliminated'] = cinfo.name in lastRoundEliminated or \
                     d['eliminatedThisRound']
                 rnd.append(d)
@@ -238,23 +251,19 @@ def andify(prefix, l, suffix):
 
 
 def intify(v):
-    if v % 1 == 0:
-        return int(v)
+    if abs(round(v) - v) < 1e-6:
+        return "%d" % round(v)
     else:
         return "%0.2f" % v
 
 
-""" Turn a float into a percentage string """
-
-
 def percentify(v):
+    """ Turn a float into a percentage string """
     return str(round(1000.0 * v) / 10.0) + "%"
 
 
-""" Add an "s" as needed """
-
-
 def pluralize(txt, num):
+    """ Add an "s" as needed """
     if num == 1:
         return txt
     else:
@@ -262,8 +271,15 @@ def pluralize(txt, num):
 
 
 def changify(num):
-    prefix = "+" if num >= 0 else ""
-    return prefix + str(intify(num))
+    if num == 0:
+        return ""
+
+    if num > 0:
+        num = intify(num)
+        return f"Gained {num:s} votes"
+    else:
+        num = intify(-num)
+        return f"{num} votes redistributed to remaining candidates"
 
 
 def votify(num):
