@@ -299,7 +299,11 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         assert responseData['type'] == "rich"
         assert responseData['width']
         assert responseData['height']
-        assert responseData['html']
+
+        # Note: ensure it ends with ?vistype not &vistype
+        url = responseData['url']
+        html = responseData['html']
+        assert html[html.find(url) + len(url)] == "?"
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embeddedUrl)
