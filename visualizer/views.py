@@ -123,8 +123,7 @@ class VisualizeEmbedded(DetailView):
         data = _get_data_for_view(config['jsonconfig'])
 
         # oembed href
-        data['vistype'] = self.request.GET.get(
-            'vistype', 'barchart-interactive')
+        data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
 
         return data
 
