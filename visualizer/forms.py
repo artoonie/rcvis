@@ -11,14 +11,4 @@ class JsonConfigForm(ModelForm):
     class Meta:
         """ Metadata is all we need here """
         model = JsonConfig
-        fields = ['jsonFile',
-                  'hideDecimals',
-                  'rotateNames',
-                  'horizontalSankey',
-                  'onlyShowWinnersTabular',
-                  'doHideOverflowAndEliminated',
-                  'doUseHorizontalBarGraph',
-                  'excludeFinalWinnerAndEliminatedCandidate',
-                  'hideSankey',
-                  'hideTabular',
-                  'doDimPrevRoundColors']
+        fields = JsonConfig.get_all_non_auto_fields()

@@ -30,6 +30,22 @@ class JsonConfig(models.Model):
         default=False)
     hideDecimals = models.BooleanField(default=False)
 
+    @classmethod
+    def get_all_non_auto_fields(cls):
+        """ All editable fields of JsonConfig - must be kept up to date with the list
+            of fields above. (I'm sure there's a way to do this automatically...) """
+        return ['jsonFile',
+                'rotateNames',
+                'horizontalSankey',
+                'onlyShowWinnersTabular',
+                'doHideOverflowAndEliminated',
+                'doUseHorizontalBarGraph',
+                'hideSankey',
+                'hideTabular',
+                'doDimPrevRoundColors',
+                'excludeFinalWinnerAndEliminatedCandidate',
+                'hideDecimals']
+
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)
         uniqueSlug = slug
