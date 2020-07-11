@@ -20,4 +20,6 @@ urlpatterns = [
 
     # REST API
     path('api/', include(router.urls)),
+    # This is used by the rest_framework to create a login button
+    path('api/auth/', include('rest_framework.urls')),
 ]
