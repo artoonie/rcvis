@@ -14,6 +14,11 @@ class JsonConfig(models.Model):
     jsonFile = models.FileField()
     slug = models.SlugField(unique=True)
     uploadedAt = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(
+        'auth.User',
+        related_name='this_users_jsons',
+        on_delete=models.CASCADE,
+        null=True)
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
@@ -26,8 +31,7 @@ class JsonConfig(models.Model):
     doDimPrevRoundColors = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
-    excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(
-        default=False)
+    excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
     hideDecimals = models.BooleanField(default=False)
 
     @classmethod

@@ -1,5 +1,6 @@
 """ Data serializers - used for the REST API """
 
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from visualizer.graphCreator.graphCreator import BadJSONError
@@ -15,7 +16,8 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """ The meta class to simplify construction of the serializer """
         model = JsonConfig
-        fields = JsonConfig.get_all_non_auto_fields()
+        fields = JsonConfig.get_all_non_auto_fields() + ['owner']
+        owner = serializers.ReadOnlyField(source='owner.username')
 
     #pylint: disable=invalid-name
     @classmethod
@@ -28,3 +30,14 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         except Exception as exception:
             raise serializers.ValidationError("Unknown error: " + str(exception))
         return value
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """ The rest_framework serializer for a User Model """
+    this_users_jsons = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=JsonConfig.objects.all())  # pylint: disable=no-member
+
+    class Meta:
+        """ The meta class to simplify construction of the serializer """
+        model = User
+        fields = ['id', 'username', 'this_users_jsons']

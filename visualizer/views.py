@@ -3,6 +3,7 @@
 import urllib.parse
 
 # Django helpers
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -13,7 +14,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from rest_framework import viewsets, permissions
+from rest_framework import permissions, viewsets
 
 # rcvis helpers
 from rcvis.settings import OFFLINE_MODE
@@ -21,8 +22,9 @@ from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONEr
 from .bargraph.graphToD3 import D3Bargraph
 from .forms import JsonConfigForm
 from .models import JsonConfig
+from .permissions import IsOwnerOrReadOnly
 from .sankey.graphToD3 import D3Sankey
-from .serializers import JsonConfigSerializer
+from .serializers import JsonConfigSerializer, UserSerializer
 from .tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
     TabulateByCandidate,\
@@ -177,22 +179,17 @@ class Oembed(View):
 
 
 class JsonConfigViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows tabulated JSONs to be viewed or edited.
-    """
-    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
+    """ API endpoint that allows tabulated JSONs to be viewed or edited. """
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')  # pylint: disable=no-member
     serializer_class = JsonConfigSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
-    def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
-        if self.action == 'list' or self.action == 'retrieve':
-            # TODO - no reason to allow this
-            # permissionClasses = [permissions.IsAuthenticated]
-            permissionClasses = []
-        else:
-            # TODO - definitely don't want this
-            # permissionClasses = [permissions.IsAdminUser]
-            permissionClasses = []
-        return [permission() for permission in permissionClasses]
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """ API endpoint that allows you to view or edit Users. """
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
