@@ -2,13 +2,17 @@
 Unit and integration tests
 """
 
+from enum import Enum
 import json
 import os
 import time
 
-# For selenium live tests
+from django.core.cache import cache
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase
+from rest_framework import status
+from rest_framework.test import APITestCase
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
@@ -88,6 +92,146 @@ class SimpleTests(TestCase):
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
+
+
+class RestAPITests(APITestCase):
+    """ Tests for the REST API """
+
+    def setUp(self):
+        # Create an admin user programmatically
+        admin = User.objects.create_user('admin', 'admin@example.com', 'password')
+        admin.is_staff = True
+        admin.save()
+
+        # Create a regular user programmatically
+        admin = User.objects.create_user('notadmin', 'notadmin@example.com', 'password')
+        admin.is_staff = False
+        admin.save()
+
+    def _create_account_via_api(self, name):
+        data = {'name': name}
+        return self.client.post('/api/users/', data, format='json')
+
+    def _authenticate_as(self, username):
+        cache.clear()
+        if not username:
+            self.client.force_authenticate()  # pylint: disable=no-member
+        else:
+            user = User.objects.get(username=username)
+            self.client.force_authenticate(user=user)   # pylint: disable=no-member
+
+    def test_permissions(self):
+        """ Test the permissions of several API calls on logged in, logged out, and admin users """
+        class Users(Enum):
+            """ What the users permission levels are """
+            ADMIN = 0
+            NOT_ADMIN = 1
+            LOGGED_OUT = 2
+
+        class Models(Enum):
+            """ What models to act upon """
+            USERS = 0
+            JSONS = 1
+
+        class Actions(Enum):
+            """ What actions to take, here corresponding to GET and POST """
+            LIST = 0
+            MAKE = 1
+
+        def authenticate_as(user):
+            if user == Users.ADMIN:
+                self._authenticate_as('admin')
+            elif user == Users.NOT_ADMIN:
+                self._authenticate_as('notadmin')
+            else:
+                self._authenticate_as(None)
+
+        def rest_url_for(model):
+            if model == Models.USERS:
+                return '/api/users/'
+            return '/api/visualizations/'
+
+        def initialize_permission_matrix():
+            # Initialize with a loop to ensure nothing falls through the cracks
+            permissionMatrix = {}
+            for user in Users:
+                permissionMatrix[user] = {}
+                for model in Models:
+                    permissionMatrix[user][model] = {}
+                    for action in Actions:
+                        permissionMatrix[user][model][action] = None
+
+            adminUser = permissionMatrix[Users.ADMIN]
+            adminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.USERS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            adminUser[Models.USERS][Actions.MAKE] = status.HTTP_405_METHOD_NOT_ALLOWED
+
+            notAdminUser = permissionMatrix[Users.NOT_ADMIN]
+            notAdminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            notAdminUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
+            notAdminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            notAdminUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
+
+            loggedOutUser = permissionMatrix[Users.LOGGED_OUT]
+            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_403_FORBIDDEN
+            loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
+            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
+            loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
+
+            return permissionMatrix
+
+        permissionMatrix = initialize_permission_matrix()
+        for user in permissionMatrix:
+            authenticate_as(user)
+            for model in permissionMatrix[user]:
+                url = rest_url_for(model)
+                for action in permissionMatrix[user][model]:
+                    # Run the command and ensure the response is what we expect
+                    if action == Actions.LIST:
+                        response = self.client.get(url, format='json')
+                    elif action == Actions.MAKE:
+                        with open(FILENAME_MULTIWINNER) as f:
+                            response = self.client.post(url, data={'jsonFile': f})
+
+                    # If it's not, print out a more helpful message
+                    try:
+                        self.assertEqual(
+                            response.status_code,
+                            permissionMatrix[user][model][action])
+                    except BaseException:
+                        print(f"Permissions are incorrect for {user}, {model}, {action}")
+                        print(response.content)
+                        raise
+
+    def test_list_models(self):
+        """ Honestly, just a weaker version of test_permissions with perhaps more clarity
+            and therefore a less bug-prone test """
+
+        # Log out / unauthenticate
+        self._authenticate_as(None)
+
+        # Not allowed to list users
+        response = self.client.get('/api/users/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Not allowed to list jsons
+        response = self.client.get('/api/visualizations/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        # Admins can see all pages
+        self._authenticate_as('admin')
+        response = self.client.get('/api/visualizations/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/api/users/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Notadmins can only see visualizations
+        self._authenticate_as('notadmin')
+        response = self.client.get('/api/visualizations/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get('/api/users/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):

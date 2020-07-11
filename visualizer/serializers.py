@@ -41,3 +41,4 @@ class UserSerializer(serializers.ModelSerializer):
         """ The meta class to simplify construction of the serializer """
         model = User
         fields = ['id', 'username', 'this_users_jsons']
+        ordering = ['-id']

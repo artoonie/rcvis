@@ -189,7 +189,7 @@ class JsonConfigViewSet(viewsets.ModelViewSet):
 
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
-    """ API endpoint that allows you to view or edit Users. """
-    queryset = User.objects.all()
+    """ API endpoint that allows you to view but not edit Users. """
+    queryset = User.objects.all().order_by('-id')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
