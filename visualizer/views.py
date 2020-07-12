@@ -2,6 +2,8 @@
 
 import urllib.parse
 
+# Django helpers
+from django.contrib.auth.models import User
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
@@ -12,17 +14,22 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
+from rest_framework import permissions, viewsets
 
+# rcvis helpers
 from rcvis.settings import OFFLINE_MODE
 from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
 from .bargraph.graphToD3 import D3Bargraph
 from .forms import JsonConfigForm
 from .models import JsonConfig
+from .permissions import IsOwnerOrReadOnly
 from .sankey.graphToD3 import D3Sankey
+from .serializers import JsonConfigSerializer, UserSerializer
 from .tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
     TabulateByCandidate,\
     TabularCandidateByRound
+from .validators import try_to_load_json
 
 
 class Index(TemplateView):
@@ -42,11 +49,7 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            graph = make_graph_with_file(
-                form.cleaned_data['jsonFile'],
-                form.cleaned_data['excludeFinalWinnerAndEliminatedCandidate'])
-            graph.summarize()
-            D3Sankey(graph)  # sanity check the graph can be created
+            try_to_load_json(form.cleaned_data['jsonFile'])
         except BadJSONError:
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
@@ -171,3 +174,22 @@ class Oembed(View):
         jsonData['html'] = httpResponse.content.decode('utf-8')
 
         return JsonResponse(jsonData)
+
+# For django REST
+
+
+class JsonConfigViewSet(viewsets.ModelViewSet):
+    """ API endpoint that allows tabulated JSONs to be viewed or edited. """
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')  # pylint: disable=no-member
+    serializer_class = JsonConfigSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """ API endpoint that allows you to view but not edit Users. """
+    queryset = User.objects.all().order_by('-id')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAdminUser]
