@@ -6,7 +6,7 @@ import urllib.parse
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -53,8 +53,7 @@ class Upload(CreateView):
         except BadJSONError:
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
-            # TODO make an error page for this, too
-            return redirect(self.request, '/')
+            return render(self.request, 'visualizer/errorUploadFailedGeneric.html')
 
         form.save()
         return super().form_valid(form)
