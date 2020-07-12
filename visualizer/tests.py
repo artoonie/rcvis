@@ -30,6 +30,38 @@ FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
 
+def generate_random_valid_json_of_size(numBytes):
+    """ Generates a valid but strange JSON of size num_bytes and returns the filename """
+    filename = '/tmp/randomfile.json'
+    data = {
+        "config": {
+            "contest": "Nothing",
+            "date": "2020-07-12",
+            "threshold": "1"
+        },
+        "results": [{
+            "round": 1,
+            "tally": {
+                "Hero": "2"  # More candidates will go here
+            },
+            "tallyResults": [{
+                "elected": "Hero"
+            }]
+        }]
+    }
+
+    # Generate a ton of empty data to create a valid JSON
+    tally = data['results'][0]['tally']
+    approximateBytesPerPerson = 30
+    for i in range(0, round(numBytes / approximateBytesPerPerson)):
+        tally['candidate_%08d' % i] = "0"
+
+    with open(filename, 'w') as f:
+        json.dump(data, f)
+
+    return filename
+
+
 class SimpleTests(TestCase):
     """ Simple tests that do not require a live browser """
 
@@ -92,6 +124,24 @@ class SimpleTests(TestCase):
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
+
+    def test_large_file_failure(self):
+        """ Tests that we get an error page if a the file is too large """
+        # First test it succeeds when it's an okay filesize
+        # Caution, don't try to make this file huge or close to the limits, it'll slow
+        # down the tests trying to load ~2mb of data...
+        acceptableSizeJson = generate_random_valid_json_of_size(1024 * 1024 * 0.1)  # 0.1 MB
+        with open(acceptableSizeJson) as f:
+            response = self.client.post('/upload.html', {'jsonFile': f})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], "visualize=randomfilejson")
+
+        # Then verify it fails with a too-large filesize
+        tooLargeJson = generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
+        with open(tooLargeJson) as f:
+            response = self.client.post('/upload.html', {'jsonFile': f})
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
 
 
 class RestAPITests(APITestCase):
@@ -303,6 +353,14 @@ class RestAPITests(APITestCase):
         self._authenticate_as('admin')
         response = self.client.patch(url, format='json', data=editedData)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_large_file_fails(self):
+        """ Ensure that large files fail via the API as well """
+        self._authenticate_as('notadmin')
+        response = self._upload_file_for_api(
+            generate_random_valid_json_of_size(
+                1024 * 1024 * 3))  # 3mb
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):
