@@ -108,10 +108,6 @@ class RestAPITests(APITestCase):
         admin.is_staff = False
         admin.save()
 
-    def _create_account_via_api(self, name):
-        data = {'name': name}
-        return self.client.post('/api/users/', data, format='json')
-
     def _authenticate_as(self, username):
         cache.clear()
         if not username:
@@ -120,6 +116,12 @@ class RestAPITests(APITestCase):
             user = User.objects.get(username=username)
             self.client.force_authenticate(user=user)   # pylint: disable=no-member
 
+    def _upload_file_for_api(self, filename):
+        with open(filename) as f:
+            return self.client.post('/api/visualizations/', data={'jsonFile': f})
+
+    # This test has a lot of helper functions, allow it to be longer
+    # pylint: disable=too-many-statements
     def test_permissions(self):
         """ Test the permissions of several API calls on logged in, logged out, and admin users """
         class Users(Enum):
@@ -145,11 +147,6 @@ class RestAPITests(APITestCase):
                 self._authenticate_as('notadmin')
             else:
                 self._authenticate_as(None)
-
-        def rest_url_for(model):
-            if model == Models.USERS:
-                return '/api/users/'
-            return '/api/visualizations/'
 
         def initialize_permission_matrix():
             # Initialize with a loop to ensure nothing falls through the cracks
@@ -181,24 +178,43 @@ class RestAPITests(APITestCase):
 
             return permissionMatrix
 
+        def run_command(model, action):
+            # Get URL
+            modelToUrl = {Models.USERS: '/api/users/',
+                          Models.JSONS: '/api/visualizations/'}
+            actionToCommand = {Actions.LIST: self.client.get,
+                               Actions.MAKE: self.client.post}
+
+            # Get the URL and function call (command)
+            url = modelToUrl[model]
+            command = actionToCommand[action]
+
+            # Get the data
+            if action == Actions.LIST:
+                # No data needed to GET
+                data = {}
+            elif model == Models.USERS:
+                # Username/Pass to create a USER (thought this will never succeed)
+                data = {"username": "user", "password": "pass"}
+            else:
+                # Special case: Upload a JSON here
+                # (because we want to contain the file pointer within the with statement)
+                with open(FILENAME_MULTIWINNER) as f:
+                    return command(url, data={'jsonFile': f})
+
+            return command(url, data=data, format="json")
+
         permissionMatrix = initialize_permission_matrix()
         for user in permissionMatrix:
             authenticate_as(user)
             for model in permissionMatrix[user]:
-                url = rest_url_for(model)
                 for action in permissionMatrix[user][model]:
-                    # Run the command and ensure the response is what we expect
-                    if action == Actions.LIST:
-                        response = self.client.get(url, format='json')
-                    elif action == Actions.MAKE:
-                        with open(FILENAME_MULTIWINNER) as f:
-                            response = self.client.post(url, data={'jsonFile': f})
+                    response = run_command(model, action)
+                    expectedStatus = permissionMatrix[user][model][action]
 
                     # If it's not, print out a more helpful message
                     try:
-                        self.assertEqual(
-                            response.status_code,
-                            permissionMatrix[user][model][action])
+                        self.assertEqual(response.status_code, expectedStatus)
                     except BaseException:
                         print(f"Permissions are incorrect for {user}, {model}, {action}")
                         print(response.content)
@@ -226,11 +242,66 @@ class RestAPITests(APITestCase):
         response = self.client.get('/api/users/', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Notadmins can only see visualizations
+        # Notadmins can see and upload visualizations
         self._authenticate_as('notadmin')
         response = self.client.get('/api/visualizations/', format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get('/api/users/', format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_uploads_and_edits(self):
+        """ Upload and edit a json in various ways """
+        self._authenticate_as('notadmin')
+
+        # Working data
+        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Bad data
+        response = self._upload_file_for_api(FILENAME_BAD_DATA)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Get the working data we just uploaded
+        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        self.assertEqual(oneRoundObject.owner.username, 'notadmin')
+        self.assertEqual(oneRoundObject.hideSankey, False)
+
+        # Get the URL and data on which to modify this
+        url = f'/api/visualizations/{oneRoundObject.id}/'
+        editedData = {'hideSankey': True}
+
+        # Put should fail with the incomplete data
+        response = self.client.put(url, format='json', data=editedData)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Patch should succeed with simple bool changes
+        response = self.client.patch(url, format='json', data=editedData)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['hideSankey'], True)
+
+        # Patch should also succeed with a JSON change
+        with open(FILENAME_MULTIWINNER) as f:
+            response = self.client.patch(url, data={'jsonFile': f})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['hideSankey'], True)
+        filenameBasename = os.path.splitext(os.path.basename(FILENAME_MULTIWINNER))[0]
+        assert filenameBasename in response.data['jsonFile']
+
+        # But changing the owner is not allowed
+        notadminId = User.objects.all().filter(username='notadmin')[0].id
+        response = self.client.patch(url, data={'owner': notadminId - 1})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ownerId = response.data['owner'][-2]  # of the format url/api/users/<id>/
+        self.assertEqual(ownerId, str(notadminId))
+
+        # And not even an admin can edit someone else's data
+        self._authenticate_as('admin')
+        response = self.client.patch(url, format='json', data=editedData)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
