@@ -16,7 +16,7 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """ The meta class to simplify construction of the serializer """
         model = JsonConfig
-        fields = JsonConfig.get_all_non_auto_fields() + ['owner']
+        fields = ['id', 'owner'] + JsonConfig.get_all_non_auto_fields()
         owner = serializers.ReadOnlyField(source='owner.username')
 
     #pylint: disable=invalid-name
