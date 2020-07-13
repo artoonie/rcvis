@@ -69,6 +69,21 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 
 [FairVote's 2018 Santa Fe Visualization](https://www.fairvote.org/2018_election)
 
+## RESTful API
+Addition documentation for the REST API is available at [rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/).
+
+To get started with programmatic access to rcvis:
+
+1. Email team@rcvis.com to obtain an account.
+2. Submit a GET request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `http GET https://www.rcvis.com/api/auth/get-token username='username' password="password"`.
+3. Submit a POST request to [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) to upload a file, including the file in the `jsonFile` field of the body.
+4. For any file uploaded via the API, you may modify it using PATCH requests.
+
+You are limited to 1000 requests per hour as an authenticated user.
+
+## oembed
+RCVIS implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+
 ## Functionality specifics of the Sankey diagram
 We have added a lot of complexity to the Sankey diagram to support elections with many candidates. Let this serve both as a list of specific features, and as a list of manual tests to run whenever modifying the Sankey diagram. (Yes, we have automated integration testing, but not all of these features have integration tests yet.)
 

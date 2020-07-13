@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'visualizer',
     'storages',
     'django_nose',
-    'rest_framework'
+    'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -178,6 +179,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_THROTTLE_CLASSES': [
