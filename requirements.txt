@@ -1,19 +1,19 @@
-boto3==1.9.174
-django-storages==1.7.1
-Django==2.2.13
+boto3==1.14.20
+django-storages==1.9.1
+Django==3.0.8
 selenium==3.141.0
-psycopg2-binary==2.8.3
-pytz==2019.1
+psycopg2-binary==2.8.5
+pytz==2020.1
 
 # For coverage
-autopep8==1.5.2
-coverage==5.1
+autopep8==1.5.3
+coverage==5.2
 django-nose==1.4.6
-pylint==2.5.2
+pylint==2.5.3
 
 # For docs
 recommonmark==0.6.0
-Sphinx==3.0.3
+Sphinx==3.1.2
 m2r==0.2.1
 
 # For django-rest
