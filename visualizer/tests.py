@@ -221,10 +221,10 @@ class RestAPITests(APITestCase):
             notAdminUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
 
             loggedOutUser = permissionMatrix[Users.LOGGED_OUT]
-            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_403_FORBIDDEN
-            loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
-            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
-            loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
+            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
 
             return permissionMatrix
 
@@ -279,11 +279,11 @@ class RestAPITests(APITestCase):
 
         # Not allowed to list users
         response = self.client.get('/api/users/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # Not allowed to list jsons
         response = self.client.get('/api/visualizations/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
         # Admins can see all pages
         self._authenticate_as('admin')
