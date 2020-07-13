@@ -2,6 +2,7 @@
 
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
 
@@ -22,4 +23,5 @@ urlpatterns = [
     path('api/', include(router.urls)),
     # This is used by the rest_framework to create a login button
     path('api/auth/', include('rest_framework.urls')),
+    path('api/auth/get-token', obtain_auth_token)
 ]
