@@ -391,7 +391,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                 desired_capabilities=capabilities,
                 command_executor=seleniumEndpoint)
         else:
-            self.browser = webdriver.Firefox()
+            chromeOptions = webdriver.chrome.options.Options()
+            chromeOptions.add_argument("--headless")
+            self.browser = webdriver.Chrome(options=chromeOptions)
+
+            # Or, Firefox
+            # firefoxOptions = webdriver.FirefoxOptions()
+            # firefoxOptions.set_headless()
+            # self.browser = webdriver.Firefox(firefox_options=firefoxOptions)
 
         self.browser.implicitly_wait(10)
 
@@ -402,21 +409,34 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _get_log(self):
         """ Returns and clears the console log """
-        try:
-            return self.browser.get_log('browser')
-        except WebDriverException:
-            print("Cannot read log - for somme reason, this only works on travis.")
-            if not os.environ['RCVIS_HOST'] == 'localhost':
-                raise
-            return ""
+        return self.browser.get_log('browser')
 
     def _assert_log_len(self, num):
         """ Asserts the log contains num elements, or prints out what's in the log.
             Then Clears the log. """
-        log = self._get_log()
+        try:
+            log = self._get_log()
+        except WebDriverException:
+            print("Cannot read log - for somme reason, this only works on travis.")
+            if not os.environ['RCVIS_HOST'] == 'localhost':
+                raise
+
+            # Always succeeds on localhost :(
+            return
+
         if len(log) != num:
             print("Log information: ", log)
+
         assert len(log) == num
+
+    def _num_log_errors_for_missing_favicon(self):
+        if isinstance(self.browser, webdriver.Chrome):
+            return 0
+        if isinstance(self.browser, webdriver.Firefox):
+            return 0
+        if isinstance(self.browser, webdriver.Remote):
+            return 1
+        raise Exception("Unknown browser type")
 
     def _make_url(self, url):
         """ Creates an absolute url using the current server URL """
@@ -474,7 +494,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         def test_sane_resizing_of(elementId, maxSize):
             self.browser.set_window_size(200, 600)
-            assert self._get_width(elementId) > 200  # don't make too small
+            assert self._get_width(elementId) > 180  # don't make too small
 
             self.browser.set_window_size(400, 600)
             assert fits_inside(self._get_width(elementId), 400)
@@ -562,7 +582,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.get(oembedJsonUrl)
         self.browser.execute_script("location.reload(true);")
         time.sleep(0.2)  # some breathing room after the refresh
-        self._assert_log_len(1)  # favicon not provided here
+        self._assert_log_len(self._num_log_errors_for_missing_favicon())
 
         # Verify the JSON is sane and has all required fields
         responseText = self.browser.find_element_by_xpath("//pre").text
@@ -621,7 +641,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Use a fresh browser - we never want to hit the cache,
             # and there doesn't seem to be an easy way to skip the cache every time:
             # https://stackoverflow.com/a/9563341/1057105
-            localBrowser = webdriver.Firefox()
+            firefoxOptions = webdriver.FirefoxOptions()
+            firefoxOptions.set_headless()
+            localBrowser = webdriver.Firefox(firefox_options=firefoxOptions)
 
             # First, navigate to a random URL to cache the static files
             localBrowser.get(self._make_url("/upload.html"))
