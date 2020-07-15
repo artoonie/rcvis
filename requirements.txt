@@ -19,3 +19,8 @@ m2r==0.2.1
 # For django-rest
 djangorestframework==3.11.0
 markdown==3.2.2
+
+# For movie creation
+celery==4.4.6
+django-cleanup==5.0.0
+moviepy==1.0.3

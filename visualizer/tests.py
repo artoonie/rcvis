@@ -8,9 +8,10 @@ import os
 import time
 
 from django.core.cache import cache
+from django.core.files import File
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
@@ -69,7 +70,7 @@ class SimpleTests(TestCase):
     def _get_data_for_view(cls, fn):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'r+') as f:
-            config = JsonConfig(jsonFile=f)
+            config = JsonConfig(jsonFile=File(f))
             return _get_data_for_view(config)
 
     def _get_multiwinner_upload_response(self):
@@ -87,7 +88,7 @@ class SimpleTests(TestCase):
         self._get_data_for_view(FILENAME_MULTIWINNER)
 
     def test_bad_json_fails(self):
-        """ Opens the invalid file and asserts thhat it fails """
+        """ Opens the invalid file and asserts that it fails """
         try:
             self._get_data_for_view(FILENAME_BAD_DATA)
         except BadJSONError:
@@ -101,7 +102,7 @@ class SimpleTests(TestCase):
         fn = FILENAME_MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:
-                config = JsonConfig(jsonFile=f)
+                config = JsonConfig(jsonFile=File(f))
                 config.__dict__[configBoolToToggle] = not config.__dict__[
                     configBoolToToggle]
                 _get_data_for_view(config)
@@ -142,6 +143,29 @@ class SimpleTests(TestCase):
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
+
+
+class ModelDeletionTests(TransactionTestCase):
+    """ Testing model deletion requires a different base class:
+        docs.djangoproject.com/en/3.0/topics/db/transactions/#use-in-tests
+    """
+
+    def test_file_deletion_on_model_deletion(self):
+        """ Verify that when a model is deleted, the associated file is too """
+        # Upload
+        with open(FILENAME_MULTIWINNER) as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        uploadedObject = JsonConfig.objects.latest('id')  # pylint: disable=no-member
+
+        # Ensure it exists
+        path = uploadedObject.jsonFile.path
+        assert os.path.exists(path)
+
+        # Delete it
+        uploadedObject.delete()
+
+        # Ensure the file was also deleted
+        assert not os.path.exists(path)
 
 
 class RestAPITests(APITestCase):

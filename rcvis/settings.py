@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'storages',
     'django_nose',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -163,6 +164,13 @@ if not OFFLINE_MODE:
     AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
     AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIAFILES_DIRS = [
+        os.path.join(BASE_DIR, "media"),
+    ]
+
 AWS_DEFAULT_ACL = None
 
 # Application version

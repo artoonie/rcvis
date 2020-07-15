@@ -13,11 +13,18 @@ router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('', views.Index.as_view()),
-    path('index.html', views.Index.as_view()),
+    path('index.html', views.Index.as_view(), name='index'),
     path('visualize=<slug>', views.Visualize.as_view()),
     path('upload.html', views.Upload.as_view(), name='upload'),
     path('visualizeEmbedded=<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
+
+    path('createMovie=<slug>', views.CreateMovie.as_view()),
+    path(
+        'movieGenerationView=<slug>',
+        views.MovieGenerationView.as_view(),
+        name='movieGenerationView'),
+    path('visualizeMovie=<slug>', views.VisualizeMovie.as_view(), name='movieOnlyView'),
 
     # REST API
     path('api/', include(router.urls)),

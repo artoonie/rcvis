@@ -49,6 +49,14 @@ Models
    :undoc-members:
    :show-inheritance:
 
+Tasks
+-----------------------
+
+.. automodule:: visualizer.tasks
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Tests
 -----------------------
 

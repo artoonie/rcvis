@@ -1,0 +1,27 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+{% include "visualizer/common-header.html" %}
+{% include "visualizer/common-visualizer-header.html" %}
+</head>
+
+<body>
+    {% if config.isVideoGenerationInProgress %}
+    <p>A new video is currently being generated - check back shortly.</p>
+    {% else %}
+    <p>Debug info: Already cached!</p>
+    {% endif %}
+
+    {% if config.movieVertical %}
+    <video width='{{ config.movieVertical.movieFile.resolutionWidth }}' height= '{{ config.movieVertical.movieFile.resolutionHeight }}' controls>
+        <source src="{{ config.movieVertical.movieFile.url }}">
+        Your browser does not support the video tag.
+    </video>
+    {% else %}
+    <p>Debug info: No movie exists</p>
+    {% endif %}
+</body>
+</html>
