@@ -24,3 +24,4 @@ markdown==3.2.2
 celery==4.4.6
 django-cleanup==5.0.0
 moviepy==1.0.3
+pycurl==7.43.0.5
