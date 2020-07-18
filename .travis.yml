@@ -26,6 +26,8 @@ before_install:
   - mkdir geckodriver
   - tar -xzf geckodriver-v0.26.0-linux64.tar.gz
   - sudo mv geckodriver /usr/local/bin/
+  # required for pycurl to install
+  - sudo apt-get -y install libgnutls28-dev
 
 install:
   - virtualenv venv
