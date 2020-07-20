@@ -3,6 +3,7 @@
 import urllib.parse
 
 # Django helpers
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse, HttpResponse
@@ -11,6 +12,7 @@ from django.templatetags.static import static
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import RedirectView
 from django.views.generic.base import TemplateView
@@ -199,6 +201,7 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
 # For Movie generation and viewing
 
+@method_decorator(never_cache, name='dispatch')
 class MovieGenerationView(DetailView):
     """ The view used by movie generation - not intended to be user-facing,
         but no harm done by exposing it either."""
@@ -212,13 +215,17 @@ class MovieGenerationView(DetailView):
 
 class CreateMovie(LoginRequiredMixin, RedirectView):
     """ Create a movie. Admin access required for this long-running process. """
+    login_url = '/admin/login/'
     permanent = False
     query_string = False
 
-    def get_redirect_url(self, *args, **kwargs):
+    def _get_domain(self):
         relativeUrl = self.request.get_full_path()
-        absoluteUrl = self.request.build_absolute_uri()
-        domain = absoluteUrl[:absoluteUrl.find(relativeUrl)]
+        absoluteUrl = self.request.build_absolute_uri(relativeUrl)
+        return absoluteUrl[:absoluteUrl.find(relativeUrl)]
+
+    def get_redirect_url(self, *args, **kwargs):
+        domain = self._get_domain()
 
         slug = kwargs['slug']
         jsonconfig = JsonConfig.objects.get(slug=slug)  # pylint: disable=no-member
@@ -229,6 +236,7 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
         return reverse('movieOnlyView', args=(jsonconfig.slug,))
 
 
+@method_decorator(never_cache, name='dispatch')
 class VisualizeMovie(DetailView):
     """ Temporary view to see just the movie visualization.
         Delete once it's integrated into a share button."""

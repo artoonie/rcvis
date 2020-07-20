@@ -47,6 +47,9 @@ export OFFLINE_MODE=True
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
+# To generate videos, you need an SQS queue name:
+export SQS_QUEUE_NAME=''
+
 ```
 
 And running `source .env` to set up your environment.

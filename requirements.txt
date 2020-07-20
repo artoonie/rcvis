@@ -1,6 +1,7 @@
 boto3==1.14.20
 django-storages==1.9.1
 Django==3.0.8
+mock==4.0.2
 selenium==3.141.0
 psycopg2-binary==2.8.5
 pytz==2020.1

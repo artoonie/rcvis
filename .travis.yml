@@ -2,10 +2,6 @@ dist: xenial
 services:
   - xvfb
 
-env:
-  global:
-    - MOZ_HEADLESS=1
-
 git:
   depth: 3
 
@@ -18,14 +14,11 @@ python:
   - '3.6'
 
 addons:
-  firefox: "71.0"
+  chrome: stable
   sauce_connect: true
 
 before_install:
-  - wget https://github.com/mozilla/geckodriver/releases/download/v0.26.0/geckodriver-v0.26.0-linux64.tar.gz
-  - mkdir geckodriver
-  - tar -xzf geckodriver-v0.26.0-linux64.tar.gz
-  - sudo mv geckodriver /usr/local/bin/
+  - ./.ebextensions/files/install_chromedriver.sh
   # required for pycurl to install
   - sudo apt-get -y install libgnutls28-dev
 

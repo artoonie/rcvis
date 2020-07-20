@@ -12,6 +12,7 @@ from django.core.files import File
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
@@ -20,9 +21,10 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 from selenium.webdriver.support.ui import WebDriverWait
 
 from visualizer.graphCreator.graphCreator import BadJSONError
-from .models import JsonConfig
 from .views import _get_data_for_view
+from .models import JsonConfig
 from .forms import JsonConfigForm
+from .tasks import create_movie
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
@@ -31,36 +33,63 @@ FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
 
-def generate_random_valid_json_of_size(numBytes):
-    """ Generates a valid but strange JSON of size num_bytes and returns the filename """
-    filename = '/tmp/randomfile.json'
-    data = {
-        "config": {
-            "contest": "Nothing",
-            "date": "2020-07-12",
-            "threshold": "1"
-        },
-        "results": [{
-            "round": 1,
-            "tally": {
-                "Hero": "2"  # More candidates will go here
+class TestHelpers():
+    """ Helper function for various test classes below """
+    @classmethod
+    def generate_random_valid_json_of_size(cls, numBytes):
+        """ Generates a valid but strange JSON of size num_bytes and returns the filename """
+        filename = '/tmp/randomfile.json'
+        data = {
+            "config": {
+                "contest": "Nothing",
+                "date": "2020-07-12",
+                "threshold": "1"
             },
-            "tallyResults": [{
-                "elected": "Hero"
+            "results": [{
+                "round": 1,
+                "tally": {
+                    "Hero": "2"  # More candidates will go here
+                },
+                "tallyResults": [{
+                    "elected": "Hero"
+                }]
             }]
-        }]
-    }
+        }
 
-    # Generate a ton of empty data to create a valid JSON
-    tally = data['results'][0]['tally']
-    approximateBytesPerPerson = 30
-    for i in range(0, round(numBytes / approximateBytesPerPerson)):
-        tally['candidate_%08d' % i] = "0"
+        # Generate a ton of empty data to create a valid JSON
+        tally = data['results'][0]['tally']
+        approximateBytesPerPerson = 30
+        for i in range(0, round(numBytes / approximateBytesPerPerson)):
+            tally['candidate_%08d' % i] = "0"
 
-    with open(filename, 'w') as f:
-        json.dump(data, f)
+        with open(filename, 'w') as f:
+            json.dump(data, f)
 
-    return filename
+        return filename
+
+    @classmethod
+    def get_multiwinner_upload_response(cls, client):
+        """ Uploads the multiwinner json file and returns a response """
+        with open(FILENAME_MULTIWINNER) as f:
+            response = client.post('/upload.html', {'jsonFile': f})
+        return response
+
+    @classmethod
+    def get_latest_json_config(cls):
+        """ Return the JsonConfig of the last-uploaded file """
+        return JsonConfig.objects.latest('-id')  # pylint: disable=no-member
+
+    @classmethod
+    def get_headless_browser(cls):
+        """ Returns a headless browser """
+        chromeOptions = webdriver.chrome.options.Options()
+        chromeOptions.add_argument("--headless")
+        return webdriver.Chrome(options=chromeOptions)
+
+        # Or, Firefox
+        # firefoxOptions = webdriver.FirefoxOptions()
+        # firefoxOptions.set_headless()
+        # self.browser = webdriver.Firefox(firefox_options=firefoxOptions)
 
 
 class SimpleTests(TestCase):
@@ -72,12 +101,6 @@ class SimpleTests(TestCase):
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=File(f))
             return _get_data_for_view(config)
-
-    def _get_multiwinner_upload_response(self):
-        """ Uploads the multiwinner json file and returns a response """
-        with open(FILENAME_MULTIWINNER) as f:
-            response = self.client.post('/upload.html', {'jsonFile': f})
-        return response
 
     def test_opavote_loads(self):
         """ Opens the opavote file """
@@ -114,7 +137,7 @@ class SimpleTests(TestCase):
 
     def test_upload_file(self):
         """ Tests uploading a random file """
-        response = self._get_multiwinner_upload_response()
+        response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
                          "visualize=macomb-multiwinner-surplusjson")
@@ -131,14 +154,15 @@ class SimpleTests(TestCase):
         # First test it succeeds when it's an okay filesize
         # Caution, don't try to make this file huge or close to the limits, it'll slow
         # down the tests trying to load ~2mb of data...
-        acceptableSizeJson = generate_random_valid_json_of_size(1024 * 1024 * 0.1)  # 0.1 MB
+        acceptableSizeJson = TestHelpers.generate_random_valid_json_of_size(
+            1024 * 1024 * 0.1)  # 0.1 MB
         with open(acceptableSizeJson) as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], "visualize=randomfilejson")
 
         # Then verify it fails with a too-large filesize
-        tooLargeJson = generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
+        tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
         with open(tooLargeJson) as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
@@ -155,7 +179,7 @@ class ModelDeletionTests(TransactionTestCase):
         # Upload
         with open(FILENAME_MULTIWINNER) as f:
             self.client.post('/upload.html', {'jsonFile': f})
-        uploadedObject = JsonConfig.objects.latest('id')  # pylint: disable=no-member
+        uploadedObject = TestHelpers.get_latest_json_config()
 
         # Ensure it exists
         path = uploadedObject.jsonFile.path
@@ -382,8 +406,7 @@ class RestAPITests(APITestCase):
         """ Ensure that large files fail via the API as well """
         self._authenticate_as('notadmin')
         response = self._upload_file_for_api(
-            generate_random_valid_json_of_size(
-                1024 * 1024 * 3))  # 3mb
+            TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3))  # 3mb
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -415,14 +438,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                 desired_capabilities=capabilities,
                 command_executor=seleniumEndpoint)
         else:
-            chromeOptions = webdriver.chrome.options.Options()
-            chromeOptions.add_argument("--headless")
-            self.browser = webdriver.Chrome(options=chromeOptions)
-
-            # Or, Firefox
-            # firefoxOptions = webdriver.FirefoxOptions()
-            # firefoxOptions.set_headless()
-            # self.browser = webdriver.Firefox(firefox_options=firefoxOptions)
+            self.browser = TestHelpers.get_headless_browser()
 
         self.browser.implicitly_wait(10)
 
@@ -665,9 +681,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Use a fresh browser - we never want to hit the cache,
             # and there doesn't seem to be an easy way to skip the cache every time:
             # https://stackoverflow.com/a/9563341/1057105
-            firefoxOptions = webdriver.FirefoxOptions()
-            firefoxOptions.set_headless()
-            localBrowser = webdriver.Firefox(firefox_options=firefoxOptions)
+            localBrowser = TestHelpers.get_headless_browser()
 
             # First, navigate to a random URL to cache the static files
             localBrowser.get(self._make_url("/upload.html"))
@@ -698,7 +712,73 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._upload(FILENAME_ONE_ROUND)
         assert is_cache_much_faster()
 
-        # But just visiting the upload page and returning should not clear
-        # cache
+        # But just visiting the upload page and returning should not clear cache
         self.open("/upload.html")
         assert not is_cache_much_faster()
+
+
+class MovieCreationTests(StaticLiveServerTestCase):
+    """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
+
+    def test_movie_task_without_celery(self):
+        """ Test that the movie gets created when calling create_movie() directly """
+        # Upload a file
+        TestHelpers.get_multiwinner_upload_response(self.client)
+
+        # Create the movie
+        jsonConfig = TestHelpers.get_latest_json_config()
+        create_movie(jsonConfig.pk, self.live_server_url)
+
+        # TODO - why does this not work with .delay()? With celery running,
+        # and the correct live_server_url, it accesses my localhost database
+        # instead of the test database, so the pk doesn't align - why?
+
+        # Ensure it's completed
+        jsonConfig = TestHelpers.get_latest_json_config()
+        assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
+        assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
+
+        # Ensure it's loaded in the View
+        response = self.client.get('/visualizeMovie=macomb-multiwinner-surplusjson')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movie/only-movie.html')
+
+    @patch('visualizer.tasks.create_movie.delay')
+    def test_movie_task_by_url(self, mockCreateMovie):
+        """ Test create_movie() is called with .delay() when accessing /createMovie as an admin """
+        mockCreateMovie.return_value = None
+        mockCreateMovie.assert_not_called()
+
+        # Create admin user
+        admin = User.objects.create_user('admin', 'admin@example.com', 'password')
+        admin.is_staff = True
+        admin.save()
+
+        # Upload
+        response = TestHelpers.get_multiwinner_upload_response(self.client)
+        self.assertEqual(response['location'], "visualize=macomb-multiwinner-surplusjson")
+
+        # Create movie logged out, it should fail
+        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'],
+                         '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplusjson')
+        mockCreateMovie.assert_not_called()
+
+        # Log in and try again
+        self.client.post('/admin/login/', {'username': 'admin', 'password': 'password'})
+        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
+
+        # Assert it redirects to a waiting page
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'],
+                         "/visualizeMovie=macomb-multiwinner-surplusjson")
+
+        # Ensure progress has begun
+        mockCreateMovie.assert_called_once()
+        jsonConfig = TestHelpers.get_latest_json_config()
+        assert jsonConfig.isVideoGenerationInProgress
+
+        # Note - I wanted to test this without mocking, to watch the full
+        # celery cycle, but the live browser uses the localhost database
+        # not the test database and I haven't figured out how to resolve that

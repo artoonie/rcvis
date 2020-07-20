@@ -35,8 +35,11 @@ def create_movie(pk, domain):
 
 def _make_movies_for_config(browser, domain, jsonconfig):
     """ Create a movie, this time given a JsonConfig and selenium browser """
-    horizontal = _make_one_movie_at_resolution(browser, domain, jsonconfig, 1920, 1080)
-    vertical = _make_one_movie_at_resolution(browser, domain, jsonconfig, 1080, 1920)
+    path = reverse('movieGenerationView', args=(jsonconfig.slug,))
+    url = "%s%s" % (domain, path)
+
+    horizontal = _make_one_movie_at_resolution(browser, url, jsonconfig, 1920, 1080)
+    vertical = _make_one_movie_at_resolution(browser, url, jsonconfig, 1080, 1920)
 
     jsonconfig.movieHorizontal = horizontal
     jsonconfig.movieVertical = vertical
@@ -44,11 +47,9 @@ def _make_movies_for_config(browser, domain, jsonconfig):
     jsonconfig.save()
 
 
-def _make_one_movie_at_resolution(browser, domain, jsonconfig, width, height):
+def _make_one_movie_at_resolution(browser, url, jsonconfig, width, height):
     """ Create a movie at a specific resolution """
-    url = reverse('movieGenerationView', args=(jsonconfig.slug,))
-
-    browser.get("%s%s" % (domain, url))
+    browser.get(url)
     browser.set_window_size(width, height)
 
     imageClips = []
