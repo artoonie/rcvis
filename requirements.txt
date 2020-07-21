@@ -1,6 +1,7 @@
 boto3==1.14.20
 django-storages==1.9.1
 Django==3.0.8
+mock==4.0.2
 selenium==3.141.0
 psycopg2-binary==2.8.5
 pytz==2020.1
@@ -19,3 +20,9 @@ m2r==0.2.1
 # For django-rest
 djangorestframework==3.11.0
 markdown==3.2.2
+
+# For movie creation
+celery==4.4.6
+django-cleanup==5.0.0
+moviepy==1.0.3
+pycurl==7.43.0.5

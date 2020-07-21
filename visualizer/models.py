@@ -2,6 +2,7 @@
 
 from django.contrib import admin
 from django.core.cache import cache
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
@@ -19,6 +20,17 @@ class JsonConfig(models.Model):
         related_name='this_users_jsons',
         on_delete=models.CASCADE,
         null=True)
+
+    # Movie
+    isVideoGenerationInProgress = models.BooleanField(default=False)
+    movieHorizontal = models.OneToOneField('visualizer.AutoMovie',
+                                           related_name='+',  # disable related_name
+                                           on_delete=models.CASCADE,
+                                           null=True)
+    movieVertical = models.OneToOneField('visualizer.AutoMovie',
+                                         related_name='+',  # disable related_name
+                                         on_delete=models.CASCADE,
+                                         null=True)
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
@@ -81,3 +93,22 @@ class JsonConfig(models.Model):
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """
     list_display = ('slug', 'uploadedAt')
+
+
+class AutoMovie(models.Model):
+    """ An automatically-generated Movie showing the interaction. """
+    generatedOnApplicationVersion = models.CharField(max_length=30)
+    movieFile = models.FileField(upload_to='movies')
+
+    resolutionWidth = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(1920)])
+    resolutionHeight = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(1920)])
+
+    #pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Clear the cache. Otherwise, you'll continue to get the cached result
+        # of the old model.
+        cache.clear()
