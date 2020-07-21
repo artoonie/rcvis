@@ -18,7 +18,7 @@ addons:
   sauce_connect: true
 
 before_install:
-  - ./.ebextensions/files/install_chromedriver.sh
+  - ./scripts/install_chromedriver.sh
   # required for pycurl to install
   - sudo apt-get -y install libgnutls28-dev
 
@@ -30,7 +30,7 @@ install:
 
 script:
   - python3 manage.py test
-  - ./test_code_quality.sh
+  - ./scripts/test_code_quality.sh
   - bash <(curl -s https://codecov.io/bash)
 
 deploy:
