@@ -8,8 +8,8 @@ broker_url = 'sqs://'  # pylint: disable=invalid-name
 # List of modules to import when the Celery worker starts.
 imports = ('visualizer.tasks',)
 
-# File-based backend - won't work in the general case, but works for local testing
-result_backend = 'file:///var/celery/results' # pylint: disable=invalid-name
+# No backend - we don't care about the results, we'll update the database
+result_backend = None  # pylint: disable=invalid-name
 
 task_annotations = {'tasks.create_movie': {'rate_limit': '1/s'}}
 
