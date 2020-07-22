@@ -32,9 +32,9 @@ def _make_movies_for_config(browser, domain, jsonconfig):
     """ Create a movie, this time given a JsonConfig and selenium browser """
     movieCreator = MovieCreationFactory(browser, domain, jsonconfig)
     horizontal = movieCreator.make_one_movie_at_resolution(1920, 1080)
-    #vertical = movieCreator.make_one_movie_at_resolution(1080, 1920)
+    vertical = movieCreator.make_one_movie_at_resolution(1080, 1920)
 
     jsonconfig.movieHorizontal = horizontal
-    #jsonconfig.movieVertical = vertical
+    jsonconfig.movieVertical = vertical
     jsonconfig.isVideoGenerationInProgress = False
     jsonconfig.save()

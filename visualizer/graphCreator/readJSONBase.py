@@ -18,6 +18,7 @@ class JSONReaderBase():
     items: list
 
     def __init__(self, fileObj):
+        fileObj.seek(0)  # reset file position
         self.parse_json_data(json.load(fileObj))
         self.set_elimination_order(self.rounds, self.items)
 

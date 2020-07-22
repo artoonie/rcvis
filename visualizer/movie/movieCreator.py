@@ -108,6 +108,10 @@ class SingleMovieCreator():
         combined = combined.set_audio(audioClip)
         return combined
 
+    def _getNumRounds(self):
+        """ Returns the number of rounds in this jsonconfig """
+        return len(self.graph.summarize().rounds)
+
     def makeMovie(self, outputFilename):
         """ Create a movie at a specific resolution """
         self.browser.set_window_size(self.width, self.height)
@@ -119,7 +123,7 @@ class SingleMovieCreator():
         imageClips.append(self._make_title_card())
 
         # Each round
-        for i in range(len(self.graph.summarize().rounds)):
+        for i in range(self._getNumRounds()):
             clip = self._generate_clip_for_round(i, roundDescriber)
             imageClips.append(clip)
 
@@ -150,11 +154,11 @@ class MovieCreationFactory():
         self.browser.set_window_size(width, height)
 
         creator = SingleMovieCreator(
-            self.browser,
-            self.textToSpeechFactory,
-            self.jsonconfig,
-            width,
-            height)
+            browser=self.browser,
+            textToSpeechFactory=self.textToSpeechFactory,
+            jsonconfig=self.jsonconfig,
+            width=width,
+            height=height)
         with tempfile.NamedTemporaryFile(suffix=".mp4") as tempFile:
             creator.makeMovie(tempFile.name)
 

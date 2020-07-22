@@ -5,6 +5,7 @@ Unit and integration tests
 from enum import Enum
 import json
 import os
+import shutil
 import time
 
 from django.core.cache import cache
@@ -31,6 +32,7 @@ FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
+FILENAME_AUDIO = 'testData/audio.mp3'
 
 
 class TestHelpers():
@@ -720,10 +722,38 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 class MovieCreationTests(StaticLiveServerTestCase):
     """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
 
-    def test_movie_task_without_celery(self):
+    @patch('visualizer.movie.movieCreator.SingleMovieCreator._getNumRounds')
+    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._spawn_task')
+    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._get_task_status')
+    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._download_then_delete')
+    def test_movie_task_without_celery(
+            self,
+            mockDownloadThenDelete,
+            mockGenerateAudioGetTaskStatus,
+            mockGenerateAudioSpawn,
+            mockGetNumRounds):
         """ Test that the movie gets created when calling create_movie() directly """
+        # Mocks to speed things up
+        mockGetNumRounds.return_value = 1  # speed up the test
+        mockGenerateAudioSpawn.return_value = {
+            'SynthesisTask': {
+                'TaskId': 0
+            }
+        }
+        mockGenerateAudioGetTaskStatus.return_value = {
+            'SynthesisTask': {
+                'TaskStatus': 'completed',
+                'OutputUri': 'https://bucket.s3-region.amazonaws.com/generated_speech.fakefile.mp3'
+            }
+        }
+        mockDownloadThenDelete.side_effect = lambda uri, toFilename: {
+            shutil.copy(FILENAME_AUDIO, toFilename)
+        }
+
         # Upload a file
+        print("NUMBER", JsonConfig.objects.all())  # pylint: disable=no-member
         TestHelpers.get_multiwinner_upload_response(self.client)
+        print("NUMBER", JsonConfig.objects.all())  # pylint: disable=no-member
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_json_config()
