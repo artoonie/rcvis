@@ -19,7 +19,7 @@ urlpatterns = [
     path('visualizeEmbedded=<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
 
-    path('createMovie=<slug>', views.CreateMovie.as_view()),
+    path('createMovie=<slug>', views.CreateMovie.as_view(), name='createMovie'),
     path(
         'movieGenerationView=<slug>',
         views.MovieGenerationView.as_view(),

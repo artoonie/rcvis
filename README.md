@@ -47,12 +47,18 @@ export OFFLINE_MODE=True
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
-# To generate videos, you need an SQS queue name:
+# To generate videos, you need an SQS queue name and imagemagick:
 export SQS_QUEUE_NAME=''
+export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
 
 ```
 
 And running `source .env` to set up your environment.
+
+To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
+```xml
+<policy domain=”path” rights=”none” pattern=”@*” />
+```
 
 ## Examples
 Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
