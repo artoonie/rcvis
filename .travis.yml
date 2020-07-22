@@ -19,8 +19,9 @@ addons:
 
 before_install:
   - ./scripts/install_chromedriver.sh
+  - sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh
   # required for pycurl to install
-  - sudo apt-get -y install libgnutls28-dev
+  - sudo apt-get -y install libgnutls28-dev imagemagick ffmpeg
 
 install:
   - virtualenv venv

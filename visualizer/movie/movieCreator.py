@@ -7,6 +7,7 @@ from django.core.files import File
 from django.urls import reverse
 from moviepy.editor import CompositeVideoClip, ImageClip, TextClip, concatenate_videoclips, AudioFileClip
 
+from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
 from visualizer.models import AutoMovie
 from visualizer.movie.textToSpeech import TextToSpeechFactory
@@ -26,12 +27,14 @@ class SingleMovieCreator():
         self.width = width
         self.height = height
 
+        self.fontName = MOVIE_FONT_NAME
+
     def _text_on_background(self, writtenText, spokenText, backgroundImageFn):
         """ Writes the given text on the given background image, plus adds audio as described by spokenText. writtenText and spokenText should be the same in most cases. """
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(spokenText)
 
         title = TextClip(writtenText,
-                         font="Roboto",
+                         font=self.fontName,
                          fontsize=70,
                          color="black",
                          size=(self.width, self.height))
@@ -77,7 +80,7 @@ class SingleMovieCreator():
         time.sleep(0.1)
 
         roundText = TextClip("\nRound " + str(roundNum + 1),
-                             font="Roboto",
+                             font=self.fontName,
                              fontsize=70,
                              color="black",
                              size=(self.width, self.height),
@@ -85,7 +88,7 @@ class SingleMovieCreator():
                              align="North")
 
         captionText = TextClip(caption,
-                               font="Roboto",
+                               font=self.fontName,
                                fontsize=40,
                                color="black",
                                size=(self.width, self.height),

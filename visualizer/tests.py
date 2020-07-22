@@ -751,9 +751,7 @@ class MovieCreationTests(StaticLiveServerTestCase):
         }
 
         # Upload a file
-        print("NUMBER", JsonConfig.objects.all())  # pylint: disable=no-member
         TestHelpers.get_multiwinner_upload_response(self.client)
-        print("NUMBER", JsonConfig.objects.all())  # pylint: disable=no-member
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_json_config()
