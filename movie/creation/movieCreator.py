@@ -188,7 +188,7 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
 
 
 class MovieCreationFactory():  # pylint: disable=too-few-public-methods
-    """ Holds all the data necessary to creat a movie at """
+    """ Holds expensive-to-create resources necessary to create a movie """
 
     def __init__(self, browser, domain, jsonconfig):
         """
