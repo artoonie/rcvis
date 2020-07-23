@@ -135,7 +135,10 @@ class SingleMovieCreator():
 
         # Save to file
         composite = concatenate_videoclips(imageClips)
-        composite.write_videofile(outputFilename, fps=12)
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tf:
+            # Needs this tempfile or elasticbeanstalk will try writing to somewhere it can't
+            # delete=False because moviepy will delete the file for us
+            composite.write_videofile(outputFilename, fps=12, temp_audiofile=tf.name)
 
 
 class MovieCreationFactory():

@@ -22,10 +22,11 @@ def create_movie(pk, domain):
     browser = webdriver.Chrome('/usr/bin/chromedriver', options=chromeOptions)
     browser.implicitly_wait(10)
 
-    jsonconfig = JsonConfig.objects.get(pk=pk)  # pylint: disable=no-member
-    _make_movies_for_config(browser, domain, jsonconfig)
-
-    browser.quit()
+    try:
+        jsonconfig = JsonConfig.objects.get(pk=pk)  # pylint: disable=no-member
+        _make_movies_for_config(browser, domain, jsonconfig)
+    finally:
+        browser.quit()
 
 
 def _make_movies_for_config(browser, domain, jsonconfig):
