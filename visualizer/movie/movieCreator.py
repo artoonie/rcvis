@@ -42,7 +42,7 @@ class SingleMovieCreator():
                          size=(self.width, self.height))
 
         background_0 = ImageClip(backgroundImageFn)
-        background = background_0.resize(width=self.width, height=self.height)
+        background = background_0.resize((self.width, self.height))
 
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
@@ -111,10 +111,11 @@ class SingleMovieCreator():
 
         combined_0 = CompositeVideoClip([imageClip, roundText, captionText])
         combined_1 = combined_0.set_duration(audioDuration)
-        combined = combined_1.set_audio(audioClip)
+        combined_2 = combined_1.set_audio(audioClip)
+        combined = combined_2.resize((self.width, self.height))
 
         self._all_clips_for_gc.extend([audioClip,
-                                       combined_0, combined_1, combined,
+                                       combined_0, combined_1, combined_2, combined,
                                        roundText_0, roundText,
                                        imageClip_0, imageClip,
                                        captionText_0, captionText
