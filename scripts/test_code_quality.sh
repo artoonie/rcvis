@@ -13,11 +13,11 @@ if [ $errorCode != 0 ]; then
 fi
 
 echo "Checking for autopep8 differences"
-autopep8 --diff --exit-code --aggressive --aggressive -r --max-line-length 100 visualizer/ movie/
+autopep8 --diff --exit-code --aggressive --aggressive -r --max-line-length 100 visualizer movie
 errorCode=$?
 if [ $errorCode != 0 ]; then
     echo "You need to run autopep8:"
-    echo "$> autopep8 --in-place --aggressive --aggressive -r --max-line-length 100 visualizer/ movie/"
+    echo "$> autopep8 --in-place --aggressive --aggressive -r --max-line-length 100 visualizer movie"
     myExitCode=$((myExitCode+1))
 fi
 

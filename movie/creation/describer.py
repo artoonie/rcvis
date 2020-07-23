@@ -5,7 +5,7 @@ Describes what happened in each round of an RCV Election in plain English.
 from math import fmod
 
 
-class Describer:
+class Describer:  # pylint: disable=too-few-public-methods
     """ Describes a graph in plain English.
         Iteratively call describe_round() on each round for the given graph. """
 
@@ -13,7 +13,8 @@ class Describer:
         """ Initializes the Describer """
         self.graph = graph
 
-    def _describe_the_round_number(self, roundNum):
+    @classmethod
+    def _describe_the_round_number(cls, roundNum):
         """ e.g. "In the third round, " """
         roundDescribers = [
             "first",
@@ -51,15 +52,17 @@ class Describer:
 
         return mostVotes.name + " received the most votes. "
 
-    def _text_to_describe_list_of_names(self, listOfNames, whatHappendToThem):
-        """ e.g. With listOfNames = [Foo,Bar,Baz] and whatHappendToThem="ate chips":
-            "Foo, Bar, and Baz ate chips. "
-            listOfNames can be empty, in which case the empty string is returned.
-            """
+    @classmethod
+    def _text_to_describe_list_of_names(cls, listOfNames, whatHappenedToThem):
+        """
+        e.g. With listOfNames = [Foo,Bar,Baz] and whatHappenedToThem="ate chips":
+        "Foo, Bar, and Baz ate chips. "
+        listOfNames can be empty, in which case the empty string is returned.
+        """
         if len(listOfNames) == 0:
             return ""
         if len(listOfNames) == 1:
-            return listOfNames[0] + whatHappendToThem
+            return listOfNames[0] + whatHappenedToThem
 
         lastNameInList = listOfNames[-1]
         otherNamesInList = ", ".join(listOfNames[:-2])
@@ -92,7 +95,8 @@ class Describer:
             surplusNumVotes = redistributedSumStrInt
         else:
             surplusNumVotes = "about " + redistributedSumStrInt
-        whatHappened = f" had more than enough votes to win, so to ensure no vote is wasted, {surplusNumVotes} surplus votes were redistributed to other candidates. "
+        whatHappened = (" had more than enough votes to win, so to ensure no vote is wasted, "
+                        f"{surplusNumVotes} surplus votes were redistributed to other candidates. ")
         return self._text_to_describe_list_of_names(redistributedNames, whatHappened)
 
     def _describe_winners_this_round(self, roundNum):

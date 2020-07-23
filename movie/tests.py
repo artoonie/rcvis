@@ -19,7 +19,7 @@ FILENAME_AUDIO = 'testData/audio.mp3'
 class MovieCreationTests(StaticLiveServerTestCase):
     """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
 
-    @patch('movie.creation.movieCreator.SingleMovieCreator._getNumRounds')
+    @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
     @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._spawn_task')
     @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._get_task_status')
     @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._download_then_delete')

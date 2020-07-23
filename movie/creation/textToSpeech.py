@@ -2,23 +2,22 @@
 Text-to-speech via Amazon Polly.
 """
 
-import boto3
 import os
 import tempfile
 import time
 
+import boto3
+
 
 class AudioGenerationFailedException(Exception):
     """ AWS Polly returned an audio generation failure. """
-    pass
 
 
 class AudioGenerationTimedOutException(Exception):
     """ Waited too long without a response """
-    pass
 
 
-class GeneratedAudioWrapper():
+class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
     """ To facilitate asynchronous waiting for Polly audio generation.
         Initializaton spawns the AWS job, and there are various methods to poll for the result. """
     prefix = 'generated_speech'
@@ -56,7 +55,10 @@ class GeneratedAudioWrapper():
         self.s3Client.delete_object(Key=key, Bucket=self.bucketName)
 
     def download_if_ready(self, toFilename):
-        """ Download the result if it's ready. Can only be called once, then deletes the result from S3 """
+        """
+        Download the result if it's ready.
+        Can only be called once, then deletes the result from S3.
+        """
         assert not self.alreadyDownloaded
 
         taskStatus = self._get_task_status()
@@ -81,7 +83,7 @@ class GeneratedAudioWrapper():
 
         tf = tempfile.NamedTemporaryFile(suffix=".mp3")
 
-        for i in range(numPolls):
+        for _ in range(numPolls):
             time.sleep(pollIntervalSeconds)
             wasDownloaded = self.download_if_ready(tf.name)
             if wasDownloaded:
@@ -89,7 +91,7 @@ class GeneratedAudioWrapper():
         raise AudioGenerationTimedOutException()
 
 
-class TextToSpeechFactory():
+class TextToSpeechFactory():  # pylint: disable=too-few-public-methods
     """ Holds on to boto clients, initializing an AWS session once and allowing reuses
         of that session for text-to-speech. """
 

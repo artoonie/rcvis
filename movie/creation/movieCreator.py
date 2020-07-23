@@ -1,11 +1,15 @@
-""" Movie generation entry point. Allows creation of movies from a jsonConfig at various resolutions. """
+"""
+Movie generation entry point.
+Allows creation of movies from a jsonConfig at various resolutions.
+"""
 
 import tempfile
 import time
 
 from django.core.files import File
 from django.urls import reverse
-from moviepy.editor import CompositeVideoClip, ImageClip, TextClip, concatenate_videoclips, AudioFileClip
+from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip,\
+    concatenate_videoclips
 
 from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
@@ -14,46 +18,49 @@ from movie.creation.textToSpeech import TextToSpeechFactory
 from movie.creation.describer import Describer
 
 
-class SingleMovieCreator():
+class SingleMovieCreator():  # pylint: disable=too-few-public-methods
     """ Class for creation of a single movie at a single resolution. """
 
-    def __init__(self, browser, textToSpeechFactory, jsonconfig, width, height):
+    def __init__(self, browser, textToSpeechFactory, jsonconfig, size):
         """ Initialize all class data. """
         self.browser = browser
         self.textToSpeechFactory = textToSpeechFactory
         self.graph = make_graph_with_file(jsonconfig.jsonFile,
                                           jsonconfig.excludeFinalWinnerAndEliminatedCandidate)
         self.slug = jsonconfig.slug
-        self.width = width
-        self.height = height
+        self.size = size
 
         self.fontName = MOVIE_FONT_NAME
 
-        self._all_clips_for_gc = []
+        self.toDelete = []
 
     def _text_on_background(self, writtenText, spokenText, backgroundImageFn):
-        """ Writes the given text on the given background image, plus adds audio as described by spokenText. writtenText and spokenText should be the same in most cases. """
+        """
+        Writes writtenText on the given background image,
+        and creates audio with text-to-speech spokenText.
+        writtenText and spokenText should be the same in most cases.
+        """
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(spokenText)
 
         title = TextClip(writtenText,
                          font=self.fontName,
                          fontsize=70,
                          color="black",
-                         size=(self.width, self.height))
+                         size=self.size)
 
-        background_0 = ImageClip(backgroundImageFn)
-        background = background_0.resize((self.width, self.height))
+        background0 = ImageClip(backgroundImageFn)
+        background = background0.resize(self.size)  # pylint: disable=no-member
 
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
         duration = audioClip.duration
 
-        combined_0 = CompositeVideoClip([background, title])
-        combined_1 = combined_0.set_duration(duration)
-        combined = combined_1.set_audio(audioClip)
+        combined0 = CompositeVideoClip([background, title])
+        combined1 = combined0.set_duration(duration)
+        combined = combined1.set_audio(audioClip)
 
-        self._all_clips_for_gc.extend([title, background_0, background, audioClip,
-                                       combined_0, combined_1, combined])
+        self.toDelete.extend([title, background0, background, audioClip,
+                              combined0, combined1, combined])
 
         return combined
 
@@ -66,7 +73,7 @@ class SingleMovieCreator():
     def _make_closing_card(self):
         """ Creates the credits / closing card. """
         writtenText = f"See more details at rcvis.com/visualize={self.slug}"
-        spokenText = f"See more details at R C Vis dot com"
+        spokenText = "See more details at R C Vis dot com"
         backgroundImageFn = "static/movie/bg-horizontal.png"
         return self._text_on_background(writtenText, spokenText, backgroundImageFn)
 
@@ -74,62 +81,81 @@ class SingleMovieCreator():
         """ Returns a GeneratedAudioWrapper which you should poll for completion """
         return self.textToSpeechFactory.text_to_speech(caption)
 
-    def _generate_clip_for_round(self, roundNum, roundDescriber):
-        """ Generates the entire clip describing this round. """
-        caption = roundDescriber.describe_round(roundNum)
-        generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
+    def _generate_captions_with_duration(self, roundNum, caption, duration):
+        roundText0 = TextClip("\nRound " + str(roundNum + 1),
+                              font=self.fontName,
+                              fontsize=70,
+                              color="black",
+                              size=(self.size),
+                              method="caption",
+                              align="North")
 
+        captionText0 = TextClip(caption,
+                                font=self.fontName,
+                                fontsize=40,
+                                color="black",
+                                size=(self.size),
+                                method="caption",
+                                align="South")
+        roundText = roundText0.set_duration(duration)
+        captionText = captionText0.set_duration(duration)
+
+        self.toDelete.extend([roundText0, roundText, captionText0, captionText])
+
+        return [roundText, captionText]
+
+    def _generate_image_for_round_synchronously(self, roundNum):
         self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
         time.sleep(0.1)
 
-        roundText_0 = TextClip("\nRound " + str(roundNum + 1),
-                               font=self.fontName,
-                               fontsize=70,
-                               color="black",
-                               size=(self.width, self.height),
-                               method="caption",
-                               align="North")
-
-        captionText_0 = TextClip(caption,
-                                 font=self.fontName,
-                                 fontsize=40,
-                                 color="black",
-                                 size=(self.width, self.height),
-                                 method="caption",
-                                 align="South")
-
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)
-            imageClip_0 = ImageClip(tf.name)
+            imageClip = ImageClip(tf.name)
 
+        self.toDelete.append(imageClip)
+
+        return imageClip
+
+    def _generate_clip_for_round(self, roundNum, roundDescriber):
+        """ Generates the entire clip describing this round. """
+        # Create a caption for the round
+        caption = roundDescriber.describe_round(roundNum)
+
+        # Create audio
+        generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
+
+        # Create background image
+        imageClip0 = self._generate_image_for_round_synchronously(roundNum)
+
+        # Download audio
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
         audioDuration = audioClip.duration
-        roundText = roundText_0.set_duration(audioDuration)
-        captionText = captionText_0.set_duration(audioDuration)
-        imageClip = imageClip_0.set_duration(audioDuration)
 
-        combined_0 = CompositeVideoClip([imageClip, roundText, captionText])
-        combined_1 = combined_0.set_duration(audioDuration)
-        combined_2 = combined_1.set_audio(audioClip)
-        combined = combined_2.resize((self.width, self.height))
+        # Create captions and set durations
+        captionClips = self._generate_captions_with_duration(roundNum, caption, audioDuration)
+        imageClip = imageClip0.set_duration(audioDuration)
 
-        self._all_clips_for_gc.extend([audioClip,
-                                       combined_0, combined_1, combined_2, combined,
-                                       roundText_0, roundText,
-                                       imageClip_0, imageClip,
-                                       captionText_0, captionText
-                                       ])
+        # Combine everything
+        combined0 = CompositeVideoClip([imageClip] + captionClips)
+        combined1 = combined0.set_duration(audioDuration)
+        combined2 = combined1.set_audio(audioClip)
+        combined = combined2.resize(self.size)
+
+        self.toDelete.extend([audioClip,
+                              combined0, combined1, combined2, combined,
+                              imageClip0, imageClip])
+        self.toDelete.extend(captionClips)
 
         return combined
 
-    def _getNumRounds(self):
+    def _get_num_rounds(self):
         """ Returns the number of rounds in this jsonconfig """
         return len(self.graph.summarize().rounds)
 
-    def makeMovie(self, outputFilename):
+    def make_movie(self, outputFilename):
         """ Create a movie at a specific resolution """
-        self.browser.set_window_size(self.width, self.height)
+        self.browser.set_window_size(self.size[0], self.size[1])
         roundDescriber = Describer(self.graph)
 
         imageClips = []
@@ -138,7 +164,7 @@ class SingleMovieCreator():
         imageClips.append(self._make_title_card())
 
         # Each round
-        for i in range(self._getNumRounds()):
+        for i in range(self._get_num_rounds()):
             clip = self._generate_clip_for_round(i, roundDescriber)
             imageClips.append(clip)
 
@@ -153,19 +179,21 @@ class SingleMovieCreator():
             composite.write_videofile(outputFilename, fps=12, temp_audiofile=tf.name)
 
         # moviepy is awful at garbage collection. Do it manually.
-        self._all_clips_for_gc.extend(imageClips)
-        self._all_clips_for_gc.append(composite)
-        for clip in self._all_clips_for_gc:
+        self.toDelete.extend(imageClips)
+        self.toDelete.append(composite)
+        for clip in self.toDelete:
             clip.close()
             del clip
-        self._all_clips_for_gc = []
+        self.toDelete = []
 
 
-class MovieCreationFactory():
+class MovieCreationFactory():  # pylint: disable=too-few-public-methods
     """ Holds all the data necessary to creat a movie at """
 
     def __init__(self, browser, domain, jsonconfig):
-        """ Initializes the factory, accessing the movie-generation view for the given jsonconfig """
+        """
+        Initializes the factory, accessing the movie-generation view for the given jsonconfig
+        """
         self.browser = browser
         self.jsonconfig = jsonconfig
         self.textToSpeechFactory = TextToSpeechFactory()
@@ -183,10 +211,9 @@ class MovieCreationFactory():
             browser=self.browser,
             textToSpeechFactory=self.textToSpeechFactory,
             jsonconfig=self.jsonconfig,
-            width=width,
-            height=height)
+            size=(width, height))
         with tempfile.NamedTemporaryFile(suffix=".mp4") as tempFile:
-            creator.makeMovie(tempFile.name)
+            creator.make_movie(tempFile.name)
 
             recommendedFilename = self.jsonconfig.slug + ".mp4"
             movie = Movie()
