@@ -6,7 +6,7 @@ import os
 broker_url = 'sqs://'  # pylint: disable=invalid-name
 
 # List of modules to import when the Celery worker starts.
-imports = ('visualizer.tasks',)
+imports = ('movie.tasks',)
 
 # No backend - we don't care about the results, we'll update the database
 result_backend = None  # pylint: disable=invalid-name

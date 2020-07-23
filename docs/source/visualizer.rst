@@ -12,7 +12,7 @@ Subpackages
 Admin
 -----------------------
 
-.. automodule:: admin
+.. automodule:: visualizer.admin
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ Admin
 Common
 ------------------------
 
-.. automodule:: common
+.. automodule:: visualizer.common
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,7 +36,7 @@ Forms
 JS Utils
 -------------------------
 
-.. automodule:: jsUtils
+.. automodule:: visualizer.jsUtils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,14 +45,6 @@ Models
 ------------------------
 
 .. automodule:: visualizer.models
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Tasks
------------------------
-
-.. automodule:: visualizer.tasks
    :members:
    :undoc-members:
    :show-inheritance:

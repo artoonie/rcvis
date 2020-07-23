@@ -7,6 +7,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('visualizer.urls')),
+    path('', include('movie.urls')),
     path('admin/', admin.site.urls),
 ]
 if settings.OFFLINE_MODE:

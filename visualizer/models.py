@@ -1,10 +1,18 @@
 """ The django object models """
 
-from django.contrib import admin
 from django.core.cache import cache
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.text import slugify
+from django.utils.translation import ugettext as _
+
+
+class MovieGenerationStatuses(models.IntegerChoices):
+    """ Describes the status of movie generation for this model """
+    NOT_REQUESTED = 0, _('No movie generation has been requested')
+    NOT_STARTED = 1, _('Movie generation has been requested but not started')
+    PICKED_UP_BY_TASK = 2, _('Movie generation task has begun')
+    LANDSCAPE_COMPLETE = 3, _('Landscape generation complete, portrait pending')
+    COMPLETE = 4, _('Complete')
 
 
 class JsonConfig(models.Model):
@@ -22,12 +30,15 @@ class JsonConfig(models.Model):
         null=True)
 
     # Movie
-    isVideoGenerationInProgress = models.BooleanField(default=False)
-    movieHorizontal = models.OneToOneField('visualizer.AutoMovie',
+    movieGenerationStatus = models.IntegerField(
+        choices=MovieGenerationStatuses.choices,
+        default=0,
+    )
+    movieHorizontal = models.OneToOneField('movie.Movie',
                                            related_name='+',  # disable related_name
                                            on_delete=models.CASCADE,
                                            null=True)
-    movieVertical = models.OneToOneField('visualizer.AutoMovie',
+    movieVertical = models.OneToOneField('movie.Movie',
                                          related_name='+',  # disable related_name
                                          on_delete=models.CASCADE,
                                          null=True)
@@ -87,28 +98,3 @@ class JsonConfig(models.Model):
         cache.clear()
 
         super().save(*args, **kwargs)
-
-
-@admin.register(JsonConfig)
-class JsonAdmin(admin.ModelAdmin):
-    """ The admin page to modify JsonConfig """
-    list_display = ('slug', 'uploadedAt')
-
-
-class AutoMovie(models.Model):
-    """ An automatically-generated Movie showing the interaction. """
-    generatedOnApplicationVersion = models.CharField(max_length=30)
-    movieFile = models.FileField(upload_to='movies')
-
-    resolutionWidth = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(1920)])
-    resolutionHeight = models.PositiveIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(1920)])
-
-    #pylint: disable=signature-differs
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        # Clear the cache. Otherwise, you'll continue to get the cached result
-        # of the old model.
-        cache.clear()

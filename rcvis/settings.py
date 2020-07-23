@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'visualizer',
+    'movie',
     'storages',
     'django_nose',
     'rest_framework',

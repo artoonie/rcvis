@@ -15,9 +15,11 @@ Modules
    :maxdepth: 2
    :caption: Contents:
 
-   modules
+   visualizer
+   movie
    graphCreator
    api
+   common
 
 
 

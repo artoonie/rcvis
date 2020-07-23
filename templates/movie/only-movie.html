@@ -9,11 +9,7 @@
 </head>
 
 <body>
-    {% if config.isVideoGenerationInProgress %}
-    <p>A new video is currently being generated - check back shortly.</p>
-    {% else %}
-    <p>Debug info: Already cached!</p>
-    {% endif %}
+    <p>Video generation status: {{ config.get_movieGenerationStatus_display }}</p>
 
     <p><a href="/createMovie={{ config.slug }}">Regenerate Movie</a></p>
 
