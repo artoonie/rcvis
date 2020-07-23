@@ -1,4 +1,5 @@
 """ Models for storing data about a movie """
+from django.contrib import admin
 from django.core.cache import cache
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -21,3 +22,12 @@ class Movie(models.Model):
         # Clear the cache. Otherwise, you'll continue to get the cached result
         # of the old model.
         cache.clear()
+
+
+@admin.register(Movie)
+class JsonAdmin(admin.ModelAdmin):
+    """ The admin page to modify JsonConfig """
+    list_display = ('generatedOnApplicationVersion',
+                    'movieFile',
+                    'resolutionWidth',
+                    'resolutionHeight')
