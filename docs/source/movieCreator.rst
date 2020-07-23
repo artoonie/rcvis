@@ -4,7 +4,7 @@ Movie Creator
 Movie Creator
 -------------------------------------
 
-.. automodule:: movie.creation.describer
+.. automodule:: movie.creation.movieCreator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ Round Describer
 Text-to-Speech
 -------------------------------------
 
-.. automodule:: movie.creation.describer
+.. automodule:: movie.creation.textToSpeech
    :members:
    :undoc-members:
    :show-inheritance:

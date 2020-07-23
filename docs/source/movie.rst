@@ -20,11 +20,7 @@ Models
 
 Tasks
 -----------------------
-
-.. automodule:: movie.tasks
-   :members:
-   :undoc-members:
-   :show-inheritance:
+Tasks fail to generate docs on readthedocs.io, skipping...
 
 Tests
 -----------------------
