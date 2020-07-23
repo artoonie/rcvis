@@ -16,7 +16,6 @@ def get_correct_reader_for(jsonFile):
     except Exception as rcvrcException:  # pylint: disable=broad-except
         try:
             exceptions["RCVRC JSON Errors"] = rcvrcException
-            jsonFile.seek(0)  # reset file position
             jsonReader = opavoteJson.JSONReader(jsonFile)
         except Exception as opavoteException:  # pylint: disable=broad-except
             exceptions["Opavote JSON Errors"] = opavoteException

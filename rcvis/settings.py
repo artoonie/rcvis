@@ -203,3 +203,5 @@ REST_FRAMEWORK = {
     }
 
 }
+
+MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
