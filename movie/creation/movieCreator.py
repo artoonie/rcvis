@@ -9,9 +9,9 @@ from moviepy.editor import CompositeVideoClip, ImageClip, TextClip, concatenate_
 
 from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
-from visualizer.models import AutoMovie
-from visualizer.movie.textToSpeech import TextToSpeechFactory
-from visualizer.movie.describer import Describer
+from movie.models import Movie
+from movie.creation.textToSpeech import TextToSpeechFactory
+from movie.creation.describer import Describer
 
 
 class SingleMovieCreator():
@@ -189,7 +189,7 @@ class MovieCreationFactory():
             creator.makeMovie(tempFile.name)
 
             recommendedFilename = self.jsonconfig.slug + ".mp4"
-            movie = AutoMovie()
+            movie = Movie()
             movie.resolutionWidth = width
             movie.resolutionHeight = height
             movie.generatedOnApplicationVersion = "TODO"

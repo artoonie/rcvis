@@ -5,6 +5,7 @@ rcvis.egg-info
 db.sqlite3
 docs/build
 .coverage
+media/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

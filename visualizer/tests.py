@@ -1,11 +1,10 @@
 """
-Unit and integration tests
+Unit and integration tests for the core visualizer app
 """
 
 from enum import Enum
 import json
 import os
-import shutil
 import time
 
 from django.core.cache import cache
@@ -13,7 +12,6 @@ from django.core.files import File
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
@@ -21,77 +19,17 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
+from common.testUtils import TestHelpers
 from visualizer.graphCreator.graphCreator import BadJSONError
-from .views import _get_data_for_view
-from .models import JsonConfig
-from .forms import JsonConfigForm
-from .tasks import create_movie
+from visualizer.views import _get_data_for_view
+from visualizer.models import JsonConfig
+from visualizer.forms import JsonConfigForm
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
-FILENAME_AUDIO = 'testData/audio.mp3'
-
-
-class TestHelpers():
-    """ Helper function for various test classes below """
-    @classmethod
-    def generate_random_valid_json_of_size(cls, numBytes):
-        """ Generates a valid but strange JSON of size num_bytes and returns the filename """
-        filename = '/tmp/randomfile.json'
-        data = {
-            "config": {
-                "contest": "Nothing",
-                "date": "2020-07-12",
-                "threshold": "1"
-            },
-            "results": [{
-                "round": 1,
-                "tally": {
-                    "Hero": "2"  # More candidates will go here
-                },
-                "tallyResults": [{
-                    "elected": "Hero"
-                }]
-            }]
-        }
-
-        # Generate a ton of empty data to create a valid JSON
-        tally = data['results'][0]['tally']
-        approximateBytesPerPerson = 30
-        for i in range(0, round(numBytes / approximateBytesPerPerson)):
-            tally['candidate_%08d' % i] = "0"
-
-        with open(filename, 'w') as f:
-            json.dump(data, f)
-
-        return filename
-
-    @classmethod
-    def get_multiwinner_upload_response(cls, client):
-        """ Uploads the multiwinner json file and returns a response """
-        with open(FILENAME_MULTIWINNER) as f:
-            response = client.post('/upload.html', {'jsonFile': f})
-        return response
-
-    @classmethod
-    def get_latest_json_config(cls):
-        """ Return the JsonConfig of the last-uploaded file """
-        return JsonConfig.objects.latest('-id')  # pylint: disable=no-member
-
-    @classmethod
-    def get_headless_browser(cls):
-        """ Returns a headless browser """
-        chromeOptions = webdriver.chrome.options.Options()
-        chromeOptions.add_argument("--headless")
-        return webdriver.Chrome(options=chromeOptions)
-
-        # Or, Firefox
-        # firefoxOptions = webdriver.FirefoxOptions()
-        # firefoxOptions.set_headless()
-        # self.browser = webdriver.Firefox(firefox_options=firefoxOptions)
 
 
 class SimpleTests(TestCase):
@@ -717,96 +655,3 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # But just visiting the upload page and returning should not clear cache
         self.open("/upload.html")
         assert not is_cache_much_faster()
-
-
-class MovieCreationTests(StaticLiveServerTestCase):
-    """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
-
-    @patch('visualizer.movie.movieCreator.SingleMovieCreator._getNumRounds')
-    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._spawn_task')
-    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._get_task_status')
-    @patch('visualizer.movie.textToSpeech.GeneratedAudioWrapper._download_then_delete')
-    def test_movie_task_without_celery(
-            self,
-            mockDownloadThenDelete,
-            mockGenerateAudioGetTaskStatus,
-            mockGenerateAudioSpawn,
-            mockGetNumRounds):
-        """ Test that the movie gets created when calling create_movie() directly """
-        # Mocks to speed things up
-        mockGetNumRounds.return_value = 1  # speed up the test
-        mockGenerateAudioSpawn.return_value = {
-            'SynthesisTask': {
-                'TaskId': 0
-            }
-        }
-        mockGenerateAudioGetTaskStatus.return_value = {
-            'SynthesisTask': {
-                'TaskStatus': 'completed',
-                'OutputUri': 'https://bucket.s3-region.amazonaws.com/generated_speech.fakefile.mp3'
-            }
-        }
-        mockDownloadThenDelete.side_effect = lambda uri, toFilename: {
-            shutil.copy(FILENAME_AUDIO, toFilename)
-        }
-
-        # Upload a file
-        TestHelpers.get_multiwinner_upload_response(self.client)
-
-        # Create the movie
-        jsonConfig = TestHelpers.get_latest_json_config()
-        create_movie(jsonConfig.pk, self.live_server_url)
-
-        # TODO - why does this not work with .delay()? With celery running,
-        # and the correct live_server_url, it accesses my localhost database
-        # instead of the test database, so the pk doesn't align - why?
-
-        # Ensure it's completed
-        jsonConfig = TestHelpers.get_latest_json_config()
-        assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
-        assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
-
-        # Ensure it's loaded in the View
-        response = self.client.get('/visualizeMovie=macomb-multiwinner-surplusjson')
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'movie/only-movie.html')
-
-    @patch('visualizer.tasks.create_movie.delay')
-    def test_movie_task_by_url(self, mockCreateMovie):
-        """ Test create_movie() is called with .delay() when accessing /createMovie as an admin """
-        mockCreateMovie.return_value = None
-        mockCreateMovie.assert_not_called()
-
-        # Create admin user
-        admin = User.objects.create_user('admin', 'admin@example.com', 'password')
-        admin.is_staff = True
-        admin.save()
-
-        # Upload
-        response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response['location'], "visualize=macomb-multiwinner-surplusjson")
-
-        # Create movie logged out, it should fail
-        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],
-                         '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplusjson')
-        mockCreateMovie.assert_not_called()
-
-        # Log in and try again
-        self.client.post('/admin/login/', {'username': 'admin', 'password': 'password'})
-        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
-
-        # Assert it redirects to a waiting page
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],
-                         "/visualizeMovie=macomb-multiwinner-surplusjson")
-
-        # Ensure progress has begun
-        mockCreateMovie.assert_called_once()
-        jsonConfig = TestHelpers.get_latest_json_config()
-        assert jsonConfig.isVideoGenerationInProgress
-
-        # Note - I wanted to test this without mocking, to watch the full
-        # celery cycle, but the live browser uses the localhost database
-        # not the test database and I haven't figured out how to resolve that
