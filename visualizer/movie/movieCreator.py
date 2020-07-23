@@ -29,6 +29,8 @@ class SingleMovieCreator():
 
         self.fontName = MOVIE_FONT_NAME
 
+        self._all_clips_for_gc = []
+
     def _text_on_background(self, writtenText, spokenText, backgroundImageFn):
         """ Writes the given text on the given background image, plus adds audio as described by spokenText. writtenText and spokenText should be the same in most cases. """
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(spokenText)
@@ -41,16 +43,16 @@ class SingleMovieCreator():
 
         background = ImageClip(backgroundImageFn)
 
-        combined = CompositeVideoClip([background, title])
-
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
         duration = audioClip.duration
 
-        title = title.set_duration(duration)
-        background = background.set_duration(duration)
-        combined = combined.set_duration(duration)
-        combined = combined.set_audio(audioClip)
+        combined_0 = CompositeVideoClip([background, title])
+        combined_1 = combined_0.set_duration(duration)
+        combined = combined_1.set_audio(audioClip)
+
+        self._all_clips_for_gc.extend([title, background, audioClip,
+                                       combined_0, combined_1, combined])
 
         return combined
 
@@ -79,36 +81,44 @@ class SingleMovieCreator():
         self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
         time.sleep(0.1)
 
-        roundText = TextClip("\nRound " + str(roundNum + 1),
-                             font=self.fontName,
-                             fontsize=70,
-                             color="black",
-                             size=(self.width, self.height),
-                             method="caption",
-                             align="North")
-
-        captionText = TextClip(caption,
+        roundText_0 = TextClip("\nRound " + str(roundNum + 1),
                                font=self.fontName,
-                               fontsize=40,
+                               fontsize=70,
                                color="black",
                                size=(self.width, self.height),
                                method="caption",
-                               align="South")
+                               align="North")
+
+        captionText_0 = TextClip(caption,
+                                 font=self.fontName,
+                                 fontsize=40,
+                                 color="black",
+                                 size=(self.width, self.height),
+                                 method="caption",
+                                 align="South")
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)
-            imageClip = ImageClip(tf.name)
+            imageClip_0 = ImageClip(tf.name)
 
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
         audioDuration = audioClip.duration
-        roundText = roundText.set_duration(audioDuration)
-        captionText = captionText.set_duration(audioDuration)
-        imageClip = imageClip.set_duration(audioDuration)
+        roundText = roundText_0.set_duration(audioDuration)
+        captionText = captionText_0.set_duration(audioDuration)
+        imageClip = imageClip_0.set_duration(audioDuration)
 
-        combined = CompositeVideoClip([imageClip, roundText, captionText])
-        combined = combined.set_duration(audioDuration)
-        combined = combined.set_audio(audioClip)
+        combined_0 = CompositeVideoClip([imageClip, roundText, captionText])
+        combined_1 = combined_0.set_duration(audioDuration)
+        combined = combined_1.set_audio(audioClip)
+
+        self._all_clips_for_gc.extend([audioClip,
+                                       combined_0, combined_1, combined,
+                                       roundText_0, roundText,
+                                       imageClip_0, imageClip,
+                                       captionText_0, captionText
+                                       ])
+
         return combined
 
     def _getNumRounds(self):
@@ -135,7 +145,18 @@ class SingleMovieCreator():
 
         # Save to file
         composite = concatenate_videoclips(imageClips)
-        composite.write_videofile(outputFilename, fps=12)
+        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tf:
+            # Needs this tempfile or elasticbeanstalk will try writing to somewhere it can't
+            # delete=False because moviepy will delete the file for us
+            composite.write_videofile(outputFilename, fps=12, temp_audiofile=tf.name)
+
+        # moviepy is awful at garbage collection. Do it manually.
+        self._all_clips_for_gc.extend(imageClips)
+        self._all_clips_for_gc.append(composite)
+        for clip in self._all_clips_for_gc:
+            clip.close()
+            del clip
+        self._all_clips_for_gc = []
 
 
 class MovieCreationFactory():

@@ -37,7 +37,7 @@ class GeneratedAudioWrapper():
 
     def _spawn_task(self, text):
         """ Spawns the AWS job """
-        return pollyClient.start_speech_synthesis_task(
+        return self.pollyClient.start_speech_synthesis_task(
             VoiceId='Joanna',
             OutputS3BucketName=self.bucketName,
             OutputS3KeyPrefix=self.prefix,
@@ -52,7 +52,6 @@ class GeneratedAudioWrapper():
         """ Downloads the file at the S3 URI, then deletes the file from S3 """
         key = self.prefix + uri.split(self.prefix)[1]
 
-        self._downloadThenDelete(uri)
         self.s3Client.download_file(Key=key, Bucket=self.bucketName, Filename=toFilename)
         self.s3Client.delete_object(Key=key, Bucket=self.bucketName)
 

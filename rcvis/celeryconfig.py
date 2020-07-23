@@ -21,3 +21,7 @@ if not sqs_queue_name:
 broker_transport_options = {
     'queue_name_prefix': sqs_queue_name
 }
+
+# At most two processes at once - can later be scaled as needed, but for now,
+# too many workers were spawned (seemingly ncores+1 despite requesting just ncores?)
+celeryd_concurrency = 2  # pylint: disable=invalid-name

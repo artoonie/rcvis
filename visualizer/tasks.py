@@ -22,17 +22,18 @@ def create_movie(pk, domain):
     browser = webdriver.Chrome('/usr/bin/chromedriver', options=chromeOptions)
     browser.implicitly_wait(10)
 
-    jsonconfig = JsonConfig.objects.get(pk=pk)  # pylint: disable=no-member
-    _make_movies_for_config(browser, domain, jsonconfig)
-
-    browser.quit()
+    try:
+        jsonconfig = JsonConfig.objects.get(pk=pk)  # pylint: disable=no-member
+        _make_movies_for_config(browser, domain, jsonconfig)
+    finally:
+        browser.quit()
 
 
 def _make_movies_for_config(browser, domain, jsonconfig):
     """ Create a movie, this time given a JsonConfig and selenium browser """
     movieCreator = MovieCreationFactory(browser, domain, jsonconfig)
-    horizontal = movieCreator.make_one_movie_at_resolution(1920, 1080)
-    vertical = movieCreator.make_one_movie_at_resolution(1080, 1920)
+    horizontal = movieCreator.make_one_movie_at_resolution(1280, 720)  # 720p
+    vertical = movieCreator.make_one_movie_at_resolution(480, 640)  # 480p
 
     jsonconfig.movieHorizontal = horizontal
     jsonconfig.movieVertical = vertical
