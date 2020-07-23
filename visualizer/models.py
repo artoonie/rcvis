@@ -1,5 +1,6 @@
 """ The django object models """
 
+from django.contrib import admin
 from django.core.cache import cache
 from django.db import models
 from django.utils.text import slugify
@@ -98,3 +99,9 @@ class JsonConfig(models.Model):
         cache.clear()
 
         super().save(*args, **kwargs)
+
+
+@admin.register(JsonConfig)
+class JsonAdmin(admin.ModelAdmin):
+    """ The admin page to modify JsonConfig """
+    list_display = ('slug', 'uploadedAt')

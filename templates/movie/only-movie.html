@@ -14,7 +14,7 @@
     <p><a href="/createMovie={{ config.slug }}">Regenerate Movie</a></p>
 
     {% if config.movieHorizontal %}
-    <video width='100%' height='auto' style="max-width: {{ config.movieHorizontal.movieFile.resolutionWidth }}" controls>
+    <video width='100%' height='auto' style="max-width: {{ config.movieHorizontal.resolutionWidth }}" controls>
         <source src="{{ config.movieHorizontal.movieFile.url }}">
         Your browser does not support the video tag.
     </video>
