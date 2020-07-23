@@ -7,6 +7,7 @@ import tempfile
 import time
 
 import boto3
+from movie.models import TextToSpeechCachedFile
 
 
 class AudioGenerationFailedException(Exception):
@@ -18,19 +19,34 @@ class AudioGenerationTimedOutException(Exception):
 
 
 class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
-    """ To facilitate asynchronous waiting for Polly audio generation.
-        Initializaton spawns the AWS job, and there are various methods to poll for the result. """
+    """
+    To facilitate asynchronous waiting for Polly audio generation.
+    Initializaton spawns the AWS job, and there are various methods to poll for the result.
+    Always checks TextToSpeechCachedFile first.
+    """
     prefix = 'generated_speech'
     bucketName = 'speech-synth'
 
     def __init__(self, pollyClient, s3Client, text):
-        """ Initializes the object and calls _spawn_task """
+        """
+        Either spawns an AWS task to generate the audio,
+        or reaches into the database for cached audio.
+        """
         self.pollyClient = pollyClient
         self.s3Client = s3Client
+        self.text = text
 
         response = self._spawn_task(text)
 
-        self.taskId = response['SynthesisTask']['TaskId']
+        try:
+            # pylint: disable=no-member
+            cachedObject = TextToSpeechCachedFile.objects.get(text=text)
+            self.isCached = True
+            self.uri = cachedObject.audioFile.url
+            cachedObject.save()  # Update lastUsed
+        except TextToSpeechCachedFile.DoesNotExist:  # pylint: disable=no-member
+            self.isCached = False
+            self.taskId = response['SynthesisTask']['TaskId']
 
         self.alreadyDownloaded = False
 
@@ -45,14 +61,20 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
 
     def _get_task_status(self):
         """ Poll Polly for the task status """
+        assert not self.isCached
         return self.pollyClient.get_speech_synthesis_task(TaskId=self.taskId)
 
-    def _download_then_delete(self, uri, toFilename):
-        """ Downloads the file at the S3 URI, then deletes the file from S3 """
+    def _download(self, uri, toFilename):
+        """ Downloads the file at the S3 URI """
         key = self.prefix + uri.split(self.prefix)[1]
 
         self.s3Client.download_file(Key=key, Bucket=self.bucketName, Filename=toFilename)
-        self.s3Client.delete_object(Key=key, Bucket=self.bucketName)
+
+    def _cache_file(self, uri):
+        cached = TextToSpeechCachedFile()
+        cached.text = self.text
+        cached.audioFile.name = uri
+        cached.save()
 
     def download_if_ready(self, toFilename):
         """
@@ -60,17 +82,21 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         Can only be called once, then deletes the result from S3.
         """
         assert not self.alreadyDownloaded
+        if self.isCached:
+            uri = self.uri
+        else:
+            taskStatus = self._get_task_status()
 
-        taskStatus = self._get_task_status()
+            if taskStatus['SynthesisTask']['TaskStatus'] == 'failed':
+                raise AudioGenerationFailedException()
 
-        if taskStatus['SynthesisTask']['TaskStatus'] == 'failed':
-            raise AudioGenerationFailedException()
+            if taskStatus['SynthesisTask']['TaskStatus'] != 'completed':
+                return False
 
-        if taskStatus['SynthesisTask']['TaskStatus'] != 'completed':
-            return False
+            uri = taskStatus['SynthesisTask']['OutputUri']
+            self._cache_file(uri)
 
-        uri = taskStatus['SynthesisTask']['OutputUri']
-        self._download_then_delete(uri, toFilename)
+        self._download(uri, toFilename)
         self.alreadyDownloaded = True
 
         return True
@@ -84,10 +110,10 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         tf = tempfile.NamedTemporaryFile(suffix=".mp3")
 
         for _ in range(numPolls):
-            time.sleep(pollIntervalSeconds)
             wasDownloaded = self.download_if_ready(tf.name)
             if wasDownloaded:
                 return tf
+            time.sleep(pollIntervalSeconds)
         raise AudioGenerationTimedOutException()
 
 

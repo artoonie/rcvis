@@ -24,6 +24,13 @@ class Movie(models.Model):
         cache.clear()
 
 
+class TextToSpeechCachedFile(models.Model):
+    """ A mapping from a text to an audio file of the text-to-speech mp3 """
+    text = models.CharField(max_length=512, unique=True, primary_key=True)
+    audioFile = models.FileField(upload_to='speech-synth')
+    lastUsed = models.DateTimeField(auto_now=True)
+
+
 @admin.register(Movie)
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """
@@ -31,3 +38,9 @@ class JsonAdmin(admin.ModelAdmin):
                     'movieFile',
                     'resolutionWidth',
                     'resolutionHeight')
+
+
+@admin.register(TextToSpeechCachedFile)
+class TextToSpeechCachedFileAdmin(admin.ModelAdmin):
+    """ The admin page to modify JsonConfig """
+    list_display = ('text', 'audioFile', 'lastUsed')

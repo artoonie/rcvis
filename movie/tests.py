@@ -10,6 +10,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from mock import patch
 
 from common.testUtils import TestHelpers
+from movie.models import TextToSpeechCachedFile
 from movie.tasks import create_movie
 from visualizer.models import MovieGenerationStatuses
 
@@ -22,10 +23,10 @@ class MovieCreationTests(StaticLiveServerTestCase):
     @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
     @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._spawn_task')
     @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._get_task_status')
-    @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._download_then_delete')
+    @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._download')
     def test_movie_task_without_celery(
             self,
-            mockDownloadThenDelete,
+            mockDownload,
             mockGenerateAudioGetTaskStatus,
             mockGenerateAudioSpawn,
             mockGetNumRounds):
@@ -43,16 +44,22 @@ class MovieCreationTests(StaticLiveServerTestCase):
                 'OutputUri': 'https://bucket.s3-region.amazonaws.com/generated_speech.fakefile.mp3'
             }
         }
-        mockDownloadThenDelete.side_effect = lambda uri, toFilename: {
+        mockDownload.side_effect = lambda uri, toFilename: {
             shutil.copy(FILENAME_AUDIO, toFilename)
         }
 
         # Upload a file
         TestHelpers.get_multiwinner_upload_response(self.client)
 
+        # Make sure nothing is cached
+        assert len(TextToSpeechCachedFile.objects.all()) == 0  # pylint:disable=no-member
+
         # Create the movie
         jsonConfig = TestHelpers.get_latest_json_config()
         create_movie(jsonConfig.pk, self.live_server_url)
+
+        # Make sure some things are cached
+        assert len(TextToSpeechCachedFile.objects.all()) == 3  # pylint:disable=no-member
 
         # TODO - why does this not work with .delay()? With celery running,
         # and the correct live_server_url, it accesses my localhost database
