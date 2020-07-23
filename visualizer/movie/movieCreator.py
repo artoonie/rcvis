@@ -41,7 +41,8 @@ class SingleMovieCreator():
                          color="black",
                          size=(self.width, self.height))
 
-        background = ImageClip(backgroundImageFn)
+        background_0 = ImageClip(backgroundImageFn)
+        background = background_0.resize(width=self.width, height=self.height)
 
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
@@ -51,7 +52,7 @@ class SingleMovieCreator():
         combined_1 = combined_0.set_duration(duration)
         combined = combined_1.set_audio(audioClip)
 
-        self._all_clips_for_gc.extend([title, background, audioClip,
+        self._all_clips_for_gc.extend([title, background_0, background, audioClip,
                                        combined_0, combined_1, combined])
 
         return combined
@@ -193,5 +194,8 @@ class MovieCreationFactory():
             movie.generatedOnApplicationVersion = "TODO"
             movie.movieFile.save(recommendedFilename, File(tempFile))
             movie.save()
+
+        # Force additional garbage collection asap
+        del creator
 
         return movie
