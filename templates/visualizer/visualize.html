@@ -89,10 +89,19 @@
         </div>
     </div>
 
-{% include "visualizer/common-visualizer-libs.html" %}
 {% endblock %}
 
 {% block etc %}
+
+    {% include "visualizer/common-visualizer-nonblocking.html" %}
+    {% include "sankey/sankey-nonblocking.html" %}
+    {% include "bargraph/barchart-common-nonblocking.html" %}
+    {% include "bargraph/barchart-fixed-nonblocking.html" %}
+    {% include "bargraph/barchart-interactive-nonblocking.html" %}
+    {% include "tabular/tabular-by-round-interactive-nonblocking.html" %}
+    {% include "settings/settings-nonblocking.html" %}
+    {% include "settings/settings-update-nonblocking.html" %}
+
   <script>
       function goToTab(tabName)
       {

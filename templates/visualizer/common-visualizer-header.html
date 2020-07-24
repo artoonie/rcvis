@@ -1,4 +1,5 @@
 {% load static %}
+{% load compress %}
 
 <!-- This needs to be the first bit of js loaded to get the correct configs throughout -->
 <script>
@@ -46,19 +47,3 @@
   }
 
 </script>
-
-{% if offlineMode %}
-<script src="{% static 'localdeps/d3.js' %}"></script>
-{% else %}
-<!-- for online use -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.0/d3.js"></script>
-{% endif %}
-
-<!-- Shared resources for multiple visualizations-->
-<script src="{% static 'bargraph/barchart.js' %}"></script>
-<script src="{% static 'bargraph/barchart-common.js' %}"></script>
-<script src="{% static 'visualizer/common.js' %}"></script>
-
-<link rel="stylesheet" href="{% static "visualizer/common.css" %}">
-<link rel="stylesheet" href="{% static "sankey/style.css" %}">
-<link rel="stylesheet" href="{% static "bargraph/style.css" %}">
