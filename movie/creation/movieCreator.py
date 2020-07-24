@@ -10,12 +10,17 @@ from django.core.files import File
 from django.urls import reverse
 from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip,\
     concatenate_videoclips
+import selenium
 
 from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
 from movie.models import Movie
 from movie.creation.textToSpeech import TextToSpeechFactory
 from movie.creation.describer import Describer
+
+
+class ProbablyFailedToLaunchBrowser(Exception):
+    """ A common error when the browser has an issue. """
 
 
 class SingleMovieCreator():  # pylint: disable=too-few-public-methods
@@ -105,7 +110,14 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         return [roundText, captionText]
 
     def _generate_image_for_round_synchronously(self, roundNum):
-        self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
+        try:
+            self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
+        except selenium.common.exceptions.JavascriptException as exception:
+            errorText = "This error commonly occurs with Xvfb issues: "
+            errorText += str(exception)
+            errorText += "\n\nCurrent browser context:\n"
+            errorText += self.browser.page_source
+            raise ProbablyFailedToLaunchBrowser(errorText)
         time.sleep(0.1)
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:

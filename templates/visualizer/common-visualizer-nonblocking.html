@@ -1,0 +1,20 @@
+<!-- Common to just pages that show visualizations  -->
+{% load static %}
+{% load compress %}
+
+{% include "visualizer/common-nonblocking.html" %}
+
+{% if offlineMode %}
+    <script src="{% static 'localdeps/d3.js' %}"></script>
+{% else %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.8.0/d3.min.js"></script>
+{% endif %}
+
+<!-- Shared resources for multiple visualizations-->
+{% compress js file %}
+    <script src="{% static 'visualizer/common.js' %}"></script>
+{% endcompress %}
+
+{% compress css file %}
+    <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
+{% endcompress %}

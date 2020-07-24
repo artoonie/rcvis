@@ -1,0 +1,6 @@
+{% load static %}
+{% load compress %}
+
+{% compress js file %}
+<script src="{% static 'settings/settings.js' %}"></script>
+{% endcompress %}

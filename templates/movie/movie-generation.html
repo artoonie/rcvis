@@ -10,12 +10,18 @@
 <body>
 {% include "bargraph/barchart-interactive.html" %}
 
+{% include "visualizer/common-visualizer-nonblocking.html" %}
+{% include "bargraph/barchart-common-nonblocking.html" %}
+{% include "bargraph/barchart-interactive-nonblocking.html" %}
+
 <script>
     $("#bargraph-slider-container").hide();
     $("#bargraph-interactive-body").css("maxWidth", "90%");
     $("#bargraph-interactive-legend").hide();
-    $("body").css("margin", "100px");
-
+    $("body").css("margin-left", "100px");
+    $("body").css("margin-right", "100px");
+    $("body").css("margin-top", "20px");
+    $("body").css("margin-bottom", "200px");
 </script>
 
 </body>

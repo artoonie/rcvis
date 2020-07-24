@@ -1,0 +1,49 @@
+{% load static %}
+
+{% if offlineMode %}
+<script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
+{% else %}
+<script src="https://unpkg.com/d3-simple-slider"></script>
+{% endif %}
+
+<script type="text/javascript">
+
+
+{{ bargraphjs|safe }}
+
+// For slider TODO sync with tabular-by-round-interactive.html
+var numRounds = {{ tabularByRoundInteractive.rounds|length }};
+var viewboxWidth = numRounds * 50 + 120;
+var viewboxHeight = 70;
+
+fixMaxWidthFor('bargraph-interactive-body', false);
+// window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
+
+// Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
+var sliderStep = d3
+  .sliderBottom()
+  .min(1)
+  .max(numRounds)
+  .width(numRounds * 45)
+  .height(50)
+    .tickFormat(function(d) { return "Round " + d;})
+  .ticks(numRounds-1)
+  .step(1)
+  .default(numRounds)
+  .on('onchange', val => {
+    transitionEachBarForRound(val);
+  });
+
+var gStep = d3
+  .select('div#slider-step')
+  .append('svg')
+  .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
+  .style("max-width", window.devicePixelRatio*viewboxWidth + "px")
+  .append('g')
+  .attr('transform', 'translate(100,30)');
+
+gStep.call(sliderStep);
+
+var interactive = true;
+transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body","#bargraph-interactive-legend", data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, interactive, threshold, config.doHideOverflowAndEliminated, !config.doUseHorizontalBarGraph, config.doDimPrevRoundColors);
+</script>

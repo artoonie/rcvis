@@ -35,7 +35,21 @@
   </section>
 
 
-{% include "visualizer/common-visualizer-libs.html" %}
+{% include "visualizer/common-visualizer-nonblocking.html" %}
+{% if vistype == "sankey" %}
+    {% include "sankey/sankey-nonblocking.html" %}
+{% elif vistype == "barchart-fixed" %}
+    {% include "bargraph/barchart-common-nonblocking.html" %}
+    {% include "bargraph/barchart-fixed-nonblocking.html" %}
+{% elif vistype == "barchart-interactive" %}
+    {% include "bargraph/barchart-common-nonblocking.html" %}
+    {% include "bargraph/barchart-interactive-nonblocking.html" %}
+{% elif vistype == "tabular-by-candidate" %}
+{% elif vistype == "tabular-by-round" %}
+{% elif vistype == "tabular-by-round-interactive" %}
+    {% include "tabular/tabular-by-round-interactive-nonblocking.html" %}
+{% elif vistype == "tabular-candidate-by-round" %}
+{% endif %}
 
 </body>
 

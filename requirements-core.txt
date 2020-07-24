@@ -1,4 +1,6 @@
 boto3==1.14.20
+csscompressor==0.9.5
+django-compressor==2.4
 django-storages==1.9.1
 Django==3.0.8
 mock==4.0.2

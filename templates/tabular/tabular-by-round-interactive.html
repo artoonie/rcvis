@@ -1,5 +1,9 @@
 {% load static %}
+{% load compress %}
+
+{% compress css file %}
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
+{% endcompress %}
 
 <div class="row align-items-center">
     <div class="col-sm"><div id="slider-step-tabular"></div></div>
@@ -44,52 +48,3 @@
 {% endfor %}
 </div>
 </div>
-
-{% if offlineMode %}
-{% load static %}
-<script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
-{% else %}
-<script src="https://unpkg.com/d3-simple-slider"></script>
-{% endif %}
-<script .type="text/javascript">
-{{ bargraphjs|safe }}
-
-// For slider TODO sync with barchart-interactive.html
-var numRounds = {{ tabularByRoundInteractive.rounds|length }};
-var viewboxWidth = numRounds * 50 + 120;
-var viewboxHeight = 70;
-
-// Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
-var sliderStepTabular = d3
-  .sliderBottom()
-  .min(1)
-  .max(numRounds)
-  .width(numRounds * 50)
-    .tickFormat(function(d) { return "Round " + d;})
-  .ticks(numRounds-1)
-  .step(1)
-  .default(numRounds)
-  .on('onchange', round => {
-    showOnly(round)
-  });
-
-var sliderTabularWidth = numRounds * 50 + 100;
-var gStepTabular = d3
-  .select('div#slider-step-tabular')
-  .style("max-width", window.devicePixelRatio*viewboxWidth + "px")
-  .append('svg')
-  .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
-  .append('g')
-  .attr('transform', 'translate(30,30)');
-
-function showOnly(round) {
-    for (i = 1; i <= numRounds; i++) { 
-      document.getElementById("tabbular_round_container_"+i).style.display = "none";
-    }
-    document.getElementById("tabbular_round_container_"+round).style.display = "block";
-}
-
-gStepTabular.call(sliderStepTabular);
-showOnly(numRounds)
-
-</script>

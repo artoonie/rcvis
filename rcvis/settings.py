@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'visualizer',
     'movie',
     'storages',
+    'compressor',
     'django_nose',
     'rest_framework',
     'rest_framework.authtoken',
@@ -154,8 +155,25 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static/'),
+    os.path.join(BASE_DIR, 'static'),
 )
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
+COMPRESS_ROOT = "static/compressed/"
+COMPRESS_ENABLED = True
+COMPRESS_FILTERS = {
+    'css': [
+        'compressor.filters.css_default.CssAbsoluteFilter',
+        'compressor.filters.cssmin.CSSCompressorFilter'
+    ],
+    'js': [
+        'compressor.filters.jsmin.JSMinFilter'
+    ]
+}
+
 
 # Uploaded media
 OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
@@ -174,7 +192,6 @@ else:
 
 AWS_DEFAULT_ACL = None
 
-# Application version
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

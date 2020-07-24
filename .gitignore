@@ -6,6 +6,7 @@ db.sqlite3
 docs/build
 .coverage
 media/
+static/compressed/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

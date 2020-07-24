@@ -1,0 +1,12 @@
+{% load static %}
+{% load compress %}
+
+{% compress js file %}
+    <script src="{% static 'bargraph/barchart.js' %}"></script>
+    <script src="{% static 'bargraph/barchart-common.js' %}"></script>
+    <script src="{% static 'visualizer/common.js' %}"></script>
+{% endcompress %}
+
+{% compress css file %}
+    <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
+{% endcompress %}

@@ -1,6 +1,9 @@
 {% load static %}
+{% load compress %}
 
+{% compress css file %}
 <link rel="stylesheet" type="text/css" href="{% static 'settings/settings.css' %}">
+{% endcompress %}
               
 {% block beforeOptions %}
 {% endblock %}
@@ -60,5 +63,3 @@
 
 {% block afterOptions %}
 {% endblock %}
-
-<script src="{% static 'settings/settings.js' %}"></script>
