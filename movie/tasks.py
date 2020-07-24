@@ -2,6 +2,8 @@
 Long-running tasks, to be run asynchronously with Amazon SQS or another queue
 """
 
+import os
+
 from celery import shared_task
 from selenium import webdriver
 
@@ -9,10 +11,10 @@ from movie.creation.movieCreator import MovieCreationFactory
 from visualizer.models import JsonConfig, MovieGenerationStatuses
 
 
-@shared_task
 def create_movie(pk, domain):
     """ Create a movie for the config with the given primary key, using
-        a live server at the given domain """
+        a live server at the given domain. Turned into a @shared_task below,
+        but doesn't work in readthedocs so it's conditional. """
 
     chromeOptions = webdriver.chrome.options.Options()
     chromeOptions.add_argument("--headless")
@@ -27,6 +29,11 @@ def create_movie(pk, domain):
         _make_movies_for_config(browser, domain, jsonconfig)
     finally:
         browser.quit()
+
+
+is_read_the_docs_env = os.environ.get('READTHEDOCS') == 'True'
+if not is_read_the_docs_env:
+    create_movie = shared_task(create_movie)
 
 
 def _make_movies_for_config(browser, domain, jsonconfig):
