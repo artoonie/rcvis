@@ -26,8 +26,8 @@ class Movie(models.Model):
 
 class TextToSpeechCachedFile(models.Model):
     """ A mapping from a text to an audio file of the text-to-speech mp3 """
-    text = models.CharField(max_length=512, unique=True, primary_key=True)
-    audioFile = models.FileField(upload_to='speech-synth')
+    text = models.CharField(max_length=2048, unique=True, primary_key=True)
+    audioFile = models.FileField(max_length=512, upload_to='speech-synth')
     lastUsed = models.DateTimeField(auto_now=True)
 
 

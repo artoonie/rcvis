@@ -6,6 +6,9 @@ import os
 import tempfile
 import time
 
+from django.db.utils import DataError
+from django.core.exceptions import ValidationError
+
 import boto3
 from movie.models import TextToSpeechCachedFile
 
@@ -36,8 +39,6 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         self.s3Client = s3Client
         self.text = text
 
-        response = self._spawn_task(text)
-
         try:
             # pylint: disable=no-member
             cachedObject = TextToSpeechCachedFile.objects.get(text=text)
@@ -46,6 +47,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
             cachedObject.save()  # Update lastUsed
         except TextToSpeechCachedFile.DoesNotExist:  # pylint: disable=no-member
             self.isCached = False
+            response = self._spawn_task(text)
             self.taskId = response['SynthesisTask']['TaskId']
 
         self.alreadyDownloaded = False
@@ -74,7 +76,20 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         cached = TextToSpeechCachedFile()
         cached.text = self.text
         cached.audioFile.name = uri
-        cached.save()
+
+        try:
+            cached.full_clean()  # for some reason this isn't automatic...
+        except ValidationError as exception:
+            # Will happen if the names are too long or a ton of stuff happened this round,
+            # reaching max_length.
+            print("Failed to validate TextToSpeechCachedFile. Error: ", exception)
+            return
+
+        try:
+            cached.save()
+        except DataError as exception:
+            # I think this happens when the filename is too long?
+            print("Failed to cache file. Error: ", exception)
 
     def download_if_ready(self, toFilename):
         """
