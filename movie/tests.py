@@ -4,12 +4,14 @@ Unit and integration tests for automatic movie creation
 
 import os
 import shutil
+import tempfile
 
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from mock import patch
 
 from common.testUtils import TestHelpers
+from movie.creation.textToSpeech import GeneratedAudioWrapper
 from movie.models import TextToSpeechCachedFile
 from movie.tasks import create_movie
 from visualizer.models import MovieGenerationStatuses
@@ -20,33 +22,43 @@ FILENAME_AUDIO = 'testData/audio.mp3'
 class MovieCreationTests(StaticLiveServerTestCase):
     """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
 
-    @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
-    @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._spawn_task')
-    @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._get_task_status')
-    @patch('movie.creation.textToSpeech.GeneratedAudioWrapper._download')
-    def test_movie_task_without_celery(
-            self,
-            mockDownload,
-            mockGenerateAudioGetTaskStatus,
-            mockGenerateAudioSpawn,
-            mockGetNumRounds):
-        """ Test that the movie gets created when calling create_movie() directly """
-        # Mocks to speed things up
-        mockGetNumRounds.return_value = 1  # speed up the test
-        mockGenerateAudioSpawn.return_value = {
-            'SynthesisTask': {
-                'TaskId': 0
-            }
-        }
-        mockGenerateAudioGetTaskStatus.return_value = {
+    def setUp(self):
+        prefix = 'movie.creation.textToSpeech.GeneratedAudioWrapper.'
+        patcherGenerateAudioGetTaskStatus = patch(prefix + '_get_task_status', autospec=True)
+        patcherGenerateAudioSpawn = patch(prefix + '_spawn_task', autospec=True)
+        patcherDownload = patch(prefix + '_download', autospec=True)
+
+        self.addCleanup(patcherGenerateAudioGetTaskStatus.stop)
+        self.addCleanup(patcherGenerateAudioSpawn.stop)
+        self.addCleanup(patcherDownload.stop)
+
+        self.mockGenerateAudioGetTaskStatus = patcherGenerateAudioGetTaskStatus.start()
+        self.mockGenerateAudioSpawn = patcherGenerateAudioSpawn.start()
+        self.mockDownload = patcherDownload.start()
+
+        self.mockGenerateAudioGetTaskStatus.return_value = {
             'SynthesisTask': {
                 'TaskStatus': 'completed',
                 'OutputUri': 'https://bucket.s3-region.amazonaws.com/generated_speech.fakefile.mp3'
             }
         }
-        mockDownload.side_effect = lambda uri, toFilename: {
+        self.mockGenerateAudioSpawn.return_value = {
+            'SynthesisTask': {
+                'TaskId': 0
+            }
+        }
+        self.mockDownload.side_effect = lambda self, uri, toFilename: {
             shutil.copy(FILENAME_AUDIO, toFilename)
         }
+
+    @classmethod
+    def _num_caches(cls):
+        return len(TextToSpeechCachedFile.objects.all())  # pylint:disable=no-member
+
+    @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
+    def test_movie_task_without_celery(self, mockGetNumRounds):
+        """ Test that the movie gets created when calling create_movie() directly """
+        mockGetNumRounds.return_value = 1
 
         # Upload a file
         TestHelpers.get_multiwinner_upload_response(self.client)
@@ -119,3 +131,21 @@ class MovieCreationTests(StaticLiveServerTestCase):
         # Note - I wanted to test this without mocking, to watch the full
         # celery cycle, but the live browser uses the localhost database
         # not the test database and I haven't figured out how to resolve that
+
+    def test_long_text_doesnt_fail(self):
+        """ Make sure that very long text requests don't crash, but don't save a cache either. """
+
+        def try_text_to_speech_with_strlen(size):
+            """ Generate a long text size and download it. """
+            veryLongText = 'x' * size
+            generatedAudioWrapper = GeneratedAudioWrapper(None, None, veryLongText)
+
+            with tempfile.NamedTemporaryFile(suffix='.mp3') as tf:
+                wasReady = generatedAudioWrapper.download_if_ready(tf.name)
+            assert wasReady
+
+        assert self._num_caches() == 0
+        try_text_to_speech_with_strlen(2048)
+        assert self._num_caches() == 1
+        try_text_to_speech_with_strlen(2049)
+        assert self._num_caches() == 1
