@@ -199,7 +199,7 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         self.toDelete = []
 
 
-class MovieCreationFactory():  # pylint: disable=too-few-public-methods
+class MovieCreationFactory():
     """ Holds expensive-to-create resources necessary to create a movie """
 
     def __init__(self, browser, domain, jsonconfig):

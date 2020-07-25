@@ -42,12 +42,11 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         self.text = text
 
         try:
-            # pylint: disable=no-member
             cachedObject = TextToSpeechCachedFile.objects.get(text=text)
             self.isCached = True
             self.uri = cachedObject.audioFile.name
             cachedObject.save()  # Update lastUsed
-        except TextToSpeechCachedFile.DoesNotExist:  # pylint: disable=no-member
+        except TextToSpeechCachedFile.DoesNotExist:
             self.isCached = False
             response = self._spawn_task(text)
             self.taskId = response['SynthesisTask']['TaskId']

@@ -13,6 +13,7 @@ autopep8==1.5.3
 coverage==5.2
 django-nose==1.4.6
 pylint==2.5.3
+pylint-django==2.2.0
 
 # For django-rest
 djangorestframework==3.11.0

@@ -70,14 +70,14 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         TestHelpers.get_multiwinner_upload_response(self.client)
 
         # Make sure nothing is cached
-        assert len(TextToSpeechCachedFile.objects.all()) == 0  # pylint:disable=no-member
+        assert len(TextToSpeechCachedFile.objects.all()) == 0
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_json_config()
         create_movie(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
-        assert len(TextToSpeechCachedFile.objects.all()) == 3  # pylint:disable=no-member
+        assert len(TextToSpeechCachedFile.objects.all()) == 3
 
         # TODO - why does this not work with .delay()? With celery running,
         # and the correct live_server_url, it accesses my localhost database
