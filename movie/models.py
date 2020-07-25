@@ -1,22 +1,25 @@
 """ Models for storing data about a movie """
 from django.contrib import admin
 from django.core.cache import cache
+from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-
-from storages.backends.s3boto3 import S3Boto3Storage
+from rcvis.settings import OFFLINE_MODE
 
 
 SPEECH_SYNTH_BUCKET_NAME = 'speech-synth'
 
 
-# pylint:disable=abstract-method
-class SpeechSynthStorage(S3Boto3Storage):
-    """ Speech synth is stored in a separate bucket """
+# pylint:disable=abstract-method,too-few-public-methods
+class SpeechSynthStorage(get_storage_class()):
+    """ Speech synth is stored in a separate bucket. No-op when using offline mode."""
 
     def __init__(self, *args, **kwargs):
-        kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
+        if 'bucket' in kwargs:
+            kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
+        else:
+            assert OFFLINE_MODE
         super(SpeechSynthStorage, self).__init__(*args, **kwargs)
 
 

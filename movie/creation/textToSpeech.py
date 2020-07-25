@@ -83,12 +83,6 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
             print(text)
             raise exception
 
-    def _public_url_from_uri(self, uri):
-        return "https://s3-{0}.amazonaws.com/{1}/{2}".format(
-            self.region,
-            bucketName,
-            self._key_from_uri(uri))
-
     def _cache_file(self, uri):
         cached = TextToSpeechCachedFile()
         cached.text = self.text

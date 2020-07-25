@@ -156,7 +156,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         try_text_to_speech_with_strlen(2049)
         assert self._num_caches() == 1
 
-    def avoid_upload_collision(self):
+    def test_avoid_upload_collision(self):
         """ Ensure that a unique filename is created for each upload. Regression for the
             vertical upload immediately overriding the horizontal. """
         slug = "slug"
@@ -167,7 +167,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
             actualFn = movie.movieFile.url
         assert actualFn != slug
         assert slug in actualFn
-        assert actualFn.endswith(".mp4")
+        assert '.mp4' in actualFn  # might not be at the end - AWS adds keys to URL GET
         assert self._num_movies() == 1
 
 
