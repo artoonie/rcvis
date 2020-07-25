@@ -35,7 +35,7 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """ The rest_framework serializer for a User Model """
     this_users_jsons = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=JsonConfig.objects.all())  # pylint: disable=no-member
+        many=True, queryset=JsonConfig.objects.all())
 
     class Meta:
         """ The meta class to simplify construction of the serializer """

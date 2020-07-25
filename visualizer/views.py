@@ -148,7 +148,7 @@ class Oembed(View):
 
 class JsonConfigViewSet(viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
-    queryset = JsonConfig.objects.all().order_by('-uploadedAt')  # pylint: disable=no-member
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonConfigSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 

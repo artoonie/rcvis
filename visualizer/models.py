@@ -80,7 +80,6 @@ class JsonConfig(models.Model):
         uniqueSlug = slug
         num = 1
 
-        #pylint: disable=no-member
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
             uniqueSlug = '{}-{}'.format(slug, num)
             num += 1

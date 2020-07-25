@@ -53,7 +53,7 @@ class TestHelpers():
     @classmethod
     def get_latest_json_config(cls):
         """ Return the JsonConfig of the last-uploaded file """
-        return JsonConfig.objects.latest('-id')  # pylint: disable=no-member
+        return JsonConfig.objects.latest('-id')
 
     @classmethod
     def get_headless_browser(cls):
