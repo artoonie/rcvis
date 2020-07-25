@@ -6,20 +6,22 @@ import os
 import shutil
 import tempfile
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from mock import patch
 
 from common.testUtils import TestHelpers
-from movie.creation.textToSpeech import GeneratedAudioWrapper
-from movie.models import TextToSpeechCachedFile
+from movie.creation.movieCreator import MovieCreationFactory
+from movie.creation.textToSpeech import GeneratedAudioWrapper, TextToSpeechFactory
+from movie.models import Movie, TextToSpeechCachedFile
 from movie.tasks import create_movie
 from visualizer.models import MovieGenerationStatuses
 
 FILENAME_AUDIO = 'testData/audio.mp3'
 
 
-class MovieCreationTests(StaticLiveServerTestCase):
+class MovieCreationTestsMocked(StaticLiveServerTestCase):
     """ Tests for the Movie Creation module. Currently, these do not test the celery connection. """
 
     def setUp(self):
@@ -52,8 +54,12 @@ class MovieCreationTests(StaticLiveServerTestCase):
         }
 
     @classmethod
+    def _num_movies(cls):
+        return len(Movie.objects.all())
+
+    @classmethod
     def _num_caches(cls):
-        return len(TextToSpeechCachedFile.objects.all())  # pylint:disable=no-member
+        return len(TextToSpeechCachedFile.objects.all())
 
     @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
     def test_movie_task_without_celery(self, mockGetNumRounds):
@@ -95,7 +101,7 @@ class MovieCreationTests(StaticLiveServerTestCase):
         mockCreateMovie.assert_not_called()
 
         # Create admin user
-        admin = User.objects.create_user('admin', 'admin@example.com', 'password')
+        admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
         admin.is_staff = True
         admin.save()
 
@@ -149,3 +155,42 @@ class MovieCreationTests(StaticLiveServerTestCase):
         assert self._num_caches() == 1
         try_text_to_speech_with_strlen(2049)
         assert self._num_caches() == 1
+
+    def avoid_upload_collision(self):
+        """ Ensure that a unique filename is created for each upload. Regression for the
+            vertical upload immediately overriding the horizontal. """
+        slug = "slug"
+        assert self._num_movies() == 0
+
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as tf:
+            movie = MovieCreationFactory.save_and_upload(1, 1, slug, tf)
+            actualFn = movie.movieFile.url
+        assert actualFn != slug
+        assert slug in actualFn
+        assert actualFn.endswith(".mp4")
+        assert self._num_movies() == 1
+
+
+class MovieCreationTestsIntegration(StaticLiveServerTestCase):
+    """ Integration tests - no mocking here to test everything above
+        that was mocked, but with short text """
+
+    def test_caching_polly(self):
+        """ Make sure that TextToSpeechCachedFile reads and writes properly """
+        text = "a"
+        textToSpeech = TextToSpeechFactory()
+
+        # Not cached - must raise
+        with self.assertRaises(TextToSpeechCachedFile.DoesNotExist):
+            TextToSpeechCachedFile.objects.get(text=text)
+
+        # This should create and cache the text
+        tts = textToSpeech.text_to_speech(text)
+        tts.download_synchronously()
+
+        # Now it must not raise
+        TextToSpeechCachedFile.objects.get(text=text)
+
+        # And this time it should happen faster and without error
+        tts = textToSpeech.text_to_speech(text)
+        tts.download_synchronously()

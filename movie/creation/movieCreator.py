@@ -14,7 +14,7 @@ import selenium
 
 from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
-from movie.models import Movie
+from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
 from movie.creation.describer import Describer
 
@@ -188,7 +188,7 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tf:
             # Needs this tempfile or elasticbeanstalk will try writing to somewhere it can't
             # delete=False because moviepy will delete the file for us
-            composite.write_videofile(outputFilename, fps=12, temp_audiofile=tf.name)
+            composite.write_videofile(outputFilename, fps=2, temp_audiofile=tf.name)
 
         # moviepy is awful at garbage collection. Do it manually.
         self.toDelete.extend(imageClips)
@@ -215,6 +215,27 @@ class MovieCreationFactory():  # pylint: disable=too-few-public-methods
 
         self.browser.get(url)
 
+    @classmethod
+    def save_and_upload(cls, width, height, slug, fileObject):
+        """
+        Saves a Movie object and uploads fileObject to recommendedFilename.
+        If recommendedFilename already exists, chooses a different filename.
+        @return the newly created Movie model
+        """
+        movie = models.Movie()
+        movie.resolutionWidth = width
+        movie.resolutionHeight = height
+        movie.generatedOnApplicationVersion = "TODO"
+
+        # Note: do not use get_available_name, as .file_overwrite is True
+        actualFilename = movie.movieFile.storage.get_alternative_name(
+            file_root=slug,
+            file_ext=".mp4")
+        movie.movieFile.save(actualFilename, File(fileObject))
+        movie.save()
+
+        return movie
+
     def make_one_movie_at_resolution(self, width, height):
         """ Create a movie at a specific resolution """
         self.browser.set_window_size(width, height)
@@ -226,14 +247,7 @@ class MovieCreationFactory():  # pylint: disable=too-few-public-methods
             size=(width, height))
         with tempfile.NamedTemporaryFile(suffix=".mp4") as tempFile:
             creator.make_movie(tempFile.name)
-
-            recommendedFilename = self.jsonconfig.slug + ".mp4"
-            movie = Movie()
-            movie.resolutionWidth = width
-            movie.resolutionHeight = height
-            movie.generatedOnApplicationVersion = "TODO"
-            movie.movieFile.save(recommendedFilename, File(tempFile))
-            movie.save()
+            movie = self.save_and_upload(width, height, self.jsonconfig.slug, tempFile)
 
         # Force additional garbage collection asap
         del creator

@@ -5,10 +5,25 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
+from storages.backends.s3boto3 import S3Boto3Storage
+
+
+SPEECH_SYNTH_BUCKET_NAME = 'speech-synth'
+
+
+# pylint:disable=abstract-method
+class SpeechSynthStorage(S3Boto3Storage):
+    """ Speech synth is stored in a separate bucket """
+
+    def __init__(self, *args, **kwargs):
+        kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
+        super(SpeechSynthStorage, self).__init__(*args, **kwargs)
+
+
 class Movie(models.Model):
     """ An automatically-generated Movie showing the interaction. """
     generatedOnApplicationVersion = models.CharField(max_length=30)
-    movieFile = models.FileField(upload_to='movies')
+    movieFile = models.FileField(max_length=512, upload_to='movies')
 
     resolutionWidth = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
@@ -27,7 +42,10 @@ class Movie(models.Model):
 class TextToSpeechCachedFile(models.Model):
     """ A mapping from a text to an audio file of the text-to-speech mp3 """
     text = models.CharField(max_length=2048, unique=True, primary_key=True)
-    audioFile = models.FileField(max_length=512, upload_to='speech-synth')
+    audioFile = models.FileField(
+        max_length=512,
+        upload_to='speech-synth',
+        storage=SpeechSynthStorage())
     lastUsed = models.DateTimeField(auto_now=True)
 
 

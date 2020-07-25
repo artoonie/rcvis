@@ -10,7 +10,9 @@ from django.db.utils import DataError
 from django.core.exceptions import ValidationError
 
 import boto3
+from botocore.exceptions import ClientError
 from movie.models import TextToSpeechCachedFile
+from movie.models import SPEECH_SYNTH_BUCKET_NAME as bucketName
 
 
 class AudioGenerationFailedException(Exception):
@@ -28,7 +30,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
     Always checks TextToSpeechCachedFile first.
     """
     prefix = 'generated_speech'
-    bucketName = 'speech-synth'
+    region = os.environ['AWS_S3_REGION_NAME']
 
     def __init__(self, pollyClient, s3Client, text):
         """
@@ -43,7 +45,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
             # pylint: disable=no-member
             cachedObject = TextToSpeechCachedFile.objects.get(text=text)
             self.isCached = True
-            self.uri = cachedObject.audioFile.url
+            self.uri = cachedObject.audioFile.name
             cachedObject.save()  # Update lastUsed
         except TextToSpeechCachedFile.DoesNotExist:  # pylint: disable=no-member
             self.isCached = False
@@ -56,7 +58,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         """ Spawns the AWS job """
         return self.pollyClient.start_speech_synthesis_task(
             VoiceId='Joanna',
-            OutputS3BucketName=self.bucketName,
+            OutputS3BucketName=bucketName,
             OutputS3KeyPrefix=self.prefix,
             OutputFormat='mp3',
             Text=text)
@@ -66,16 +68,32 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         assert not self.isCached
         return self.pollyClient.get_speech_synthesis_task(TaskId=self.taskId)
 
+    def _key_from_uri(self, uri):
+        return self.prefix + uri.split(self.prefix)[1]
+
     def _download(self, uri, toFilename):
         """ Downloads the file at the S3 URI """
-        key = self.prefix + uri.split(self.prefix)[1]
+        key = self._key_from_uri(uri)
 
-        self.s3Client.download_file(Key=key, Bucket=self.bucketName, Filename=toFilename)
+        try:
+            self.s3Client.download_file(Key=key, Bucket=bucketName, Filename=toFilename)
+        except ClientError as exception:
+            text = f"Failed to download file {uri}, bucket={bucketName}, key={key}"
+            if self.isCached:
+                text += "\nNote, this was a cached file being loaded from the database."
+            print(text)
+            raise exception
+
+    def _public_url_from_uri(self, uri):
+        return "https://s3-{0}.amazonaws.com/{1}/{2}".format(
+            self.region,
+            bucketName,
+            self._key_from_uri(uri))
 
     def _cache_file(self, uri):
         cached = TextToSpeechCachedFile()
         cached.text = self.text
-        cached.audioFile.name = uri
+        cached.audioFile.name = self._key_from_uri(uri)
 
         try:
             cached.full_clean()  # for some reason this isn't automatic...
