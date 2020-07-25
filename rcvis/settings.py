@@ -162,7 +162,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
-COMPRESS_ROOT = "static/compressed/"
+COMPRESS_ROOT = "static/"
 COMPRESS_ENABLED = True
 COMPRESS_FILTERS = {
     'css': [
