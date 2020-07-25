@@ -155,14 +155,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static/'),
 )
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
-COMPRESS_ROOT = "static/compressed/"
+COMPRESS_ROOT = "static/"
 COMPRESS_ENABLED = True
 COMPRESS_FILTERS = {
     'css': [
@@ -173,6 +173,7 @@ COMPRESS_FILTERS = {
         'compressor.filters.jsmin.JSMinFilter'
     ]
 }
+COMPRESS_OFFLINE = True
 
 
 # Uploaded media
