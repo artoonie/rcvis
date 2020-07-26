@@ -16,11 +16,13 @@ class SpeechSynthStorage(get_storage_class()):
     """ Speech synth is stored in a separate bucket. No-op when using offline mode."""
 
     def __init__(self, *args, **kwargs):
-        if 'bucket' in kwargs:
-            kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
-        else:
+        kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
+        try:
+            super(SpeechSynthStorage, self).__init__(*args, **kwargs)
+        except TypeError:
             assert OFFLINE_MODE
-        super(SpeechSynthStorage, self).__init__(*args, **kwargs)
+            del kwargs['bucket']
+            super(SpeechSynthStorage, self).__init__(*args, **kwargs)
 
 
 class Movie(models.Model):
