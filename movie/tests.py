@@ -170,6 +170,15 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         assert '.mp4' in actualFn  # might not be at the end - AWS adds keys to URL GET
         assert self._num_movies() == 1
 
+    def test_failure_status(self):
+        """ Test that the failure status is accurately set """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        jsonConfig = TestHelpers.get_latest_json_config()
+        create_movie(jsonConfig.pk, '/incorrect/url')
+
+        jsonConfig = TestHelpers.get_latest_json_config()
+        assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.FAILED
+
 
 class MovieCreationTestsIntegration(StaticLiveServerTestCase):
     """ Integration tests - no mocking here to test everything above

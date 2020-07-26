@@ -15,6 +15,7 @@ class MovieGenerationStatuses(models.IntegerChoices):
     PICKED_UP_BY_TASK = 2, _('Movie generation task has begun')
     LANDSCAPE_COMPLETE = 3, _('Landscape generation complete, portrait pending')
     COMPLETE = 4, _('Complete')
+    FAILED = 5, _('Failed')
 
 
 class JsonConfig(models.Model):
