@@ -3,7 +3,7 @@
 import urllib.parse
 
 # Django helpers
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -148,7 +148,7 @@ class Oembed(View):
 
 class JsonConfigViewSet(viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
-    queryset = JsonConfig.objects.all().order_by('-uploadedAt')  # pylint: disable=no-member
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonConfigSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
@@ -158,6 +158,6 @@ class JsonConfigViewSet(viewsets.ModelViewSet):
 
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """ API endpoint that allows you to view but not edit Users. """
-    queryset = User.objects.all().order_by('-id')
+    queryset = get_user_model().objects.all().order_by('-id')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]

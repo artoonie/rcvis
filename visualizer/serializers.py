@@ -1,6 +1,6 @@
 """ Data serializers - used for the REST API """
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from visualizer.graphCreator.graphCreator import BadJSONError
@@ -35,10 +35,10 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """ The rest_framework serializer for a User Model """
     this_users_jsons = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=JsonConfig.objects.all())  # pylint: disable=no-member
+        many=True, queryset=JsonConfig.objects.all())
 
     class Meta:
         """ The meta class to simplify construction of the serializer """
-        model = User
+        model = get_user_model()
         fields = ['id', 'username', 'this_users_jsons']
         ordering = ['-id']

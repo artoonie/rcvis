@@ -39,7 +39,7 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
         domain = self._get_domain()
 
         slug = kwargs['slug']
-        jsonconfig = JsonConfig.objects.get(slug=slug)  # pylint: disable=no-member
+        jsonconfig = JsonConfig.objects.get(slug=slug)
         jsonconfig.movieGenerationStatus = MovieGenerationStatuses.NOT_STARTED
         jsonconfig.save()
         create_movie.delay(jsonconfig.pk, domain)

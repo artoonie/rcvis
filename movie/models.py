@@ -1,14 +1,32 @@
 """ Models for storing data about a movie """
 from django.contrib import admin
 from django.core.cache import cache
+from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+
+from rcvis.settings import OFFLINE_MODE
+
+
+SPEECH_SYNTH_BUCKET_NAME = 'speech-synth'
+
+
+# pylint:disable=abstract-method,too-few-public-methods
+class SpeechSynthStorage(get_storage_class()):
+    """ Speech synth is stored in a separate bucket. No-op when using offline mode."""
+
+    def __init__(self, *args, **kwargs):
+        if 'bucket' in kwargs:
+            kwargs['bucket'] = SPEECH_SYNTH_BUCKET_NAME
+        else:
+            assert OFFLINE_MODE
+        super(SpeechSynthStorage, self).__init__(*args, **kwargs)
 
 
 class Movie(models.Model):
     """ An automatically-generated Movie showing the interaction. """
     generatedOnApplicationVersion = models.CharField(max_length=30)
-    movieFile = models.FileField(upload_to='movies')
+    movieFile = models.FileField(max_length=512, upload_to='movies')
 
     resolutionWidth = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
@@ -27,7 +45,10 @@ class Movie(models.Model):
 class TextToSpeechCachedFile(models.Model):
     """ A mapping from a text to an audio file of the text-to-speech mp3 """
     text = models.CharField(max_length=2048, unique=True, primary_key=True)
-    audioFile = models.FileField(max_length=512, upload_to='speech-synth')
+    audioFile = models.FileField(
+        max_length=512,
+        upload_to='speech-synth',
+        storage=SpeechSynthStorage())
     lastUsed = models.DateTimeField(auto_now=True)
 
 

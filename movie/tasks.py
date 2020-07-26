@@ -25,7 +25,7 @@ def create_movie(pk, domain):
     browser.implicitly_wait(10)
 
     try:
-        jsonconfig = JsonConfig.objects.get(pk=pk)  # pylint: disable=no-member
+        jsonconfig = JsonConfig.objects.get(pk=pk)
         _make_movies_for_config(browser, domain, jsonconfig)
     finally:
         browser.quit()

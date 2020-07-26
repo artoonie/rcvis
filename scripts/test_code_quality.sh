@@ -5,7 +5,8 @@ myExitCode=0
 
 # Require 100% lint-free code
 echo "Checking for pylint issues"
-pylint movie visualizer rcvis  --ignore visualizer/migrations,movie/migrations
+export DJANGO_SETTINGS_MODULE="rcvis.settings" # needed by pylint_django
+pylint movie visualizer rcvis --load-plugins pylint_django  --ignore visualizer/migrations,movie/migrations
 errorCode=$?
 if [ $errorCode != 0 ]; then
     echo "These files must be perfectly linted"

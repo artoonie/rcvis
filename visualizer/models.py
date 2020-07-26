@@ -1,5 +1,6 @@
 """ The django object models """
 
+from django.conf import settings
 from django.contrib import admin
 from django.core.cache import cache
 from django.db import models
@@ -25,7 +26,7 @@ class JsonConfig(models.Model):
     slug = models.SlugField(unique=True)
     uploadedAt = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
-        'auth.User',
+        settings.AUTH_USER_MODEL,
         related_name='this_users_jsons',
         on_delete=models.CASCADE,
         null=True)
@@ -79,7 +80,6 @@ class JsonConfig(models.Model):
         uniqueSlug = slug
         num = 1
 
-        #pylint: disable=no-member
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
             uniqueSlug = '{}-{}'.format(slug, num)
             num += 1

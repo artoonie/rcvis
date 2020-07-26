@@ -9,7 +9,7 @@ import time
 
 from django.core.cache import cache
 from django.core.files import File
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
 from rest_framework import status
@@ -137,12 +137,12 @@ class RestAPITests(APITestCase):
 
     def setUp(self):
         # Create an admin user programmatically
-        admin = User.objects.create_user('admin', 'admin@example.com', 'password')
+        admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
         admin.is_staff = True
         admin.save()
 
         # Create a regular user programmatically
-        admin = User.objects.create_user('notadmin', 'notadmin@example.com', 'password')
+        admin = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
         admin.is_staff = False
         admin.save()
 
@@ -151,7 +151,7 @@ class RestAPITests(APITestCase):
         if not username:
             self.client.force_authenticate()  # pylint: disable=no-member
         else:
-            user = User.objects.get(username=username)
+            user = get_user_model().objects.get(username=username)
             self.client.force_authenticate(user=user)   # pylint: disable=no-member
 
     def _upload_file_for_api(self, filename):
@@ -329,7 +329,7 @@ class RestAPITests(APITestCase):
         assert filenameBasename in response.data['jsonFile']
 
         # But changing the owner is not allowed
-        notadminId = User.objects.all().filter(username='notadmin')[0].id
+        notadminId = get_user_model().objects.all().filter(username='notadmin')[0].id
         response = self.client.patch(url, data={'owner': notadminId - 1})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get(url, format='json')
