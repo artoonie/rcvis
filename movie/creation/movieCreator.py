@@ -246,10 +246,11 @@ class MovieCreationFactory():
             jsonconfig=self.jsonconfig,
             size=(width, height))
         with tempfile.NamedTemporaryFile(suffix=".mp4") as tempFile:
-            creator.make_movie(tempFile.name)
-            movie = self.save_and_upload(width, height, self.jsonconfig.slug, tempFile)
-
-        # Force additional garbage collection asap
-        del creator
+            try:
+                creator.make_movie(tempFile.name)
+                movie = self.save_and_upload(width, height, self.jsonconfig.slug, tempFile)
+            finally:
+                # Force additional garbage collection asap
+                del creator
 
         return movie
