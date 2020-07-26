@@ -29,6 +29,7 @@ def create_movie(pk, domain):
         _make_movies_for_config(browser, domain, jsonconfig)
     except BaseException:  # pylint: disable=broad-except
         jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
+        jsonconfig.save()
     finally:
         browser.quit()
 
