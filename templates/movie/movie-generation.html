@@ -20,8 +20,12 @@
     $("#bargraph-interactive-legend").hide();
     $("body").css("margin-left", "100px");
     $("body").css("margin-right", "100px");
-    $("body").css("margin-top", "20px");
     $("body").css("margin-bottom", "200px");
+    {% if config.doUseHorizontalBarGraph %}
+    $("body").css("margin-top", "100px");
+    {% else %}
+    $("body").css("margin-top", "0px");
+    {% endif %}
 </script>
 
 </body>

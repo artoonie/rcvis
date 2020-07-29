@@ -6,6 +6,11 @@
 <head>
 {% include "visualizer/common-header.html" %}
 {% include "visualizer/common-visualizer-header.html" %}
+
+<!-- video.js CDN - cannot defer loading or scrubbing can break -->
+<link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+<script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+<link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet" />
 </head>
 
 <body>
@@ -13,15 +18,23 @@
 
     <p><a href="/createMovie={{ config.slug }}">Regenerate Movie</a></p>
 
-    {% if config.movieHorizontal %}
-    <video width='100%' height='auto' style="max-width: {{ config.movieHorizontal.resolutionWidth }}" controls>
-        <source src="{{ config.movieHorizontal.movieFile.url }}">
-        Your browser does not support the video tag.
-    </video>
+    <div id="horizontal">
+    {% if movie %}
+    <div width='100%'
+         style="max-width: {{ movie.resolutionWidth }}">
+        <video class="video-js vjs-theme-sea" preload="auto" data-setup="{}" controls>
+
+            <source src="{{ movie.movieFile.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
     {% else %}
     <p>Debug info: No movie exists</p>
     {% endif %}
+    </div>
 
     {% include "visualizer/common-visualizer-nonblocking.html" %}
+
+    <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
 </body>
 </html>
