@@ -57,4 +57,10 @@ class VisualizeMovie(DetailView):
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
-        return _get_data_for_view(config['jsonconfig'])
+        data = _get_data_for_view(config['jsonconfig'])
+        orientation = self.request.GET.get('orientation', 'horizontal')
+        if orientation == 'vertical':
+            data['movie'] = data['config'].movieVertical
+        else:
+            data['movie'] = data['config'].movieHorizontal
+        return data

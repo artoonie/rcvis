@@ -51,7 +51,9 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
                          font=self.fontName,
                          fontsize=70,
                          color="black",
-                         size=self.size)
+                         size=self.size,
+                         method="caption",
+                         align="center")
 
         background0 = ImageClip(backgroundImageFn)
         background = background0.resize(self.size)  # pylint: disable=no-member
@@ -77,10 +79,25 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
 
     def _make_closing_card(self):
         """ Creates the credits / closing card. """
-        writtenText = f"See more details at rcvis.com/visualize={self.slug}"
+        writtenText = "See more details at rcvis.com"
         spokenText = "See more details at R C Vis dot com"
         backgroundImageFn = "static/movie/bg-horizontal.png"
-        return self._text_on_background(writtenText, spokenText, backgroundImageFn)
+        primary = self._text_on_background(writtenText, spokenText, backgroundImageFn)
+
+        url = f"rcvis.com/visualize={self.slug}\n\n\n"
+        urlText0 = TextClip(url,
+                            font=self.fontName,
+                            fontsize=35,
+                            color="black",
+                            size=self.size,
+                            method="caption",
+                            align="South")
+        urlText = urlText0.set_duration(primary.duration)
+
+        combined = CompositeVideoClip([primary, urlText])
+        self.toDelete.extend([primary, urlText, urlText0, combined])
+
+        return combined
 
     def _spawn_audio_creation_with_caption(self, caption):
         """ Returns a GeneratedAudioWrapper which you should poll for completion """
