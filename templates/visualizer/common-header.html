@@ -21,3 +21,7 @@ gtag('config', 'UA-151309356-1');
 {% endblock %}
 
 <link rel="shortcut icon" type="image/png" href="{% static 'visualizer/favicon.ico' %}"/>
+
+{% compress css file %}
+    <link href="{% static 'visualizer/freelancer.css' %}" rel="stylesheet">
+{% endcompress %}
