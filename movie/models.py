@@ -8,7 +8,7 @@ from django.db import models
 from rcvis.settings import OFFLINE_MODE
 
 
-SPEECH_SYNTH_BUCKET_NAME = 'speech-synth'
+SPEECH_SYNTH_BUCKET_NAME = 'speech-synth-us-west-2'
 
 
 # pylint:disable=abstract-method,too-few-public-methods

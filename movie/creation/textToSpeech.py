@@ -60,7 +60,8 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
             OutputS3BucketName=bucketName,
             OutputS3KeyPrefix=self.prefix,
             OutputFormat='mp3',
-            Text=text)
+            Text=text,
+            Engine="neural")
 
     def _get_task_status(self):
         """ Poll Polly for the task status """
@@ -114,7 +115,8 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
             taskStatus = self._get_task_status()
 
             if taskStatus['SynthesisTask']['TaskStatus'] == 'failed':
-                raise AudioGenerationFailedException()
+                reason = taskStatus['SynthesisTask']["TaskStatusReason"]
+                raise AudioGenerationFailedException(reason)
 
             if taskStatus['SynthesisTask']['TaskStatus'] != 'completed':
                 return False

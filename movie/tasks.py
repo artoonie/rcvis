@@ -3,6 +3,7 @@ Long-running tasks, to be run asynchronously with Amazon SQS or another queue
 """
 
 import os
+import traceback
 
 from celery import shared_task
 from selenium import webdriver
@@ -31,6 +32,7 @@ def create_movie(pk, domain):
         jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
         jsonconfig.save()
         print("Movie generation failed: ", exception)
+        traceback.print_exc()
     finally:
         browser.quit()
 
