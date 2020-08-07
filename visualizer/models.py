@@ -78,6 +78,8 @@ class JsonConfig(models.Model):
 
     def _get_unique_slug(self):
         slug = slugify(self.jsonFile)
+        if slug.endswith('json'):
+            slug = slug[:-4]
         uniqueSlug = slug
         num = 1
 

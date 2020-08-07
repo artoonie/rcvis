@@ -90,7 +90,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.COMPLETE
 
         # Ensure it's loaded in the View
-        response = self.client.get('/visualizeMovie=macomb-multiwinner-surplusjson')
+        response = self.client.get('/visualizeMovie=macomb-multiwinner-surplus')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movie/only-movie.html')
 
@@ -107,20 +107,20 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Upload
         response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response['location'], "visualize=macomb-multiwinner-surplusjson")
+        self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
 
         # Create movie logged out, it should fail
-        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
+        response = self.client.get('/createMovie=macomb-multiwinner-surplus')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplusjson')
+                         '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplus')
         mockCreateMovie.assert_not_called()
 
         # Log in and try again
         jsonConfig = TestHelpers.get_latest_json_config()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.NOT_REQUESTED
         self.client.post('/admin/login/', {'username': 'admin', 'password': 'password'})
-        response = self.client.get('/createMovie=macomb-multiwinner-surplusjson')
+        response = self.client.get('/createMovie=macomb-multiwinner-surplus')
 
         # Make sure we see it requested - note, we mock out all future MovieGenerationStatuses
         jsonConfig = TestHelpers.get_latest_json_config()
@@ -129,7 +129,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Assert it redirects to a waiting page
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         "/visualizeMovie=macomb-multiwinner-surplusjson")
+                         "/visualizeMovie=macomb-multiwinner-surplus")
 
         # Ensure progress has begun
         mockCreateMovie.assert_called_once()

@@ -36,7 +36,7 @@ class Index(TemplateView):
 class Upload(CreateView):
     """ The upload page """
     template_name = 'visualizer/uploadFile.html'
-    success_url = 'visualize={slug}'
+    success_url = 'v/{slug}'
     model = JsonConfig
     form_class = JsonConfigForm
     build_path = "upload.html"
