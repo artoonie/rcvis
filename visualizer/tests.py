@@ -6,12 +6,15 @@ from enum import Enum
 import json
 import os
 import time
+from urllib.parse import urlparse
 
 from django.core.cache import cache
 from django.core.files import File
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
+from django.urls import reverse
+from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
@@ -79,8 +82,7 @@ class SimpleTests(TestCase):
         """ Tests uploading a random file """
         response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'],
-                         "visualize=macomb-multiwinner-surplusjson")
+        self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
 
     def test_upload_file_failure(self):
         """ Tests that we get an error page if a file fails to upload """
@@ -99,7 +101,7 @@ class SimpleTests(TestCase):
         with open(acceptableSizeJson) as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], "visualize=randomfilejson")
+        self.assertEqual(response['location'], "v/randomfile")
 
         # Then verify it fails with a too-large filesize
         tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
@@ -107,6 +109,34 @@ class SimpleTests(TestCase):
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
+
+    @patch('visualizer.views._make_complete_url')
+    def test_old_style_urls(self, mockCompleteUrl):
+        """ Ensure both /v/slug and /visualize=slug work """
+        mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
+
+        def ensure_url_uses_template(url, template):
+            """ Helper function to ensure the given URL matches the template """
+            response = self.client.get("/" + url)
+            self.assertTemplateUsed(response, f'visualizer/{template}.html')
+
+        response = TestHelpers.get_multiwinner_upload_response(self.client)
+        uploadedUrl = response['location']
+
+        # New style - visualize
+        ensure_url_uses_template(uploadedUrl, 'visualize')
+
+        # Old style - visualize
+        oldStyleUrl = uploadedUrl.replace('v/', 'visualize=')
+        ensure_url_uses_template(oldStyleUrl, 'visualize')
+
+        # New style - embedded
+        embedUrl = uploadedUrl.replace('v/', 've/')
+        ensure_url_uses_template(embedUrl, 'visualize-embedded')
+
+        # Old style - embedded
+        oldStyleEmbedUrl = uploadedUrl.replace('v/', 'visualizeEmbedded=')
+        ensure_url_uses_template(oldStyleEmbedUrl, 'visualize-embedded')
 
 
 class ModelDeletionTests(TransactionTestCase):
@@ -337,6 +367,13 @@ class RestAPITests(APITestCase):
         ownerId = response.data['owner'][-2]  # of the format url/api/users/<id>/
         self.assertEqual(ownerId, str(notadminId))
 
+        # And changing the slug doesn't do anything, but returns a 200 OK
+        originalSlug = response.data['slug']
+        response = self.client.patch(url, data={'slug': 'notthis'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(url)
+        assert response.data['slug'] == originalSlug
+
         # And not even an admin can edit someone else's data
         self._authenticate_as('admin')
         response = self.client.patch(url, format='json', data=editedData)
@@ -348,6 +385,23 @@ class RestAPITests(APITestCase):
         response = self._upload_file_for_api(
             TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3))  # 3mb
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch('visualizer.views._make_complete_url')
+    def test_oembed_returns(self, mockCompleteUrl):
+        """ Ensure that the oembed data works """
+        mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
+
+        self._authenticate_as('notadmin')
+        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        slug = response.data['slug']
+        expectedUrl = reverse('visualize', args=(slug,))
+        assert response.data['visualizeUrl'].endswith(expectedUrl)
+
+        oembedUrl = response.data['oembedEndpointUrl']
+        response = self.client.get(oembedUrl)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):
@@ -547,12 +601,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._upload(FILENAME_MULTIWINNER)
 
         # Sanity check that a json exists
-        uploadedUrl = "/" + self.browser.current_url.split('/')[-1]
+        uploadedPath = urlparse(self.browser.current_url).path
         oembedJsonUrl = self.browser.find_element_by_id("oembed").get_attribute('href')
-        embeddedUrl = uploadedUrl.replace('visualize=', 'visualizeEmbedded=')
+        embeddedUrl = uploadedPath.replace('v/', 've/')
 
         # Sanity check
-        self.open(uploadedUrl)
+        self.open(uploadedPath)
 
         # Verify discoverability.
         # The response is a JSON, which means on the first load without cache, there is
@@ -645,7 +699,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Upload a file, check cache
         self._upload(FILENAME_OPAVOTE)
-        fn1 = "/visualize=opavote-fairvotejson"
+        fn1 = "/v/opavote-fairvote"
         assert is_cache_much_faster()
 
         # Uploading should clear all cache

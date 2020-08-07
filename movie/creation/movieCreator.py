@@ -84,7 +84,7 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         backgroundImageFn = "static/movie/bg-horizontal.png"
         primary = self._text_on_background(writtenText, spokenText, backgroundImageFn)
 
-        url = f"rcvis.com/visualize={self.slug}\n\n\n"
+        url = f"rcvis.com/v/{self.slug}\n\n\n"
         urlText0 = TextClip(url,
                             font=self.fontName,
                             fontsize=35,

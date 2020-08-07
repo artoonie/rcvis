@@ -1,6 +1,7 @@
 """ Data serializers - used for the REST API """
 
 from django.contrib.auth import get_user_model
+from django.urls import reverse
 from rest_framework import serializers
 
 from visualizer.graphCreator.graphCreator import BadJSONError
@@ -16,8 +17,23 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """ The meta class to simplify construction of the serializer """
         model = JsonConfig
-        fields = ['id', 'owner'] + JsonConfig.get_all_non_auto_fields()
+        exclude = ['movieHorizontal', 'movieVertical']
         owner = serializers.ReadOnlyField(source='owner.username')
+        read_only_fields = ['slug']
+
+    def to_representation(self, instance):
+        data = super(JsonConfigSerializer, self).to_representation(instance)
+        request = self.context['request']
+
+        visRelativeUrl = reverse('visualize', args=(instance.slug,))
+        visAbsoluteUrl = request.build_absolute_uri(visRelativeUrl)
+
+        oembedRelativeUrl = reverse('oembed') + "?url=" + visAbsoluteUrl
+        oembedAbsoluteUrl = request.build_absolute_uri(oembedRelativeUrl)
+
+        data['visualizeUrl'] = visAbsoluteUrl
+        data['oembedEndpointUrl'] = oembedAbsoluteUrl
+        return data
 
     #pylint: disable=invalid-name
     @classmethod
