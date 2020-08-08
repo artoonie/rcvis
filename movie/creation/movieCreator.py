@@ -8,6 +8,7 @@ import time
 
 from django.core.files import File
 from django.urls import reverse
+from moviepy.config import change_settings
 from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip,\
     concatenate_videoclips
 import selenium
@@ -17,6 +18,9 @@ from visualizer.graphCreator.graphCreator import make_graph_with_file
 from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
 from movie.creation.describer import Describer
+
+
+change_settings({"FFMPEG_BINARY": "/usr/bin/ffmpeg"})
 
 
 class ProbablyFailedToLaunchBrowser(Exception):
@@ -202,10 +206,14 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
 
         # Save to file
         composite = concatenate_videoclips(imageClips)
-        with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tf:
+        with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as tf:
             # Needs this tempfile or elasticbeanstalk will try writing to somewhere it can't
             # delete=False because moviepy will delete the file for us
-            composite.write_videofile(outputFilename, fps=2, temp_audiofile=tf.name)
+            composite.write_videofile(
+                outputFilename,
+                fps=2,
+                temp_audiofile=tf.name,
+                audio_codec='aac')
 
         # moviepy is awful at garbage collection. Do it manually.
         self.toDelete.extend(imageClips)
