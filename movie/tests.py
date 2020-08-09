@@ -7,18 +7,25 @@ import shutil
 import tempfile
 
 from django.contrib.auth import get_user_model
-
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from mock import patch
+import mock
+import moviepy
 
 from common.testUtils import TestHelpers
-from movie.creation.movieCreator import MovieCreationFactory
+from movie.creation.movieCreator import MovieCreationFactory, SingleMovieCreator
 from movie.creation.textToSpeech import GeneratedAudioWrapper, TextToSpeechFactory
 from movie.models import Movie, TextToSpeechCachedFile
 from movie.tasks import create_movie
 from visualizer.models import MovieGenerationStatuses
 
 FILENAME_AUDIO = 'testData/audio.mp3'
+FILENAME_SCRIPT = 'testData/expected-video-script.txt'
+FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo.png'
+
+# Mock helpers
+ORIG_FUNC_FOR_SPAWN_AUDIO = SingleMovieCreator._spawn_audio_creation_with_caption  # pylint: disable=protected-access
+MOVIE_PATCH_PREFIX = 'movie.creation.movieCreator.SingleMovieCreator.'
 
 
 class MovieCreationTestsMocked(StaticLiveServerTestCase):
@@ -77,7 +84,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         create_movie(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
-        assert len(TextToSpeechCachedFile.objects.all()) == 3
+        assert len(TextToSpeechCachedFile.objects.all()) == 4
 
         # TODO - why does this not work with .delay()? With celery running,
         # and the correct live_server_url, it accesses my localhost database
@@ -169,6 +176,40 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         assert slug in actualFn
         assert '.mp4' in actualFn  # might not be at the end - AWS adds keys to URL GET
         assert self._num_movies() == 1
+
+    @mock.patch('moviepy.video.VideoClip.VideoClip.write_videofile')
+    @mock.patch(MOVIE_PATCH_PREFIX + '_generate_image_for_round_synchronously', autospec=True)
+    @mock.patch(MOVIE_PATCH_PREFIX + '_generate_captions_with_duration', autospec=True)
+    @mock.patch(MOVIE_PATCH_PREFIX + '_spawn_audio_creation_with_caption', autospec=True)
+    def test_captions_all_as_expected(
+            self,
+            mockSpawnAudio,
+            mockGenerateCaptions,
+            mockGenerateImage,
+            mockWriteVideoFile):
+        """ Integration test to verify the end-to-end script """
+
+        # Mock the audio generation to inspect captions
+        mockSpawnAudio.side_effect = ORIG_FUNC_FOR_SPAWN_AUDIO
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        jsonConfig = TestHelpers.get_latest_json_config()
+
+        # Mock the video generation to make it faster
+        mockWriteVideoFile.return_value = None
+        mockGenerateCaptions.return_value = []
+        mockGenerateImage.return_value = moviepy.editor.ImageClip(FILENAME_ARBITRARY_IMAGE)
+
+        create_movie(jsonConfig.pk, self.live_server_url)
+
+        # Read the script and get each line
+        with open(FILENAME_SCRIPT, 'r') as f:
+            lines = f.read().splitlines()
+        # Allow \n to indicate multiline captions
+        lines = [line.replace('\\n', '\n') for line in lines]
+        # Create the mock calls
+        callsForOneVideo = [mock.call(mock.ANY, caption=line) for line in lines]
+        # Ensure each line is called twice, once horizontal once vertical
+        mockSpawnAudio.assert_has_calls(callsForOneVideo * 2)
 
     def test_failure_status(self):
         """ Test that the failure status is accurately set """

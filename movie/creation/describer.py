@@ -5,7 +5,7 @@ Describes what happened in each round of an RCV Election in plain English.
 from math import fmod
 
 
-class Describer:  # pylint: disable=too-few-public-methods
+class Describer:
     """ Describes a graph in plain English.
         Iteratively call describe_round() on each round for the given graph. """
 
@@ -65,7 +65,7 @@ class Describer:  # pylint: disable=too-few-public-methods
             return listOfNames[0] + whatHappenedToThem
 
         lastNameInList = listOfNames[-1]
-        otherNamesInList = ", ".join(listOfNames[:-2])
+        otherNamesInList = ", ".join(listOfNames[:-1])
         return otherNamesInList + " and " + lastNameInList + whatHappenedToThem
 
     def _describe_eliminated_this_round(self, roundNum):
@@ -114,4 +114,22 @@ class Describer:  # pylint: disable=too-few-public-methods
         text += self._describe_most_nonwinner_votes_this_round(roundNum)
         text += self._describe_winners_this_round(roundNum)
         text += self._describe_redistribution_this_round(roundNum)
+        return text
+
+    def describe_initial_summary(self):
+        """ Summarizes the entire election. """
+        summary = self.graph.summarize()
+        winners = [winner for round in summary.rounds for winner in round.winnerNames]
+        numRounds = len(summary.rounds)
+
+        if len(winners) == 0:
+            raise NotImplementedError()
+
+        wereOrWas = "was" if len(winners) == 1 else "were"
+        winnerText = self._text_to_describe_list_of_names(winners, f" {wereOrWas} elected. ")
+
+        text = f"In this ranked choice voting election, there were {numRounds} rounds, after which "
+        text += winnerText
+        text += "Here's what happened in each round. "
+
         return text
