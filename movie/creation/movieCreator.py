@@ -154,6 +154,17 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         # Create a caption for the round
         caption = roundDescriber.describe_round(roundNum)
 
+        return self._generate_clip_with_caption(roundNum, caption)
+
+    def _generate_initial_summary(self, roundDescriber):
+        """ The first thing we do is show the results. """
+        caption = roundDescriber.describe_initial_summary()
+
+        lastRound = self._get_num_rounds() - 1
+        return self._generate_clip_with_caption(lastRound, caption)
+
+    def _generate_clip_with_caption(self, roundNum, caption):
+        """ Uses the caption to create audio and visual captions for the round """
         # Create audio
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
 
@@ -195,6 +206,10 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
 
         # Title card
         imageClips.append(self._make_title_card())
+
+        # Summarize the election
+        clip = self._generate_initial_summary(roundDescriber)
+        imageClips.append(clip)
 
         # Each round
         for i in range(self._get_num_rounds()):
