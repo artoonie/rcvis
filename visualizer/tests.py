@@ -13,6 +13,7 @@ from django.core.files import File
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
+from django.test.client import RequestFactory
 from django.urls import reverse
 from mock import patch
 from rest_framework import status
@@ -24,7 +25,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from visualizer.graphCreator.graphCreator import BadJSONError
-from visualizer.views import _get_data_for_view
+from visualizer.views import _get_data_for_view, Oembed
 from visualizer.models import JsonConfig
 from visualizer.forms import JsonConfigForm
 
@@ -137,6 +138,38 @@ class SimpleTests(TestCase):
         # Old style - embedded
         oldStyleEmbedUrl = uploadedUrl.replace('v/', 'visualizeEmbedded=')
         ensure_url_uses_template(oldStyleEmbedUrl, 'visualize-embedded')
+
+    def test_oembed_converts_url(self):
+        """ Check that the oembed converts a visualize URL to a visualizeEmbedded URL """
+        # First unit tests
+        view = Oembed()
+        func = view._get_visualize_embedded_url_from  # pylint:disable=protected-access
+        allowedUrls = ['https://fakeurl.com/visualize=fakeslug',
+                       'https://fakeurl.com/visualizeEmbedded=fakeslug',
+                       'https://fakeurl.com/v/fakeslug',
+                       'https://fakeurl.com/v/fakeslug?a=b',
+                       'https://fakeurl.com/ve/fakeslug',
+                       'https://fakeurl.com/visualizeMovie=fakeslug']
+        for allowedUrl in allowedUrls:
+            self.assertEqual(func(allowedUrl), '/ve/fakeslug')
+        disallowedUrls = ['https://fakeurl.com/oembed=fakeslug',
+                          'https://fakeurl.com/visualize=',
+                          'https://fakeurl.com/ve/']
+        for disallowedUrl in disallowedUrls:
+            self.assertEqual(func(disallowedUrl), None)
+
+        # Then integration tests for the View.
+        # Create a fake request
+        visualizeUrl = reverse('visualize', args=('fakeslug',))
+        requestData = {'url': 'https://fakeurl.com' + visualizeUrl}
+        request = RequestFactory().get(reverse('oembed'), requestData, HTTP_HOST='example.com')
+
+        # Get the response
+        jsonResponse = Oembed().get(request)
+        responseData = json.loads(jsonResponse.content)
+
+        # Validate the response - this time the complete URL is needed
+        assert 'http://example.com/ve/fakeslug' in responseData['html']
 
 
 class ModelDeletionTests(TransactionTestCase):
@@ -595,9 +628,6 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_oembed(self):
         """ Tests the functionality of the oembed feature"""
-        # Just so this test can be run out-of-order, but note that this is probably
-        # the third time this file is uploaded so the actual slug for this instance would be
-        # oneRoundjson-3
         self._upload(FILENAME_MULTIWINNER)
 
         # Sanity check that a json exists
