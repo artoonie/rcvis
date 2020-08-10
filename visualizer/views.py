@@ -7,7 +7,9 @@ from django.contrib.auth import get_user_model
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
+from django.urls import resolve
 from django.urls import reverse
+from django.urls import Resolver404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -102,7 +104,22 @@ class VisualizeEmbedded(DetailView):
 @method_decorator(xframe_options_exempt, name='dispatch')
 class Oembed(View):
     """ The oembed protocol, pointing to VisualizeEmbedded """
-    #pylint: disable=no-self-use
+
+    @classmethod
+    def _get_visualize_embedded_url_from(cls, url):
+        """ Returns a visualizeEmbedded URL. Can pass a visualize or a visualizeEmbedded URL """
+        # Parse the URL
+        urlPath = urllib.parse.urlparse(url).path
+        try:
+            resolverMatch = resolve(urlPath)
+        except Resolver404:
+            return None
+
+        kwargs = resolverMatch.kwargs
+        if not kwargs:
+            # invalid URL
+            return None
+        return reverse('visualizeEmbedded', kwargs=kwargs)
 
     def get(self, request):
         """ Overriding the getter for this class-based view """
@@ -117,11 +134,19 @@ class Oembed(View):
             # not implemented
             return HttpResponse(status=501)
 
+        # Parse the URL
+        embedUrl = self._get_visualize_embedded_url_from(url)
+        embedUrl = _make_complete_url(request, embedUrl)
+        if not embedUrl:
+            # invalid URL
+            return HttpResponse(status=404)
+
         renderData = {
             'width': maxwidth,
             'height': maxheight,
-            'iframe_url': url,
-            'vistype': vistype}
+            'iframe_url': embedUrl,
+            'vistype': vistype
+        }
 
         httpResponse = render(request, 'visualizer/oembed.html', renderData)
 
