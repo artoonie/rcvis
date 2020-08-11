@@ -25,9 +25,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from visualizer.graphCreator.graphCreator import BadJSONError
+from visualizer.graphCreator.graphCreator import make_graph_with_file
 from visualizer.views import _get_data_for_view, Oembed
 from visualizer.models import JsonConfig
 from visualizer.forms import JsonConfigForm
+from visualizer.wikipedia.wikipedia import WikipediaExport
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
@@ -170,6 +172,19 @@ class SimpleTests(TestCase):
 
         # Validate the response - this time the complete URL is needed
         assert 'http://example.com/ve/fakeslug' in responseData['html']
+
+    def test_wikicode(self):
+        """ Validate that the wikicode can be generated and hasn't inadvertently changed """
+        with open(FILENAME_MULTIWINNER, 'r+') as f:
+            graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
+
+        text = WikipediaExport(graph, "http://example.com/v/slug").create_wikicode()
+
+        # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
+        # validate syntax. For now, just validate it doesn't throw an exception, and that the
+        # length is the same magic number I expect, so I don't inadvertently change anything
+        magicKnownTextLength = 3855
+        assert len(text) == magicKnownTextLength
 
 
 class ModelDeletionTests(TransactionTestCase):
