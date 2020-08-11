@@ -20,12 +20,13 @@ from rest_framework import permissions, viewsets
 
 # rcvis helpers
 from common.viewUtils import _get_data_for_view
-from visualizer.graphCreator.graphCreator import BadJSONError
-from .forms import JsonConfigForm
-from .models import JsonConfig
-from .permissions import IsOwnerOrReadOnly
-from .serializers import JsonConfigSerializer, UserSerializer
-from .validators import try_to_load_json
+from visualizer.forms import JsonConfigForm
+from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
+from visualizer.models import JsonConfig
+from visualizer.permissions import IsOwnerOrReadOnly
+from visualizer.serializers import JsonConfigSerializer, UserSerializer
+from visualizer.validators import try_to_load_json
+from visualizer.wikipedia.wikipedia import WikipediaExport
 
 
 class Index(TemplateView):
@@ -97,6 +98,30 @@ class VisualizeEmbedded(DetailView):
 
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
+
+        return data
+
+
+class Wikipedia(DetailView):
+    """ The wikicode export of the Single Table View """
+    model = JsonConfig
+    template_name = 'wikipedia/wikipedia-export.html'
+
+    def get_context_data(self, **kwargs):
+        config = super().get_context_data(**kwargs)
+        config = config['jsonconfig']
+        graph = make_graph_with_file(config.jsonFile,
+                                     config.excludeFinalWinnerAndEliminatedCandidate)
+
+        # Reference URL back to us
+        slug = config.slug
+        referenceUrl = _make_complete_url(self.request, reverse("visualize", args=(slug,)))
+        referenceUrl += "#tabular-candidate-by-round"
+
+        wikipediaExport = WikipediaExport(graph, referenceUrl)
+        data = {
+            'wikicode': wikipediaExport.create_wikicode()
+        }
 
         return data
 

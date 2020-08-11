@@ -29,6 +29,3 @@ def _get_data_for_view(config):
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'offlineMode': offlineMode
     }
-
-
-

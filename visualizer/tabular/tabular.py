@@ -117,15 +117,20 @@ class CandidateTabulationByRound:
 class OneCandidateOneRound:
     primaryLabel: str
     secondaryLabel: str
-    percentVotes: float
     isWinner: bool
     isEliminated: bool
+
+    numVotes: float
+    pctVotes: float
 
     def __init__(self, thisRoundSummary, myNumVotes, item):
         allVotes = thisRoundSummary.totalActiveVotes
 
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
             myNumVotes, allVotes, item)
+
+        self.numVotes = myNumVotes
+        self.pctVotes = percentify(myNumVotes / allVotes)
 
         self.isWinner = item.name in thisRoundSummary.winnerNames
         self.isEliminated = item.name in thisRoundSummary.eliminatedNames
