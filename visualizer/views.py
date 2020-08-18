@@ -20,6 +20,7 @@ from rest_framework import permissions, viewsets
 
 # rcvis helpers
 from common.viewUtils import _get_data_for_view
+from visualizer.common import make_complete_url
 from visualizer.forms import JsonConfigForm
 from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
 from visualizer.models import JsonConfig
@@ -59,12 +60,6 @@ class Upload(CreateView):
         return render(self.request, 'visualizer/errorBadJson.html')
 
 
-def _make_complete_url(request, urlWithoutDomain):
-    scheme = 'https' if request.is_secure() else 'http'
-    host = request.META['HTTP_HOST']
-    return f"{scheme}://{host}{urlWithoutDomain}"
-
-
 class Visualize(DetailView):
     """ Visualizing a single JsonConfig """
     model = JsonConfig
@@ -77,9 +72,9 @@ class Visualize(DetailView):
 
         # oembed href
         slug = config['jsonconfig'].slug
-        iframeUrl = _make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
+        iframeUrl = make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
         iframeUrl = urllib.parse.quote_plus(iframeUrl)
-        oembedUrl = _make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
+        oembedUrl = make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
         data['oembed_url'] = oembedUrl
 
         return data
@@ -115,7 +110,7 @@ class Wikipedia(DetailView):
 
         # Reference URL back to us
         slug = config.slug
-        referenceUrl = _make_complete_url(self.request, reverse("visualize", args=(slug,)))
+        referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
         referenceUrl += "#tabular-candidate-by-round"
 
         wikipediaExport = WikipediaExport(graph, referenceUrl)
@@ -161,7 +156,7 @@ class Oembed(View):
 
         # Parse the URL
         embedUrl = self._get_visualize_embedded_url_from(url)
-        embedUrl = _make_complete_url(request, embedUrl)
+        embedUrl = make_complete_url(request, embedUrl)
         if not embedUrl:
             # invalid URL
             return HttpResponse(status=404)
@@ -183,7 +178,7 @@ class Oembed(View):
             "author_url": "http://www.rcvis.com/",
             "provider_name": "rcvis.com",
             "provider_url": "http://www.rcvis.com/",
-            "thumbnail": _make_complete_url(request, static("visualizer/icon_interactivebar.gif"))
+            "thumbnail": make_complete_url(request, static("visualizer/icon_interactivebar.gif"))
         }
         jsonData['type'] = "rich"
         jsonData['width'] = maxwidth

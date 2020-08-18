@@ -56,6 +56,9 @@
         <li class="nav-item">
             <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_settings.png' %}" width="20"/></a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link btn btn-outline-light" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_share.png' %}" width="20"/></a>
+        </li>
     </ul>
     </div>
   </header>
@@ -86,6 +89,9 @@
         </div>
         <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
             {% include "settings/settings-update.html" %}
+        </div>
+        <div class="tab-pane fade" id="share" role="tabpanel" aria-labelledby="share-tab">
+            {% include "share/share.html" %}
         </div>
     </div>
 

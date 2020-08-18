@@ -3,6 +3,7 @@ Helper functions for unit and integration tests
 """
 
 import json
+from mock import patch
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -66,3 +67,13 @@ class TestHelpers():
         # firefoxOptions = webdriver.FirefoxOptions()
         # firefoxOptions.set_headless()
         # self.browser = webdriver.Firefox(firefox_options=firefoxOptions)
+
+    @classmethod
+    def setup_host_mocks(cls, testClass):
+        """ Mock out get_host (since tests don't set it but visualizer depends on it """
+        patcherGetHost = patch('visualizer.common.get_host', autospec=True)
+        testClass.addCleanup(patcherGetHost.stop)
+
+        testClass.mockGetHost = patcherGetHost.start()
+
+        testClass.mockGetHost.return_value = "https://fakeurl.com"

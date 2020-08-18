@@ -49,6 +49,19 @@ Models
    :undoc-members:
    :show-inheritance:
 
+Template Tags
+-----------------------
+
+.. automodule:: visualizer.templatetags.reverse
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+.. automodule:: visualizer.templatetags.share_icon
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Tests
 -----------------------
 

@@ -15,7 +15,6 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
-from mock import patch
 from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
@@ -40,6 +39,9 @@ FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 
 class SimpleTests(TestCase):
     """ Simple tests that do not require a live browser """
+
+    def setUp(self):
+        TestHelpers.setup_host_mocks(self)
 
     @classmethod
     def _get_data_for_view(cls, fn):
@@ -113,11 +115,8 @@ class SimpleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
 
-    @patch('visualizer.views._make_complete_url')
-    def test_old_style_urls(self, mockCompleteUrl):
+    def test_old_style_urls(self):
         """ Ensure both /v/slug and /visualize=slug work """
-        mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
-
         def ensure_url_uses_template(url, template):
             """ Helper function to ensure the given URL matches the template """
             response = self.client.get("/" + url)
@@ -171,7 +170,7 @@ class SimpleTests(TestCase):
         responseData = json.loads(jsonResponse.content)
 
         # Validate the response - this time the complete URL is needed
-        assert 'http://example.com/ve/fakeslug' in responseData['html']
+        assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
 
     def test_wikicode(self):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
@@ -191,6 +190,9 @@ class ModelDeletionTests(TransactionTestCase):
     """ Testing model deletion requires a different base class:
         docs.djangoproject.com/en/3.0/topics/db/transactions/#use-in-tests
     """
+
+    def setUp(self):
+        TestHelpers.setup_host_mocks(self)
 
     def test_file_deletion_on_model_deletion(self):
         """ Verify that when a model is deleted, the associated file is too """
@@ -223,6 +225,8 @@ class RestAPITests(APITestCase):
         admin = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
         admin.is_staff = False
         admin.save()
+
+        TestHelpers.setup_host_mocks(self)
 
     def _authenticate_as(self, username):
         cache.clear()
@@ -434,11 +438,8 @@ class RestAPITests(APITestCase):
             TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3))  # 3mb
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('visualizer.views._make_complete_url')
-    def test_oembed_returns(self, mockCompleteUrl):
+    def test_oembed_returns(self):
         """ Ensure that the oembed data works """
-        mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
-
         self._authenticate_as('notadmin')
         response = self._upload_file_for_api(FILENAME_ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

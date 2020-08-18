@@ -1,5 +1,6 @@
 {% load static %}
 {% load compress %}
+{% load reverse %}
 
 <!-- This needs to be the first bit of js loaded to get the correct configs throughout -->
 <script>
@@ -47,3 +48,20 @@
   }
 
 </script>
+
+<meta property="og:title" content="{{ title }}" />
+<meta property="og:description" content="Ranked Choice Voting Election Results for {{ title }}" />
+<meta property="og:site_name" content="rcvis" />
+
+{% if config.movieHorizontal %}
+<meta property="og:type" content="video.movie" />
+<meta property="og:video" content="{% get_as_complete_url config.movieHorizontal.movieFile.url %}" />
+<meta property="og:video:width" content="{{ config.movieHorizontal.width }}" />
+<meta property="og:video:height" content="{{ config.movieHorizontal.height }}" />
+<meta property="og:url" content="{% get_reverse_as_complete_url 'visualize' config.slug %}" />
+{% endif %}
+
+{% if image %}
+<!-- TODO not built yet -->
+<meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
+{% endif %}

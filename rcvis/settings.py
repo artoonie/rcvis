@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_cleanup.apps.CleanupConfig',
+    'django_social_share',
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -86,6 +87,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
