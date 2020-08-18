@@ -113,7 +113,7 @@ class SimpleTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
 
-    @patch('visualizer.views._make_complete_url')
+    @patch('visualizer.common.make_complete_url')
     def test_old_style_urls(self, mockCompleteUrl):
         """ Ensure both /v/slug and /visualize=slug work """
         mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
@@ -434,7 +434,7 @@ class RestAPITests(APITestCase):
             TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3))  # 3mb
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @patch('visualizer.views._make_complete_url')
+    @patch('visualizer.common.make_complete_url')
     def test_oembed_returns(self, mockCompleteUrl):
         """ Ensure that the oembed data works """
         mockCompleteUrl.return_value = "http://not-needed/"  # HTTP_HOST isn't set, need to mock it
