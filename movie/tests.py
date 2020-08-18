@@ -211,8 +211,11 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Ensure each line is called twice, once horizontal once vertical
         mockSpawnAudio.assert_has_calls(callsForOneVideo * 2)
 
-    def test_failure_status(self):
+    @mock.patch('traceback.print_exc')
+    def test_failure_status(self, mockTraceback):
         """ Test that the failure status is accurately set """
+        mockTraceback.return_value = None  # Don't care to see the traceback - we know it fails
+
         TestHelpers.get_multiwinner_upload_response(self.client)
         jsonConfig = TestHelpers.get_latest_json_config()
         create_movie(jsonConfig.pk, '/incorrect/url')
