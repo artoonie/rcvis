@@ -18,5 +18,7 @@ def get_reverse_as_complete_url(context, name, *args):
 
 @register.simple_tag(takes_context=True)
 def get_as_complete_url(context, url):
-    """ Takes a relative URL and returns the full URL, including domain """
+    """ Takes a URL and returns the full URL, including domain, if it's not already """
+    if url.startswith('http'):
+        return url
     return make_complete_url(context['request'], url)

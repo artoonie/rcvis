@@ -269,7 +269,7 @@ class MovieCreationFactory():
         """
         # Note: do not use get_available_name, as .file_overwrite is True
         videoFn = movie.movieFile.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
-        imageFn = movie.titleImage.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
+        imageFn = movie.titleImage.storage.get_alternative_name(file_root=slug, file_ext=".png")
         movie.movieFile.save(videoFn, File(videoFileObject))
         movie.titleImage.save(imageFn, File(titleImageFileObject))
         movie.save()
