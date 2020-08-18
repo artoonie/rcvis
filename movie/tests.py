@@ -60,6 +60,8 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
             shutil.copy(FILENAME_AUDIO, toFilename)
         }
 
+        TestHelpers.setup_host_mocks(self)
+
     @classmethod
     def _num_movies(cls):
         return len(Movie.objects.all())
