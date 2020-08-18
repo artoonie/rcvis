@@ -22,7 +22,12 @@
     {% if movie %}
     <div width='100%'
          style="max-width: {{ movie.resolutionWidth }}">
-        <video class="video-js vjs-theme-sea" preload="auto" data-setup="{}" controls>
+        <video
+            class="video-js vjs-theme-sea"
+            preload="auto"
+            data-setup="{}"
+            poster="{{ movie.titleImage.url }}"
+            controls>
 
             <source src="{{ movie.movieFile.url }}" type="video/mp4">
             Your browser does not support the video tag.

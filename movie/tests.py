@@ -95,7 +95,9 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Ensure it's completed
         jsonConfig = TestHelpers.get_latest_json_config()
         assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
+        assert os.path.exists(jsonConfig.movieHorizontal.titleImage.path)
         assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
+        assert os.path.exists(jsonConfig.movieVertical.titleImage.path)
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.COMPLETE
 
         # Ensure it's loaded in the View
@@ -171,12 +173,17 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         slug = "slug"
         assert self._num_movies() == 0
 
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as tf:
-            movie = MovieCreationFactory.save_and_upload(1, 1, slug, tf)
-            actualFn = movie.movieFile.url
-        assert actualFn != slug
-        assert slug in actualFn
-        assert '.mp4' in actualFn  # might not be at the end - AWS adds keys to URL GET
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as videoTf,\
+                tempfile.NamedTemporaryFile(suffix=".png") as imageTf:
+            movie = Movie()
+            movie.resolutionWidth = 1
+            movie.resolutionHeight = 1
+            movie.generatedOnApplicationVersion = "N/A"
+            MovieCreationFactory.save_and_upload(movie, slug, videoTf, imageTf)
+            actualVideoFn = movie.movieFile.url
+        assert actualVideoFn != slug
+        assert slug in actualVideoFn
+        assert '.mp4' in actualVideoFn  # might not be at the end - AWS adds keys to URL GET
         assert self._num_movies() == 1
 
     @mock.patch('moviepy.video.VideoClip.VideoClip.write_videofile')

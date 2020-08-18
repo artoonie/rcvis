@@ -27,7 +27,7 @@ class ProbablyFailedToLaunchBrowser(Exception):
     """ A common error when the browser has an issue. """
 
 
-class SingleMovieCreator():  # pylint: disable=too-few-public-methods
+class SingleMovieCreator():
     """ Class for creation of a single movie at a single resolution. """
 
     def __init__(self, browser, textToSpeechFactory, jsonconfig, size):
@@ -197,6 +197,12 @@ class SingleMovieCreator():  # pylint: disable=too-few-public-methods
         """ Returns the number of rounds in this jsonconfig """
         return len(self.graph.summarize().rounds)
 
+    def make_static_image(self, outputFilename):
+        """ Saves a static title image showing the last round, saving to outputFilename """
+        lastRound = self._get_num_rounds() - 1
+        imageClip = self._generate_image_for_round_synchronously(lastRound)
+        imageClip.save_frame(outputFilename)
+
     def make_movie(self, outputFilename):
         """ Create a movie at a specific resolution """
         self.browser.set_window_size(self.size[0], self.size[1])
@@ -256,25 +262,17 @@ class MovieCreationFactory():
         self.browser.get(url)
 
     @classmethod
-    def save_and_upload(cls, width, height, slug, fileObject):
+    def save_and_upload(cls, movie, slug, videoFileObject, titleImageFileObject):
         """
-        Saves a Movie object and uploads fileObject to recommendedFilename.
-        If recommendedFilename already exists, chooses a different filename.
-        @return the newly created Movie model
+        Saves data to the given movie object and uploads the video and image
+        to the movie model.
         """
-        movie = models.Movie()
-        movie.resolutionWidth = width
-        movie.resolutionHeight = height
-        movie.generatedOnApplicationVersion = "TODO"
-
         # Note: do not use get_available_name, as .file_overwrite is True
-        actualFilename = movie.movieFile.storage.get_alternative_name(
-            file_root=slug,
-            file_ext=".mp4")
-        movie.movieFile.save(actualFilename, File(fileObject))
+        videoFn = movie.movieFile.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
+        imageFn = movie.titleImage.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
+        movie.movieFile.save(videoFn, File(videoFileObject))
+        movie.titleImage.save(imageFn, File(titleImageFileObject))
         movie.save()
-
-        return movie
 
     def make_one_movie_at_resolution(self, width, height):
         """ Create a movie at a specific resolution """
@@ -285,10 +283,18 @@ class MovieCreationFactory():
             textToSpeechFactory=self.textToSpeechFactory,
             jsonconfig=self.jsonconfig,
             size=(width, height))
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as tempFile:
+
+        movie = models.Movie()
+        movie.resolutionWidth = width
+        movie.resolutionHeight = height
+        movie.generatedOnApplicationVersion = "TODO"
+
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as videoTempFile, \
+                tempfile.NamedTemporaryFile(suffix=".png") as imageTempFile:
             try:
-                creator.make_movie(tempFile.name)
-                movie = self.save_and_upload(width, height, self.jsonconfig.slug, tempFile)
+                creator.make_movie(videoTempFile.name)
+                creator.make_static_image(imageTempFile.name)
+                self.save_and_upload(movie, self.jsonconfig.slug, videoTempFile, imageTempFile)
             finally:
                 # Force additional garbage collection asap
                 del creator

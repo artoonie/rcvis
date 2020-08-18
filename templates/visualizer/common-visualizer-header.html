@@ -55,13 +55,9 @@
 
 {% if config.movieHorizontal %}
 <meta property="og:type" content="video.movie" />
+<meta property="og:image" content="{% get_as_complete_url config.movieHorizontal.titleImage.url %}" />
 <meta property="og:video" content="{% get_as_complete_url config.movieHorizontal.movieFile.url %}" />
 <meta property="og:video:width" content="{{ config.movieHorizontal.width }}" />
 <meta property="og:video:height" content="{{ config.movieHorizontal.height }}" />
 <meta property="og:url" content="{% get_reverse_as_complete_url 'visualize' config.slug %}" />
-{% endif %}
-
-{% if image %}
-<!-- TODO not built yet -->
-<meta property="og:image" content="https://ia.media-imdb.com/images/rock.jpg" />
 {% endif %}
