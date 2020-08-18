@@ -161,6 +161,10 @@ class Oembed(View):
             # invalid URL
             return HttpResponse(status=404)
 
+        # Force HTTPS because embedly requires it
+        if not embedUrl.startswith('https'):
+            embedUrl = 'https' + embedUrl[4:]
+
         renderData = {
             'width': maxwidth,
             'height': maxheight,

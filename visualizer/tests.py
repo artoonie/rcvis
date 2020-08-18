@@ -676,7 +676,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Note: ensure it ends with ?vistype not &vistype
         url = responseData['url']
         html = responseData['html']
-        assert html[html.find(url) + len(url)] == "?"
+
+        # Embedly requires the iframe URL is secure
+        assert url.startswith('http')
+        assert 'https' in html
+        urlWithHttps = url.replace('http', 'https')
+        assert html[html.find(urlWithHttps) + len(urlWithHttps)] == "?"
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embeddedUrl)
