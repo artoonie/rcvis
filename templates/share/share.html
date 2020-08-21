@@ -2,10 +2,12 @@
 {% load share_icon %}
 {% load static %}
 
-<h2>Sharing Options</h2>
+<div class="container" id="sharecontainer">
+  <div class="row mb-4">
+    <h2>Share To</h2>
+  </div>
 
-<div class="container">
-  <div class="row">
+  <div class="row" justify-content-md-center>
     <div class="col-sm">
         {% get_icon 'Twitter' as html %}
         {% post_to_twitter "{{title}} Ranked Choice Voting Results, Visualized by @rcvisdotcom" object_or_url html %}
@@ -31,4 +33,35 @@
         {% send_email object.title "{{title}} Ranked Choice Voting Results, Visualized." object_or_url html %}
     </div>
   </div>
+
+<div class="container">
+  <div class="row justify-content-md-left mt-5">
+    <div class="col-sm"><label for="wikicode"><h3>WikiCode Export</h3></label></div>
+    <div class="col-xl"><textarea id="wikicode" class="codeExport" cols="500" rows="3">{{ wikicodeExport }}</textarea></div>
+  </div>
+  <div class="row mt-0">
+    <div class="col-xl">
+      <i>Presents the Single Table Summary in a format readable by Wikipedia</i>
+    </div>
+  </div>
+</div>
+
+<div class="container mb-5">
+  <div class="row justify-content-md-left mt-5">
+    <div class="col-sm"><label for="htmlembedexport"><h3>HTML Export</h3></label></div>
+    <div class="col-xl"><textarea id="htmlembedexport" class="codeExport" cols="500" rows="3">{{ htmlEmbedExport }}</textarea></div>
+  </div>
+  <div class="row mt-0">
+    <div class="col-xl">
+      <i>Uses an iframe to embed the interactive Bar Chart</i>
+    </div>
+  </div>
+</div>
+
+
+<div class="alert alert-primary alert-dismissible fade show" role="alert" id="copiedInfo" style="display:none" tooltip="help">
+    <strong>Copied to clipboard!</strong>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>

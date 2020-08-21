@@ -19,13 +19,15 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
+from common.viewUtils import _get_data_for_view
 from visualizer.graphCreator.graphCreator import BadJSONError
 from visualizer.graphCreator.graphCreator import make_graph_with_file
-from visualizer.views import _get_data_for_view, Oembed
+from visualizer.views import Oembed
 from visualizer.models import JsonConfig
 from visualizer.forms import JsonConfigForm
 from visualizer.wikipedia.wikipedia import WikipediaExport
@@ -541,6 +543,20 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         uploadButton.click()
         self._assert_log_len(0)
 
+    def _upload_something_if_needed(self):
+        """
+        If nothing is uploaded, uploads a file.
+        Otherwise, just loads the visualization of the last-uploaded object.
+        """
+        try:
+            objects = JsonConfig.objects.latest('-id')
+        except JsonConfig.DoesNotExist:
+            self._upload(FILENAME_MULTIWINNER)
+            return
+
+        self.open(reverse('visualize', args=(objects[0].slug,)))
+        self._assert_log_len(0)
+
     def _get_width(self, elementId):
         """ Gets the width of the element """
         elem = self.browser.find_elements_by_id(elementId)[0]
@@ -644,7 +660,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_oembed(self):
         """ Tests the functionality of the oembed feature"""
-        self._upload(FILENAME_MULTIWINNER)
+        self._upload_something_if_needed()
 
         # Sanity check that a json exists
         uploadedPath = urlparse(self.browser.current_url).path
@@ -760,3 +776,75 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # But just visiting the upload page and returning should not clear cache
         self.open("/upload.html")
         assert not is_cache_much_faster()
+
+    def test_sharetab_copy_paste(self):
+        """ Check that the share tab can be copy/paste wiki & html successfully. """
+        self._upload_something_if_needed()
+        self._go_to_tab("share-tab")
+
+        # Check the wikicode
+        textAreaValues = []
+        for elementId in ("wikicode", "htmlembedexport"):
+            # Grab the element and read its value
+            textarea = self.browser.find_element_by_id(elementId)
+            initialText = textarea.get_attribute('value')
+            textAreaValues.append(initialText)
+
+            # Ensure clicking copies to keyboard
+            textarea.click()
+            textarea.send_keys(Keys.BACKSPACE)
+            textarea.send_keys("Different text")
+
+            # Make sure it's different
+            assert initialText != textarea.get_attribute('value')
+
+            # Paste
+            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
+            textarea.send_keys('a')
+            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
+            textarea.send_keys(Keys.BACKSPACE)
+            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
+            textarea.send_keys('v')
+            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
+
+            # Assert we have the original text back
+            self.assertEqual(initialText, textarea.get_attribute('value'))
+
+        # Verify the values are sane...somewhat
+        wiki = textAreaValues[0]
+        assert 'wikitable' in wiki
+        assert 'Macomb' in wiki
+        html = textAreaValues[1]
+        assert html.startswith('<iframe')
+
+    def test_sharetab_sane_links(self):
+        """ Check that the share tab has sane links for all buttons """
+        self._upload_something_if_needed()
+        self._go_to_tab("share-tab")
+
+        # Now sanity check that each of the buttons have URLs
+        allLinks = self.browser.find_elements_by_css_selector('#sharecontainer a')
+        allImages = self.browser.find_elements_by_css_selector('#sharecontainer img')
+        self.assertEqual(len(allLinks), 6)
+
+        # Make sure links are sane enough
+
+        # Make sure all links are sane enough and align with images
+        for link, image in zip(allLinks, allImages):
+            # Read the filename from the image path, which magically corresponds to URLs
+            imageSource = image.get_attribute('src')
+            imageFilename = os.path.basename(urlparse(imageSource).path)
+            imagePathWithoutSuffix = imageFilename[:-4]
+
+            # Read the link href
+            href = link.get_attribute('href')
+
+            # Validate the hrefs
+            if imagePathWithoutSuffix == 'email':
+                assert href.startswith('mailto:?')
+            else:
+                assert href.startswith('https://')
+                if imagePathWithoutSuffix != 'telegram':
+                    assert imagePathWithoutSuffix in href
+                else:
+                    assert 't.me' in href

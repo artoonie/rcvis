@@ -19,7 +19,7 @@ from django.views.generic.edit import CreateView
 from rest_framework import permissions, viewsets
 
 # rcvis helpers
-from common.viewUtils import _get_data_for_view
+from common import viewUtils
 from visualizer.common import make_complete_url
 from visualizer.forms import JsonConfigForm
 from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
@@ -68,7 +68,7 @@ class Visualize(DetailView):
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = _get_data_for_view(config['jsonconfig'])
+        data = viewUtils._get_data_for_view(config['jsonconfig'])
 
         # oembed href
         slug = config['jsonconfig'].slug
@@ -76,6 +76,17 @@ class Visualize(DetailView):
         iframeUrl = urllib.parse.quote_plus(iframeUrl)
         oembedUrl = make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
         data['oembed_url'] = oembedUrl
+
+        # html embedding
+        embedUrl = reverse('visualizeEmbedded', args=(slug,))
+        embedUrl = make_complete_url(self.request, embedUrl)
+        data['htmlEmbedExport'] = viewUtils.get_embed_html(
+            embedUrl, self.request, 'barchart-interactive', 400, 800)
+
+        # wikipedia embedding
+        referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
+        referenceUrl += "#tabular-candidate-by-round"
+        data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode()
 
         return data
 
@@ -89,7 +100,7 @@ class VisualizeEmbedded(DetailView):
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = _get_data_for_view(config['jsonconfig'])
+        data = viewUtils._get_data_for_view(config['jsonconfig'])
 
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
@@ -154,25 +165,12 @@ class Oembed(View):
             # not implemented
             return HttpResponse(status=501)
 
-        # Parse the URL
         embedUrl = self._get_visualize_embedded_url_from(url)
         embedUrl = make_complete_url(request, embedUrl)
         if not embedUrl:
             # invalid URL
-            return HttpResponse(status=404)
-
-        # Force HTTPS because embedly requires it
-        if not embedUrl.startswith('https'):
-            embedUrl = 'https' + embedUrl[4:]
-
-        renderData = {
-            'width': maxwidth,
-            'height': maxheight,
-            'iframe_url': embedUrl,
-            'vistype': vistype
-        }
-
-        httpResponse = render(request, 'visualizer/oembed.html', renderData)
+            HttpResponse(status=404)
+        html = viewUtils.get_embed_html(embedUrl, request, vistype, maxwidth, maxheight)
 
         jsonData = {
             "version": "1.0",
@@ -188,7 +186,7 @@ class Oembed(View):
         jsonData['width'] = maxwidth
         jsonData['height'] = maxheight
         jsonData['url'] = url
-        jsonData['html'] = httpResponse.content.decode('utf-8')
+        jsonData['html'] = html
 
         return JsonResponse(jsonData)
 
