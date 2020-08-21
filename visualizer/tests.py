@@ -24,7 +24,7 @@ from selenium.common.exceptions import NoSuchElementException, WebDriverExceptio
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
-from common.viewUtils import _get_data_for_view
+from common.viewUtils import get_data_for_view
 from visualizer.graphCreator.graphCreator import BadJSONError
 from visualizer.graphCreator.graphCreator import make_graph_with_file
 from visualizer.views import Oembed
@@ -50,7 +50,7 @@ class SimpleTests(TestCase):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=File(f))
-            return _get_data_for_view(config)
+            return get_data_for_view(config)
 
     def test_opavote_loads(self):
         """ Opens the opavote file """
@@ -76,9 +76,8 @@ class SimpleTests(TestCase):
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:
                 config = JsonConfig(jsonFile=File(f))
-                config.__dict__[configBoolToToggle] = not config.__dict__[
-                    configBoolToToggle]
-                _get_data_for_view(config)
+                config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
+                get_data_for_view(config)
 
     def test_home_page(self):
         """ Tests that the home page loads """

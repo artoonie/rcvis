@@ -68,7 +68,7 @@ class Visualize(DetailView):
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = viewUtils._get_data_for_view(config['jsonconfig'])
+        data = viewUtils.get_data_for_view(config['jsonconfig'])
 
         # oembed href
         slug = config['jsonconfig'].slug
@@ -100,7 +100,7 @@ class VisualizeEmbedded(DetailView):
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
 
-        data = viewUtils._get_data_for_view(config['jsonconfig'])
+        data = viewUtils.get_data_for_view(config['jsonconfig'])
 
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
