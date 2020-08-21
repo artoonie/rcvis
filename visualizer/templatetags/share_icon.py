@@ -14,7 +14,7 @@ register = template.Library()
 def get_icon(shareTo):
     """ Pass in the text label. Will return an image from /share_icons/ of the same name. """
     shareToLower = shareTo.lower()
-    shareImageIconUrl = static(f'visualizer/share_icons/{shareToLower}.png')
+    shareImageIconUrl = static(f'share/share_icons/{shareToLower}.png')
     shareTemplate = loader.get_template('share/share_icon_tag.html')
     context = {'shareImageIconUrl': shareImageIconUrl,
                'shareToText': shareTo}

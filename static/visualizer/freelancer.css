@@ -9556,8 +9556,8 @@ a.text-dark:hover, a.text-dark:focus {
 }
 
 .page-section .page-section-heading {
-  font-size: 2.25rem;
-  line-height: 2rem;
+  font-size: 2rem;
+  line-height: 1.75rem;
 }
 
 @media (min-width: 992px) {
