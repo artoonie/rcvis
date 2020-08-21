@@ -12,9 +12,11 @@ else                         style = "width: 100%";
 $('#topbar').attr("style", style);
 </script>
 
+{% compress js file %}
 <script src="{% static 'sankey/sankey.js' %}"></script>
 <script src="{% static 'sankey/setupHorizontal.js' %}"></script>
 <script src="{% static 'sankey/setupVertical.js' %}"></script>
+{% endcompress %}
 <script> {{ sankeyjs|safe }} </script>
 <script>
 

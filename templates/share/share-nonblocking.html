@@ -1,0 +1,10 @@
+{% load static %}
+{% load compress %}
+
+{% compress js file %}
+  <script src="{% static 'share/share.js' %}"></script>
+{% endcompress %}
+
+{% compress css file %}
+   <link rel="stylesheet" href="{% static "share/share.css" %}">
+{% endcompress %}

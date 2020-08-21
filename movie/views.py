@@ -6,7 +6,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 
-from common.viewUtils import _get_data_for_view
+from common.viewUtils import get_data_for_view
 from visualizer.models import JsonConfig, MovieGenerationStatuses
 from movie.tasks import create_movie
 
@@ -21,7 +21,7 @@ class MovieGenerationView(DetailView):
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
-        return _get_data_for_view(config['jsonconfig'])
+        return get_data_for_view(config['jsonconfig'])
 
 
 class CreateMovie(LoginRequiredMixin, RedirectView):
@@ -57,7 +57,7 @@ class VisualizeMovie(DetailView):
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
-        data = _get_data_for_view(config['jsonconfig'])
+        data = get_data_for_view(config['jsonconfig'])
         orientation = self.request.GET.get('orientation', 'horizontal')
         if orientation == 'vertical':
             data['movie'] = data['config'].movieVertical
