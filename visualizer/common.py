@@ -16,14 +16,13 @@ def make_complete_url(request, urlWithoutDomain):
     return f"{scheme}://{host}{urlWithoutDomain}"
 
 
-def intify(v):
+def intify(notint):
     """ Turn into int if it's a round number """
-    if abs(round(v) - v) < 1e-6:
-        return "%d" % round(v)
-    else:
-        return "%0.2f" % v
+    if abs(round(notint) - notint) < 1e-6:
+        return "%d" % round(notint)
+    return "%0.2f" % notint
 
 
-def percentify(v):
+def percentify(floatVal):
     """ Turn a float into a percentage string """
-    return str(round(1000.0 * v) / 10.0) + "%"
+    return str(round(1000.0 * floatVal) / 10.0) + "%"
