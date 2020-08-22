@@ -18,7 +18,6 @@ urlpatterns = [
     path('ve/<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
     path('upload.html', views.Upload.as_view(), name='upload'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
-    path('w/<slug>', views.Wikipedia.as_view(), name='wikipedia'),
 
     # REST API
     path('api/', include(router.urls)),

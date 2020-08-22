@@ -22,7 +22,7 @@ from rest_framework import permissions, viewsets
 from common import viewUtils
 from visualizer.common import make_complete_url
 from visualizer.forms import JsonConfigForm
-from visualizer.graphCreator.graphCreator import make_graph_with_file, BadJSONError
+from visualizer.graphCreator.graphCreator import BadJSONError
 from visualizer.models import JsonConfig
 from visualizer.permissions import IsOwnerOrReadOnly
 from visualizer.serializers import JsonConfigSerializer, UserSerializer
@@ -104,30 +104,6 @@ class VisualizeEmbedded(DetailView):
 
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
-
-        return data
-
-
-class Wikipedia(DetailView):
-    """ The wikicode export of the Single Table View """
-    model = JsonConfig
-    template_name = 'wikipedia/wikipedia-export.html'
-
-    def get_context_data(self, **kwargs):
-        config = super().get_context_data(**kwargs)
-        config = config['jsonconfig']
-        graph = make_graph_with_file(config.jsonFile,
-                                     config.excludeFinalWinnerAndEliminatedCandidate)
-
-        # Reference URL back to us
-        slug = config.slug
-        referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
-        referenceUrl += "#tabular-candidate-by-round"
-
-        wikipediaExport = WikipediaExport(graph, referenceUrl)
-        data = {
-            'wikicode': wikipediaExport.create_wikicode()
-        }
 
         return data
 
