@@ -43,6 +43,18 @@ function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes
   return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
 }
 
+function getMagicTextLabelSize(longestLabelApxWidth)
+{
+  // I'm really sorry about this. Make the text smaller for very long labels.
+  let candidateAxisTextSizeEm = 2;
+  let maxTextSizeFor2em = 13;
+  if (longestLabelApxWidth > maxTextSizeFor2em)
+  {
+      candidateAxisTextSizeEm /= longestLabelApxWidth/maxTextSizeFor2em;
+  }
+  return candidateAxisTextSizeEm + "em";
+}
+
 /* Color functions courtesy of https://codepen.io/hnq90/pen/YvoxMJ */
 // Converts a #ffffff hex string into an [r,g,b] array
 var h2r = function(hex) {

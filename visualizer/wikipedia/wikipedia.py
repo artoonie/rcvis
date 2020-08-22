@@ -4,6 +4,7 @@ Export a single table summary to Wikipedia
 
 import datetime
 
+from visualizer import common
 from visualizer.tabular.tabular import TabularCandidateByRound
 
 
@@ -65,18 +66,25 @@ class WikipediaExport():
 
         return header
 
-    def _get_sortable_name_if_possible(self, name):
-        """ If there's a first and last name at least, we can sort it """
+    def _get_sortable_referenced_name_if_possible(self, name):
+        """ Create a sortable name, with a reference if we can """
         nameSplitBySpaces = name.split(' ')
-        if len(nameSplitBySpaces) > 1:
+        if name == common.INACTIVE_TEXT:
+            inactiveArticleHref = "Instant-runoff voting#Invalid ballots and incomplete ballots"
+            nameWithLink = f"[[{inactiveArticleHref}|{name}]]"
+        elif '/' in name:
+            # Probably a name like Primary Pick/VP Pick
+            nameWithLink = name
+        elif len(nameSplitBySpaces) > 1:
             # These are the only sortable names - first + last names
-            nameJoinedByBar = '|'.join(nameSplitBySpaces)
-            nameJoinedByBar = "{{sortname| " + nameJoinedByBar + "}}"
+            # Assume the first name is only one name, last name can be multiple, like Em de Silva
+            nameWithLink = nameSplitBySpaces[0] + '|' + ' '.join(nameSplitBySpaces)
+            nameWithLink = f"{{sortname| nameJoinedByBar}}"
         else:
-            # Names like "write-in" are not
-            nameJoinedByBar = name
+            # Names like "write-in" are not sortable
+            nameWithLink = name
 
-        return nameJoinedByBar
+        return nameWithLink
 
     def _get_class_text_for(self, name, roundTabulation):
         """ Return the text for the class styling (for winners - turns bg green) """
@@ -110,7 +118,7 @@ class WikipediaExport():
         for candidateTabulation in tabularCandidateByRound:
             # Get the candidate name - sorted if possible
             name = candidateTabulation.name
-            sortableName = self._get_sortable_name_if_possible(name)
+            sortableName = self._get_sortable_referenced_name_if_possible(name)
             body += """
                 |-
                 ! scope="row" style="text-align:left;" | """ + sortableName

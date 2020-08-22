@@ -1,5 +1,3 @@
-// Inspired by https://observablehq.com/@sampath-karupakula/stacked-bar-chart
-
 // Makes a bar graph and returns a function that allows you to animate based on round
 function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
   longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
@@ -350,11 +348,12 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           .text(secondaryDataLabelTextFn);
    }
 
+  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth);
   svg.append("g")
       .call(candidatesAxis)
       .selectAll("text")  
         .style("text-anchor", "end")
-        .attr("font-size", "2em")
+        .attr("font-size", candidateAxisTextSizeEm)
         .attr("transform", "rotate(-45)");
 
   svg.append("g")
