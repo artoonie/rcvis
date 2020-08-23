@@ -78,8 +78,8 @@ class WikipediaExport():
         elif len(nameSplitBySpaces) > 1:
             # These are the only sortable names - first + last names
             # Assume the first name is only one name, last name can be multiple, like Em de Silva
-            nameWithLink = nameSplitBySpaces[0] + '|' + ' '.join(nameSplitBySpaces)
-            nameWithLink = "{{sortname| + " + nameWithLink + "}}"
+            nameWithLink = nameSplitBySpaces[0] + '|' + ' '.join(nameSplitBySpaces[1:])
+            nameWithLink = "{{sortname| " + nameWithLink + "}}"
         else:
             # Names like "write-in" are not sortable
             nameWithLink = name
