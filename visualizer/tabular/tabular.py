@@ -1,3 +1,8 @@
+""" Various classes for creating tables """
+
+from visualizer.common import intify, percentify
+
+
 def makePrimarySecondaryLabels(numVotes, allVotes, item):
     if item.isActive:
         primaryLabel = percentify(numVotes / allVotes)
@@ -120,8 +125,8 @@ class OneCandidateOneRound:
     isWinner: bool
     isEliminated: bool
 
-    numVotes: float
-    pctVotes: float
+    numVotes: str
+    pctVotes: str
 
     def __init__(self, thisRoundSummary, myNumVotes, item):
         allVotes = thisRoundSummary.totalActiveVotes
@@ -129,7 +134,7 @@ class OneCandidateOneRound:
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
             myNumVotes, allVotes, item)
 
-        self.numVotes = myNumVotes
+        self.numVotes = intify(myNumVotes)
         self.pctVotes = percentify(myNumVotes / allVotes)
 
         self.isWinner = item.name in thisRoundSummary.winnerNames
@@ -250,21 +255,6 @@ def andify(prefix, l, suffix):
     else:
         anded += " and " + l[-1]
     return prefix + anded + suffix
-
-
-""" Turn into int if it's a round number """
-
-
-def intify(v):
-    if abs(round(v) - v) < 1e-6:
-        return "%d" % round(v)
-    else:
-        return "%0.2f" % v
-
-
-def percentify(v):
-    """ Turn a float into a percentage string """
-    return str(round(1000.0 * v) / 10.0) + "%"
 
 
 def pluralize(txt, num):

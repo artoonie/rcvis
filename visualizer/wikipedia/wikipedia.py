@@ -79,7 +79,7 @@ class WikipediaExport():
             # These are the only sortable names - first + last names
             # Assume the first name is only one name, last name can be multiple, like Em de Silva
             nameWithLink = nameSplitBySpaces[0] + '|' + ' '.join(nameSplitBySpaces)
-            nameWithLink = f"{{sortname| nameJoinedByBar}}"
+            nameWithLink = "{{sortname| + " + nameWithLink + "}}"
         else:
             # Names like "write-in" are not sortable
             nameWithLink = name
@@ -140,9 +140,14 @@ class WikipediaExport():
 
                 pctVotes = roundTabulation.pctVotes
                 numVotes = roundTabulation.numVotes
-                body += f"""
-                    | {classText} {numVotes}
-                    | {classText} {pctVotes}"""
+                if name == common.INACTIVE_TEXT:
+                    # No percentages in inactive ballots
+                    body += f"""
+                        ! colspan="2" |  {classText} {numVotes} ballots"""
+                else:
+                    body += f"""
+                        | {classText} {numVotes}
+                        | {classText} {pctVotes}"""
             body += """
                 |-"""
 
