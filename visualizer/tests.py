@@ -186,6 +186,9 @@ class SimpleTests(TestCase):
         magicKnownTextLength = 4036
         assert len(text) == magicKnownTextLength
 
+        # Ensure at least the text closes correctly
+        assert text[-2:] == "|}"
+
 
 class ModelDeletionTests(TransactionTestCase):
     """ Testing model deletion requires a different base class:
