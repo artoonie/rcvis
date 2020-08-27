@@ -1,5 +1,7 @@
 """ Data serializers - used for the REST API """
 
+import traceback
+
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import serializers
@@ -42,8 +44,11 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         try:
             try_to_load_json(value)
         except BadJSONError as exception:
-            raise serializers.ValidationError("JSON is not valid: " + str(exception))
+            errorMessage = traceback.format_exc()
+            raise serializers.ValidationError("JSON is not valid: " + errorMessage)
         except Exception as exception:
+            # Don't print full traceback here - we don't control this message as closely,
+            # and it might (?) contain keys.
             raise serializers.ValidationError("Unknown error: " + str(exception))
         return value
 
