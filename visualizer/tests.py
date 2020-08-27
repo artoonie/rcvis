@@ -456,6 +456,20 @@ class RestAPITests(APITestCase):
         response = self.client.get(oembedUrl)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_errors_returned(self):
+        """ Ensure that a stack trace is part of the returned error message """
+        self._authenticate_as('notadmin')
+
+        # Yes errors
+        response = self._upload_file_for_api(FILENAME_BAD_DATA)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        assert 'JSON is not valid' in response.data['jsonFile'][0]
+
+        # No errors
+        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        assert 'JSON is not valid' not in response.data['jsonFile'][0]
+
 
 class LiveBrowserTests(StaticLiveServerTestCase):
     """ Tests that launch a selenium browser """
