@@ -149,7 +149,9 @@ class WikipediaExport():
                         | {classText} {numVotes}
                         | {classText} {pctVotes}"""
             body += """
-                |}"""
+                |-"""
+        body += """
+            |}"""
 
         return body
 
