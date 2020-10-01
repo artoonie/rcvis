@@ -16,18 +16,18 @@ Visualize ranked-choice voting results using d3.js and django.
 
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
-## Installation & running
-To run:
+## Installation
+Install python3 and virtualenv, then
+
 ```bash
 virtualenv venv
 source venv/bin/activate
 pip3 install -e .
 pip3 install -r requirements.txt
-python3 manage.py runserver
-open localhost:8000
 ```
 
-You will need several environment variables set. I recommend creating a `.env` file with the following:
+Create a .env file with your secrets and configuration options:
+
 ```bash
 export RCVIS_SECRET_KEY=''
 export RCVIS_DEBUG=True
@@ -54,13 +54,27 @@ export MOVIE_FONT_NAME="Roboto"
 
 ```
 
-And running `source .env` to set up your environment.
-
 To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
 ```xml
 <policy domain="path" rights="none" pattern="@*"/>
 ```
 or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
+
+## Running
+To begin serving the website at localhost:8000:
+```bash
+source .env
+source venv/bin/activate
+python3 manage.py runserver
+```
+
+To run workers to generate movies (optional - only needed to use the movie generation flow):
+```bash
+source .env
+source venv/bin/activate
+export DISPLAY=":0" # if not already set
+celery -A rcvis worker --loglevel info
+```
 
 ## Examples
 Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
