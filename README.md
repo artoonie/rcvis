@@ -29,28 +29,28 @@ pip3 install -r requirements.txt
 Create a .env file with your secrets and configuration options:
 
 ```bash
-export RCVIS_SECRET_KEY=''
-export RCVIS_DEBUG=True
-export RCVIS_HOST=localhost
+RCVIS_SECRET_KEY=''
+RCVIS_DEBUG=True
+RCVIS_HOST=localhost
 
 # Either have OFFLINE_MODE=True
-export OFFLINE_MODE=True
+OFFLINE_MODE=True
 
 # Or set up an AWS bucket and enter your credentials
-# export OFFLINE_MODE=False
-# export AWS_STORAGE_BUCKET_NAME=''
-# export AWS_S3_REGION_NAME=''
-# export AWS_ACCESS_KEY_ID=''
-# export AWS_SECRET_ACCESS_KEY=''
+# OFFLINE_MODE=False
+# AWS_STORAGE_BUCKET_NAME=''
+# AWS_S3_REGION_NAME=''
+# AWS_ACCESS_KEY_ID=''
+# AWS_SECRET_ACCESS_KEY=''
 
 # To run the SauceLabs integration tests, you will need
-export SAUCE_USERNAME=''
-export SAUCE_ACCESS_KEY=''
+SAUCE_USERNAME=''
+SAUCE_ACCESS_KEY=''
 
 # To generate videos, you need:
-export SQS_QUEUE_NAME=''
-export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-export MOVIE_FONT_NAME="Roboto"
+SQS_QUEUE_NAME=''
+IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
+MOVIE_FONT_NAME="Roboto"
 
 ```
 

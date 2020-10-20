@@ -1,0 +1,59 @@
+FROM ubuntu:focal
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /tmp
+
+# Update
+RUN apt-get -y update
+RUN apt-get -y upgrade
+
+# First install tzdata and ensure it doesn't ask for a timezone
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
+
+# Then install all other deps
+RUN apt-get install -y wget curl libcurl4-gnutls-dev wget xvfb python3-pip unzip libgnutls28-dev libgconf-2-4 ffmpeg
+
+# Set up the Chrome PPA
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+RUN echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list
+RUN apt-get -y update
+
+# Update the package list then in
+RUN apt-get install -y google-chrome-stable
+
+# Set up Chromedriver Environment variables
+ENV CHROMEDRIVER_VERSION 2.36
+ENV CHROMEDRIVER_SHA256 2461384f541346bb882c997886f8976edc5a2e7559247c8642f599acd74c21d4
+ENV CHROMEDRIVER_DIR /usr/bin
+
+# Download and install Chromedriver
+RUN curl -SLO "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip" \
+  && echo "$CHROMEDRIVER_SHA256  chromedriver_linux64.zip" | sha256sum -c - \
+  && unzip "chromedriver_linux64.zip" -d $CHROMEDRIVER_DIR \
+  && rm "chromedriver_linux64.zip"
+
+RUN apt-get install -y libglib2.0-0 \
+    libnss3 \
+    libgconf-2-4 \
+    libfontconfig1
+
+# Put Chromedriver into the PATH and set its display
+ENV PATH $CHROMEDRIVER_DIR:$PATH
+ENV DISPLAY :99
+
+RUN apt-get install -y apt-utils
+RUN apt-get install -y supervisor
+RUN apt-get install -y imagemagick
+
+RUN mkdir /code /var/log/supervisord /var/run/dbus/
+WORKDIR /code
+
+COPY requirements*.txt /code/
+RUN pip3 install -r requirements.txt
+
+COPY . /code/
+ADD supervisord.conf /etc/supervisor/supervisord.conf
+
+RUN /code/scripts/fix-moviepy-on-ubuntu-1604.sh
+
+CMD supervisord -c /etc/supervisor/supervisord.conf

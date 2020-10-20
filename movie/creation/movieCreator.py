@@ -131,9 +131,11 @@ class SingleMovieCreator():
         return [roundText, captionText]
 
     def _generate_image_for_round_synchronously(self, roundNum):
+        xvfbExceptionSymptoms = (selenium.common.exceptions.JavascriptException,
+                                 selenium.common.exceptions.WebDriverException)
         try:
             self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
-        except selenium.common.exceptions.JavascriptException as exception:
+        except xvfbExceptionSymptoms as exception:
             errorText = "This error commonly occurs with Xvfb issues: "
             errorText += str(exception)
             errorText += "\n\nCurrent browser context:\n"

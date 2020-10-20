@@ -1,0 +1,56 @@
+version: "3.8"
+   
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  web:
+    build:
+      dockerfile: Dockerfile-web
+      context: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - RCVIS_SECRET_KEY
+      - RCVIS_DEBUG
+      - RCVIS_HOST
+      - AWS_STORAGE_BUCKET_NAME
+      - AWS_S3_REGION_NAME
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - OFFLINE_MODE
+      - SQS_QUEUE_NAME
+  moviegen:
+    build:
+      dockerfile: Dockerfile-movie
+      context: .
+    volumes:
+      - .:/code
+      - /dev/shm:/dev/shm
+    network_mode: host
+    ports:
+      - "6000:6000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - RCVIS_SECRET_KEY
+      - RCVIS_DEBUG
+      - RCVIS_HOST
+      - AWS_STORAGE_BUCKET_NAME
+      - AWS_S3_REGION_NAME
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - OFFLINE_MODE
+      - SQS_QUEUE_NAME

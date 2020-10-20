@@ -33,6 +33,7 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
     def _get_domain(self):
         relativeUrl = self.request.get_full_path()
         absoluteUrl = self.request.build_absolute_uri(relativeUrl)
+        print("ABSOLUTE URL IS", absoluteUrl, relativeUrl)
         return absoluteUrl[:absoluteUrl.find(relativeUrl)]
 
     def get_redirect_url(self, *args, **kwargs):

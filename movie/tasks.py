@@ -18,8 +18,10 @@ def create_movie(pk, domain):
         but doesn't work in readthedocs so it's conditional. """
 
     chromeOptions = webdriver.chrome.options.Options()
+    chromeOptions.add_argument("--no-sandbox")
     chromeOptions.add_argument("--headless")
     chromeOptions.add_argument("--disable-dev-shm-usage")
+    chromeOptions.add_argument("--disable-setuid-sandbox")
     chromeOptions.add_argument("--shm-size=512m")
 
     browser = webdriver.Chrome('/usr/bin/chromedriver', options=chromeOptions)
@@ -33,6 +35,7 @@ def create_movie(pk, domain):
         jsonconfig.save()
         print("Movie generation failed: ", exception)
         traceback.print_exc()
+        raise exception
     finally:
         browser.quit()
 
