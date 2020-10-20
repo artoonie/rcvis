@@ -11,7 +11,24 @@ RUN apt-get -y upgrade
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata
 
 # Then install all other deps
-RUN apt-get install -y wget curl libcurl4-gnutls-dev wget xvfb python3-pip unzip libgnutls28-dev libgconf-2-4 ffmpeg
+RUN apt-get install -y \
+    wget \
+    curl \
+    libcurl4-gnutls-dev \
+    wget \
+    xvfb \
+    python3-pip \
+    unzip \
+    libgnutls28-dev \
+    libgconf-2-4 \
+    ffmpeg \
+    libglib2.0-0 \
+    libnss3 \
+    libgconf-2-4 \
+    libfontconfig1 \
+    supervisor \
+    imagemagick
+
 
 # Set up the Chrome PPA
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
@@ -32,28 +49,20 @@ RUN curl -SLO "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION
   && unzip "chromedriver_linux64.zip" -d $CHROMEDRIVER_DIR \
   && rm "chromedriver_linux64.zip"
 
-RUN apt-get install -y libglib2.0-0 \
-    libnss3 \
-    libgconf-2-4 \
-    libfontconfig1
-
 # Put Chromedriver into the PATH and set its display
 ENV PATH $CHROMEDRIVER_DIR:$PATH
 ENV DISPLAY :99
 
-RUN apt-get install -y apt-utils
-RUN apt-get install -y supervisor
-RUN apt-get install -y imagemagick
-
 RUN mkdir /code /var/log/supervisord /var/run/dbus/
 WORKDIR /code
 
-COPY requirements*.txt /code/
+COPY infra/requirements*.txt /code/
 RUN pip3 install -r requirements.txt
 
-COPY . /code/
-ADD supervisord.conf /etc/supervisor/supervisord.conf
+COPY rcvis visualizer movie common static templates manage.py /code/
+ADD infra/supervisord.conf /etc/supervisor/supervisord.conf
+ADD scripts/fix-moviepy-on-ubuntu.sh /tmp/fix-moviepy-on-ubuntu.sh
 
-RUN /code/scripts/fix-moviepy-on-ubuntu-1604.sh
+RUN /tmp/fix-moviepy-on-ubuntu.sh
 
 CMD supervisord -c /etc/supervisor/supervisord.conf
