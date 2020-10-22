@@ -1,8 +1,24 @@
-FROM python:3
+FROM ubuntu:focal
 ENV PYTHONUNBUFFERED=1
+
+# Update
+RUN apt-get -y update && \
+    apt-get -y upgrade && \
+    apt-get install -y python3-pip
+
 RUN mkdir /code
 WORKDIR /code
+
 COPY infra/requirements*.txt /code/
-RUN pip install -r requirements.txt
-COPY rcvis visualizer movie common static templates manage.py /code/
-CMD python manage.py runserver 0.0.0.0:8000
+RUN pip3 install -r requirements.txt
+
+# Only copy directories needed to run, not README/test/etc:
+COPY rcvis /code/rcvis
+COPY visualizer /code/visualizer
+COPY movie /code/movie
+COPY common /code/common
+COPY static /code/static
+COPY templates /code/templates
+COPY manage.py /code/
+
+CMD python3 manage.py runserver 0.0.0.0:8000
