@@ -13,7 +13,6 @@ from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextCli
     concatenate_videoclips
 import selenium
 
-from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.graphCreator.graphCreator import make_graph_with_file
 from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
@@ -39,7 +38,7 @@ class SingleMovieCreator():
         self.slug = jsonconfig.slug
         self.size = size
 
-        self.fontName = MOVIE_FONT_NAME
+        self.fontName = "Roboto"
 
         self.toDelete = []
 

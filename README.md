@@ -29,11 +29,7 @@ pip3 install -r requirements.txt
 Create a .env file with your secrets and configuration options:
 
 ```bash
-RCVIS_SECRET_KEY=''
-RCVIS_DEBUG=True
-RCVIS_HOST=localhost
-
-# Either have OFFLINE_MODE=True
+# Either set OFFLINE_MODE=True
 OFFLINE_MODE=True
 
 # Or set up an AWS bucket and enter your credentials
@@ -43,6 +39,15 @@ OFFLINE_MODE=True
 # AWS_ACCESS_KEY_ID=''
 # AWS_SECRET_ACCESS_KEY=''
 
+# Or use AWS secrets manager
+SECRETS_MANAGER_RDS_SECRETS='' # For connecting to a database
+SECRETS_MANAGER_ENV_SECRETS='' # For other vars
+
+# These are optional but recommended to specify explicitly
+RCVIS_SECRET_KEY=''
+RCVIS_DEBUG=True
+RCVIS_HOST=localhost
+
 # To run the SauceLabs integration tests, you will need
 SAUCE_USERNAME=''
 SAUCE_ACCESS_KEY=''
@@ -50,30 +55,20 @@ SAUCE_ACCESS_KEY=''
 # To generate videos, you need:
 SQS_QUEUE_NAME=''
 IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-MOVIE_FONT_NAME="Roboto"
 
 ```
 
-To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
+To get moviepy working for Ubuntu users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
 ```xml
 <policy domain="path" rights="none" pattern="@*"/>
 ```
-or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
+or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu.sh`
 
 ## Running
 To begin serving the website at localhost:8000:
 ```bash
-source .env
-source venv/bin/activate
-python3 manage.py runserver
-```
-
-To run workers to generate movies (optional - only needed to use the movie generation flow):
-```bash
-source .env
-source venv/bin/activate
-export DISPLAY=":0" # if not already set
-celery -A rcvis worker --loglevel info
+docker-compose -f docker-compose.yml -f docker-compose.development.yml build
+docker-compose -f docker-compose.yml -f docker-compose.development.yml up
 ```
 
 ## Examples

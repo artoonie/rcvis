@@ -1,27 +1,13 @@
 version: "3"
 
 services:
-  db:
-    image: postgres
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: rcvis
-        awslogs-region: us-west-2
-        awslogs-stream-prefix: web
   web:
-    image: ${DOCKER_REGISTRY:?err}/rcvis-web:${DOCKER_TAG:?err}
+    image: ${DOCKER_REGISTRY:-reg}/rcvis-web:${DOCKER_TAG:-tag}
     build:
       dockerfile: infra/Dockerfile-web
       context: .
     ports:
       - "8000:8000"
-    depends_on:
-      - db
     env_file:
       - .env
     environment:
@@ -34,21 +20,13 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - OFFLINE_MODE
       - SQS_QUEUE_NAME
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: rcvis
-        awslogs-region: us-west-2
-        awslogs-stream-prefix: web
   moviegen:
-    image: ${DOCKER_REGISTRY:?err}/rcvis-moviegen:${DOCKER_TAG:?err}
+    image: ${DOCKER_REGISTRY:-reg}/rcvis-moviegen:${DOCKER_TAG:-tag}
     build:
       dockerfile: infra/Dockerfile-movie
       context: .
     ports:
       - "6000:6000"
-    depends_on:
-      - db
     env_file:
       - .env
     environment:
@@ -61,9 +39,3 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - OFFLINE_MODE
       - SQS_QUEUE_NAME
-    logging:
-      driver: awslogs
-      options: 
-        awslogs-group: rcvis
-        awslogs-region: us-west-2
-        awslogs-stream-prefix: web

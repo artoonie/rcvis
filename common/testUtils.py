@@ -10,6 +10,7 @@ from visualizer.models import JsonConfig
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 
+
 class TestHelpers():
     """ Helper function for various test classes below """
     @classmethod

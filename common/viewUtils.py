@@ -29,6 +29,7 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     html = httpResponse.content.decode('utf-8')
     return html
 
+
 def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)

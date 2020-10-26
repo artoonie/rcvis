@@ -12,26 +12,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from rcvis.environment import environment
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ['RCVIS_DEBUG'] == "True"
-
-# I'm not proud of this. Add hosts - one per environment variable
-ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
-if 'RCVIS_HOST_ALIAS' in os.environ:
-    ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
-if 'RCVIS_HOST_ALIAS_2' in os.environ:
-    ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS_2'])
-
+SECRET_KEY = environment.get_secret_key()
+DEBUG = environment.get_debug()
+ALLOWED_HOSTS = [environment.get_host()]
 
 # Application definition
 
@@ -76,6 +61,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'rcvis.urls'
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -95,19 +82,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rcvis.wsgi.application'
 
+# Uploaded media
+OFFLINE_MODE = environment.get_offline_mode()
+if not OFFLINE_MODE:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_STORAGE_BUCKET_NAME = environment.get_storage_bucket_name()
+    AWS_S3_REGION_NAME = environment.get_region()
+    AWS_ACCESS_KEY_ID = environment.get_access_key_id()
+    AWS_SECRET_ACCESS_KEY = environment.get_secret_access_key()
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIAFILES_DIRS = [
+        os.path.join(BASE_DIR, "media"),
+    ]
+
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-if 'RDS_DB_NAME' in os.environ:
+if not OFFLINE_MODE:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
+            'NAME': environment.get_rds_dbname(),
+            'USER': environment.get_rds_username(),
+            'PASSWORD': environment.get_rds_password(),
+            'HOST': environment.get_rds_host(),
+            'PORT': environment.get_rds_port(),
         }
     }
 else:
@@ -177,23 +180,6 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 
-
-# Uploaded media
-OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
-if not OFFLINE_MODE:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
-    AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
-    AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
-    AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-    MEDIAFILES_DIRS = [
-        os.path.join(BASE_DIR, "media"),
-    ]
-
 AWS_DEFAULT_ACL = None
 
 CACHES = {
@@ -225,5 +211,3 @@ REST_FRAMEWORK = {
     }
 
 }
-
-MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
