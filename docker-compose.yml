@@ -1,6 +1,18 @@
 version: "3"
 
 services:
+  nginx:
+    image: ${DOCKER_REGISTRY:-reg}/rcvis-nginx:${DOCKER_TAG:-tag}
+    build:
+      dockerfile: infra/Dockerfile-nginx
+      context: .
+    network_mode: "awsvpc"
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: rcvis
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: web
   web:
     image: ${DOCKER_REGISTRY:-reg}/rcvis-web:${DOCKER_TAG:-tag}
     build:
@@ -10,6 +22,7 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    network_mode: "awsvpc"
     environment:
       - RCVIS_SECRET_KEY
       - RCVIS_DEBUG
@@ -20,6 +33,12 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - OFFLINE_MODE
       - SQS_QUEUE_NAME
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: rcvis
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: web
   moviegen:
     image: ${DOCKER_REGISTRY:-reg}/rcvis-moviegen:${DOCKER_TAG:-tag}
     build:
@@ -29,6 +48,7 @@ services:
       - "6000:6000"
     env_file:
       - .env
+    network_mode: "awsvpc"
     environment:
       - RCVIS_SECRET_KEY
       - RCVIS_DEBUG
@@ -39,3 +59,9 @@ services:
       - AWS_SECRET_ACCESS_KEY
       - OFFLINE_MODE
       - SQS_QUEUE_NAME
+    logging:
+      driver: awslogs
+      options: 
+        awslogs-group: rcvis
+        awslogs-region: us-west-2
+        awslogs-stream-prefix: web

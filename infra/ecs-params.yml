@@ -13,4 +13,4 @@ run_params:
         - "subnet-05e11a40bf1fbbe4c"
       security_groups:
         - "sg-078f50859799967f9"
-      assign_public_ip: ENABLED
+      assign_public_ip: DISABLED

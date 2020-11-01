@@ -4,7 +4,7 @@ ENV PYTHONUNBUFFERED=1
 # Update
 RUN apt-get -y update && \
     apt-get -y upgrade && \
-    apt-get install -y python3-pip
+    apt-get install -y python3-pip gunicorn
 
 RUN mkdir /code
 WORKDIR /code
@@ -21,4 +21,4 @@ COPY static /code/static
 COPY templates /code/templates
 COPY manage.py /code/
 
-CMD python3 manage.py runserver 0.0.0.0:8000
+CMD gunicorn rcvis.wsgi:application --bind 0.0.0.0:8000
