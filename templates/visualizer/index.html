@@ -1,6 +1,34 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
 
+{% block header %}
+  {% if offlineMode %}
+    <link rel="stylesheet" type="text/css" href="{% static 'localdeps/fullpage.css' %}" />
+    <script type="text/javascript" src="{% static 'localdeps/fullpage.js' %}"></script>
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.css" /> 
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.extensions.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/vendors/scrolloverflow.min.js"></script>
+  {% endif %}
+
+<style>
+.homedescriptor {
+  padding: 50px;
+}
+.fp-slidesNav {
+  text-align: center;
+}
+.fp-prev {
+  border-right-color: #e6e6e6 !important;
+}
+.fp-next {
+  margin-right: 40px;
+  border-left-color: #e6e6e6 !important;
+}
+</style>
+{% endblock %}
+
 {% block navlinks %}
 <li class="nav-item mx-0 mx-lg-1">
   <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Sample Elections</a>
@@ -15,13 +43,11 @@
 
 {% block maincontent %}
   <!-- Masthead -->
-  <header class="masthead bg-primary text-white text-center">
-    <div class="container d-flex align-items-center flex-column">
-      <!-- Masthead Heading -->
-      <h1 class="masthead-heading text-uppercase mb-0">RCV Elections, Simplified</h1>
+  <div class="section homedescriptor" id="intro">
+      <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Ranked Choice Voting ballots are <a href="https://www.fairvote.org/ranking_is_easy_a_response_to_misleading_claims_about_voter_errors">easy to fill out</a>.</h2></p>
+      <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVIS makes the results easy to understand, too.</h2></p>
 
-      <!-- Icon Divider -->
-      <div class="divider-custom divider-light">
+      <div class="divider-custom divider-dark">
         <div class="divider-custom-line"></div>
         <div class="divider-custom-icon">
           <i class="fas fa-chart-pie"></i>
@@ -29,18 +55,15 @@
         <div class="divider-custom-line"></div>
       </div>
 
-      <!-- Masthead Subheading -->
-      <p class="masthead-subheading font-weight-light mb-0">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
+      <p class="masthead-subheading font-weight-light">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
 
-    </div>
-  </header>
+      <img class="img-fluid" src="{% static 'visualizer/rcvis-summary.png' %}" alt="">
+  </div>
 
   <!-- Portfolio Section -->
-  <section class="page-section portfolio" id="whatis">
-    <div class="container">
-
+  <div class="section homedescriptor" id="whatis">
       <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked-Choice Voting?</h2>
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked Choice Voting?</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -52,21 +75,49 @@
       </div>
 
       <!-- Portfolio Grid Items -->
-      <div class="row">
+      <p class="lead">With Ranked Choice Voting, you can rank your candidates in your order of preference. If your top pick loses with the fewest votes, your vote isn't wasted: that candidate is eliminated and your vote is <i>transferred</i> to your next choice.</p>
+      <p>Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked Choice Voting</a>.</p>
 
-      <div class="row">
-        <div class="col-lg-8 ml-2 mr-1">
-            <p class="lead">With Ranked-Choice Voting, if your top candidate doesn't win the election, your vote still counts: your vote is <i>transferred</i> to your next pick. Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked-Choice Voting</a>.</p>
+      <div class="text-center"><iframe width="560" height="315" src="https://www.youtube.com/embed/gq7N2hmX9FI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+  </div>
+
+  <!-- About Section -->
+  <div class="section fp-auto-height homedescriptor" id="types">
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
         </div>
+        <div class="divider-custom-line"></div>
       </div>
-    </div>
-  </section>
 
-  <section class="page-section bg-primary text-white mb-0" id="examples">
+      <div class="slide text-center">
+        <h5>Bar Charts</h5>
+        <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="">
+      </div>
+      <div class="slide text-center">
+        <h5>Sankey Diagrams</h5>
+        <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="">
+      </div>
+      <div class="slide text-center">
+        <h5>Round-by-Round</h5>
+        <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="">
+      </div>
+      <div class="slide text-center">
+        <h5>Single Table Summary</h5>
+        <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="">
+      </div>
+  </div>
+
+  <div class="section fp-auto-height homedescriptor" id="examples">
     <div class="container">
 
       <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-white">Sample Visualizations</h2>
+      <h2 class="page-section-heading text-center text-uppercase">Live Examples</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -81,105 +132,38 @@
       <div class="row">
         <div class="col-lg-4 ml-auto mb-3">
           <p class="lead mb-0 mt-0">Utah County 2019 Elections</p>
-          <p class="mb-0 mt-0">Used during the election cycle by <a class="btn-outline-light" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/payson-2019-11-12_13-46-26_summary_1json">2019 Payson City Council Seat 1</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/payson-2019-11-12_13-46-26_summary_2json">2019 Payson City Council Seat 2</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/payson-2019-11-12_13-46-26_summary_3json">2019 Payson City Council Seat 3</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_1json">2019 Vineyard City Council Seat 1</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_2json">2019 Vineyard City Council Seat 2</a>
+          <p class="mb-0 mt-0">Used during the election cycle by <a class="btn-outline-dark" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/payson-2019-11-12_13-46-26_summary_1json">2019 Payson City Council Seat 1</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/payson-2019-11-12_13-46-26_summary_2json">2019 Payson City Council Seat 2</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/payson-2019-11-12_13-46-26_summary_3json">2019 Payson City Council Seat 3</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_1json">2019 Vineyard City Council Seat 1</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_2json">2019 Vineyard City Council Seat 2</a>
         </div>
         <div class="col-lg-4 mr-auto">
           <p class="lead mb-0 mt-0">Sample Elections</p>
           <p class="mb-0 mt-0">Using sample data for demonstration purposes</p>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/opavote2json">2019 FairVote Primary Poll</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/2018_maine_gov_primary_demjson">2018 Maine Gubernatorial Primary</a>
-          <br/><a class="btn btn-m btn-outline-light mb-3" href="/v/2015_portland_mayorjson">2015 Portland Mayoral Race</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/2015_portland_mayorjson">2019 City of Eastpointe (multi-winner)</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/opavote2json">2019 FairVote Primary Poll</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/2018_maine_gov_primary_demjson">2018 Maine Gubernatorial Primary</a>
+          <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/2015_portland_mayorjson">2015 Portland Mayoral Race</a>
           <br/>
         </div>
       </div>
     </div>
-  </section>
-  <!-- About Section -->
-  <section class="page-section portfolio" id="types">
-    <div class="container">
-
-      <!-- About Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
-
-      <!-- Icon Divider -->
-      <div class="divider-custom divider-light">
-        <div class="divider-custom-line"></div>
-        <div class="divider-custom-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="divider-custom-line"></div>
-      </div>
-
-      <!-- Portfolio Grid Items -->
-      <div class="row">
-
-        <!-- Portfolio Item 1 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal1">
-            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
-              <div class="portfolio-item-caption-content text-center text-white">
-                <i class="fas fa-signal fa-3x"></i>
-                Bar Charts
-              </div>
-            </div>
-            <h5>Bar Charts</h5>
-            <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="">
-          </div>
-        </div>
-
-        <!-- Portfolio Item 2 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal2">
-            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
-              <div class="portfolio-item-caption-content text-center text-white">
-                <i class="fas fa-project-diagram fa-3x"></i>
-                Sankey Diagrams
-              </div>
-            </div>
-            <h5>Sankey Diagrams</h5>
-            <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="">
-          </div>
-        </div>
-
-        <!-- Portfolio Item 3 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal4">
-            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
-              <div class="portfolio-item-caption-content text-center text-white">
-                <i class="fas fa-table fa-3x"></i>
-                Round-by-Round
-              </div>
-            </div>
-            <h5>Round-by-Round</h5>
-            <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="">
-          </div>
-        </div>
-
-        <!-- Portfolio Item 4 -->
-        <div class="col-md-6 col-lg-3">
-          <div class="portfolio-item mx-auto" data-toggle="modal" data-target="#portfolioModal3">
-            <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
-              <div class="portfolio-item-caption-content text-center text-white">
-                <i class="fas fa-table fa-3x"></i>
-                Single Table Summary
-              </div>
-            </div>
-            <h5>Single Table Summary</h5>
-            <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="">
-          </div>
-        </div>
-      </div>
-      <!-- /.row -->
-
-    </div>
-  </section>
+  </div>
 {% endblock %}
 
 {% block etc %}
     {% include "visualizer/common-visualizer-nonblocking.html" %}
+
+    <script type="text/javascript">
+      new fullpage('#fullpage', {
+        licenseKey: 'TEST_LICENSE',
+        navigation: true,
+        verticalCentered: true,
+        slidesNavigation: true,
+        sectionsColor: ['', '#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa'],
+      });
+
+  </script>
 {% endblock %}
