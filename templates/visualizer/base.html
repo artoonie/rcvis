@@ -12,6 +12,9 @@
 </head>
 
 <body id="page-top">
+{% block beforeFullpage %}
+{% endblock %}
+
 <div id="fullpage">
   <!-- Navigation -->
  <div class="section fp-auto-height">
@@ -34,7 +37,6 @@
 
 {% block maincontent %}
 {% endblock %}
-
   <!-- Footer -->
  <div class="section fp-auto-height">
   <footer class="footer text-center">
@@ -85,9 +87,13 @@
  </div>
 </div>
 
-{% block etc %}
+{% block afterFullpage %}
 {% endblock %}
+
+<script type="text/javascript">
+  new fullpage('#fullpage', fullpageOptions);
+</script>
+
 </body>
 
 </html>
-

@@ -9,13 +9,13 @@ function handleFiles(files)
 }
 </script>
 
-  <header class="masthead bg-primary text-white text-center">
+  <div class="section uploaddescriptor" id="header">
     <div class="container d-flex align-items-center flex-column">
       <!-- Masthead Heading -->
-      <h1 class="page-section-heading text-center text-uppercase mb-0">Upload Tabulated Election Results</h1>
+      <h1 class="page-section-heading text-center mb-0">Upload Tabulated Election Results</h1>
 
       <!-- Icon Divider -->
-      <div class="divider-custom divider-light">
+      <div class="divider-custom divider-dark">
         <div class="divider-custom-line"></div>
         <div class="divider-custom-icon">
           <i class="fas fa-chart-pie"></i>
@@ -25,29 +25,16 @@ function handleFiles(files)
 
       <!-- Masthead Subheading -->
       <p class="masthead-subheading font-weight-light mb-0">Accepted formats include JSONs from the
-          <a class="text-secondary" href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> and
-          <a class="text-secondary" href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>.
-          </p>
-
+          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> and
+          <a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>.
+      </p>
+      <p class="masthead-subheading font-weight-light mb-0 mt-3">
+      Don't have any tabulated data? Check out our <a href="/index.html#examples">examples</a> or <a href="https://rankit.vote">create a poll on rankit</a>. Rankit data can automatically upload to RCVIS.
+      </p>
     </div>
-  </header>
+  </div>
 
-<form action="upload.html" enctype="multipart/form-data" method="post" id="form">
-  <section class="page-section">
-    <div class="container">
-
-      <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 1: File Selection</h2>
-
-      <!-- Icon Divider -->
-      <div class="divider-custom">
-        <div class="divider-custom-line"></div>
-        <div class="divider-custom-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="divider-custom-line"></div>
-      </div>
-
+  <div class="section uploaddescriptor" id="fileselection">
       <!-- Portfolio Grid Items -->
       <div class="row">
 		<div class="selectFileButtonWrapper">
@@ -55,26 +42,12 @@ function handleFiles(files)
 			<input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json csv"  onchange="handleFiles(this.files)"/>
 		</div>
       </div>
-    </div>
-  </section>
-  <section class="page-section bg-primary text-white mb-0" id="examples">
-    <div class="container">
+  </div>
 
-      <!-- About Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text mb-0">Step 2: Customization</h2>
-
-      <!-- Icon Divider -->
-      <div class="divider-custom divider-light">
-        <div class="divider-custom-line"></div>
-        <div class="divider-custom-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="divider-custom-line"></div>
-      </div>
+  <div class="section uploaddescriptor" id="options">
       <!-- Portfolio Grid Items -->
-      <div class="row">
-        <div class="col-lg-12">
-
+      <div class="container">
+          <h1 class="page-section-heading text-center">Customization Options</h1>
     {% csrf_token %}
 {% endblock %}
 
@@ -96,33 +69,15 @@ function handleFiles(files)
 
 {% block afterOptions %}
     </div>
-    </div>
-  </section>
-  <section class="page-section">
-    <div class="container">
+  </div>
 
-      <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Step 3: Upload</h2>
-
-      <!-- Icon Divider -->
-      <div class="divider-custom">
-        <div class="divider-custom-line"></div>
-        <div class="divider-custom-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="divider-custom-line"></div>
-      </div>
-
-      <!-- Portfolio Grid Items -->
+    <div class="section uploaddescriptor" id="upload">
       <div class="row">
 		<div class="col" id="submitDiv">
-			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Click to run the visualizer</button>
+			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Upload to RCVIS</button>
 		</div>
       </div>
     </div>
-  </section>
-
-  </form>
     {% include "visualizer/common-visualizer-nonblocking.html" %}
     {% include "settings/settings-nonblocking.html" %}
 {% endblock %}
