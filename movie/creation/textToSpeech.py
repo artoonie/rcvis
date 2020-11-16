@@ -30,7 +30,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
     Always checks TextToSpeechCachedFile first.
     """
     prefix = 'generated_speech'
-    region = os.environ['AWS_S3_REGION_NAME']
+    region = os.environ.get('AWS_S3_REGION_NAME')
 
     def __init__(self, pollyClient, s3Client, text):
         """
@@ -151,7 +151,7 @@ class TextToSpeechFactory():  # pylint: disable=too-few-public-methods
 
     def __init__(self):
         self.pollyClient = boto3.Session(
-            region_name=os.environ['AWS_S3_REGION_NAME']).client('polly')
+            region_name=os.environ.get('AWS_S3_REGION_NAME')).client('polly')
         self.s3Client = boto3.client('s3')
 
     def text_to_speech(self, text):
