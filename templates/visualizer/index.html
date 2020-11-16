@@ -1,34 +1,6 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
 
-{% block header %}
-  {% if offlineMode %}
-    <link rel="stylesheet" type="text/css" href="{% static 'localdeps/fullpage.css' %}" />
-    <script type="text/javascript" src="{% static 'localdeps/fullpage.js' %}"></script>
-  {% else %}
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.css" /> 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.extensions.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/vendors/scrolloverflow.min.js"></script>
-  {% endif %}
-
-<style>
-.homedescriptor {
-  padding: 50px;
-}
-.fp-slidesNav {
-  text-align: center;
-}
-.fp-prev {
-  border-right-color: #e6e6e6 !important;
-}
-.fp-next {
-  margin-right: 40px;
-  border-left-color: #e6e6e6 !important;
-}
-</style>
-{% endblock %}
-
 {% block navlinks %}
 <li class="nav-item mx-0 mx-lg-1">
   <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Sample Elections</a>
@@ -130,7 +102,7 @@
 
       <!-- Portfolio Grid Items -->
       <div class="row">
-        <div class="col-lg-4 ml-auto mb-3">
+        <div class="col-md-6 ml-auto mb-3">
           <p class="lead mb-0 mt-0">Utah County 2019 Elections</p>
           <p class="mb-0 mt-0">Used during the election cycle by <a class="btn-outline-dark" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/payson-2019-11-12_13-46-26_summary_1json">2019 Payson City Council Seat 1</a>
@@ -139,7 +111,7 @@
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_1json">2019 Vineyard City Council Seat 1</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/vineyard-2019-11-12_13-49-22_summary_2json">2019 Vineyard City Council Seat 2</a>
         </div>
-        <div class="col-lg-4 mr-auto">
+        <div class="col-md-6 mr-auto">
           <p class="lead mb-0 mt-0">Sample Elections</p>
           <p class="mb-0 mt-0">Using sample data for demonstration purposes</p>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="/v/2015_portland_mayorjson">2019 City of Eastpointe (multi-winner)</a>
@@ -151,19 +123,41 @@
       </div>
     </div>
   </div>
+
+  <div class="section fp-auto-height homedescriptor" id="external">
+      <!-- About Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">More Resources</h2>
+
+      RCVIS focuses on just visualizations. For other resources, here are some tools and organizations to look into:
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <div class="slide text-center">
+        <h5>Create an RCV poll</h5>
+        <a href="https://www.rankit.vote"><img class="img-fluid" src="{% static 'visualizer/resource_rankit.gif' %}" width="300px"></a>
+      </div>
+      <div class="slide text-center">
+        <h5>Advocacy</h5>
+        <a href="https://www.fairvote.org"><img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px"></a>
+      </div>
+      <div class="slide text-center">
+        <h5>Vote Tabulation</h5>
+        <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator"><img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px"></a>
+      </div>
+      <div class="slide text-center">
+        <h5>Implementation</h5>
+        <a href="https://www.rankedchoicevoting.org"><img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px"></a>
+      </div>
+  </div>
 {% endblock %}
 
-{% block etc %}
+{% block afterFullpage %}
     {% include "visualizer/common-visualizer-nonblocking.html" %}
-
-    <script type="text/javascript">
-      new fullpage('#fullpage', {
-        licenseKey: 'TEST_LICENSE',
-        navigation: true,
-        verticalCentered: true,
-        slidesNavigation: true,
-        sectionsColor: ['', '#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa'],
-      });
-
-  </script>
 {% endblock %}
