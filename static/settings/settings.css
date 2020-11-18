@@ -2,6 +2,9 @@ form div.formArea {
   line-height: 50px;
   border: 4px dashed #fff;
 }
+.uploadButtonWrapper {
+  text-align: center;
+}
 .selectFileButtonWrapper {
   text-align: center;
   position: relative;
@@ -32,27 +35,36 @@ svg {
   background-color: #0074D9;
   color: white;
   cursor: pointer;
-  padding: 18px;
+  padding: 15px;
   width: 100%;
-  border: none;
   text-align: left;
   outline: none;
   font-size: 15px;
+  border-width: 0px 1px 1px 0px;
+  border-bottom-color: #7198b9;
 }
 .active .collapsible:hover {
   background-color: #7FDBFF;
   color: #00060c;
 }
+.narrowbox {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
 .optionscontent {
   text-align: left;
   line-height: 1.5em;
-  padding: 0 18px;
+  padding: 0 5px;
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
   background-color: ##00060c;
 }
 .uploaddescriptor {
-  padding-top: 30px;
-  padding-bottom: 30px;
+ padding: 30px;
+}
+#options {
+ opacity: 20%;
 }

@@ -6,12 +6,19 @@
 function handleFiles(files)
 {
   document.getElementById("selectFileButton").innerHTML = files[0].name
+  document.getElementById("options").style.opacity = '100%'
+  document.getElementById("uploadButton").disabled = false;
 }
+
+// Essentially disable fullpage.js here
+fullpageOptions.autoScrolling = false;
+fullpageOptions.navigation = false;
+fullpageOptions.fitToSection = false;
+
 </script>
 
-  <div class="section uploaddescriptor" id="header">
-    <div class="container d-flex align-items-center flex-column">
-      <!-- Masthead Heading -->
+  <div class="mb-2 mt-2" id="header">
+    <div class="uploaddescriptor">
       <h1 class="page-section-heading text-center mb-0">Upload Tabulated Election Results</h1>
 
       <!-- Icon Divider -->
@@ -22,62 +29,80 @@ function handleFiles(files)
         </div>
         <div class="divider-custom-line"></div>
       </div>
-
-      <!-- Masthead Subheading -->
-      <p class="masthead-subheading font-weight-light mb-0">Accepted formats include JSONs from the
-          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> and
-          <a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>.
-      </p>
-      <p class="masthead-subheading font-weight-light mb-0 mt-3">
-      Don't have any tabulated data? Check out our <a href="/index.html#examples">examples</a> or <a href="https://rankit.vote">create a poll on rankit</a>. Rankit data can automatically upload to RCVIS.
-      </p>
     </div>
   </div>
 
-  <div class="section uploaddescriptor" id="fileselection">
-      <!-- Portfolio Grid Items -->
-      <div class="row">
-		<div class="selectFileButtonWrapper">
-			<button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-			<input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json csv"  onchange="handleFiles(this.files)"/>
-		</div>
+  <div class="mb-2 mt-2" id="fileselection">
+    <div class="selectFileButtonWrapper">
+      <button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
+      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json csv"  onchange="handleFiles(this.files)"/>
+    </div>
+
+    <div class="narrowbox">
+      <p class="masthead-subheading font-weight-light mt-3 narrowbox">
+       <button class="btn btn-link" data-toggle="collapse" data-target="#acceptedformats" aria-expanded="false" aria-controls="acceptedformats" type="button">
+         What formats are accepted?
+       </button>
+       |
+       <button class="btn btn-link" data-toggle="collapse" data-target="#exampledata" aria-expanded="false" aria-controls="exampledata" type="button">
+         Don't have any data to upload?
+       </button>
+      </p>
+      <div class="collapse" id="acceptedformats">
+        <div class="card card-body mb-3 d-block bg-light">
+          <h5 class="card-title">Accepted JSON formats</h5>
+          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> or
+          <a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>
+        </div>
       </div>
+      <div class="collapse" id="exampledata">
+        <div class="card card-body mb-3 d-block bg-light">
+          <h5 class="card-title">Other ways to try out RCVIS</h5>
+          <p><a href="/index.html#examples">Check out some examples</a>
+          or
+          <a href="https://rankit.vote">Create a poll on rankit</a></p>
+          <p>Rankit polls can be visualized with RCVIS</p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="section uploaddescriptor" id="options">
-      <!-- Portfolio Grid Items -->
-      <div class="container">
-          <h1 class="page-section-heading text-center">Customization Options</h1>
-    {% csrf_token %}
+  <div class="mb-2 mt-2" id="options">
+    <div class="uploaddescriptor">
+      <h1 class="page-section-heading text-center narrowbox">Customization Options</h1>
+      {% csrf_token %}
 {% endblock %}
 
 {% block additionalOptions %}
-		<button class="collapsible">▶ Global visualization options</button>
-		<div class="optionscontent" id="globalOptions">
-			<p class="mt-3">
-            <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
-            <label><input type="checkbox" name="hideDecimals"/> Hide decimal places</label>
-			<br/><small>By default, we'll show up to two decimal places.</small></label>
-		<br/><br/>
-            <input type="hidden" name="excludeFinalWinnerAndEliminatedCandidate"/><!-- To be sent in GET/POST if unchecked -->
-		    <label><input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate"/> Exclude the final elected and eliminated candidate
-			<br/><small>This is useful for in-progress elections to avoid bouncing back and forth</small></label>
-			</p>
-		</div>
+    <button class="collapsible">▶ Global visualization options</button>
+
+    <div class="optionscontent" id="globalOptions">
+      <p class="mt-3">
+        <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
+        <label>
+            <input type="checkbox" name="hideDecimals"/> Hide decimal places
+        </label>
+        <br/>
+        <small>By default, we'll show up to two decimal places.</small></label>
+        <br/><br/>
+        <input type="hidden" name="excludeFinalWinnerAndEliminatedCandidate"/><!-- To be sent in GET/POST if unchecked -->
+        <label>
+            <input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate"/> Exclude the final elected and eliminated candidate
+            <br/>
+            <small>This is useful for in-progress elections to avoid bouncing back and forth</small>
+        </label>
+      </p>
+    </div>
 
 {% endblock %}
 
 {% block afterOptions %}
+      <div class="narrowbox mt-3">
+        <button id="uploadButton" type="submit" class="btn btn-primary btn-xl" disabled>Upload to RCVIS</button>
+      </div>
     </div>
   </div>
 
-    <div class="section uploaddescriptor" id="upload">
-      <div class="row">
-		<div class="col" id="submitDiv">
-			<button id="uploadButton" type="submit" class="btn btn-primary btn-xl">Upload to RCVIS</button>
-		</div>
-      </div>
-    </div>
     {% include "visualizer/common-visualizer-nonblocking.html" %}
     {% include "settings/settings-nonblocking.html" %}
 {% endblock %}
