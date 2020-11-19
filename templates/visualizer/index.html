@@ -1,6 +1,12 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
 
+{% block header %}
+  <script>
+      fullpageOptions.anchors = ['#top-of-page', '#intro-section', '#whatis-section', '#types-section', '#examples-section', '#external-section', '#bottom-of-page'];
+  </script>
+{% endblock %}
+
 {% block navlinks %}
 <li class="nav-item mx-0 mx-lg-1">
   <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Sample Elections</a>
@@ -32,9 +38,7 @@
       <img class="img-fluid" src="{% static 'visualizer/rcvis-summary.png' %}" alt="">
   </div>
 
-  <!-- Portfolio Section -->
   <div class="section homedescriptor" id="whatis">
-      <!-- Portfolio Section Heading -->
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked Choice Voting?</h2>
 
       <!-- Icon Divider -->
@@ -53,9 +57,7 @@
       <div class="text-center"><iframe width="560" height="315" src="https://www.youtube.com/embed/gq7N2hmX9FI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
   </div>
 
-  <!-- About Section -->
   <div class="section fp-auto-height homedescriptor" id="types">
-      <!-- About Section Heading -->
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
 
       <!-- Icon Divider -->

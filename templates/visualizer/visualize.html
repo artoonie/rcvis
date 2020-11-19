@@ -25,80 +25,84 @@
 {% endblock %}
 
 {% block maincontent %}
-  <!-- Masthead -->
-  <header class="masthead bg-primary text-white text-left pb-0" style="padding-top: 1rem; display:none" id="masthead"> <!-- dynamically loaded later -->
+<div class="section fp-auto-height">
+  <header class="masthead bg-primary text-white text-left pb-0 pt-1" id="masthead"> <!-- dynamically loaded later -->
       <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</p>
-      <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ date }}</p>
+      <p class="font-weight-light mb-0 pl-3">{{ date }}</p>
     <div class="container d-flex align-items-left flex-column ml-0">
 
     <ul class="nav nav-tabs" id="tablist" role="tablist">
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="barchart-tab-interactive" data-toggle="changeviz" href="#barchart-interactive" role="tab" aria-controls="scrollToHere" aria-selected="false">Bar Chart</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="barchart-tab-fixed" data-toggle="changeviz" href="#barchart-fixed" role="tab" aria-controls="scrollToHere" aria-selected="false">Bar Chart</a>
+            <a class="nav-link btn btn-outline-light" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="barchart" aria-selected="true">Bar Chart</a>
         </li>
         <li class="nav-item" name="li_hideable_sankey">
-            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="scrollToHere" aria-selected="false">Sankey</a>
+            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">Sankey</a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-interactive" data-toggle="changeviz" href="#tabular-by-round-interactive" role="tab" aria-controls="scrollToHere" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">Round-by-Round</a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-round-tab-fixed" data-toggle="changeviz" href="#tabular-by-round-fixed" role="tab" aria-controls=="scrollToHere" aria-selected="false">Round-by-Round</a>
+            <a class="nav-link btn btn-outline-light" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">Candidate Summary</a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="tabular-by-candidate-tab" data-toggle="changeviz" href="#tabular-by-candidate" role="tab" aria-controls="scrollToHere" aria-selected="false">Candidate Summary</a>
-        </li>
-        <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="tabular-candidate-by-round-tab" data-toggle="changeviz" href="#tabular-candidate-by-round" role="tab" aria-controls="scrollToHere" aria-selected="false">Single Table Summary</a>
+            <a class="nav-link btn btn-outline-light" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">Single Table Summary</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_settings.png' %}" width="20"/></a>
+            <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="settings" aria-selected="false"><img src="{% static 'visualizer/icon_settings.png' %}" width="20"/></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="scrollToHere" aria-selected="false"><img src="{% static 'visualizer/icon_share.png' %}" width="20"/></a>
+            <a class="nav-link btn btn-outline-light" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="share" aria-selected="false"><img src="{% static 'visualizer/icon_share.png' %}" width="20"/></a>
         </li>
     </ul>
     </div>
   </header>
 
-    <div class="tab-content mb-5" id="scrollToHere">
-        <h6 style="margin-left: 20px; margin-top:20px"><a id="swap-dynamic" href="#"></a></h6>
+    <h6 id="toggle-dynamic" class="ml-2 mt-2">
+		<a id="make-print-friendly" href="#" class="vis-interactive">Showing interactive content. Show print-friendly instead?</a>
+		<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
+	</h6>
 
-        <div class="tab-pane fade" id="sankey" role="tabpanel" aria-labelledby="sankey-tab">
-            {% include "sankey/sankey.html" %}
-        </div>
-        <div class="tab-pane fade" id="barchart-fixed" role="tabpanel" aria-labelledby="barchart-tab-fixed">
-            {% include "bargraph/barchart-fixed.html" %}
-        </div>
-        <div class="tab-pane fade" id="barchart-interactive" role="tabpanel" aria-labelledby="barchart-tab-interactive">
-            {% include "bargraph/barchart-interactive.html" %}
-        </div>
-        <div class="tab-pane fade" id="tabular-by-candidate" role="tabpanel" aria-labelledby="tabular-by-candidate-tab">
-            {% include "tabular/tabular-by-candidate.html" %}
-        </div>
-        <div class="tab-pane fade" id="tabular-by-round-fixed" role="tabpanel" aria-labelledby="tabular-by-round-tab-fixed">
-            {% include "tabular/tabular-by-round.html" %}
-        </div>
-        <div class="tab-pane fade" id="tabular-by-round-interactive" role="tabpanel" aria-labelledby="tabular-by-round-tab-interactive">
-            {% include "tabular/tabular-by-round-interactive.html" %}
-        </div>
-        <div class="tab-pane fade" id="tabular-candidate-by-round" role="tabpanel" aria-labelledby="tabular-candidate-by-round-tab">
-            {% include "tabular/tabular-candidate-by-round.html" %}
-        </div>
-        <div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
-            {% include "settings/settings-update.html" %}
-        </div>
-        <div class="tab-pane fade" id="share" role="tabpanel" aria-labelledby="share-tab">
-            {% include "share/share.html" %}
-        </div>
+    <div class="slide mt-2" id="barchart" data-anchor="a-barchart" aria-labeledby="barchart-tab">
+      <div class="vis-fixed">
+          {% include "bargraph/barchart-fixed.html" %}
+      </div>
+      <div class="vis-interactive">
+          {% include "bargraph/barchart-interactive.html" %}
+      </div>
     </div>
 
+    <div class="slide mt-2" id="sankey" data-anchor="a-sankey" aria-labeledby="sankey-tab">
+        {% include "sankey/sankey.html" %}
+    </div>
+
+    <div class="slide mt-2" id="round-by-round" data-anchor="a-round-by-round" aria-labeledby="round-by-round-tab">
+      <div class="vis-fixed">
+          {% include "tabular/tabular-by-round.html" %}
+      </div>
+      <div class="vis-interactive">
+          {% include "tabular/tabular-by-round-interactive.html" %}
+      </div>
+    </div>
+
+    <div class="slide mt-2" id="candidate-summary" data-anchor="a-candidate-summary" aria-labeledby="candidate-summary-tab">
+        {% include "tabular/tabular-by-candidate.html" %}
+    </div>
+
+    <div class="slide mt-2" id="single-table-summary" data-anchor="a-single-table-summary" aria-labeledby="single-table-summary-tab">
+        {% include "tabular/tabular-candidate-by-round.html" %}
+    </div>
+
+    <div class="slide mt-2" id="settings" data-anchor="a-settings" aria-labeledby="settings-tab">
+        {% include "settings/settings-update.html" %}
+    </div>
+
+    <div class="slide mt-2" id="share" data-anchor="a-share" role="tabpanel" aria-labelledby="share-tab">
+        {% include "share/share.html" %}
+    </div>
+</div>
 {% endblock %}
 
 {% block afterFullpage %}
-
     {% include "visualizer/common-visualizer-nonblocking.html" %}
     {% include "sankey/sankey-nonblocking.html" %}
     {% include "bargraph/barchart-common-nonblocking.html" %}
@@ -109,133 +113,79 @@
     {% include "settings/settings-update-nonblocking.html" %}
     {% include "share/share-nonblocking.html" %}
 
-  <script>
-      function goToTab(tabName)
-      {
-          $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
+  <script type="text/javascript">
+    fullpageOptions.verticalCentered = false;
+    fullpageOptions.navigation = false;
+    fullpageOptions.fitToSection = false;
+    fullpageOptions.scrollOverflow = true;
+    fullpageOptions.lockAnchors = true;
+    fullpageOptions.slidesNavigation = false;
+    fullpageOptions.controlArrows = false;
+    fullpageOptions.autoScrolling = false;
+    fullpageOptions.onSlideLeave = function(section, origin, destination, direction) {
+      goToTab(destination.item.id);
+    }
+    fullpageOptions.afterLoad = function(origin, destination, direction) {
+      loadTabFromTag();
+    }
 
-          // Not sure if this will work...
-          document.getElementById("oembed").href = "{{ oembed_url }}&vistype=" + tabName
-      }
+    // Handle bootstrap nav clicks, forward them to fullpage.js
+    $('.nav-tabs a').on('click', function (e) {
+      e.preventDefault()
+      const tab = this.id;
+      goToTab(tab.substring(0, tab.length - 4)); // remove "-tab"
+    })
 
-      function loadTabFromTag()
-      {
-          // c/o https://stackoverflow.com/a/9393768/1057105
-          // Javascript to enable link to tab
-          var url = document.location.toString();
-          if (url.match('#')) {
-              activeTab = url.split('#')[1];
-          } 
-          preventScrollAfterTabLoad();
-          goToTab(activeTab);
-      }
+    let currentTab = '';
+    function goToTab(tabName) {
+        console.log("Go to tab " + tabName + '/' + currentTab);
+      if (tabName == currentTab) return;
+      currentTab = tabName;
 
-      function getTabNameWithCorrectDynamismAndFixSwapText(tabName)
-      {
-        var swapText = document.getElementById("swap-dynamic");
-        if(doHideFixedTabs)
-        {
-          suffixOld = "-fixed"
-          suffixNew = "-interactive"
-          swapText.innerText = "Showing interactive content. Show print-friendly instead?"
-        }
-        else
-        {
-          suffixOld = "-interactive"
-          suffixNew = "-fixed"
-          swapText.innerText = "Showing print-friendly content. Show interactive instead?"
-        }
+      // Select tab via bootstrap
+      fullpage_api.moveTo(2, 'a-'+tabName)
+      $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
 
-        return tabName.replace(suffixOld, suffixNew); 
-      }
+      // Update whether interactive/static toggle is there
+      const canBeDynamic = tabName == 'barchart' || tabName == 'round-by-round';
+      document.getElementById('toggle-dynamic').style.display = canBeDynamic ? 'block' : 'none';
 
-      function updateHiddenTabs()
-      {
-        activeTab = getTabNameWithCorrectDynamismAndFixSwapText(activeTab);
-        goToTab(activeTab);
+      // Update history
+      history.pushState(null,null,'#' + tabName)
+    }
 
-        // Iterate over all tabs and change their status
-        var i;
-        var tabs = document.getElementsByClassName("nav-link");
-        for (i = 0; i < tabs.length; i++) {
-          tabs[i].hidden = tabs[i].id.endsWith(suffixOld);
-        }
-      }
+    function loadTabFromTag() {
+        // c/o https://stackoverflow.com/a/9393768/1057105
+        // Javascript to enable link to tab
+        var url = document.location.toString();
+        let firstTab = 'barchart';
+        if (url.match('#')) {
+          firstTab = url.split('#')[1];
+        } 
+        goToTab(firstTab);
+    }
 
-      var activeTab = "barchart-interactive"; // the default tab
-      loadTabFromTag()
-      var doHideFixedTabs = !activeTab.endsWith("-fixed");
-      updateHiddenTabs();
-      refreshContentByTabAndDynamism(activeTab);
-
-      function refreshContentByTabAndDynamism(tabName)
-      {
-          var oldTab = activeTab
-          activeTab = getTabNameWithCorrectDynamismAndFixSwapText(tabName);
-
-          var doHideToggle = !activeTab.endsWith("-fixed") && !activeTab.endsWith("-interactive");
-          var swapText = document.getElementById("swap-dynamic");
-          swapText.style.display = doHideToggle ? "none" : "block";
-
-          if (oldTab != activeTab)
-          {
-              history.pushState(null,null,'#' + activeTab);
-          }
-      }
-
-      document.getElementById("swap-dynamic").addEventListener("click", function(event) {
-        // Changing dynamism
-        doHideFixedTabs = !doHideFixedTabs;
-        refreshContentByTabAndDynamism(activeTab);
-        updateHiddenTabs();
-        event.preventDefault();
-        return false;
+    function togglePrintFriendly(isPrintFriendly) {
+      const fixed = document.querySelectorAll('.vis-fixed');
+      const interactive = document.querySelectorAll('.vis-interactive');
+      fixed.forEach(element => {
+        element.style.display = isPrintFriendly ? 'block' : 'none';
       });
-
-      // Change hash for page-reload
-      $(document).on('shown.bs.tab', 'a[data-toggle="changeviz"]', function (e) {
-          // Changing tabs
-          refreshContentByTabAndDynamism(e.target.hash.split('#')[1]);
-          e.preventDefault();
-          return false;
-      })
-
-      $(window).on("popstate", function (e) {
-          // Back/forward button
-          loadTabFromTag();
-          e.preventDefault();
-          return false;
+      interactive.forEach(element => {
+        element.style.display = !isPrintFriendly ? 'block' : 'none';
       });
+    }
 
-      // Prevent HTML from scrolling to tag after bootstrap tab load completes.
-      // Without this, clicking on the same tab twice would scroll down
-      function preventScrollAfterTabLoad()
-      {
-          var scrollHeight = $(document).scrollTop();
-
-          setTimeout(function() {
-              $(window).scrollTop(scrollHeight);
-           }, 5);
-      }
-      $('.nav-tabs a').click(function (e) {
-          preventScrollAfterTabLoad();
-      });
-
-      function hideTabsBasedOnConfig()
-      {
-        if (config.hideTabular)
-        {
-          $("li[name='li_hideable_tabular']").css("display","none");
-        }
-        if (config.hideSankey)
-        {
-          $("li[name='li_hideable_sankey']").css("display","none");
-        }
-
-        // Dynamically load this when everything else finishes loading so it doesn't flicker the above two tabs
-        $("#masthead").css("display","block");
-      }
-
-      hideTabsBasedOnConfig();
+    // Handle print-friendly buttons, and make sure they don't change the #tag
+    document.getElementById("make-print-friendly").addEventListener("click", function(event) {
+      togglePrintFriendly(true);
+      event.preventDefault();
+      return false;
+    });
+    document.getElementById("make-interactive").addEventListener("click", function(event) {
+      togglePrintFriendly(false);
+      event.preventDefault();
+      return false;
+    });
   </script>
 {% endblock %}
