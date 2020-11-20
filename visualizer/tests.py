@@ -37,6 +37,7 @@ FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
+FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
 
 
 class SimpleTests(TestCase):
@@ -55,6 +56,10 @@ class SimpleTests(TestCase):
     def test_opavote_loads(self):
         """ Opens the opavote file """
         self._get_data_for_view(FILENAME_OPAVOTE)
+
+    def test_electionbuddy_loads(self):
+        """ Opens the electionbuddy file """
+        self._get_data_for_view(FILENAME_ELECTIONBUDDY)
 
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """
@@ -183,11 +188,24 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4052
+        magicKnownTextLength = 4053
         assert len(text) == magicKnownTextLength
 
         # Ensure at least the text closes correctly
         assert text[-2:] == "|}"
+
+    def test_electionbuddy_data_is_sane(self):
+        """ Validates some data about the electionbuddy file """
+        with open(FILENAME_ELECTIONBUDDY, 'r+') as f:
+            graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
+        summary = graph.summarize()
+        assert len(summary.rounds) == 2
+        assert len(summary.candidates) == 3
+        assert len(summary.rounds[0].eliminatedNames) == 0
+        assert len(summary.rounds[0].winnerNames) == 0
+        assert summary.rounds[1].eliminatedNames[0] == 'Chocolate'
+        assert summary.rounds[1].winnerNames[0] == 'Vanilla'
+        assert summary.rounds[1].winnerNames[1] == 'Strawberry'
 
 
 class ModelDeletionTests(TransactionTestCase):

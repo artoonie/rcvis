@@ -1,14 +1,15 @@
 """ Class which reads an opavote-formatted JSON file """
 from . import colors
 from . import rcvResult
-from . import readJSONBase
 from .graph import Graph
+from .readTabulatedDataBase import TabulatedResultsReaderBase
 
 
-class JSONReader(readJSONBase.JSONReaderBase):
+class JSONReader(TabulatedResultsReaderBase):
     """ Reads an opavote-formatted JSON file """
+    isJson = True
 
-    def parse_json_data(self, data):
+    def parse_data(self, data):
         def initialize_candidates(data, graph):
             candidateNames = data['candidates']
             firstRoundVotes = data['rounds'][0]['count']

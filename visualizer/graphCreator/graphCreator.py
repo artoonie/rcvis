@@ -1,5 +1,6 @@
 """ Helper functions to load a graph from a file """
 
+import visualizer.graphCreator.readElectionbuddyCSV as electionbuddyCSV
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
 import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 
@@ -8,18 +9,22 @@ class BadJSONError(Exception):
     """ An exception to be thrown if the JSON has errors """
 
 
-def get_correct_reader_for(jsonFile):
+def get_correct_reader_for(fileObject):
     """ Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader. """
     exceptions = {}
     try:
-        jsonReader = rcvrcJson.JSONReader(jsonFile)
+        jsonReader = rcvrcJson.JSONReader(fileObject)
     except Exception as rcvrcException:  # pylint: disable=broad-except
         try:
             exceptions["RCVRC JSON Errors"] = rcvrcException
-            jsonReader = opavoteJson.JSONReader(jsonFile)
+            jsonReader = opavoteJson.JSONReader(fileObject)
         except Exception as opavoteException:  # pylint: disable=broad-except
             exceptions["Opavote JSON Errors"] = opavoteException
-            raise BadJSONError(exceptions)
+            try:
+                jsonReader = electionbuddyCSV.CSVReader(fileObject)
+            except Exception as electionBuddyExceptions:  # pylint: disable=broad-except
+                exceptions["Election Buddy CSV Errors"] = electionBuddyExceptions
+                raise BadJSONError(exceptions)
     return jsonReader
 
 
@@ -45,10 +50,10 @@ def remove_last_winner_and_eliminated(graph, rounds):
             break
 
 
-def make_graph_with_file(jsonFile, excludeFinalWinnerAndEliminatedCandidate):
-    """ Load the given filename, create and return a graph """
+def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
+    """ Load the given fileObject, create and return a graph """
     try:
-        jsonReader = get_correct_reader_for(jsonFile)
+        jsonReader = get_correct_reader_for(fileObject)
     except RuntimeError as runtimeException:
         raise runtimeException
 

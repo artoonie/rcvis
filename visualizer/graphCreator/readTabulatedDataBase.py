@@ -1,4 +1,4 @@
-""" Abstract base class for JSON file readers. This is C++, right? """
+""" Abstract base class for reading tabulated results """
 import abc
 import json
 
@@ -6,7 +6,7 @@ from visualizer import common
 from . import rcvResult
 
 
-class JSONReaderBase():
+class TabulatedResultsReaderBase():
     """ Override this and set self.graph and self.rounds and self.items:
 
         self.graph is a Graph object which is partially initialized (TODO how partially?)
@@ -16,14 +16,21 @@ class JSONReaderBase():
     graph: object
     rounds: list
     items: list
+    eliminationOrder: list
+    isJson: bool
 
     def __init__(self, fileObj):
         fileObj.seek(0)  # reset file position
-        self.parse_json_data(json.load(fileObj))
+        if self.isJson:
+            data = json.load(fileObj)
+        else:
+            data = fileObj
+
+        self.parse_data(data)
         self.set_elimination_order(self.rounds, self.items)
 
     @abc.abstractmethod
-    def parse_json_data(self, data):
+    def parse_data(self, data):
         """ Override this to parse the values into whatever data structure you like,
             as long as you set the required fields denoted by the class docstring """
 
