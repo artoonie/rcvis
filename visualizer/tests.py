@@ -188,7 +188,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4052
+        magicKnownTextLength = 4053
         assert len(text) == magicKnownTextLength
 
         # Ensure at least the text closes correctly

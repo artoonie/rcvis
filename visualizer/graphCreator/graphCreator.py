@@ -11,7 +11,6 @@ class BadJSONError(Exception):
 
 def get_correct_reader_for(fileObject):
     """ Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader. """
-    jsonReader = electionbuddyCSV.CSVReader(fileObject)
     exceptions = {}
     try:
         jsonReader = rcvrcJson.JSONReader(fileObject)
