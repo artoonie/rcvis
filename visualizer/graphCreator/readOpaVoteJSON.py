@@ -1,11 +1,11 @@
 """ Class which reads an opavote-formatted JSON file """
 from . import colors
 from . import rcvResult
-from . import readJSONBase
+from . import readTabulatedDataBase
 from .graph import Graph
 
 
-class JSONReader(readJSONBase.JSONReaderBase):
+class JSONReader(readTabulatedDataBase.JSONReaderBase):
     """ Reads an opavote-formatted JSON file """
 
     def parse_json_data(self, data):

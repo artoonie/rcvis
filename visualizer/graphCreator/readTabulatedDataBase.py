@@ -1,4 +1,4 @@
-""" Abstract base class for JSON file readers. This is C++, right? """
+""" Abstract base class for reading tabulated results """
 import abc
 import json
 
@@ -6,7 +6,7 @@ from visualizer import common
 from . import rcvResult
 
 
-class JSONReaderBase():
+class TabulatedResultsReaderBase():
     """ Override this and set self.graph and self.rounds and self.items:
 
         self.graph is a Graph object which is partially initialized (TODO how partially?)
@@ -16,11 +16,6 @@ class JSONReaderBase():
     graph: object
     rounds: list
     items: list
-
-    def __init__(self, fileObj):
-        fileObj.seek(0)  # reset file position
-        self.parse_json_data(json.load(fileObj))
-        self.set_elimination_order(self.rounds, self.items)
 
     @abc.abstractmethod
     def parse_json_data(self, data):
@@ -78,3 +73,16 @@ class JSONReaderBase():
         """ Returns the elimination order:
             a list of names in the order in whhich they were eliminated """
         return self.eliminationOrder
+
+class JSONReaderBase(TabulatedResultsReaderBase):
+    def __init__(self, fileObj):
+        fileObj.seek(0)  # reset file position
+        self.parse_json_data(json.load(fileObj))
+        self.set_elimination_order(self.rounds, self.items)
+
+class TextFileReaderBase(TabulatedResultsReaderBase):
+    def __init__(self, fileObj):
+        fileObj.seek(0)  # reset file position
+        self.parse_json_data(fileObj)
+        # TODO somebody set an elimination order
+        self.set_elimination_order(self.rounds, self.items)

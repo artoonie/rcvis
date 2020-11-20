@@ -41,10 +41,18 @@ RCV Result
    :undoc-members:
    :show-inheritance:
 
-Read JSON Base
+Read Tabulated Data Base
 -------------------------------------------
 
-.. automodule:: visualizer.graphCreator.readJSONBase
+.. automodule:: visualizer.graphCreator.readTabulatedDataBase
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Read ElectionBuddy CSV
+----------------------------------------------
+
+.. automodule:: visualizer.graphCreator.readElectionbuddyCSV
    :members:
    :undoc-members:
    :show-inheritance:

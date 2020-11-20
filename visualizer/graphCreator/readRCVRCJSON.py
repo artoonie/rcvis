@@ -5,7 +5,7 @@ import datetime
 from visualizer import common
 from . import colors
 from . import rcvResult
-from . import readJSONBase
+from . import readTabulatedDataBase
 from .graph import Graph
 
 
@@ -152,7 +152,7 @@ class RenameExhaustedToInactive(JSONMigrateTask):
         self.rename('exhausted', common.INACTIVE_TEXT)
 
 
-class JSONReader(readJSONBase.JSONReaderBase):
+class JSONReader(readTabulatedDataBase.JSONReaderBase):
     """ The class which reads the JSON and performs migrations """
 
     def parse_json_data(self, data):
