@@ -16,9 +16,21 @@ class TabulatedResultsReaderBase():
     graph: object
     rounds: list
     items: list
+    eliminationOrder: list
+    isJson: bool
+
+    def __init__(self, fileObj):
+        fileObj.seek(0)  # reset file position
+        if self.isJson:
+            data = json.load(fileObj)
+        else:
+            data = fileObj
+
+        self.parse_data(data)
+        self.set_elimination_order(self.rounds, self.items)
 
     @abc.abstractmethod
-    def parse_json_data(self, data):
+    def parse_data(self, data):
         """ Override this to parse the values into whatever data structure you like,
             as long as you set the required fields denoted by the class docstring """
 
@@ -73,16 +85,3 @@ class TabulatedResultsReaderBase():
         """ Returns the elimination order:
             a list of names in the order in whhich they were eliminated """
         return self.eliminationOrder
-
-class JSONReaderBase(TabulatedResultsReaderBase):
-    def __init__(self, fileObj):
-        fileObj.seek(0)  # reset file position
-        self.parse_json_data(json.load(fileObj))
-        self.set_elimination_order(self.rounds, self.items)
-
-class TextFileReaderBase(TabulatedResultsReaderBase):
-    def __init__(self, fileObj):
-        fileObj.seek(0)  # reset file position
-        self.parse_json_data(fileObj)
-        # TODO somebody set an elimination order
-        self.set_elimination_order(self.rounds, self.items)
