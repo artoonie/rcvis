@@ -12,9 +12,6 @@ for (i = 0; i < coll.length; i++) {
     } else {
       this.innerText = this.innerText.replace('▶', '▼');
       content.style.maxHeight = content.scrollHeight + "px";
-    } 
-
-    // Update fullpage.js
-    fullpage_api.reBuild();
+    }
   });
 }

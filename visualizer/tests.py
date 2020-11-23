@@ -5,6 +5,7 @@ Unit and integration tests for the core visualizer app
 from enum import Enum
 import json
 import os
+import platform
 import time
 from urllib.parse import urlparse
 
@@ -38,6 +39,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
+CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 
 class SimpleTests(TestCase):
@@ -543,11 +545,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Always succeeds on localhost :(
             return
 
+        # For now, remove the fullpage.js messages
+        log = [l for l in log if 'fullpage.js 3645:70' not in l['message']]
+        log = [l for l in log if 'fullpage.extensions.min.js 7:819' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
-        print("LOG", num, "actually:", len(log))
-        assert len(log) == num or len(log) == num+3 # TODO temporary for now - +2 for fullpgae errors
+        assert len(log) == num
 
     def _num_log_errors_for_missing_favicon(self):
         if isinstance(self.browser, webdriver.Chrome):
@@ -605,7 +610,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Gets the height of the element """
         return self.browser.find_elements_by_id(elementId)[0].size['height']
 
+    def _is_visible(self, elementId):
+        """ Is the element visible? """
+        elem = self.browser.find_elements_by_id(elementId)[0]
+        if not elem.is_displayed():
+            return False
+
+        # This is useful for fullpage.js slides, where everything returns is_displayed but
+        # some things are way over to the right
+        elemX = elem.location['x']
+        pageWidth = self.browser.execute_script('return window.innerWidth;')
+        return elemX >= 0 and elemX < pageWidth
+
     def _go_to_tab(self, tabId):
+        # speed up fullpage scrolling
+        self.browser.execute_script("fullpage_api.setScrollingSpeed(0);")
         # Scroll to the top to make the menu visible
         self.browser.execute_script("document.documentElement.scrollTop = 0")
 
@@ -615,7 +634,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Implicit wait doesn't work since the elements are loaded,
         # just not visible. Explicitly wait for things to load.
         # TODO replace this with an implicit wait
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -628,6 +647,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         def test_sane_resizing_of(elementId, maxSize):
             self.browser.set_window_size(200, 600)
+            time.sleep(0.3) # fullpage.js needs a beat
             assert self._get_width(elementId) > 180  # don't make too small
 
             self.browser.set_window_size(400, 600)
@@ -642,17 +662,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._upload(FILENAME_MULTIWINNER)
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
-        assert self._get_width("sankey-body") == 0
+        assert not self._is_visible("sankey-body")
         self._go_to_tab("sankey-tab")
-        assert self._get_width("sankey-body") > 0
+        assert self._is_visible("sankey-body")
         test_sane_resizing_of("sankey-body", 1200)
 
         self._upload(FILENAME_THREE_ROUND)
         self._go_to_tab("sankey-tab")
         test_sane_resizing_of("sankey-body", 900)
 
-        self._go_to_tab("tabular-candidate-by-round-tab")
-        test_sane_resizing_of("tabular-by-round-wrapper", 1200)
+        self._go_to_tab("single-table-summary-tab")
+        test_sane_resizing_of("single-table-summary-wrapper", 1200)
 
     def test_oneround(self):
         """ Tests we do something sane in a single-round election """
@@ -671,7 +691,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_element_by_id("uploadButton").click()  # Hit upload
-        assert self._get_width("sankey-body") == 0
+        assert not self._is_visible("sankey-body")
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")
@@ -681,15 +701,15 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert self._get_width("sankey-tab") > 0
+        assert self._is_visible("sankey-tab")
 
         # Finally, toggle it back off
-        self.browser.find_elements_by_id("sankeyOptions")[
-            0].click()  # Open the dropdown
+        self._go_to_tab("settings-tab")
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert self._get_width("sankey-tab") == 0
+        assert not self._is_visible("sankey-tab")
 
         self._assert_log_len(0)
 
@@ -820,6 +840,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the wikicode
         textAreaValues = []
         for elementId in ("wikicode", "htmlembedexport"):
+            self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
+
             # Grab the element and read its value
             textarea = self.browser.find_element_by_id(elementId)
             initialText = textarea.get_attribute('value')
@@ -833,14 +855,20 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Make sure it's different
             assert initialText != textarea.get_attribute('value')
 
-            # Paste
-            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
-            textarea.send_keys('a')
-            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
-            textarea.send_keys(Keys.BACKSPACE)
-            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
-            textarea.send_keys('v')
-            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
+            # Select all, delete, paste
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('a')\
+                                      .key_up('a')\
+                                      .key_up(CONTROL_KEY) \
+                                      .perform()
+            ActionChains(self.browser).key_down(Keys.BACKSPACE)\
+                                      .key_up(Keys.BACKSPACE)\
+                                      .perform()
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('v')\
+                                      .key_up('v')\
+                                      .key_up(CONTROL_KEY) \
+                                      .perform()
 
             # Assert we have the original text back
             self.assertEqual(initialText, textarea.get_attribute('value'))
