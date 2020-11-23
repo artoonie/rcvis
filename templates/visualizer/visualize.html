@@ -26,8 +26,8 @@
 {% endblock %}
 
 {% block maincontent %}
-<div class="section fp-auto-height">
-  <header class="masthead bg-primary text-white text-left pb-0 pt-1" id="masthead"> <!-- dynamically loaded later -->
+<div class="section fp-auto-height" id="visualize-header-deferred-visibility">
+  <header class="masthead bg-primary text-white text-left pb-0 pt-1"> <!-- dynamically loaded later -->
       <p class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</p>
       <p class="font-weight-light mb-0 pl-3">{{ date }}</p>
     <div class="container d-flex align-items-left flex-column ml-0">
@@ -63,7 +63,7 @@
 		<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
 	</h6>
 
-    <div class="slide mt-2" id="barchart" data-anchor="a-barchart" aria-labeledby="barchart-tab">
+    <div class="slide mt-2" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
       <div class="vis-fixed">
           {% include "bargraph/barchart-fixed.html" %}
       </div>
@@ -72,11 +72,11 @@
       </div>
     </div>
 
-    <div class="slide mt-2" id="sankey" data-anchor="a-sankey" aria-labeledby="sankey-tab">
+    <div class="slide mt-2" id="id-sankey" data-anchor="sankey" aria-labeledby="sankey-tab">
         {% include "sankey/sankey.html" %}
     </div>
 
-    <div class="slide mt-2" id="round-by-round" data-anchor="a-round-by-round" aria-labeledby="round-by-round-tab">
+    <div class="slide mt-2" id="id-round-by-round" data-anchor="round-by-round" aria-labeledby="round-by-round-tab">
       <div class="vis-fixed">
           {% include "tabular/tabular-by-round.html" %}
       </div>
@@ -85,19 +85,19 @@
       </div>
     </div>
 
-    <div class="slide mt-2" id="candidate-summary" data-anchor="a-candidate-summary" aria-labeledby="candidate-summary-tab">
+    <div class="slide mt-2" id="id-candidate-summary" data-anchor="candidate-summary" aria-labeledby="candidate-summary-tab">
         {% include "tabular/tabular-by-candidate.html" %}
     </div>
 
-    <div class="slide mt-2" id="single-table-summary" data-anchor="a-single-table-summary" aria-labeledby="single-table-summary-tab">
+    <div class="slide mt-2" id="id-single-table-summary" data-anchor="single-table-summary" aria-labeledby="single-table-summary-tab">
         {% include "tabular/tabular-candidate-by-round.html" %}
     </div>
 
-    <div class="slide mt-2" id="settings" data-anchor="a-settings" aria-labeledby="settings-tab">
+    <div class="slide mt-2" id="id-settings" data-anchor="settings" aria-labeledby="settings-tab">
         {% include "settings/settings-update.html" %}
     </div>
 
-    <div class="slide mt-2" id="share" data-anchor="a-share" role="tabpanel" aria-labelledby="share-tab">
+    <div class="slide mt-2" id="id-share" data-anchor="share" role="tabpanel" aria-labelledby="share-tab">
         {% include "share/share.html" %}
     </div>
 </div>

@@ -1,13 +1,13 @@
 fullpageOptions.verticalCentered = false;
 fullpageOptions.navigation = false;
 fullpageOptions.fitToSection = false;
-fullpageOptions.scrollOverflow = true;
 fullpageOptions.lockAnchors = true;
 fullpageOptions.slidesNavigation = false;
 fullpageOptions.controlArrows = false;
 fullpageOptions.autoScrolling = false;
+fullpageOptions.scrollOverflow = false;
 fullpageOptions.onSlideLeave = function(section, origin, destination, direction) {
-  goToTab(destination.item.id);
+  goToTab(destination.item.getAttribute('data-anchor'));
 }
 fullpageOptions.afterLoad = function(origin, destination, direction) {
   loadTabFromTag();
@@ -17,7 +17,7 @@ fullpageOptions.afterLoad = function(origin, destination, direction) {
 $('.nav-tabs a').on('click', function (e) {
   e.preventDefault()
   const tab = this.id;
-  goToTab(tab.substring(0, tab.length - 4)); // remove "-tab"
+  goToTab(tab.substring(0, tab.length - 4)); // remove "-tab" to get the data-anchor
 })
 
 let currentTab = '';
@@ -26,7 +26,7 @@ function goToTab(tabName) {
   currentTab = tabName;
 
   // Select tab via bootstrap
-  fullpage_api.moveTo(2, 'a-'+tabName)
+  fullpage_api.moveTo(2, tabName)
   $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
 
   // Update whether interactive/static toggle is there
@@ -59,7 +59,7 @@ function hideTabsBasedOnConfig() {
   }
 
   // Dynamically load this when everything else finishes loading so it doesn't flicker the above two tabs
-  $("#masthead").css("display","block");
+  $("#visualize-header-deferred-visibility").css("opacity","1");
 }
 
 function togglePrintFriendly(isPrintFriendly) {

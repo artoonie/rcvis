@@ -546,8 +546,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             return
 
         # For now, remove the fullpage.js messages
-        log = [l for l in log if 'fullpage.js 3645:70' not in l['message']]
-        log = [l for l in log if 'fullpage.extensions.min.js 7:819' not in l['message']]
+        log = [l for l in log if 'This website was made using fullPage.js' not in l['message']]
+        log = [l for l in log if 'https://alvarotrigo' not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)
@@ -566,6 +566,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def _make_url(self, url):
         """ Creates an absolute url using the current server URL """
         return "%s%s" % (self.live_server_url, url)
+
+    def _disable_all_animations(self):
+        script = "var animDisabler = document.createElement('style');\
+                  animDisabler.textContent = '*{ transition: none !important;\
+                                            transition-property: none !important; }';\
+                  document.head.appendChild(animDisabler);"
+        self.browser.execute_script(script)
 
     def open(self, url, prependServer=True):
         """ Opens the given file. If prepend_server is true, turns it into an absolute URL """
@@ -620,7 +627,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # some things are way over to the right
         elemX = elem.location['x']
         pageWidth = self.browser.execute_script('return window.innerWidth;')
-        return elemX >= 0 and elemX < pageWidth
+        return 0 <= elemX < pageWidth
 
     def _go_to_tab(self, tabId):
         # speed up fullpage scrolling
@@ -647,7 +654,6 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         def test_sane_resizing_of(elementId, maxSize):
             self.browser.set_window_size(200, 600)
-            time.sleep(0.3) # fullpage.js needs a beat
             assert self._get_width(elementId) > 180  # don't make too small
 
             self.browser.set_window_size(400, 600)
@@ -660,6 +666,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             assert self._get_width(elementId) <= maxSize  # don't make too big
 
         self._upload(FILENAME_MULTIWINNER)
+
+        self._disable_all_animations();
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
         assert not self._is_visible("sankey-body")
@@ -683,6 +691,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_settings_tab(self):
         """ Tests the functionality of the settings tab """
+        self._disable_all_animations()
+
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
@@ -871,6 +881,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                                       .perform()
 
             # Assert we have the original text back
+            time.sleep(0.2)  # wait for the paste to finish
             self.assertEqual(initialText, textarea.get_attribute('value'))
 
         # Verify the values are sane...somewhat

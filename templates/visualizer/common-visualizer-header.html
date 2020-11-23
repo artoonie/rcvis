@@ -42,12 +42,18 @@
       // There seems to be some protocol that claims the last one is the valid one...so grab the last.
       allValues = searchParams.getAll(key)
       lastValue = allValues[allValues.length - 1]
-      console.log("Key: " + key + "    =   " + lastValue)
       config[key] = lastValue == "on";
     }
   }
 
 </script>
+
+<style>
+  /* Want these to be invisible immediately, not wait for the nonblocking css to get to it */
+  #visualize-header-deferred-visibility {
+      opacity: 0.1;
+  }
+</style>
 
 <meta property="og:title" content="{{ title }}" />
 <meta property="og:description" content="Ranked Choice Voting Election Results for {{ title }}" />
