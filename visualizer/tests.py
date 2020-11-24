@@ -7,6 +7,7 @@ import json
 import os
 import platform
 import time
+from datetime import datetime
 from urllib.parse import urlparse
 
 from django.core.cache import cache
@@ -507,8 +508,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
             capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
             capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
+            capabilities["name"] = os.environ["TRAVIS_JOB_NUMBER"] + ": " + self._testMethodName
             capabilities["commandTimeout"] = 100
             capabilities["maxDuration"] = 1200
+            capabilities["screenResolution"] = "1280x1024"
             capabilities["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
             capabilities["captureHtml"] = True
             capabilities["webdriverRemoteQuietExceptions"] = False
@@ -525,6 +528,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def tearDown(self):
         """ Destroys the selenium browser """
+        if "TRAVIS_BUILD_NUMBER" in os.environ:
+            sauceResult = "passed" if len(self._outcome.errors) == 0 else "failed"
+            self.browser.execute_script("sauce:job-result={}".format(sauceResult))
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
 
@@ -568,11 +574,30 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         return "%s%s" % (self.live_server_url, url)
 
     def _disable_all_animations(self):
+        """ Disables transitions on the current page """
         script = "var animDisabler = document.createElement('style');\
                   animDisabler.textContent = '*{ transition: none !important;\
                                             transition-property: none !important; }';\
                   document.head.appendChild(animDisabler);"
         self.browser.execute_script(script)
+
+    @classmethod
+    def _ensure_eventually_asserts(cls, assertion):
+        """ Waits up to waitTimeSeconds for the assertion to be true """
+        sleepInterval = 0.1
+        maxWaitTimeSeconds = 2.0
+        tic = datetime.now()
+        while True:
+            try:
+                assertion()
+                return True
+            except AssertionError:
+                toc = datetime.now()
+                if (toc - tic).seconds > maxWaitTimeSeconds:
+                    raise
+
+                time.sleep(sleepInterval)
+                sleepInterval *= 1.5
 
     def open(self, url, prependServer=True):
         """ Opens the given file. If prepend_server is true, turns it into an absolute URL """
@@ -626,7 +651,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # This is useful for fullpage.js slides, where everything returns is_displayed but
         # some things are way over to the right
         elemX = elem.location['x']
-        pageWidth = self.browser.execute_script('return window.innerWidth;')
+        pageWidth = self.browser.execute_script('return $(window).width();')
         return 0 <= elemX < pageWidth
 
     def _go_to_tab(self, tabId):
@@ -654,25 +679,41 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         def test_sane_resizing_of(elementId, maxSize):
             self.browser.set_window_size(200, 600)
-            assert self._get_width(elementId) > 180  # don't make too small
+
+            # With the smallest width, ensure it doesn't get too small
+            self._ensure_eventually_asserts(lambda:
+                                            self.assertGreater(self._get_width(elementId), 180))
+
+            # With the rest, ensure it fills the width until maxSize
 
             self.browser.set_window_size(400, 600)
-            assert fits_inside(self._get_width(elementId), 400)
+            self._ensure_eventually_asserts(
+                lambda: self.assertTrue(
+                    fits_inside(
+                        self._get_width(elementId),
+                        400)))
 
             self.browser.set_window_size(600, 600)
-            assert fits_inside(self._get_width(elementId), 600)
+            self._ensure_eventually_asserts(
+                lambda: self.assertTrue(
+                    fits_inside(
+                        self._get_width(elementId),
+                        600)))
 
             self.browser.set_window_size(maxSize, 600)
-            assert self._get_width(elementId) <= maxSize  # don't make too big
+            self._ensure_eventually_asserts(
+                lambda: self.assertLessEqual(
+                    self._get_width(elementId), maxSize))
 
         self._upload(FILENAME_MULTIWINNER)
 
-        self._disable_all_animations();
+        self._disable_all_animations()
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
-        assert not self._is_visible("sankey-body")
+        self._ensure_eventually_asserts(lambda:
+                                        self.assertFalse(self._is_visible("sankey-body")))
         self._go_to_tab("sankey-tab")
-        assert self._is_visible("sankey-body")
+        self.assertTrue(self._is_visible("sankey-body"))
         test_sane_resizing_of("sankey-body", 1200)
 
         self._upload(FILENAME_THREE_ROUND)
@@ -874,15 +915,15 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             ActionChains(self.browser).key_down(Keys.BACKSPACE)\
                                       .key_up(Keys.BACKSPACE)\
                                       .perform()
+            # Note: don't keyup or `v` or saucelabs may double-paste
             ActionChains(self.browser).key_down(CONTROL_KEY)\
                                       .key_down('v')\
-                                      .key_up('v')\
-                                      .key_up(CONTROL_KEY) \
                                       .perform()
 
             # Assert we have the original text back
-            time.sleep(0.2)  # wait for the paste to finish
-            self.assertEqual(initialText, textarea.get_attribute('value'))
+            self._ensure_eventually_asserts(
+                lambda text=initialText, textarea=textarea: self.assertEqual(
+                    text, textarea.get_attribute('value')))
 
         # Verify the values are sane...somewhat
         wiki = textAreaValues[0]
