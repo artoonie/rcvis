@@ -1,4 +1,4 @@
-body{
+body {
   color: #002c59;
   font-family: sans-serif;
   text-align: left;
@@ -17,4 +17,23 @@ h3 {
 }
 h6 {
   font-size: 0.8em;
+}
+.homedescriptor {
+  padding: 50px;
+}
+.fp-slidesNav {
+  text-align: center;
+}
+.fp-prev {
+  border-right-color: #e6e6e6 !important;
+}
+.fp-next {
+  margin-right: 40px;
+  border-left-color: #e6e6e6 !important;
+}
+.vis-fixed {
+  display: none;
+}
+.nav-link {
+  border-radius: 0px;
 }

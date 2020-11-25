@@ -77,7 +77,7 @@ class TabulateByRound:
         self.tabulation = rounds
 
 
-class TabularCandidateByRound:
+class SingleTableSummary:
     tabulation: list  # A list of CandidateTabulation
     rounds: int
 

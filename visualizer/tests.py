@@ -5,7 +5,9 @@ Unit and integration tests for the core visualizer app
 from enum import Enum
 import json
 import os
+import platform
 import time
+from datetime import datetime
 from urllib.parse import urlparse
 
 from django.core.cache import cache
@@ -38,6 +40,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
+CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 
 class SimpleTests(TestCase):
@@ -505,8 +508,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
             capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
             capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
+            capabilities["name"] = os.environ["TRAVIS_JOB_NUMBER"] + ": " + self._testMethodName
             capabilities["commandTimeout"] = 100
             capabilities["maxDuration"] = 1200
+            capabilities["screenResolution"] = "1280x1024"
             capabilities["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
             capabilities["captureHtml"] = True
             capabilities["webdriverRemoteQuietExceptions"] = False
@@ -523,6 +528,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def tearDown(self):
         """ Destroys the selenium browser """
+        if "TRAVIS_BUILD_NUMBER" in os.environ:
+            sauceResult = "passed" if len(self._outcome.errors) == 0 else "failed"
+            self.browser.execute_script("sauce:job-result={}".format(sauceResult))
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
 
@@ -543,6 +551,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Always succeeds on localhost :(
             return
 
+        # For now, remove the fullpage.js messages
+        log = [l for l in log if 'This website was made using fullPage.js' not in l['message']]
+        log = [l for l in log if 'https://alvarotrigo' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
@@ -560,6 +572,32 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def _make_url(self, url):
         """ Creates an absolute url using the current server URL """
         return "%s%s" % (self.live_server_url, url)
+
+    def _disable_all_animations(self):
+        """ Disables transitions on the current page """
+        script = "var animDisabler = document.createElement('style');\
+                  animDisabler.textContent = '*{ transition: none !important;\
+                                            transition-property: none !important; }';\
+                  document.head.appendChild(animDisabler);"
+        self.browser.execute_script(script)
+
+    @classmethod
+    def _ensure_eventually_asserts(cls, assertion):
+        """ Waits up to waitTimeSeconds for the assertion to be true """
+        sleepInterval = 0.1
+        maxWaitTimeSeconds = 2.0
+        tic = datetime.now()
+        while True:
+            try:
+                assertion()
+                return True
+            except AssertionError:
+                toc = datetime.now()
+                if (toc - tic).seconds > maxWaitTimeSeconds:
+                    raise
+
+                time.sleep(sleepInterval)
+                sleepInterval *= 1.5
 
     def open(self, url, prependServer=True):
         """ Opens the given file. If prepend_server is true, turns it into an absolute URL """
@@ -604,7 +642,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Gets the height of the element """
         return self.browser.find_elements_by_id(elementId)[0].size['height']
 
+    def _is_visible(self, elementId):
+        """ Is the element visible? """
+        elem = self.browser.find_elements_by_id(elementId)[0]
+        if not elem.is_displayed():
+            return False
+
+        # This is useful for fullpage.js slides, where everything returns is_displayed but
+        # some things are way over to the right
+        elemX = elem.location['x']
+        pageWidth = self.browser.execute_script('return $(window).width();')
+        return 0 <= elemX < pageWidth
+
     def _go_to_tab(self, tabId):
+        # speed up fullpage scrolling
+        self.browser.execute_script("fullpage_api.setScrollingSpeed(0);")
         # Scroll to the top to make the menu visible
         self.browser.execute_script("document.documentElement.scrollTop = 0")
 
@@ -614,7 +666,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Implicit wait doesn't work since the elements are loaded,
         # just not visible. Explicitly wait for things to load.
         # TODO replace this with an implicit wait
-        time.sleep(0.5)
+        time.sleep(0.3)
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -627,31 +679,49 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         def test_sane_resizing_of(elementId, maxSize):
             self.browser.set_window_size(200, 600)
-            assert self._get_width(elementId) > 180  # don't make too small
+
+            # With the smallest width, ensure it doesn't get too small
+            self._ensure_eventually_asserts(lambda:
+                                            self.assertGreater(self._get_width(elementId), 180))
+
+            # With the rest, ensure it fills the width until maxSize
 
             self.browser.set_window_size(400, 600)
-            assert fits_inside(self._get_width(elementId), 400)
+            self._ensure_eventually_asserts(
+                lambda: self.assertTrue(
+                    fits_inside(
+                        self._get_width(elementId),
+                        400)))
 
             self.browser.set_window_size(600, 600)
-            assert fits_inside(self._get_width(elementId), 600)
+            self._ensure_eventually_asserts(
+                lambda: self.assertTrue(
+                    fits_inside(
+                        self._get_width(elementId),
+                        600)))
 
             self.browser.set_window_size(maxSize, 600)
-            assert self._get_width(elementId) <= maxSize  # don't make too big
+            self._ensure_eventually_asserts(
+                lambda: self.assertLessEqual(
+                    self._get_width(elementId), maxSize))
 
         self._upload(FILENAME_MULTIWINNER)
+
+        self._disable_all_animations()
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
-        assert self._get_width("sankey-body") == 0
+        self._ensure_eventually_asserts(lambda:
+                                        self.assertFalse(self._is_visible("sankey-body")))
         self._go_to_tab("sankey-tab")
-        assert self._get_width("sankey-body") > 0
+        self.assertTrue(self._is_visible("sankey-body"))
         test_sane_resizing_of("sankey-body", 1200)
 
         self._upload(FILENAME_THREE_ROUND)
         self._go_to_tab("sankey-tab")
         test_sane_resizing_of("sankey-body", 900)
 
-        self._go_to_tab("tabular-candidate-by-round-tab")
-        test_sane_resizing_of("tabular-by-round-wrapper", 1200)
+        self._go_to_tab("single-table-summary-tab")
+        test_sane_resizing_of("single-table-summary-wrapper", 1200)
 
     def test_oneround(self):
         """ Tests we do something sane in a single-round election """
@@ -662,6 +732,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_settings_tab(self):
         """ Tests the functionality of the settings tab """
+        self._disable_all_animations()
+
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
@@ -670,7 +742,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_element_by_id("uploadButton").click()  # Hit upload
-        assert self._get_width("sankey-body") == 0
+        assert not self._is_visible("sankey-body")
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")
@@ -680,15 +752,15 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert self._get_width("sankey-tab") > 0
+        assert self._is_visible("sankey-tab")
 
         # Finally, toggle it back off
-        self.browser.find_elements_by_id("sankeyOptions")[
-            0].click()  # Open the dropdown
+        self._go_to_tab("settings-tab")
+        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
         self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert self._get_width("sankey-tab") == 0
+        assert not self._is_visible("sankey-tab")
 
         self._assert_log_len(0)
 
@@ -819,6 +891,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Check the wikicode
         textAreaValues = []
         for elementId in ("wikicode", "htmlembedexport"):
+            self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
+
             # Grab the element and read its value
             textarea = self.browser.find_element_by_id(elementId)
             initialText = textarea.get_attribute('value')
@@ -832,17 +906,24 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Make sure it's different
             assert initialText != textarea.get_attribute('value')
 
-            # Paste
-            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
-            textarea.send_keys('a')
-            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
-            textarea.send_keys(Keys.BACKSPACE)
-            ActionChains(self.browser).key_down(Keys.CONTROL).perform()
-            textarea.send_keys('v')
-            ActionChains(self.browser).key_up(Keys.CONTROL).perform()
+            # Select all, delete, paste
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('a')\
+                                      .key_up('a')\
+                                      .key_up(CONTROL_KEY) \
+                                      .perform()
+            ActionChains(self.browser).key_down(Keys.BACKSPACE)\
+                                      .key_up(Keys.BACKSPACE)\
+                                      .perform()
+            # Note: don't keyup or `v` or saucelabs may double-paste
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('v')\
+                                      .perform()
 
             # Assert we have the original text back
-            self.assertEqual(initialText, textarea.get_attribute('value'))
+            self._ensure_eventually_asserts(
+                lambda text=initialText, textarea=textarea: self.assertEqual(
+                    text, textarea.get_attribute('value')))
 
         # Verify the values are sane...somewhat
         wiki = textAreaValues[0]

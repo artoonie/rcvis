@@ -5,7 +5,7 @@ Export a single table summary to Wikipedia
 import datetime
 
 from visualizer import common
-from visualizer.tabular.tabular import TabularCandidateByRound
+from visualizer.tabular.tabular import SingleTableSummary
 
 
 class WikipediaExport():
@@ -112,10 +112,10 @@ class WikipediaExport():
 
     def _create_table_body(self):
         """ Creates the body of the table """
-        tabularCandidateByRound = TabularCandidateByRound(self.graph).tabulation
+        singleTableSummary = SingleTableSummary(self.graph).tabulation
 
         body = ""
-        for candidateTabulation in tabularCandidateByRound:
+        for candidateTabulation in singleTableSummary:
             # Get the candidate name - sorted if possible
             name = candidateTabulation.name
             sortableName = self._get_sortable_referenced_name_if_possible(name)

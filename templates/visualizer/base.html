@@ -6,16 +6,25 @@
 <head>
 {% include "visualizer/common-header.html" %}
 
+<script type="text/javascript">
+    fullpageOptions.scrollOverflow = true;
+</script>
+
 {% block header %}
 {% endblock %}
 
 </head>
 
 <body id="page-top">
+{% block beforeFullpage %}
+{% endblock %}
+
+<div id="fullpage">
   <!-- Navigation -->
+ <div class="section fp-auto-height">
   <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="/index.html"><img src="{% static 'visualizer/logo.png' %}" width="88" style="margin-left: 50px" alt="RCVIS logo" /></a>
+        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo.png' %}" width="60" style="margin-left: 50px" alt="RCVIS logo" /></a>
       <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         Menu
         <i class="fas fa-bars"></i>
@@ -28,11 +37,12 @@
       </div>
     </div>
   </nav>
+ </div>
 
 {% block maincontent %}
 {% endblock %}
-
   <!-- Footer -->
+ <div class="section fp-auto-height">
   <footer class="footer text-center">
     <div class="container">
       <div class="row">
@@ -78,17 +88,16 @@
       <small>Copyright &copy; Armin Samii 2020</small>
     </div>
   </section>
+ </div>
+</div>
 
-  <!-- Scroll to Top Button (Only visible on small and extra-small screen sizes) -->
-  <div class="scroll-to-top d-lg-none position-fixed ">
-    <a class="js-scroll-trigger d-block text-center text-white rounded" href="#page-top">
-      <i class="fa fa-chevron-up"></i>
-    </a>
-  </div>
-
-{% block etc %}
+{% block afterFullpage %}
 {% endblock %}
+
+<script type="text/javascript">
+  new fullpage('#fullpage', fullpageOptions);
+</script>
+
 </body>
 
 </html>
-

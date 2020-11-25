@@ -8,7 +8,7 @@ from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
     TabulateByCandidate,\
-    TabularCandidateByRound
+    SingleTableSummary
 
 
 def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
@@ -35,7 +35,7 @@ def get_data_for_view(config):
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
-    tabularCandidateByRound = TabularCandidateByRound(graph)
+    singleTableSummary = SingleTableSummary(graph)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph)
     offlineMode = OFFLINE_MODE
@@ -46,7 +46,7 @@ def get_data_for_view(config):
         'bargraphjs': d3Bargraph.js,
         'sankeyjs': d3Sankey.js,
         'tabularByCandidate': tabularByCandidate,
-        'tabularCandidateByRound': tabularCandidateByRound,
+        'singleTableSummary': singleTableSummary,
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'offlineMode': offlineMode,
