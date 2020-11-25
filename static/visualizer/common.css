@@ -19,7 +19,10 @@ h6 {
   font-size: 0.8em;
 }
 .homedescriptor {
-  padding: 50px;
+  padding-top: 20px;
+  padding-left: 50px;
+  padding-right: 50px;
+  padding-bottom: 30px;
 }
 .fp-slidesNav {
   text-align: center;
@@ -38,24 +41,22 @@ h6 {
   border-radius: 0px;
 }
 .video-container {
-  position:relative;
-  padding-bottom:56.25%;
-  padding-top:30px;
-  height:0;
-  overflow:hidden;
+  padding: 0px;
+  height:80%;
+  max-width: 700px; /* 560 / 0.8: width of video over % width */
+  max-height: 315px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .video-container iframe {
-  display: block;
-  position:absolute;
   top:0;
   left:0;
   width:80%;
-  height:80%;
   margin-left: 10%;
   margin-right: 10%;
 }
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 868px) {
   /* For mobile phones: */
   .page-section-heading {
       font-size: 1.4em;
@@ -69,9 +70,17 @@ h6 {
     border-width: 20px 0 20px 20px !important;
   }
   .homedescriptor {
-    padding: 40px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    padding-left: 40px;
+    padding-right: 40px;
   }
   .btn {
     font-size: 0.8rem;
+  }
+}
+@media only screen and (max-height: 400px) {
+  .img-fluid {
+    max-width: 250px;
   }
 }
