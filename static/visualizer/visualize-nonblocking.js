@@ -6,6 +6,7 @@ fullpageOptions.slidesNavigation = false;
 fullpageOptions.controlArrows = false;
 fullpageOptions.autoScrolling = false;
 fullpageOptions.scrollOverflow = false;
+fullpageOptions.bigSectionsDestination = 'top';
 fullpageOptions.onSlideLeave = function(section, origin, destination, direction) {
   goToTab(destination.item.getAttribute('data-anchor'));
 }
