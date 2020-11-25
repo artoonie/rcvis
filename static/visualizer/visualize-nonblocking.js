@@ -4,8 +4,9 @@ fullpageOptions.fitToSection = false;
 fullpageOptions.lockAnchors = true;
 fullpageOptions.slidesNavigation = false;
 fullpageOptions.controlArrows = false;
-fullpageOptions.autoScrolling = false;
-fullpageOptions.scrollOverflow = false;
+fullpageOptions.autoScrolling = true;
+fullpageOptions.scrollOverflow = true;
+fullpageOptions.scrollBar = false;
 fullpageOptions.bigSectionsDestination = 'top';
 fullpageOptions.onSlideLeave = function(section, origin, destination, direction) {
   goToTab(destination.item.getAttribute('data-anchor'));

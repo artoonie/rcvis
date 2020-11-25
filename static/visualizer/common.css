@@ -28,12 +28,50 @@ h6 {
   border-right-color: #e6e6e6 !important;
 }
 .fp-next {
-  margin-right: 40px;
   border-left-color: #e6e6e6 !important;
+  right: 45px !important;
 }
 .vis-fixed {
   display: none;
 }
 .nav-link {
   border-radius: 0px;
+}
+.video-container {
+  position:relative;
+  padding-bottom:56.25%;
+  padding-top:30px;
+  height:0;
+  overflow:hidden;
+}
+
+.video-container iframe {
+  display: block;
+  position:absolute;
+  top:0;
+  left:0;
+  width:80%;
+  height:80%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .page-section-heading {
+      font-size: 1.4em;
+  }
+  .fp-prev {
+    left: 5px !important;
+    border-width: 20px 15px 20px 0 !important;
+  }
+  .fp-next {
+    right: 5px !important;
+    border-width: 20px 0 20px 20px !important;
+  }
+  .homedescriptor {
+    padding: 40px;
+  }
+  .btn {
+    font-size: 0.8rem;
+  }
 }
