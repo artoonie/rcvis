@@ -1,0 +1,20 @@
+.nav-link {
+  border-radius: 0px;
+}
+
+.vis-wrapper {
+  /* initially everything is hidden, js will enable */
+  display: none;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+.vis-fixed {
+  display: none;
+}
+
+@media only screen and (max-width: 868px) {
+  .btn {
+    font-size: 0.8rem;
+  }
+}

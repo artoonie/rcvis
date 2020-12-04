@@ -1,42 +1,35 @@
-fullpageOptions.verticalCentered = false;
-fullpageOptions.navigation = false;
-fullpageOptions.fitToSection = false;
-fullpageOptions.lockAnchors = true;
-fullpageOptions.slidesNavigation = false;
-fullpageOptions.controlArrows = false;
-fullpageOptions.autoScrolling = true;
-fullpageOptions.scrollOverflow = true;
-fullpageOptions.scrollBar = false;
-fullpageOptions.bigSectionsDestination = 'top';
-fullpageOptions.onSlideLeave = function(section, origin, destination, direction) {
-  goToTab(destination.item.getAttribute('data-anchor'));
-}
-fullpageOptions.afterLoad = function(origin, destination, direction) {
-  loadTabFromTag();
-}
-
-// Handle bootstrap nav clicks, forward them to fullpage.js
+// Handle bootstrap nav clicks
 $('.nav-tabs a').on('click', function (e) {
   e.preventDefault()
   const tab = this.id;
   goToTab(tab.substring(0, tab.length - 4)); // remove "-tab" to get the data-anchor
 })
 
-let currentTab = '';
-function goToTab(tabName) {
-  if (tabName == currentTab) return;
-  currentTab = tabName;
+let currentTabName = null;
+
+function swapTabVisibility(oldTabName, newTabName) {
+  if (oldTabName != null) {
+    const oldTabId = 'id-' + oldTabName;
+    document.getElementById(oldTabId).style.display = 'none';
+  }
+  const newTabId = 'id-' + newTabName;
+  document.getElementById(newTabId).style.display = 'block';
+}
+
+function goToTab(newTabName) {
+  if (newTabName == currentTabName) return;
 
   // Select tab via bootstrap
-  fullpage_api.moveTo(2, tabName)
-  $('.nav-tabs a[href="#' + tabName + '"]').tab('show');
+  swapTabVisibility(currentTabName, newTabName);
+  currentTabName = newTabName;
+  $('.nav-tabs a[href="#' + newTabName + '"]').tab('show');
 
   // Update whether interactive/static toggle is there
-  const canBeDynamic = tabName == 'barchart' || tabName == 'round-by-round';
+  const canBeDynamic = newTabName == 'barchart' || newTabName == 'round-by-round';
   document.getElementById('toggle-dynamic').style.display = canBeDynamic ? 'block' : 'none';
 
   // Update history
-  history.pushState(null,null,'#' + tabName)
+  history.pushState(null,null,'#' + newTabName)
 }
 
 function loadTabFromTag() {
@@ -87,4 +80,5 @@ document.getElementById("make-interactive").addEventListener("click", function(e
   return false;
 });
 
+loadTabFromTag();
 hideTabsBasedOnConfig()

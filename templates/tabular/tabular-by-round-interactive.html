@@ -5,46 +5,46 @@
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 {% endcompress %}
 
-<div class="row align-items-center">
-    <div class="col-sm"><div id="slider-step-tabular"></div></div>
-</div>
-
 <div class="responsive-table-wrapper">
-<div id="tabularByRoundInteractiveContainer" class="responsive-table">
-{% for round in tabularByRoundInteractive.rounds %}
-<div id="tabbular_round_container_{{ forloop.counter }}">
-<h4>Round {{ forloop.counter }}</h4>
-<table class="table">
-    <thead class="thead-light">
-        <tr>
-            <th scope="col">Candidate</th>
-            <th scope="col" class="cell-with-padding">What changed</th>
-            <th scope="col" class="cell-with-padding">Current total votes</th>
-        </tr>
-    </thead>
+  <div class="col-12">
+    <div id="slider-step-tabular"></div>
+  </div>
 
-    <tbody>
-        {% for candidate in round %}
-        {% if candidate.wonThisRound %}
-        <tr style="background-color: #BFFFCC">
-        {% elif candidate.eliminatedThisRound %}
-        <tr style="background-color: #FFBFBF">
-        {% elif candidate.isWinner %}
-        <tr style="background-color: #E8FFE9">
-        {% elif candidate.isEliminated %}
-        <tr style="background-color: #FFE8E8">
-        {% else  %}
-        <tr style="background-color: #fff">
-        {% endif %}
-            <th scope="row">{{ candidate.name }}</th>
-            <td class="cell-with-padding">{{ candidate.change }}</td>
-            <td class="cell-with-padding"><strong>{{ candidate.primaryLabel }}</strong><br/>
-                                                  {{ candidate.secondaryLabel }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-</div>
-{% endfor %}
-</div>
+  <div id="tabularByRoundInteractiveContainer" class="responsive-table">
+    {% for round in tabularByRoundInteractive.rounds %}
+      <div id="tabbular_round_container_{{ forloop.counter }}">
+        <h4>Round {{ forloop.counter }}</h4>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">Candidate</th>
+              <th scope="col" class="cell-with-padding">What changed</th>
+              <th scope="col" class="cell-with-padding">Current total votes</th>
+            </tr>
+          </thead>
+        
+          <tbody>
+            {% for candidate in round %}
+              {% if candidate.wonThisRound %}
+              <tr style="background-color: #BFFFCC">
+              {% elif candidate.eliminatedThisRound %}
+              <tr style="background-color: #FFBFBF">
+              {% elif candidate.isWinner %}
+              <tr style="background-color: #E8FFE9">
+              {% elif candidate.isEliminated %}
+              <tr style="background-color: #FFE8E8">
+              {% else  %}
+              <tr style="background-color: #fff">
+              {% endif %}
+                  <th scope="row">{{ candidate.name }}</th>
+                  <td class="cell-with-padding">{{ candidate.change }}</td>
+                  <td class="cell-with-padding"><strong>{{ candidate.primaryLabel }}</strong><br/>
+                                                        {{ candidate.secondaryLabel }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
+  </div>
 </div>

@@ -1,11 +1,21 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
+{% load compress %}
 
 {% block header %}
-  <script>
-      fullpageOptions.anchors = ['top-of-page', 'intro', 'whatis', 'types-header', 'types', 'examples', 'external-header', 'external', 'bottom-of-page'];
-      fullpageOptions.recordHistory = false;
-  </script>
+  {% if offlineMode %}
+    <link rel="stylesheet" type="text/css" href="{% static 'localdeps/fullpage.css' %}" />
+    <script type="text/javascript" src="{% static 'localdeps/fullpage.js' %}"></script>
+    <script type="text/javascript" src="{% static 'localdeps/scrolloverflow.js' %}"></script>
+  {% else %}
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.css" /> 
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/vendors/scrolloverflow.min.js"></script>
+  {% endif %}
+
+  {% compress css file %}
+    <link rel="stylesheet" href="{% static "visualizer/index.css" %}">
+  {% endcompress %}
 {% endblock %}
 
 {% block navlinks %}
@@ -166,5 +176,20 @@
 {% endblock %}
 
 {% block afterFullpage %}
-    {% include "visualizer/common-visualizer-nonblocking.html" %}
+    {% include "visualizer/common-nonblocking.html" %}
+
+    <script type="text/javascript">
+      var fullpageOptions = {
+        licenseKey: '2UdvWJL?b5',
+        navigation: true,
+        verticalCentered: true,
+        slidesNavigation: true,
+        sectionsColor: ['', '#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa'],
+        anchors: ['top-of-page', 'intro', 'whatis', 'types-header', 'types', 'examples', 'external-header', 'external', 'bottom-of-page'],
+        recordHistory: false,
+        scrollOverflow: true,
+      };
+
+      new fullpage('#fullpage', fullpageOptions);
+    </script>
 {% endblock %}

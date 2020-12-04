@@ -6,7 +6,7 @@
 }
 .responsive-table-wrapper {
     width: 100%;
-    overflow-x: scroll;
+    overflow-x: auto;
 }
 .cell-with-padding {
     padding-left: 40px !important;
