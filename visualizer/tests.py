@@ -655,18 +655,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         return 0 <= elemX < pageWidth
 
     def _go_to_tab(self, tabId):
-        # speed up fullpage scrolling
-        self.browser.execute_script("fullpage_api.setScrollingSpeed(0);")
-        # Scroll to the top to make the menu visible
-        self.browser.execute_script("document.documentElement.scrollTop = 0")
-
-        # click
         self.browser.find_elements_by_id(tabId)[0].click()
-
-        # Implicit wait doesn't work since the elements are loaded,
-        # just not visible. Explicitly wait for things to load.
-        # TODO replace this with an implicit wait
-        time.sleep(0.3)
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """

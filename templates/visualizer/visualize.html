@@ -11,6 +11,10 @@
         type="application/json+oembed"
         href="{{ oembed_url }}"
         title="{{ title }}" />
+
+  {% compress css file %}
+      <link rel="stylesheet" href="{% static "visualizer/visualize.css" %}">
+  {% endcompress %}
 {% endblock %} 
 
 {% block navlinks %}
@@ -63,7 +67,7 @@
 		<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
 	</h6>
 
-    <div class="slide mt-2" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
+    <div class="vis-wrapper" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
       <div class="vis-fixed">
           {% include "bargraph/barchart-fixed.html" %}
       </div>
@@ -72,11 +76,11 @@
       </div>
     </div>
 
-    <div class="slide mt-2" id="id-sankey" data-anchor="sankey" aria-labeledby="sankey-tab">
+    <div class="vis-wrapper" id="id-sankey" data-anchor="sankey" aria-labeledby="sankey-tab">
         {% include "sankey/sankey.html" %}
     </div>
 
-    <div class="slide mt-2" id="id-round-by-round" data-anchor="round-by-round" aria-labeledby="round-by-round-tab">
+    <div class="vis-wrapper" id="id-round-by-round" data-anchor="round-by-round" aria-labeledby="round-by-round-tab">
       <div class="vis-fixed">
           {% include "tabular/tabular-by-round.html" %}
       </div>
@@ -85,19 +89,19 @@
       </div>
     </div>
 
-    <div class="slide mt-2" id="id-candidate-summary" data-anchor="candidate-summary" aria-labeledby="candidate-summary-tab">
+    <div class="vis-wrapper" id="id-candidate-summary" data-anchor="candidate-summary" aria-labeledby="candidate-summary-tab">
         {% include "tabular/tabular-by-candidate.html" %}
     </div>
 
-    <div class="slide mt-2" id="id-single-table-summary" data-anchor="single-table-summary" aria-labeledby="single-table-summary-tab">
+    <div class="vis-wrapper" id="id-single-table-summary" data-anchor="single-table-summary" aria-labeledby="single-table-summary-tab">
         {% include "tabular/tabular-candidate-by-round.html" %}
     </div>
 
-    <div class="slide mt-2" id="id-settings" data-anchor="settings" aria-labeledby="settings-tab">
+    <div class="vis-wrapper" id="id-settings" data-anchor="settings" aria-labeledby="settings-tab">
         {% include "settings/settings-update.html" %}
     </div>
 
-    <div class="slide mt-2" id="id-share" data-anchor="share" role="tabpanel" aria-labelledby="share-tab">
+    <div class="vis-wrapper" id="id-share" data-anchor="share" role="tabpanel" aria-labelledby="share-tab">
         {% include "share/share.html" %}
     </div>
 </div>

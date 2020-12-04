@@ -9,13 +9,6 @@ function handleFiles(files)
   document.getElementById("options").style.opacity = '100%'
   document.getElementById("uploadButton").disabled = false;
 }
-
-// Essentially disable fullpage.js here
-fullpageOptions.scrollOverflow = false;
-fullpageOptions.autoScrolling = false;
-fullpageOptions.navigation = false;
-fullpageOptions.fitToSection = false;
-
 </script>
 
   <div class="mb-2 mt-2" id="header">
@@ -36,7 +29,7 @@ fullpageOptions.fitToSection = false;
   <div class="mb-2 mt-2" id="fileselection">
     <div class="selectFileButtonWrapper">
       <button id="selectFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json csv"  onchange="handleFiles(this.files)"/>
+      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv"  onchange="handleFiles(this.files)"/>
     </div>
 
     <div class="narrowbox">
