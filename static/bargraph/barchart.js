@@ -1,5 +1,17 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
 function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
+  // First, transpose the data into layers
+  mappedData = candidatesRange.map(function(roundInfo) {
+    return data.map(function(d) {
+      return {x: d.candidate, y: d[roundInfo]};
+    });
+  });
+  var candidateNames = mappedData[0].map(c => c.x);
+  var roundNames = Object.keys(data[0]).slice(1)
+  var numRounds = roundNames.length;
+  var stackSeries = d3.stack().keys(roundNames)(data);
+
+  // Now do some magic to figure out the right size
   longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
   var margin = {top: 10, right: 10, bottom: 35, left: 20};
   if(isVertical) {
@@ -8,7 +20,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       margin.top += 20; // Room for data label
   }
   else {
-      margin.left += longestLabelApxWidth + 20;// Room for candidate name
+      margin.left = 5; // Candidate name overlaps bars
       margin.bottom += 20; // Room for candidate name diagonally down
       margin.right += 50; // Room for data label
   }
@@ -23,6 +35,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var roomForStuffAboveUs = 150;
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   var maxHeight = Math.max(maxWidth * aspectRatio, 350);
+  if (!isVertical) {
+      var minimumHorizontalBarSize = 75;
+      maxHeight = Math.min(maxHeight, numRounds*minimumHorizontalBarSize);
+  }
   
   var width = maxWidth - margin.left - margin.right,
       height = maxHeight - margin.top - margin.bottom;
@@ -48,17 +64,6 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
         .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" )
         .style("stroke", "white")
         .style("stroke-width", 1);
-
-  // Transpose the data into layers
-  mappedData = candidatesRange.map(function(roundInfo) {
-    return data.map(function(d) {
-      return {x: d.candidate, y: d[roundInfo]};
-    });
-  });
-  var candidateNames = mappedData[0].map(c => c.x);
-  var roundNames = Object.keys(data[0]).slice(1)
-  var numRounds = roundNames.length;
-  var stackSeries = d3.stack().keys(roundNames)(data);
   
   // Set x, y and colors
   var candidatesDomain = d3.scaleBand()
@@ -95,11 +100,11 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   else
   {
     var candidatesAxis = g => g
-          .attr("transform", `translate(${margin.left},0)`)
-          .call(d3.axisLeft(candidatesRange).ticks(null, "s"))
+          .attr("transform", `translate(20,0)`)
+          .call(d3.axisLeft(candidatesRange).tickSize(0))
           .call(g => g.selectAll(".domain").remove())
     var votesAxis = g => g
-          .attr("transform", `translate(0,${height - margin.bottom + 50})`)
+          .attr("transform", `translate(0,${height - margin.bottom + 60})`)
           .call(d3.axisBottom(votesRange).tickSizeOuter(0))
           .call(g => g.selectAll(".domain").remove())
   }
@@ -131,6 +136,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
 
   // Draw everything
   function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
+  function isEliminatedThisRound(d) { return d.numRoundsTilEliminated <= d.round; }
   function isWinner(d) { return d.numRoundsTilWin < currRound; }
   var currRound = numRounds;
   var barVotesSizeHelperFn = function(d) {
@@ -180,15 +186,16 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   };
 
   // Data label helper functions
-  var isEliminationDataLabelFn = function(d) {
-      return d.numRoundsTilEliminated < d.round+1;
-  }
   var barVotesMainDataLabelPosFn = function(d) {
       // I hate this function. We need to do some magic because in vertical mode,
       // "up" is negative, whereas in horizontal, "right" is positive.
-      var offset = isVertical ? -15 : 15;
+      if (!isVertical) {
+        return 20 + barVotesPosFn([threshold, threshold]);
+      }
+
+      var offset = -15;
       var startOfBarPlusABit = barVotesPosFn(d) + offset;
-      if (isEliminationDataLabelFn(d))
+      if (isEliminatedThisRound(d))
       {
           // Eliminated candidates
           return votesRange(0) + offset;
@@ -199,14 +206,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           return startOfBarPlusABit + barVotesSizeFn(d);
       }
 
-      if (isVertical)
-      {
-        return startOfBarPlusABit;
-      }
-      else
-      {
-        return startOfBarPlusABit + barVotesSizeFn(d);
-      }
+      return startOfBarPlusABit;
   };
   var barCandidatesDataLabalPosFn = function(d) {
       if (isVertical)
@@ -221,18 +221,13 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       return candidatesRange(d.data.candidate) + offset;
   };
   function isLatestRoundFor(d) {
-      if(isEliminated(d))
-      {
+      if(isEliminated(d)) {
         // If we've been eliminated by now, then check if this round is the last round alive
         return d.numRoundsTilEliminated == d.round;
-      }
-      else if(isWinner(d))
-      {
+      } else if(isWinner(d)) {
         // A candidate can win at any time. Only include the round on which they won.
         return d.numRoundsTilWin == d.round;
-      }
-      else
-      {
+      } else {
         // Otherwise, check if this round is the latest available round
         return currRound == d.round+1;
       }
@@ -241,8 +236,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var mainDataLabelTextFn = function(d) {
       // Horizontal shows "[eliminated]" or "x votes (y%)"
       // Vertical shows "[x]" or "x votes", and percent is shown on secondaryDataLabelTextFn
-      if(isEliminationDataLabelFn(d))
-      {
+      if(isEliminatedThisRound(d)) {
           return isVertical ? "❌ "  :  "[eliminated]";
       }
       startText = "";
@@ -258,16 +252,60 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       }
   };
   var secondaryDataLabelTextFn = function(d) {
-      if(isEliminationDataLabelFn(d) || !isVertical)
-      {
+      if(isEliminatedThisRound(d) || !isVertical) {
           return "";
       }
       return percentToText(d.data["candidate"], d[1], totalVotesPerRound[d.round]);
   };
+  function rightRoundedRect(x, y, width, height, radius) {
+      return "M" + x + "," + y
+           + "h" + (width - radius)
+           + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+           + "v" + (height - 2 * radius)
+           + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+           + "h" + (radius - width)
+           + "z";
+  }
+  function leftRoundedRect(x, y, width, height, radius) {
+      return "M" + x + "," + (y+radius)
+           + "a" + radius + "," + -radius + " 0 0 1 " + radius + "," + -radius
+           + "h" + width
+           + "v" + height
+           + "h" + (-width)
+           + "a" + -radius + "," + -radius + " 0 0 1 " + -radius + "," + -radius
+           + "z";
+  }
+  function topRoundedRect(x, y, width, height, radius) {
+      return "M" + x + "," + (y+radius)
+           + "a" + radius + "," + -radius + " 0 0 1 " + radius + "," + -radius
+           + "h" + (width - 2*radius)
+           + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+           + "v" + (height-radius)
+           + "h" + (-width)
+           + "z";
+  }
+  function allRoundedRect(x, y, width, height, radius) {
+      return "M" + x + "," + (y+radius)
+           + "a" + radius + "," + -radius + " 0 0 1 " + radius + "," + -radius
+           + "h" + (width - radius)
+           + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
+           + "v" + (height - 2*radius)
+           + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
+           + "h" + (-width + radius)
+           + "a" + -radius + "," + -radius + " 0 0 1 " + -radius + "," + -radius
+           + "z";
+  }
+  function notRoundedRect(x, y, width, height) {
+      return "M" + x + "," + y
+           + "h" + width
+           + "v" + height
+           + "h" + (-width)
+           + "z";
+  }
 
   // Hover text helper
   var barTextFn = function(d) {
-      var text = !isEliminated(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
+      var text = !isEliminatedThisRound(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
       return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
   };
 
@@ -285,14 +323,20 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
         // We're doing a naughty thing and assuming that the number of keys minus one is the
         // number of rounds this candidate survivided (the keys are each round + one for "candidate").
         // We verify that assumption by looking at the max number of rounds after this loop.
-        var numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 1;
+        // Note: we ensure 0-indexing for consistency with d.rounds
+        var numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 2;
 
         candidateName = d[candidate_i].data["candidate"]
         d[candidate_i].round = i;
-        d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
         d[candidate_i].numRoundsTilWin = numRoundsTilWin[candidateName]
         d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= i
-        maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated);
+        maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated+1);
+
+        // When/if they're eliminated
+        if (numRoundsTilEliminated == numRounds-1) {
+          numRoundsTilEliminated = numRounds + 1; // i.e. never eliminated
+        }
+        d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
       }
 
       if(maxNumRounds != numRounds)
@@ -303,8 +347,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       return d;
     });
 
-  if (isVertical)
-  {
+  if (isVertical) {
     var candidatePosStr = "x";
     var votesPosStr = "y";
     var candidateSizeStr = "width";
@@ -316,12 +359,48 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     var votesSizeStr = "width";
   }
   eachBar
-    .join("rect")
+    .join("path")
       .attr("class", "eachBar")
-      .attr(candidatePosStr, d => candidatesRange(d.data.candidate))
-      .attr(votesPosStr, barVotesPosFn)
-      .attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
-      .attr(votesSizeStr, barVotesSizeFn)
+      .attr("d", function(d) {
+            let x = candidatesRange(d.data.candidate);
+            let y = barVotesPosFn(d);
+            let width = candidatesRange.bandwidth() * 0.9;
+            let height = barVotesSizeFn(d);
+            const r = 4;
+
+            if (height == 0) {
+              // Don't draw a strip of a radius on eliminated rounds
+              return '';
+            }
+
+            if (!isVertical) {
+              [x, y] = [y, x];
+              [width, height] = [height, width];
+            }
+
+            if (d.round == 0 && isEliminatedThisRound(d)) {
+              // Eliminated on first round - round on all sides on horizontal, top on vertical
+              if (isVertical) return  topRoundedRect(x, y, width, height, r);
+              else            return allRoundedRect(x, y, width, height, r);
+            }
+            else if (d.round == 0) {
+              // First round (vertical gets no rounding on first round)
+              if (isVertical) return  notRoundedRect(x, y, width, height, r);
+              else            return leftRoundedRect(x, y, width, height, r);
+            } else if (isLatestRoundFor(d)) {
+              // Last round 
+              if (isVertical) return   topRoundedRect(x, y, width, height, r);
+              else            return rightRoundedRect(x, y, width, height, r);
+            } else {
+              // Middle rounds
+              return notRoundedRect(x, y, width, height);
+            }
+        }
+      )
+      //.attr(candidatePosStr, d => candidatesRange(d.data.candidate))
+      //.attr(votesPosStr, barVotesPosFn)
+      //.attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
+      //.attr(votesSizeStr, barVotesSizeFn)
       .attr("fill", barColorFn)
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
@@ -349,12 +428,21 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
    }
 
   let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth);
-  svg.append("g")
-      .call(candidatesAxis)
-      .selectAll("text")  
-        .style("text-anchor", "end")
-        .attr("font-size", candidateAxisTextSizeEm)
-        .attr("transform", "rotate(-45)");
+  if (isVertical) {
+    svg.append("g")
+        .call(candidatesAxis)
+        .selectAll("text")  
+          .style("text-anchor", "end")
+          .attr("font-size", candidateAxisTextSizeEm)
+          .attr("transform", "rotate(-45)");
+  }
+  else {
+    svg.append("g")
+        .call(candidatesAxis)
+        .selectAll("text")  
+          .style("text-anchor", "start")
+          .attr("font-size", candidateAxisTextSizeEm);
+  }
 
   svg.append("g")
       .call(votesAxis)
@@ -371,7 +459,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   svg.append("line")
       .attr(candidatePosStr + "1", thresh_x1)
       .attr(votesPosStr     + "1", thresh_y1)
-      .attr(candidatePosStr + "2", thresh_x1 + isVertical ? width : height)
+      .attr(candidatePosStr + "2", thresh_x1 + (isVertical ? width : height))
       .attr(votesPosStr     + "2", thresh_y1 + 0.5)
        .style("stroke", "#AAA")
        .style("stroke-dasharray", ("5, 5"))
@@ -408,7 +496,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   // Return animation controls
   var transitionEachBarForRound = function(round) {
     currRound = round;
-    eachBar.enter().selectAll("rect.eachBar").transition()
+    eachBar.enter().selectAll("path.eachBar").transition()
         .duration(100)
         .delay(0)
         .attr(votesPosStr, barVotesPosFn)
