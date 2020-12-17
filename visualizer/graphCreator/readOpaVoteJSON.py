@@ -66,7 +66,8 @@ class JSONReader(TabulatedResultsReaderBase):
 
         def load_graph(data):
             numRounds = len(data['rounds'])
-            graph = Graph(data['title'], 0)
+            threshold = sum(data['rounds'][-1]['count']) / (data['n_seats'] + 1)
+            graph = Graph(data['title'], threshold)
 
             candidateItems = initialize_candidates(data, graph)
             rounds = []
