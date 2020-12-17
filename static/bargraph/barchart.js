@@ -302,6 +302,41 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
            + "h" + (-width)
            + "z";
   }
+  function getMaybeRoundedBarFor(object, data) {
+      let x = candidatesRange(data.data.candidate);
+      let y = barVotesPosFn(data);
+      let width = candidatesRange.bandwidth() * 0.9;
+      let height = barVotesSizeFn(data);
+      const r = 4;
+
+      if (height == 0 || width == 0) {
+        // Don't draw a strip of a radius on eliminated rounds
+        return '';
+      }
+
+      if (!isVertical) {
+        [x, y] = [y, x];
+        [width, height] = [height, width];
+      }
+
+      if (data.round == 0 && isEliminatedThisRound(data)) {
+        // Eliminated on first round - round on all sides on horizontal, top on vertical
+        if (isVertical) return  topRoundedRect(x, y, width, height, r);
+        else            return allRoundedRect(x, y, width, height, r);
+      }
+      else if (data.round == 0) {
+        // First round (vertical gets no rounding on first round)
+        if (isVertical) return  notRoundedRect(x, y, width, height);
+        else            return leftRoundedRect(x, y, width, height, r);
+      } else if (isLatestRoundFor(data)) {
+        // Last round 
+        if (isVertical) return   topRoundedRect(x, y, width, height, r);
+        else            return rightRoundedRect(x, y, width, height, r);
+      } else {
+        // Middle rounds
+        return notRoundedRect(x, y, width, height);
+      }
+  }
 
   // Hover text helper
   var barTextFn = function(d) {
@@ -313,9 +348,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
     .selectAll("g")
     .data(stackSeries)
     .join("g")
-    .selectAll("rect")
+    .selectAll("path")
     .data(function(d, i) {
-      // This function is an entire round
+      // @param d The data on the bars
+      // @param i The round number
       var numCandidates = d.length;
       var maxNumRounds = 0;
       for(var candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
@@ -361,46 +397,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   eachBar
     .join("path")
       .attr("class", "eachBar")
-      .attr("d", function(d) {
-            let x = candidatesRange(d.data.candidate);
-            let y = barVotesPosFn(d);
-            let width = candidatesRange.bandwidth() * 0.9;
-            let height = barVotesSizeFn(d);
-            const r = 4;
-
-            if (height == 0) {
-              // Don't draw a strip of a radius on eliminated rounds
-              return '';
-            }
-
-            if (!isVertical) {
-              [x, y] = [y, x];
-              [width, height] = [height, width];
-            }
-
-            if (d.round == 0 && isEliminatedThisRound(d)) {
-              // Eliminated on first round - round on all sides on horizontal, top on vertical
-              if (isVertical) return  topRoundedRect(x, y, width, height, r);
-              else            return allRoundedRect(x, y, width, height, r);
-            }
-            else if (d.round == 0) {
-              // First round (vertical gets no rounding on first round)
-              if (isVertical) return  notRoundedRect(x, y, width, height, r);
-              else            return leftRoundedRect(x, y, width, height, r);
-            } else if (isLatestRoundFor(d)) {
-              // Last round 
-              if (isVertical) return   topRoundedRect(x, y, width, height, r);
-              else            return rightRoundedRect(x, y, width, height, r);
-            } else {
-              // Middle rounds
-              return notRoundedRect(x, y, width, height);
-            }
-        }
-      )
-      //.attr(candidatePosStr, d => candidatesRange(d.data.candidate))
-      //.attr(votesPosStr, barVotesPosFn)
-      //.attr(candidateSizeStr, candidatesRange.bandwidth() * 0.9)
-      //.attr(votesSizeStr, barVotesSizeFn)
+      .attr("d", function(d) { return getMaybeRoundedBarFor(this, d); })
       .attr("fill", barColorFn)
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
@@ -496,11 +493,11 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   // Return animation controls
   var transitionEachBarForRound = function(round) {
     currRound = round;
+    eachBar.enter().selectAll("path.eachBar")
+        .attr("d", function(d) { return getMaybeRoundedBarFor(this, d); });
     eachBar.enter().selectAll("path.eachBar").transition()
-        .duration(100)
+        .duration(300)
         .delay(0)
-        .attr(votesPosStr, barVotesPosFn)
-        .attr(votesSizeStr, barVotesSizeFn)
         .attr("fill", barColorFn);
   };
   var transitionDataLabelsForRound = function(round) {
