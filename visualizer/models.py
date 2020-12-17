@@ -30,7 +30,8 @@ class JsonConfig(models.Model):
         settings.AUTH_USER_MODEL,
         related_name='this_users_jsons',
         on_delete=models.CASCADE,
-        null=True)
+        null=True,
+        blank=True)
 
     # Movie
     movieGenerationStatus = models.IntegerField(
@@ -40,11 +41,13 @@ class JsonConfig(models.Model):
     movieHorizontal = models.OneToOneField('movie.Movie',
                                            related_name='+',  # disable related_name
                                            on_delete=models.CASCADE,
-                                           null=True)
+                                           null=True,
+                                           blank=True)
     movieVertical = models.OneToOneField('movie.Movie',
                                          related_name='+',  # disable related_name
                                          on_delete=models.CASCADE,
-                                         null=True)
+                                         null=True,
+                                         blank=True)
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
