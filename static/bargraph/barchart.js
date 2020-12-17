@@ -36,6 +36,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   var maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
+      // Horizontal looks weird with big boxes. Limit them to 75px.
       var minimumHorizontalBarSize = 75;
       maxHeight = Math.min(maxHeight, numRounds*minimumHorizontalBarSize);
   }
