@@ -21,7 +21,7 @@ from visualizer.models import MovieGenerationStatuses
 
 FILENAME_AUDIO = 'testData/audio.mp3'
 FILENAME_SCRIPT = 'testData/expected-video-script.txt'
-FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo.png'
+FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo.jpg'
 
 # Mock helpers
 ORIG_FUNC_FOR_SPAWN_AUDIO = SingleMovieCreator._spawn_audio_creation_with_caption  # pylint: disable=protected-access
