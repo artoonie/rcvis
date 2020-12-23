@@ -758,37 +758,30 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser.set_window_size(200, 600)
 
             # With the smallest width, ensure it doesn't get too small
-            self._ensure_eventually_asserts(lambda:
-                                            self.assertGreater(self._get_width(elementId), 180))
+            self._ensure_eventually_asserts(
+                lambda: self.assertGreater(self._get_width(elementId), 180))
 
             # With the rest, ensure it fills the width until maxSize
 
             self.browser.set_window_size(400, 600)
             self._ensure_eventually_asserts(
-                lambda: self.assertTrue(
-                    fits_inside(
-                        self._get_width(elementId),
-                        400)))
+                lambda: self.assertTrue(fits_inside(self._get_width(elementId), 400)))
 
             self.browser.set_window_size(600, 600)
             self._ensure_eventually_asserts(
-                lambda: self.assertTrue(
-                    fits_inside(
-                        self._get_width(elementId),
-                        600)))
+                lambda: self.assertTrue(fits_inside(self._get_width(elementId), 600)))
 
             self.browser.set_window_size(maxSize, 600)
             self._ensure_eventually_asserts(
-                lambda: self.assertLessEqual(
-                    self._get_width(elementId), maxSize))
+                lambda: self.assertLessEqual(self._get_width(elementId), maxSize))
 
         self._upload(FILENAME_MULTIWINNER)
 
         self._disable_all_animations()
         test_sane_resizing_of("bargraph-interactive-body", 1200)
 
-        self._ensure_eventually_asserts(lambda:
-                                        self.assertFalse(self._is_visible("sankey-body")))
+        self._ensure_eventually_asserts(
+            lambda: self.assertFalse(self._is_visible("sankey-body")))
         self._go_to_tab("sankey-tab")
         self.assertTrue(self._is_visible("sankey-body"))
         test_sane_resizing_of("sankey-body", 1200)
