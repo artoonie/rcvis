@@ -4,6 +4,7 @@ Helper functions for unit and integration tests
 
 import json
 from mock import patch
+import tempfile
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -77,3 +78,17 @@ class TestHelpers():
         testClass.mockGetHost = patcherGetHost.start()
 
         testClass.mockGetHost.return_value = "https://fakeurl.com"
+
+    @classmethod
+    def copy_with_new_name(cls, jsonFileToCopy, newName):
+        """ Copies the file to a tempfile, but changes the name. Returns the tempfile """
+        tf = tempfile.NamedTemporaryFile(suffix='json')
+
+        with open(jsonFileToCopy, 'r') as f:
+            data = json.loads(f.read())
+
+        data['config']['contest'] = newName
+        with open(tf.name, 'w') as f:
+            json.dump(data, f)
+
+        return tf

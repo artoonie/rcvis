@@ -16,6 +16,9 @@
   {% compress css file %}
     <link rel="stylesheet" href="{% static "visualizer/index.css" %}">
   {% endcompress %}
+
+  <title>Ranked Choice Voting Visualizations</title>
+  <meta name="description" content="Ranked-Choice Voting visualizations: interactive charts, graphs, tables, and wikipedia exports for displaying the results of RCV Elections">
 {% endblock %}
 
 {% block navlinks %}
@@ -84,18 +87,53 @@
       <div class="slide fp-noscroll text-center">
         <h5>Bar Charts</h5>
         <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="">
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>The interactive bar chart shows how each round of the election progresses. The number of votes each candidate receives is represented by the size of the bar. As you progress between rounds, the bars grow and shrink to show the change in number of votes that each candidate is receiving.</p>
+
+              <p>The colors represent how many votes were gained in each round: for example, the yellow part of the bar shows the votes that were received in the first round.</p>
+
+              <p>The colors are perceptually linear, making them colorblind-friendly for all forms of colorblindness, including monochromacy (completely colorblind).</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Sankey Diagrams</h5>
         <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="">
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>The sankey diagram shows how the votes flow from one candidate to another as each round progresses. This visualization is best for displaying how the eventual winner received their votes. By exploring where the votes flowed from, you can see candidates who were similar and those who were not.</p>
+              <p>In this example, you can see that Strawberry and Blackberry were most similar, and when Strawberry was eliminated, most of its votes went to Blackberry. That makes sense, given they are both berries. A real-world example might have a certain political party in place of berries.</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Round-by-Round</h5>
         <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="">
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>There are several tabular formats, allowing you to inspect precisely what happened based on what you care about. The tabular-by-round format allows you to inspect the state of votes on a specific round. The tabular-by-candidate format (not shown here) allows you to dive into the number of votes a certain candidate had on each round.</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Single Table Summary</h5>
         <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="">
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>The single table summary is a quick, noninteractive view that combines both the tabular-by-round and the tabular-by-candidate views. It gives a quick, at-a-glance summary of each round.</p>
+              <p>This table can also be exported to Wikipedia with several Wikicode features, including sorting each round by who had the most votes in that round, and including both percentage of votes and number of votes.</p>
+              <p>While all interactive formats have a noninteractive, print-friendly version, this single table summary is particularly well-suited for print where graphics may be expensive.</p>
+            </small>
+          </div>
+        </div>
       </div>
   </div>
 
@@ -103,7 +141,7 @@
     <div class="container">
 
       <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase">Live Examples</h2>
+      <h2 class="page-section-heading text-center text-uppercase">Examples in Government</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -138,6 +176,36 @@
     </div>
   </div>
 
+
+  <div class="section fp-auto-height homedescriptor" id="id-latest">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase">Most Recent Uploads</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <!-- Portfolio Grid Items -->
+      <div class="row justify-content-center">
+        <div class="ml-auto mr-auto">
+          <p class="mb-0 mt-0">Latest uploaded results by our users</p>
+          <ul>
+          {% for model in mostRecent %}
+            <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates and {{ model.numRounds }} rounds)</li>
+          {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="section fp-auto-height homedescriptor" id="id-external-header">
       <!-- About Section Heading -->
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">More Resources</h2>
@@ -153,24 +221,64 @@
   </div>
   <div class="section homedescriptor" id="id-external">
       <div class="slide text-center">
-        <h5>Create an RCV poll</h5>
-          <p class="text-center">With a button to export to rcvis</p>
-        <a href="https://www.rankit.vote"><img class="img-fluid" src="{% static 'visualizer/resource_rankit.gif' %}" width="300px"></a>
+        <h5>Create an RCV poll or election</h5>
+        <a href="https://www.rankit.vote">
+          <img class="img-fluid" src="{% static 'visualizer/resource_rankit.gif' %}" width="300px">
+          <br/>
+          rankit.vote
+        </a>
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>Rankit allows you to create an RCV election. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide text-center">
         <h5>Advocate for RCV</h5>
-          <p class="text-center">Champions of electoral reform, including RCV</p>
-        <a href="https://www.fairvote.org"><img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px"></a>
+        <a href="https://www.fairvote.org">
+          <img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px">
+          <br/>
+          fairvote.org
+        </a>
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>FairVote is a champion of electoral reform. One of their main platforms is advocating for ranked choice voting, but they also advocate for multi-winner districts and other reforms to create a more proportional, representative, and fair democracy.</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide text-center">
         <h5>Tabulate the results of an RCV election</h5>
-          <p class="text-center">Multiple algorithms for tabulating individual votes to round-by-round results. RCVIS can read these results</p>
-        <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator"><img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px"></a>
+        <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">
+          <img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px">
+          <br/>
+          rankedchoicevoting.org/universal_rcv_tabulator
+        </a>
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVIS can ingest and visualize.</p>
+            </small>
+          </div>
+        </div>
       </div>
       <div class="slide text-center">
         <h5>Implement RCV in your jurisdiction</h5>
-          <p class="text-center">Best practices and resources for implementing RCV</p>
-        <a href="https://www.rankedchoicevoting.org"><img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px"></a>
+        <a href="https://www.rankedchoicevoting.org">
+          <img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px">
+          <br/>
+          rankedchoicevoting.org
+        </a>
+        <div class="row justify-content-center">
+          <div class="col-sm-3 mt-3">
+            <small>
+              <p>The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVIS.</p>
+            </small>
+          </div>
+        </div>
       </div>
   </div>
 {% endblock %}
@@ -184,8 +292,8 @@
         navigation: true,
         verticalCentered: true,
         slidesNavigation: true,
-        sectionsColor: ['', '#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa'],
-        anchors: ['top-of-page', 'intro', 'whatis', 'types-header', 'types', 'examples', 'external-header', 'external', 'bottom-of-page'],
+        sectionsColor: ['', '#f8fdff', '#fcfefa', '#f8fdff', '#fff', '#f8fdff', '#fcfefa'],
+        anchors: ['top-of-page', 'intro', 'whatis', 'types-header', 'types', 'examples', 'latest', 'external-header', 'external', 'bottom-of-page'],
         recordHistory: false,
         scrollOverflow: true,
       };

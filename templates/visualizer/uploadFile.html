@@ -1,5 +1,10 @@
 {% extends "visualizer/base.html" %}
 
+{% block header %}
+<title>Upload election results to RCVIS</title>
+<meta name="description" content="Upload election results to RCVIS: Accepts JSONs from the Universal RCV Tabulator, Opavote, and CSVs from ElectionBuddy.">
+{% endblock %}
+
 {% block navlinks %}
 <li class="nav-item mx-0 mx-lg-1">
   <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#examples">Sample Elections</a>
