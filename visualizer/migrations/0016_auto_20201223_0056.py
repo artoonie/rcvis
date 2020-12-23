@@ -9,17 +9,17 @@ def set_defaults_from_json(apps, schema_editor):
     """ Set the title and num candidates/rounds from the JSON file"""
     JsonConfig = apps.get_model('visualizer', 'JsonConfig')
     for jsonConfig in JsonConfig.objects.all().iterator():
-        try:
+        if not jsonConfig.jsonFile.storage.exists(jsonConfig.jsonFile.name):
+            # Don't die on it, but be really upset, okay?
+            print("ERROR: File not found! " + str(jsonConfig.jsonFile.name))
+            jsonConfig.numRounds = 0
+            jsonConfig.numCandidates = 0
+            jsonConfig.title = "ERROR: file not found"
+        else:
             graph = make_graph_with_file(jsonConfig.jsonFile, False)
             jsonConfig.numRounds = len(graph.summarize().rounds)
             jsonConfig.numCandidates = len(graph.summarize().candidates)
             jsonConfig.title = graph.title
-        except OSError as e:
-            # Don't die on it, but be really upset, okay?
-            print("ERROR: File not found! " + str(e))
-            jsonConfig.numRounds = 0
-            jsonConfig.numCandidates = 0
-            jsonConfig.title = "ERROR: file not found"
         jsonConfig.save()
 
 
