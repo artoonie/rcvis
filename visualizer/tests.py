@@ -234,6 +234,24 @@ class SimpleTests(TestCase):
         assert summary.rounds[1].winnerNames[0] == 'Vanilla'
         assert summary.rounds[1].winnerNames[1] == 'Strawberry'
 
+    def test_uniqueness(self):
+        """ Ensures filenames are not overwritten """
+        slug0 = "macomb-multiwinner-surplus"
+        slug1 = "macomb-multiwinner-surplus-1"
+
+        response = TestHelpers.get_multiwinner_upload_response(self.client)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], f"v/{slug0}")
+
+        response = TestHelpers.get_multiwinner_upload_response(self.client)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], f"v/{slug1}")
+
+        model0 = JsonConfig.objects.get(slug=slug0)
+        model1 = JsonConfig.objects.get(slug=slug1)
+
+        assert model0.jsonFile.name != model1.jsonFile.name
+
 
 class ModelDeletionTests(TransactionTestCase):
     """ Testing model deletion requires a different base class:
