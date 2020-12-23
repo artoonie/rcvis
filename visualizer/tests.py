@@ -554,7 +554,6 @@ class RestAPITests(APITestCase):
         # Yes errors
         response = self._upload_file_for_api(FILENAME_BAD_DATA)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        print(response.data)
         assert 'JSON is not valid' in response.data['jsonFile'][0]
 
         # No errors
