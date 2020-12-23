@@ -26,10 +26,12 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   }
 
   var numCandidates = data.length;
-  // 550 is not the final width, but the width of the viewbox.
+  // 850 is not the final width, but the width of the viewbox.
   // We don't want it to even be that wide if there are just a few candidates.
   // TODO sync this 550 and numCandidates*100 with the one in barchart-interactive.html
-  var maxWidth = Math.min(550, numCandidates*100);
+  var numHorizontalElements = isVertical ? numCandidates : numRounds;
+      numHorizontalElements = Math.max(numHorizontalElements, 5) // ensure at least 5 elements wide
+  var maxWidth = Math.min(550, numHorizontalElements*500);
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   var roomForStuffAboveUs = 150;
@@ -40,7 +42,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       var minimumHorizontalBarSize = 75;
       maxHeight = Math.min(maxHeight, numCandidates*minimumHorizontalBarSize);
   }
-  
+
   var width = maxWidth - margin.left - margin.right,
       height = maxHeight - margin.top - margin.bottom;
 
@@ -114,22 +116,18 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var legend = svg => {
         const g = svg
           .selectAll("g")
+          .append("ul")
           .data(roundNames)
-          .join("g")
-          .append("div")
-          .style("float", "left")
-          .style("width", "100%")
+          .join("li")
+          .style("list-style-type", "none")
 
         g.append("div")
           .style("padding", "10px")
-          .style("margin", "2px")
+          .style("margin-right", "2px")
           .style("float", "left")
           .style("background-color", function(d, i) { return colors[i]; })
 
         g.append("div")
-          .style("float", "none")
-          .style("width", "auto")
-          .style("white-space", "nowrap")
           .style("margin-top", "4px")
           .style("font-size", "0.8em")
             .text(d => d);
@@ -235,10 +233,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   }; 
   function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
   var mainDataLabelTextFn = function(d) {
-      // Horizontal shows "[eliminated]" or "x votes (y%)"
+      // Horizontal shows "eliminated" or "x votes (y%)"
       // Vertical shows "[x]" or "x votes", and percent is shown on secondaryDataLabelTextFn
       if(isEliminatedThisRound(d)) {
-          return isVertical ? "❌ "  :  "[eliminated]";
+          return isVertical ? "❌ "  :  "eliminated";
       }
       startText = "";
       if (d.isWinner)
@@ -403,6 +401,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
+  let primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
+  let secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 1.0);
+
   eachBar
     .join("text")
       .attr("class", "dataLabels")
@@ -410,8 +412,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
       .attr("text-anchor", isVertical ? "middle" : "start")
-      .attr("font-size", "1.5em")
+      .attr("font-size", primaryLabelTextSizeEm)
+      .attr("fill", "currentColor")
       .text(mainDataLabelTextFn);
+
   if (isVertical)
   {
       eachBar
@@ -421,11 +425,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
           .attr("text-anchor", "middle")
-          .attr("font-size", "1.0em")
+          .attr("font-size", secondaryLabelTextSizeEm)
           .text(secondaryDataLabelTextFn);
    }
 
-  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth);
   if (isVertical) {
     svg.append("g")
         .call(candidatesAxis)
@@ -445,7 +448,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   svg.append("g")
       .call(votesAxis)
       .selectAll("text")  
-        .attr("font-size", "1.0em");
+        .attr("font-size", candidateAxisTextSizeEm);
 
   d3.select(idOfLegendDiv)
     .append("g")
