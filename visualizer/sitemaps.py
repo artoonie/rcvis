@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from visualizer.models import JsonConfig
 
+
 class StaticViewSitemap(sitemaps.Sitemap):
     priority = 0.8
     changefreq = 'weekly'
@@ -14,6 +15,7 @@ class StaticViewSitemap(sitemaps.Sitemap):
 
     def location(self, item):
         return reverse(item)
+
 
 class VisualizationSitemap(sitemaps.Sitemap):
     changefreq = 'weekly'
