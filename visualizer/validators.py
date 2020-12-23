@@ -19,7 +19,7 @@ def ensure_title_is_under_256_chars(graph):
     maxTitleSize = 256
     if len(graph.title) > maxTitleSize:
         raise serializers.ValidationError('Max title length is {} and your title length is {}'.
-                                          format(maxTitleSize, jsonFile.size))
+                                          format(maxTitleSize, len(graph.title)))
 
 
 def try_to_load_json(jsonFile):

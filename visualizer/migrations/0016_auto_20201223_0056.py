@@ -4,6 +4,7 @@ from django.db import migrations, models
 
 from visualizer.graphCreator.graphCreator import make_graph_with_file
 
+
 def set_defaults_from_json(apps, schema_editor):
     """ Set the title and num candidates/rounds from the JSON file"""
     JsonConfig = apps.get_model('visualizer', 'JsonConfig')
@@ -13,6 +14,7 @@ def set_defaults_from_json(apps, schema_editor):
         jsonConfig.numCandidates = len(graph.summarize().candidates)
         jsonConfig.title = graph.title
         jsonConfig.save()
+
 
 def reverse_func(apps, schema_editor):
     """ Not needed: code to reverse the migration """

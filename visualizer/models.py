@@ -115,4 +115,10 @@ class JsonConfig(models.Model):
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """
     list_display = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt')
-    readonly_fields = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt', 'movieGenerationStatus')
+    readonly_fields = (
+        'slug',
+        'title',
+        'numRounds',
+        'numCandidates',
+        'uploadedAt',
+        'movieGenerationStatus')

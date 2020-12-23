@@ -44,7 +44,7 @@ class Index(TemplateView):
                                   'title': model.title,
                                   'numRounds': model.numRounds,
                                   'numCandidates': model.numCandidates}
-                                                   for model in models]
+                                 for model in models]
 
         return context
 
