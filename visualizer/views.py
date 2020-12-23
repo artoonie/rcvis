@@ -35,6 +35,15 @@ class Index(TemplateView):
     template_name = 'visualizer/index.html'
     build_path = 'index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # most recent uploads
+        models = JsonConfig.objects.all().order_by('-uploadedAt')[:5]
+        context['mostRecent'] = [model.slug for model in models]
+
+        return context
+
 
 #pylint: disable=too-many-ancestors
 class Upload(CreateView):
