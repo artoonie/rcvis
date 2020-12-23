@@ -6,6 +6,7 @@ from enum import Enum
 import json
 import os
 import platform
+import tempfile
 import time
 from datetime import datetime
 from urllib.parse import urlparse
@@ -70,11 +71,37 @@ class SimpleTests(TestCase):
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
-        try:
+        with self.assertRaises(BadJSONError):
             self._get_data_for_view(FILENAME_BAD_DATA)
-        except BadJSONError:
-            return
-        assert False
+
+    def test_too_long_name_fails(self):
+        # Read good data
+        with open(FILENAME_MULTIWINNER, 'r') as f:
+            data = json.loads(f.read())
+
+        # Create tempfile
+        tf = tempfile.NamedTemporaryFile(suffix='json')
+
+        # Write bad data
+        data['title'] = 'x'*300
+        with open(tf.name, 'w') as f:
+            json.dump(data, f)
+
+        # Ensure failure
+        response = self.client.post('/upload.html', {'jsonFile': tf})
+        self.assertEqual(response.status_code, 302)
+
+        # Though, note: get_data_for_view won't fail
+        self._get_data_for_view(tf.name)
+
+        # Write good data
+        data['title'] = 'x'*200
+        with open(tf.name, 'w') as f:
+            json.dump(data, f)
+
+        # Ensure success
+        response = self.client.post('/upload.html', {'jsonFile': tf})
+        self.assertEqual(response.status_code, 200)
 
     #pylint: disable=R0201
     def test_various_configs(self):

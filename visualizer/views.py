@@ -40,7 +40,11 @@ class Index(TemplateView):
 
         # most recent uploads
         models = JsonConfig.objects.all().order_by('-uploadedAt')[:5]
-        context['mostRecent'] = [model.slug for model in models]
+        context['mostRecent'] = [{'slug': model.slug,
+                                  'title': model.title,
+                                  'numRounds': model.numRounds,
+                                  'numCandidates': model.numCandidates}
+                                                   for model in models]
 
         return context
 
@@ -56,7 +60,14 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            try_to_load_json(form.cleaned_data['jsonFile'])
+            graph = try_to_load_json(form.cleaned_data['jsonFile'])
+
+            self.model = form.save(commit=False)
+            self.model.title = graph.title
+            self.model.numRounds = len(graph.summarize().rounds)
+            self.model.numCandidates = len(graph.summarize().candidates)
+            self.model.save()
+
         except BadJSONError:
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except

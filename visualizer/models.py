@@ -33,6 +33,10 @@ class JsonConfig(models.Model):
         null=True,
         blank=True)
 
+    title = models.CharField(max_length=256)
+    numRounds = models.IntegerField()
+    numCandidates = models.IntegerField()
+
     # Movie
     movieGenerationStatus = models.IntegerField(
         choices=MovieGenerationStatuses.choices,
@@ -110,4 +114,5 @@ class JsonConfig(models.Model):
 @admin.register(JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """
-    list_display = ('slug', 'uploadedAt')
+    list_display = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt')
+    readonly_fields = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt', 'movieGenerationStatus')

@@ -194,21 +194,13 @@
 
       <!-- Portfolio Grid Items -->
       <div class="row justify-content-center">
-        <div class="col-md-6 ml-auto mr-auto">
+        <div class="ml-auto mr-auto">
           <p class="mb-0 mt-0">Latest uploaded results by our users</p>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.0 %}">Most Recent 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.1 %}">Most Recent 2</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.2 %}">Most Recent 3</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.3 %}">Most Recent 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.4 %}">Most Recent 2</a>
-        </div>
-        <div class="col-md-6 ml-auto mr-auto">
-          <p class="mb-0 mt-0">Latest uploaded results by our users</p>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.0 %}">Most Recent 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.1 %}">Most Recent 2</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.2 %}">Most Recent 3</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.3 %}">Most Recent 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' mostRecent.4 %}">Most Recent 2</a>
+          <ul>
+          {% for model in mostRecent %}
+            <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates and {{ model.numRounds }} rounds)</li>
+          {% endfor %}
+          </ul>
         </div>
       </div>
     </div>
