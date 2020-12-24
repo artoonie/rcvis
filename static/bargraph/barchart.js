@@ -25,12 +25,9 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   }
 
   var numCandidates = data.length;
-  // 850 is not the final width, but the width of the viewbox.
-  // We don't want it to even be that wide if there are just a few candidates.
-  // TODO sync this 500 and numCandidates*100 with the one in barchart-interactive.html
-  var numHorizontalElements = isVertical ? numCandidates : numRounds;
-      numHorizontalElements = Math.max(numHorizontalElements, 5) // ensure at least 5 elements wide
-  var maxWidth = Math.min(500, numHorizontalElements*100);
+
+  var maxWidth = 500; // of the viewbox - it can be scaled up by the outer div as needed
+                      // NOTE: sync this 500 with barchart-common.js
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   var roomForStuffAboveUs = 150;
