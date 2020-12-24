@@ -48,7 +48,10 @@ CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 # Clean up output of misc libraries
 logging.getLogger('boto').setLevel(logging.CRITICAL)
 logging.getLogger('botocore').setLevel(logging.CRITICAL)
+logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
 logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
+logging.getLogger('selenium').setLevel(logging.CRITICAL)
+logging.getLogger('urllib3').setLevel(logging.CRITICAL)
 
 
 class SimpleTests(TestCase):
@@ -754,44 +757,69 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             minWidth = pageWidth * (1 - roomForMarginsPct)
             return minWidth < elementWidth <= pageWidth
 
-        def test_sane_resizing_of(elementId, maxSize):
-            self.browser.set_window_size(200, 600)
+        def test_sane_resizing_of(elementId, tightlyFitWidths, widthsWithExtraRoom):
+            """
+                NOTE: the sizes used here may have a different devicePixelRatio than your machine.
+                tightlyFitWidths is a list of widths to test which must fill the window
+                widthsWithExtraRoom is a size that's too large and will leave whitespace
+            """
+            self._disable_all_animations()
+            height = 600
+            tooSmallWidth = 250
+            self.browser.set_window_size(tooSmallWidth, height)
 
             # With the smallest width, ensure it doesn't get too small
             self._ensure_eventually_asserts(
-                lambda: self.assertGreater(self._get_width(elementId), 180))
+                lambda: self.assertGreater(self._get_width(elementId), tooSmallWidth))
 
             # With the rest, ensure it fills the width until maxSize
+            for width in tightlyFitWidths:
+                self.browser.set_window_size(width, height)
+                self._ensure_eventually_asserts(
+                    lambda w=width: self.assertTrue(fits_inside(self._get_width(elementId), w)))
 
-            self.browser.set_window_size(400, 600)
+            self.browser.set_window_size(widthsWithExtraRoom, height)
             self._ensure_eventually_asserts(
-                lambda: self.assertTrue(fits_inside(self._get_width(elementId), 400)))
+                lambda: self.assertLessEqual(self._get_width(elementId), widthsWithExtraRoom))
 
-            self.browser.set_window_size(600, 600)
-            self._ensure_eventually_asserts(
-                lambda: self.assertTrue(fits_inside(self._get_width(elementId), 600)))
+        def change_barchart_orientation():
+            self._go_to_tab("settings-tab")
+            self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
+            # Check the box (the second one, which isn't hidden)
+            self.browser.find_elements_by_name("doUseHorizontalBarGraph")[1].click()
+            self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+            self._go_to_tab("barchart-tab")
 
-            self.browser.set_window_size(maxSize, 600)
-            self._ensure_eventually_asserts(
-                lambda: self.assertLessEqual(self._get_width(elementId), maxSize))
-
+        # Multiwinner maxes out at 500px
         self._upload(FILENAME_MULTIWINNER)
-
-        self._disable_all_animations()
-        test_sane_resizing_of("bargraph-interactive-body", 1200)
+        test_sane_resizing_of("bargraph-interactive-body", [300, 400, 450], 550)
 
         self._ensure_eventually_asserts(
             lambda: self.assertFalse(self._is_visible("sankey-body")))
         self._go_to_tab("sankey-tab")
-        self.assertTrue(self._is_visible("sankey-body"))
-        test_sane_resizing_of("sankey-body", 1200)
+        self.assertTrue(self._is_visible("sankey-svg"))
+        test_sane_resizing_of("sankey-svg", [400, 600], 1000)
 
+        # Opavote is originally tall but not too wide
+        self._upload(FILENAME_OPAVOTE)
+        test_sane_resizing_of("bargraph-interactive-body", [300, 400, 600], 800)
+        # Sankey gets huge
+        self._go_to_tab("sankey-tab")
+        test_sane_resizing_of("sankey-svg", [300, 800, 1700], 2500)
+        # Make the barchart vertical
+        change_barchart_orientation()
+        # Should have the same max width here...:( (TODO: set the device pixel ratio
+        # such that this can get bigger...?)
+        test_sane_resizing_of("bargraph-interactive-body", [300, 600], 800)
+
+        # Now let's look at sankey and the tables
         self._upload(FILENAME_THREE_ROUND)
         self._go_to_tab("sankey-tab")
-        test_sane_resizing_of("sankey-body", 900)
+        test_sane_resizing_of("sankey-svg", [300, 400, 600], 900)
 
+        # This one sidescrolls on mobile, it's a fixed size
         self._go_to_tab("single-table-summary-tab")
-        test_sane_resizing_of("single-table-summary-wrapper", 1200)
+        test_sane_resizing_of("single-table-summary-table", [600], 800)
 
     def test_oneround(self):
         """ Tests we do something sane in a single-round election """

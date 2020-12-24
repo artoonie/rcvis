@@ -441,7 +441,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       svg.append("g")
           .call(candidatesAxis)
           .selectAll("text")
-            .style("text-anchor", "start")
+            .style("text-anchor", "end")
             .attr("font-size", candidateAxisTextSizeEm)
             .attr("transform", "rotate(-45)");
   }
