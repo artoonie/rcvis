@@ -1,5 +1,4 @@
 {% load static %}
-{% load compress %}
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-151309356-1"></script>
@@ -17,6 +16,8 @@ gtag('config', 'UA-151309356-1');
 
 <link rel="shortcut icon" type="image/png" href="{% static 'visualizer/favicon.ico' %}"/>
 
-{% compress css file %}
+{% if offlineMode %}
     <link href="{% static 'visualizer/freelancer.css' %}" rel="stylesheet">
-{% endcompress %}
+{% else %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-freelancer/5.1.3/css/freelancer.min.css" rel="stylesheet">
+{% endif %}
