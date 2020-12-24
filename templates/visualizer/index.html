@@ -49,7 +49,7 @@
 
       <p class="masthead-subheading font-weight-light text-center">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
 
-      <img class="img-fluid" src="{% static 'visualizer/rcvis-summary.png' %}" alt="">
+      <img class="img-fluid" src="{% static 'visualizer/rcvis-summary.png' %}" alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
   </div>
 
   <div class="section homedescriptor" id="id-whatis">
@@ -68,7 +68,7 @@
       <p class="lead">RCV is just like a regular election, except you can have backup choices. If your top pick gets the fewest votes, they are eliminated and your vote is <i>transferred</i> to your next choice.</p>
       <p>Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked Choice Voting</a>.</p>
 
-      <div class="video-container"><iframe id="youtube-iframe" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <div class="video-container"><iframe id="youtube-iframe" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy" allowfullscreen></iframe></div>
   </div>
 
   <div class="section homedescriptor fp-auto-height" id="id-types-header">
@@ -86,7 +86,7 @@
   <div class="section homedescriptor" id="id-types">
       <div class="slide fp-noscroll text-center">
         <h5>Bar Charts</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="">
+        <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
         <div class="row justify-content-center">
           <div class="col-sm-3 mt-3">
             <small>
@@ -101,7 +101,7 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Sankey Diagrams</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="">
+        <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="Demo of sankey diagram" loading="lazy">
         <div class="row justify-content-center">
           <div class="col-sm-3 mt-3">
             <small>
@@ -113,7 +113,7 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Round-by-Round</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="">
+        <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
         <div class="row justify-content-center">
           <div class="col-sm-3 mt-3">
             <small>
@@ -124,7 +124,7 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Single Table Summary</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="">
+        <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="Demo of single table summary" loading="lazy">
         <div class="row justify-content-center">
           <div class="col-sm-3 mt-3">
             <small>
@@ -223,7 +223,7 @@
       <div class="slide text-center">
         <h5>Create an RCV poll or election</h5>
         <a href="https://www.rankit.vote">
-          <img class="img-fluid" src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px">
+          <img class="img-fluid" src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" loading="lazy" alt="Rankit.vote icon">
           <br/>
           rankit.vote
         </a>
@@ -238,7 +238,7 @@
       <div class="slide text-center">
         <h5>Advocate for RCV</h5>
         <a href="https://www.fairvote.org">
-          <img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px">
+          <img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px" loading="lazy" alt="Fairvote icon">
           <br/>
           fairvote.org
         </a>
@@ -253,7 +253,7 @@
       <div class="slide text-center">
         <h5>Tabulate the results of an RCV election</h5>
         <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">
-          <img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px">
+          <img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" loading="lazy" alt="Universal RCV Tabulator icon">
           <br/>
           rankedchoicevoting.org/universal_rcv_tabulator
         </a>
@@ -268,7 +268,7 @@
       <div class="slide text-center">
         <h5>Implement RCV in your jurisdiction</h5>
         <a href="https://www.rankedchoicevoting.org">
-          <img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px">
+          <img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" loading="lazy" alt="RCV Resource Center icon">
           <br/>
           rankedchoicevoting.org
         </a>
@@ -287,12 +287,12 @@
     {% include "visualizer/common-nonblocking.html" %}
 
     <script type="text/javascript">
+      // Load youtube after page finishes loading
       function loadYoutubeDeferred() {
-        // First load the youtube video nonblockingly
         let youtubeVideo = document.getElementById('youtube-iframe');
         youtubeVideo.setAttribute('src', "https://www.youtube.com/embed/gq7N2hmX9FI");
       }
-      window.onload = loadYoutubeDeferred;
+      window.addEventListener('load', loadYoutubeDeferred);
 
       let fullpageOptions = {
         licenseKey: '2UdvWJL?b5',
