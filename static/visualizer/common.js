@@ -43,7 +43,7 @@ function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes
   return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
 }
 
-function getMagicTextLabelSize(longestLabelApxWidth)
+function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
 {
   // I'm really sorry about this. Make the text smaller for very long labels.
   let candidateAxisTextSizeEm = 2;
@@ -52,6 +52,7 @@ function getMagicTextLabelSize(longestLabelApxWidth)
   {
       candidateAxisTextSizeEm /= longestLabelApxWidth/maxTextSizeFor2em;
   }
+  candidateAxisTextSizeEm *= scalar;
   return candidateAxisTextSizeEm + "em";
 }
 

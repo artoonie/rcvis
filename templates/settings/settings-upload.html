@@ -44,18 +44,30 @@ function handleFiles(files)
       </p>
       <div class="collapse" id="acceptedformats">
         <div class="card card-body mb-3 d-block bg-light">
-          <h5 class="card-title">Accepted JSON formats</h5>
-          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a> or
-          <a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>
+          <h5 class="card-title">Accepted formats</h5>
+          <ol class="list-group">
+            <li class="list-group-item"><a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator (JSON)</a></li>
+            <li class="list-group-item"><a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections (JSON)</a></li>
+            <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">ElectionBuddy Preferential Voting (CSV)</a></li>
+          </ol>
+          <p class="mt-2 mb-0">
+            To use RCVIS, you need to upload the results of an election or poll which has already occured.
+            RCVIS does not host any RCV polls, it only visualizes the results of an election.
+          </p>
         </div>
       </div>
       <div class="collapse" id="exampledata">
         <div class="card card-body mb-3 d-block bg-light">
           <h5 class="card-title">Other ways to try out RCVIS</h5>
-          <p><a href="{% url 'index'  %}#examples">Check out some examples</a>
-          or
-          <a href="https://rankit.vote">Create a poll on rankit</a></p>
-          <p>Rankit polls can be visualized with RCVIS</p>
+          <ol class="list-group">
+            <li class="list-group-item"><a href="{% url 'index'  %}#examples">Check out some examples</a></li>
+            <li class="list-group-item"><a href="https://rankit.vote">Create a poll on rankit</a></li>
+            <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">Host an election on ElectionBuddy</a></li>
+          </ol>
+          <p class="mt-2 mb-0">
+            If you're curious about using RCVIS for an upcoming election, please get in touch at <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
+            If you're just poking around, you can explore previous elections using the <a href="{% url 'index'  %}#examples">examples</a> link above.
+          </p>
         </div>
       </div>
     </div>

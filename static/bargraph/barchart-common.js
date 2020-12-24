@@ -1,11 +1,11 @@
-function fixMaxWidthFor(elementId, leaveRoomForLegend) {
+function fixMaxWidthFor(elementId, numCandidates) {
     var currPixelRatio = window.devicePixelRatio;
     currPixelRatio = Math.min(currPixelRatio, 1.5); // TODO hack, this looks nicer
-    // TODO sync this 550 and numCandidates*100 with the one in barchart.js
-    var numCandidates = data.length;
-    var maxWidth = Math.min(550, numCandidates*100);
-    if (leaveRoomForLegend) {
-        maxWidth += Math.min(numCandidates*20, maxWidth*0.5);
-    }
+
+    // Max width should be the same as the viewbox unless there are a ton of candidates
+    // NOTE: sync this 500 with barchart.js
+    var maxWidth = Math.max(500, numCandidates*30);
+
+    document.getElementById(elementId).style.minWidth = "300px"; // smallest supported screen size
     document.getElementById(elementId).style.maxWidth = currPixelRatio*maxWidth + "px";
 }

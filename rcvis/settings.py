@@ -42,6 +42,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # for sitemap
+    'django.contrib.sitemaps',
+    'django.contrib.sites',
+
     'visualizer',
     'movie',
     'storages',
@@ -95,6 +100,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rcvis.wsgi.application'
 
+# for django.sites (and thus, sitemap)
+SITE_ID = 1
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

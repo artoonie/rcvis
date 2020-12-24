@@ -16,7 +16,8 @@ var numRounds = {{ tabularByRoundInteractive.rounds|length }};
 var viewboxWidth = numRounds * 50 + 120;
 var viewboxHeight = 70;
 
-fixMaxWidthFor('bargraph-interactive-body', false);
+var numCandidates = data.length;
+fixMaxWidthFor('bargraph-interactive-body', numCandidates);
 // window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
 
 // Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518

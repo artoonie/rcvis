@@ -22,25 +22,25 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   else {
       margin.left = 5; // Candidate name overlaps bars
       margin.bottom += 20; // Room for candidate name diagonally down
-      margin.right += 50; // Room for data label
   }
 
   var numCandidates = data.length;
-  // 550 is not the final width, but the width of the viewbox.
-  // We don't want it to even be that wide if there are just a few candidates.
-  // TODO sync this 550 and numCandidates*100 with the one in barchart-interactive.html
-  var maxWidth = Math.min(550, numCandidates*100);
+
+  var maxWidth = 500; // of the viewbox - it can be scaled up by the outer div as needed
+                      // NOTE: sync this 500 with barchart-common.js
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   var roomForStuffAboveUs = 150;
   var aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   var maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
-      // Horizontal looks weird with big boxes. Limit them to 75px.
-      var minimumHorizontalBarSize = 75;
-      maxHeight = Math.min(maxHeight, numCandidates*minimumHorizontalBarSize);
+      // Limit the horizontal bar size to [20, 70]
+      var maximumHorizontalBarSize = 70;
+      var minimumHorizontalBarSize = 20;
+      maxHeight = Math.min(maxHeight, numCandidates*maximumHorizontalBarSize);
+      maxHeight = Math.max(maxHeight, numCandidates*minimumHorizontalBarSize);
   }
-  
+
   var width = maxWidth - margin.left - margin.right,
       height = maxHeight - margin.top - margin.bottom;
 
@@ -49,7 +49,6 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   
   var svg = d3.select(idOfContainer)
     .append("svg")
-    .attr("class", "col-md-auto")
     .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -106,7 +105,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           .call(g => g.selectAll(".domain").remove())
     var votesAxis = g => g
           .attr("transform", `translate(0,${height - margin.bottom + 60})`)
-          .call(d3.axisBottom(votesRange).tickSizeOuter(0))
+          .call(d3.axisBottom(votesRange).ticks(5))
           .call(g => g.selectAll(".domain").remove())
   }
   
@@ -114,22 +113,18 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   var legend = svg => {
         const g = svg
           .selectAll("g")
+          .append("ul")
           .data(roundNames)
-          .join("g")
-          .append("div")
-          .style("float", "left")
-          .style("width", "100%")
+          .join("li")
+          .style("list-style-type", "none")
 
         g.append("div")
           .style("padding", "10px")
-          .style("margin", "2px")
+          .style("margin-right", "2px")
           .style("float", "left")
           .style("background-color", function(d, i) { return colors[i]; })
 
         g.append("div")
-          .style("float", "none")
-          .style("width", "auto")
-          .style("white-space", "nowrap")
           .style("margin-top", "4px")
           .style("font-size", "0.8em")
             .text(d => d);
@@ -191,7 +186,17 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       // I hate this function. We need to do some magic because in vertical mode,
       // "up" is negative, whereas in horizontal, "right" is positive.
       if (!isVertical) {
-        return 20 + barVotesPosFn([threshold, threshold]);
+        var thresholdPosition = barVotesPosFn([threshold, threshold]);
+        var expectedMaxWidthOfLabel = 100;
+        // If the threshold isn't right up against the edge, use it
+        if ((width - thresholdPosition) > expectedMaxWidthOfLabel) {
+          // NOTE: Manually test this functionality using macomb-multiwinner-surplus.json
+          return width - 20;
+        }
+
+        // Otherwise, go a little back from the threshold and anchor there
+        // NOTE: Manually test this functionality using opavote2.json
+        return thresholdPosition - 10;
       }
 
       var offset = -15;
@@ -235,10 +240,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   }; 
   function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
   var mainDataLabelTextFn = function(d) {
-      // Horizontal shows "[eliminated]" or "x votes (y%)"
+      // Horizontal shows "eliminated" or "x votes (y%)"
       // Vertical shows "[x]" or "x votes", and percent is shown on secondaryDataLabelTextFn
       if(isEliminatedThisRound(d)) {
-          return isVertical ? "❌ "  :  "[eliminated]";
+          return isVertical ? "❌ "  :  "eliminated";
       }
       startText = "";
       if (d.isWinner)
@@ -403,15 +408,21 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
+  let primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
+  let secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 1.0);
+
   eachBar
     .join("text")
       .attr("class", "dataLabels")
       .attr(candidatePosStr, barCandidatesDataLabalPosFn)
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
-      .attr("text-anchor", isVertical ? "middle" : "start")
-      .attr("font-size", "1.5em")
+      .attr("text-anchor", isVertical ? "middle" : "end")
+      .attr("font-size", primaryLabelTextSizeEm)
+      .attr("fill", "currentColor")
       .text(mainDataLabelTextFn);
+
   if (isVertical)
   {
       eachBar
@@ -421,18 +432,15 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
           .attr("text-anchor", "middle")
-          .attr("font-size", "1.0em")
+          .attr("font-size", secondaryLabelTextSizeEm)
           .text(secondaryDataLabelTextFn);
-   }
 
-  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth);
-  if (isVertical) {
-    svg.append("g")
-        .call(candidatesAxis)
-        .selectAll("text")  
-          .style("text-anchor", "end")
-          .attr("font-size", candidateAxisTextSizeEm)
-          .attr("transform", "rotate(-45)");
+      svg.append("g")
+          .call(candidatesAxis)
+          .selectAll("text")
+            .style("text-anchor", "end")
+            .attr("font-size", candidateAxisTextSizeEm)
+            .attr("transform", "rotate(-45)");
   }
   else {
     svg.append("g")
@@ -445,7 +453,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   svg.append("g")
       .call(votesAxis)
       .selectAll("text")  
-        .attr("font-size", "1.0em");
+        .attr("font-size", candidateAxisTextSizeEm);
 
   d3.select(idOfLegendDiv)
     .append("g")
