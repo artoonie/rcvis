@@ -2,7 +2,7 @@
 Unit and integration tests for the core visualizer app
 """
 
-#pylint: disable=too-many-lines
+# pylint: disable=too-many-lines
 
 from enum import Enum
 import json
@@ -103,7 +103,7 @@ class SimpleTests(TestCase):
         response = self.client.post('/upload.html', {'jsonFile': tf})
         self.assertEqual(response.status_code, 302)
 
-    #pylint: disable=R0201
+    # pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
         configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t != 'jsonFile']
@@ -589,7 +589,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def setUp(self):
         """ Creates the selenium browser. If on CI, connects to SauceLabs """
         super(LiveBrowserTests, self).setUp()
-        if "TRAVIS_BUILD_NUMBER" in os.environ:
+        self.isUsingSauceLabs = "TRAVIS_BUILD_NUMBER" in os.environ
+        if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
             accessKey = os.environ["SAUCE_ACCESS_KEY"]
             capabilities = {}
@@ -790,32 +791,35 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
             self._go_to_tab("barchart-tab")
 
+        # Test the smallest supported width we can
+        minimumResizeableWidth = 400 if self.isUsingSauceLabs else 300
+
         # Multiwinner maxes out at 500px
         self._upload(FILENAME_MULTIWINNER)
-        test_sane_resizing_of("bargraph-interactive-body", [300, 400, 450], 550)
+        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 450], 550)
 
         self._ensure_eventually_asserts(
             lambda: self.assertFalse(self._is_visible("sankey-body")))
         self._go_to_tab("sankey-tab")
         self.assertTrue(self._is_visible("sankey-svg"))
-        test_sane_resizing_of("sankey-svg", [400, 600], 1000)
+        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 600], 1000)
 
         # Opavote is originally tall but not too wide
         self._upload(FILENAME_OPAVOTE)
-        test_sane_resizing_of("bargraph-interactive-body", [300, 400, 600], 800)
+        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
         # Sankey gets huge
         self._go_to_tab("sankey-tab")
-        test_sane_resizing_of("sankey-svg", [300, 800, 1700], 2500)
+        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 800, 1200], 2000)
         # Make the barchart vertical
         change_barchart_orientation()
         # Should have the same max width here...:( (TODO: set the device pixel ratio
         # such that this can get bigger...?)
-        test_sane_resizing_of("bargraph-interactive-body", [300, 600], 800)
+        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
 
         # Now let's look at sankey and the tables
         self._upload(FILENAME_THREE_ROUND)
         self._go_to_tab("sankey-tab")
-        test_sane_resizing_of("sankey-svg", [300, 400, 600], 900)
+        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 600], 900)
 
         # This one sidescrolls on mobile, it's a fixed size
         self._go_to_tab("single-table-summary-tab")
