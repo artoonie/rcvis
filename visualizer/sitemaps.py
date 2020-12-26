@@ -10,6 +10,7 @@ class StaticViewSitemap(sitemaps.Sitemap):
     """ Home and upload pages """
     priority = 0.8
     changefreq = 'weekly'
+    protocol = 'https'
 
     def items(self):
         return ['index', 'upload']
@@ -22,6 +23,7 @@ class VisualizationSitemap(sitemaps.Sitemap):
     """ Visualizations """
     changefreq = 'weekly'
     priority = 0.5
+    protocol = 'https'
 
     def items(self):
         return JsonConfig.objects.all()
