@@ -296,9 +296,10 @@
       // Load youtube after page finishes loading
       function loadYoutubeDeferred() {
         let youtubeVideo = document.getElementById('youtube-iframe');
-        youtubeVideo.setAttribute('src', "https://www.youtube.com/embed/gq7N2hmX9FI");
+        if (!youtubeVideo.hasAttribute('src')) {
+          youtubeVideo.setAttribute('src', 'https://www.youtube.com/embed/gq7N2hmX9FI');
+        }
       }
-      window.addEventListener('load', loadYoutubeDeferred);
 
       let fullpageOptions = {
         licenseKey: '2UdvWJL?b5',
@@ -309,6 +310,13 @@
         anchors: ['intro', 'whatis', 'types', 'examples', 'latest', 'external', 'bottom-of-page'],
         recordHistory: false,
         paddingTop: document.getElementById('mainNav').offsetHeight + "px",
+        afterLoad: function(origin, destination, direction) {
+          // Lazy-loading of other sections
+          var loadedSection = this;
+          if(destination.anchor == 'whatis'){
+            loadYoutubeDeferred();
+          }
+        }
       };
 
       new fullpage('#fullpage', fullpageOptions);
