@@ -48,7 +48,12 @@
       <p class="masthead-subheading font-weight-light text-center">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
 
       <p class="text-center">
-        <img class="img-fluid" data-src="{% static 'visualizer/rcvis-summary.png' %}" alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
+        <picture class="img-fluid">
+          <source media="(max-width: 450px)" srcset="{% static 'visualizer/summary-400px-phone.png' %}">
+          <source media="(max-width: 850px)" srcset="{% static 'visualizer/summary-800px-tablet.png' %}">
+          <img class="img-fluid"             src="{% static 'visualizer/summary-1200px-desktop.png' %}"
+               alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
+        </picture>
       </p>
   </div>
 

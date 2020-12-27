@@ -16,8 +16,4 @@ gtag('config', 'UA-151309356-1');
 
 <link rel="shortcut icon" type="image/png" href="{% static 'visualizer/favicon.ico' %}"/>
 
-{% if offlineMode %}
-    <link href="{% static 'visualizer/freelancer.css' %}" rel="stylesheet">
-{% else %}
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-freelancer/5.1.3/css/freelancer.min.css" rel="stylesheet">
-{% endif %}
+<link href="{% static 'visualizer/freelancer-purged.min.css' %}" rel="stylesheet">
