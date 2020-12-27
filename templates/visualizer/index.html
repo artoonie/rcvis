@@ -6,11 +6,9 @@
   {% if offlineMode %}
     <link rel="stylesheet" type="text/css" href="{% static 'localdeps/fullpage.css' %}" />
     <script type="text/javascript" src="{% static 'localdeps/fullpage.js' %}"></script>
-    <script type="text/javascript" src="{% static 'localdeps/scrolloverflow.js' %}"></script>
   {% else %}
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.css" /> 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/vendors/scrolloverflow.min.js"></script>
   {% endif %}
 
   {% compress css file %}
@@ -35,7 +33,7 @@
 
 {% block maincontent %}
   <!-- Masthead -->
-  <div class="section fp-auto-height homedescriptor" id="id-intro">
+  <div class="section homedescriptor" id="id-intro">
       <p><h1 class="page-section-heading text-center text-uppercase text-secondary mb-0">Ranked Choice Voting ballots are <a href="https://www.fairvote.org/ranking_is_easy_a_response_to_misleading_claims_about_voter_errors">easy to fill out</a>.</h1></p>
       <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVIS makes the results easy to understand, too.</h2></p>
 
@@ -49,7 +47,9 @@
 
       <p class="masthead-subheading font-weight-light text-center">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
 
-      <img class="img-fluid" src="{% static 'visualizer/rcvis-summary.png' %}" alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
+      <p class="text-center">
+        <img class="img-fluid" data-src="{% static 'visualizer/rcvis-summary.png' %}" alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
+      </p>
   </div>
 
   <div class="section homedescriptor" id="id-whatis">
@@ -65,16 +65,16 @@
       </div>
 
       <!-- Portfolio Grid Items -->
-      <p class="lead">RCV is just like a regular election, except you can have backup choices. If your top pick gets the fewest votes, they are eliminated and your vote is <i>transferred</i> to your next choice.</p>
+      <p class="lead">RCV elections are just like a standard "first-past-the-post" election, except you can have backup choices. If your top pick gets the fewest votes, they are eliminated and your vote is <i>transferred</i> to your next choice.</p>
       <p>Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked Choice Voting</a>.</p>
 
       <div class="video-container"><iframe id="youtube-iframe" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy" allowfullscreen></iframe></div>
   </div>
 
-  <div class="section homedescriptor fp-auto-height" id="id-types-header">
+  <div class="section homedescriptor" id="id-types">
+    <div class="slider-header">
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
 
-      <!-- Icon Divider -->
       <div class="divider-custom">
         <div class="divider-custom-line"></div>
         <div class="divider-custom-icon">
@@ -82,13 +82,13 @@
         </div>
         <div class="divider-custom-line"></div>
       </div>
-  </div>
-  <div class="section homedescriptor" id="id-types">
+    </div>
+
       <div class="slide fp-noscroll text-center">
         <h5>Bar Charts</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
+        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>The interactive bar chart shows how each round of the election progresses. The number of votes each candidate receives is represented by the size of the bar. As you progress between rounds, the bars grow and shrink to show the change in number of votes that each candidate is receiving.</p>
 
@@ -101,9 +101,9 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Sankey Diagrams</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_sankey.jpg' %}" alt="Demo of sankey diagram" loading="lazy">
+        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_sankey.jpg' %}" alt="Demo of sankey diagram" loading="lazy">
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>The sankey diagram shows how the votes flow from one candidate to another as each round progresses. This visualization is best for displaying how the eventual winner received their votes. By exploring where the votes flowed from, you can see candidates who were similar and those who were not.</p>
               <p>In this example, you can see that Strawberry and Blackberry were most similar, and when Strawberry was eliminated, most of its votes went to Blackberry. That makes sense, given they are both berries. A real-world example might have a certain political party in place of berries.</p>
@@ -113,9 +113,9 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Round-by-Round</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
+        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>There are several tabular formats, allowing you to inspect precisely what happened based on what you care about. The tabular-by-round format allows you to inspect the state of votes on a specific round. The tabular-by-candidate format (not shown here) allows you to dive into the number of votes a certain candidate had on each round.</p>
             </small>
@@ -124,9 +124,9 @@
       </div>
       <div class="slide fp-noscroll text-center">
         <h5>Single Table Summary</h5>
-        <img class="img-fluid" src="{% static 'visualizer/icon_singletable.png' %}" alt="Demo of single table summary" loading="lazy">
+        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_singletable.png' %}" alt="Demo of single table summary" loading="lazy">
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>The single table summary is a quick, noninteractive view that combines both the tabular-by-round and the tabular-by-candidate views. It gives a quick, at-a-glance summary of each round.</p>
               <p>This table can also be exported to Wikipedia with several Wikicode features, including sorting each round by who had the most votes in that round, and including both percentage of votes and number of votes.</p>
@@ -137,7 +137,7 @@
       </div>
   </div>
 
-  <div class="section fp-auto-height homedescriptor" id="id-examples">
+  <div class="section homedescriptor" id="id-examples">
     <div class="container">
 
       <!-- Portfolio Section Heading -->
@@ -154,18 +154,18 @@
 
       <!-- Portfolio Grid Items -->
       <div class="row">
-        <div class="col-md-6 ml-auto mb-3">
+        <div class="col-md-6 text-center">
           <p class="lead mb-0 mt-0">Utah County 2019 Elections</p>
-          <p class="mb-0 mt-0">Used during the election cycle by <a class="btn-outline-dark" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
+          <p class="subheader">Used during the election cycle by <a class="btn-outline-dark" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_1json' %}">2019 Payson City Council Seat 1</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_2json' %}">2019 Payson City Council Seat 2</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_3json' %}">2019 Payson City Council Seat 3</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_1json' %}">2019 Vineyard City Council Seat 1</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_2json' %}">2019 Vineyard City Council Seat 2</a>
         </div>
-        <div class="col-md-6 mr-auto">
+        <div class="col-md-6 text-center">
           <p class="lead mb-0 mt-0">Sample Elections</p>
-          <p class="mb-0 mt-0">Using sample data for demonstration purposes</p>
+          <p class="subheader">Using sample data for demonstration purposes</p>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' '2015_portland_mayorjson' %}">2019 City of Eastpointe (multi-winner)</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'opavote2json' %}">2019 FairVote Primary Poll</a>
           <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a>
@@ -177,7 +177,7 @@
   </div>
 
 
-  <div class="section fp-auto-height homedescriptor" id="id-latest">
+  <div class="section homedescriptor" id="id-latest">
     <div class="container">
 
       <!-- Portfolio Section Heading -->
@@ -206,7 +206,8 @@
     </div>
   </div>
 
-  <div class="section fp-auto-height homedescriptor" id="id-external-header">
+  <div class="section homedescriptor" id="id-external">
+    <div class="slider-header">
       <!-- About Section Heading -->
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">More Resources</h2>
 
@@ -218,17 +219,17 @@
         </div>
         <div class="divider-custom-line"></div>
       </div>
-  </div>
-  <div class="section homedescriptor" id="id-external">
+    </div>
+
       <div class="slide text-center">
         <h5>Create an RCV poll or election</h5>
         <a href="https://www.rankit.vote">
-          <img class="img-fluid" src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" loading="lazy" alt="Rankit.vote icon">
+          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" loading="lazy" alt="Rankit.vote icon">
           <br/>
           rankit.vote
         </a>
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>Rankit allows you to create an RCV election. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.</p>
             </small>
@@ -238,12 +239,12 @@
       <div class="slide text-center">
         <h5>Advocate for RCV</h5>
         <a href="https://www.fairvote.org">
-          <img class="img-fluid" src="{% static 'visualizer/resource_fairvote.png' %}" width="300px" loading="lazy" alt="Fairvote icon">
+          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_fairvote.png' %}" width="300px" loading="lazy" alt="Fairvote icon">
           <br/>
           fairvote.org
         </a>
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>FairVote is a champion of electoral reform. One of their main platforms is advocating for ranked choice voting, but they also advocate for multi-winner districts and other reforms to create a more proportional, representative, and fair democracy.</p>
             </small>
@@ -253,12 +254,12 @@
       <div class="slide text-center">
         <h5>Tabulate the results of an RCV election</h5>
         <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">
-          <img class="img-fluid" src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" loading="lazy" alt="Universal RCV Tabulator icon">
+          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" loading="lazy" alt="Universal RCV Tabulator icon">
           <br/>
           rankedchoicevoting.org/universal_rcv_tabulator
         </a>
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVIS can ingest and visualize.</p>
             </small>
@@ -268,12 +269,12 @@
       <div class="slide text-center">
         <h5>Implement RCV in your jurisdiction</h5>
         <a href="https://www.rankedchoicevoting.org">
-          <img class="img-fluid" src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" loading="lazy" alt="RCV Resource Center icon">
+          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" loading="lazy" alt="RCV Resource Center icon">
           <br/>
           rankedchoicevoting.org
         </a>
         <div class="row justify-content-center">
-          <div class="col-sm-3 mt-3">
+          <div class="descriptors">
             <small>
               <p>The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVIS.</p>
             </small>
@@ -299,10 +300,10 @@
         navigation: true,
         verticalCentered: true,
         slidesNavigation: true,
-        sectionsColor: ['', '#f8fdff', '#fcfefa', '#f8fdff', '#fff', '#f8fdff', '#fcfefa'],
-        anchors: ['top-of-page', 'intro', 'whatis', 'types-header', 'types', 'examples', 'latest', 'external-header', 'external', 'bottom-of-page'],
+        sectionsColor: ['#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa', '#fff'],
+        anchors: ['intro', 'whatis', 'types', 'examples', 'latest', 'external', 'bottom-of-page'],
         recordHistory: false,
-        scrollOverflow: true,
+        paddingTop: document.getElementById('mainNav').offsetHeight + "px",
       };
 
       new fullpage('#fullpage', fullpageOptions);

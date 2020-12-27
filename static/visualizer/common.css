@@ -18,8 +18,3 @@ h3 {
 h6 {
   font-size: 0.8em;
 }
-@media only screen and (max-height: 400px) {
-  .img-fluid {
-    max-width: 250px;
-  }
-}
