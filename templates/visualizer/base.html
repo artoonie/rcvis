@@ -15,12 +15,10 @@
 {% block beforeFullpage %}
 {% endblock %}
 
-<div id="fullpage">
   <!-- Navigation -->
- <div class="section fp-auto-height">
   <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo.png' %}" width="60" style="margin-left: 50px" alt="RCVIS logo" /></a>
+        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo.png' %}" width="60" style="margin-left: 50px" alt="RCVIS logo" id="logo" /></a>
       <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         Menu
         <i class="fas fa-bars"></i>
@@ -33,8 +31,8 @@
       </div>
     </div>
   </nav>
- </div>
 
+<div id="fullpage">
 {% block maincontent %}
 {% endblock %}
   <!-- Footer -->
