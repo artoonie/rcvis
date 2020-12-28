@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_nose',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_tracking',
     'django_cleanup.apps.CleanupConfig',
     'django_social_share',
 ]

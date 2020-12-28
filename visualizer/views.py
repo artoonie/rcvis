@@ -17,6 +17,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from rest_framework import permissions, viewsets
+from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
 from common import viewUtils
@@ -189,7 +190,7 @@ class Oembed(View):
 # For django REST
 
 
-class JsonConfigViewSet(viewsets.ModelViewSet):
+class JsonConfigViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonConfigSerializer
@@ -199,7 +200,7 @@ class JsonConfigViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class UserViewSet(viewsets.ReadOnlyModelViewSet):
+class UserViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
     """ API endpoint that allows you to view but not edit Users. """
     queryset = get_user_model().objects.all().order_by('-id')
     serializer_class = UserSerializer
