@@ -61,6 +61,8 @@ class TabulatedResultsReaderBase():
                 itemsRemaining.remove(winner)
         winners = reversed(winners)
 
+        # Sort remaining items by the number of votes they received
+        itemsRemaining = sorted(itemsRemaining, key=lambda x: self.graph.nodesPerRound[-1][x].count)
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
 

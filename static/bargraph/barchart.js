@@ -265,19 +265,19 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
   };
   function rightRoundedRect(x, y, width, height, radius) {
       return "M" + x + "," + y
-           + "h" + (width - radius)
+           + "h" + (width - (2 * radius))
            + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
            + "v" + (height - 2 * radius)
            + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-           + "h" + (radius - width)
+           + "h" + ((2 * radius) - width)
            + "z";
   }
   function leftRoundedRect(x, y, width, height, radius) {
       return "M" + x + "," + (y+radius)
            + "a" + radius + "," + -radius + " 0 0 1 " + radius + "," + -radius
-           + "h" + width
+           + "h" + (width - radius)
            + "v" + height
-           + "h" + (-width)
+           + "h" + (-width + radius)
            + "a" + -radius + "," + -radius + " 0 0 1 " + -radius + "," + -radius
            + "z";
   }
@@ -313,7 +313,8 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       let y = barVotesPosFn(data);
       let width = candidatesRange.bandwidth() * 0.9;
       let height = barVotesSizeFn(data);
-      const r = 4;
+      let r = 4;
+      r = Math.min(r, width/2.0, height/2.0); // Don't let the radius expand the bar
 
       if (height == 0 || width == 0) {
         // Don't draw a strip of a radius on eliminated rounds
@@ -325,12 +326,11 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
         [width, height] = [height, width];
       }
 
-      if (data.round == 0 && isEliminatedThisRound(data)) {
-        // Eliminated on first round - round on all sides on horizontal, top on vertical
+      if (data.round == 0 && isLatestRoundFor(data.round)) {
+        // Eliminated or won on first round - round on all sides on horizontal, top on vertical
         if (isVertical) return  topRoundedRect(x, y, width, height, r);
         else            return allRoundedRect(x, y, width, height, r);
-      }
-      else if (data.round == 0) {
+      } else if (data.round == 0) {
         // First round (vertical gets no rounding on first round)
         if (isVertical) return  notRoundedRect(x, y, width, height);
         else            return leftRoundedRect(x, y, width, height, r);
