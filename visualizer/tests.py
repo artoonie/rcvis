@@ -22,6 +22,7 @@ from django.test.client import RequestFactory
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_tracking.models import APIRequestLog
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -581,6 +582,19 @@ class RestAPITests(APITestCase):
         response = self._upload_file_for_api(FILENAME_ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         assert 'JSON is not valid' not in response.data['jsonFile'][0]
+
+    def test_analytics(self):
+        """ Ensure analytics are created """
+        self._authenticate_as('notadmin')
+        self.assertEqual(APIRequestLog.objects.all().count(), 0)
+        self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(APIRequestLog.objects.all().count(), 1)
+        self.client.get('/api/users/', format='json')
+        self.assertEqual(APIRequestLog.objects.all().count(), 2)
+
+        logs = APIRequestLog.objects.all()
+        self.assertEqual(logs[0].method, 'POST')
+        self.assertEqual(logs[1].method, 'GET')
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):

@@ -18,6 +18,7 @@ pylint-django==2.2.0
 
 # For django-rest
 djangorestframework==3.11.0
+drf-api-tracking==1.7.8
 markdown==3.2.2
 
 # For movie creation
