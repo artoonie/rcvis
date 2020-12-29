@@ -13,6 +13,16 @@
   {% compress css file %}
       <link rel="stylesheet" href="{% static "visualizer/visualize.css" %}">
   {% endcompress %}
+
+	<script type="application/ld+json">
+		{
+			"@context" : "http://schema.org",
+			"@type" : "Dataset",
+			"name" : "{{title}}",
+			"description" : "RCVIS is open-source Ranked-Choice Voting Visualization software. Get in touch: team@rcvis.com.",
+			"temporalCoverage" : "{{ date }}"
+		}
+	</script>
 {% endblock %} 
 
 {% block navlinks %}
