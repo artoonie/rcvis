@@ -10,22 +10,44 @@ class BadJSONError(Exception):
 
 
 def get_correct_reader_for(fileObject):
-    """ Try to use the rcvrc json reader. If it doesn't work, try the OPAVote reader. """
+    """ Loops through each of the three readers trying to find one that works on this file """
+    reader_getters = (get_rcvrc_reader, get_opavote_reader, get_electionbuddy_reader)
+
     exceptions = {}
+    for reader_getter in reader_getters:
+        maybe_reader = reader_getter(fileObject, exceptions)
+        if maybe_reader:
+            return maybe_reader
+
+    # None of the readers returned
+    raise BadJSONError(exceptions)
+
+
+def get_rcvrc_reader(fileObject, exceptions):
+    """ Tries to return an RCVRC reader, or returns None and adds to exceptions """
     try:
-        jsonReader = rcvrcJson.JSONReader(fileObject)
+        return rcvrcJson.JSONReader(fileObject)
     except Exception as rcvrcException:  # pylint: disable=broad-except
-        try:
-            exceptions["RCVRC JSON Errors"] = rcvrcException
-            jsonReader = opavoteJson.JSONReader(fileObject)
-        except Exception as opavoteException:  # pylint: disable=broad-except
-            exceptions["Opavote JSON Errors"] = opavoteException
-            try:
-                jsonReader = electionbuddyCSV.CSVReader(fileObject)
-            except Exception as electionBuddyExceptions:  # pylint: disable=broad-except
-                exceptions["Election Buddy CSV Errors"] = electionBuddyExceptions
-                raise BadJSONError(exceptions)
-    return jsonReader
+        exceptions["RCVRC JSON Errors"] = rcvrcException
+        return None
+
+
+def get_opavote_reader(fileObject, exceptions):
+    """ Tries to return an OpaVote reader, or returns None and adds to exceptions """
+    try:
+        return opavoteJson.JSONReader(fileObject)
+    except Exception as opavoteException:  # pylint: disable=broad-except
+        exceptions["Opavote JSON Errors"] = opavoteException
+        return None
+
+
+def get_electionbuddy_reader(fileObject, exceptions):
+    """ Tries to return an electionbuddy reader, or returns None and adds to exceptions """
+    try:
+        return electionbuddyCSV.CSVReader(fileObject)
+    except Exception as electionBuddyExceptions:  # pylint: disable=broad-except
+        exceptions["Election Buddy CSV Errors"] = electionBuddyExceptions
+        return None
 
 
 def remove_last_winner_and_eliminated(graph, rounds):
