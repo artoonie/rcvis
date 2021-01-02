@@ -18,10 +18,12 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         """ The meta class to simplify construction of the serializer """
         model = JsonConfig
-        fields = '__all__'
+
         owner = serializers.ReadOnlyField(source='owner.username')
         read_only_fields = ('slug', 'movieHorizontal', 'movieVertical', 'movieGenerationStatus')
         read_only_but_validate_fields = ('numRounds', 'numCandidates', 'title')
+        fields = ('jsonFile', 'owner') + read_only_fields + read_only_but_validate_fields
+
 
     def to_representation(self, instance):
         data = super(JsonConfigSerializer, self).to_representation(instance)

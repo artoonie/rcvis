@@ -600,6 +600,15 @@ class RestAPITests(APITestCase):
         self.assertEqual(logs[0].method, 'POST')
         self.assertEqual(logs[1].method, 'GET')
 
+    def test_defaults(self):
+        """ Ensure the correct defaults are used on upload """
+        self._authenticate_as('notadmin')
+        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        self.assertEqual(oneRoundObject.hideSankey, False)
+        self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
+
 
 class LiveBrowserTests(StaticLiveServerTestCase):
     """ Tests that launch a selenium browser """
