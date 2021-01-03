@@ -515,21 +515,19 @@ class RestAPITests(APITestCase):
         response = self.client.put(url, format='json', data=editedData)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # Patch should succeed with simple bool changes
+        # Patch should fail with config changes
+        # TODO eventually allow this again - should be allowed to change config
         response = self.client.patch(url, format='json', data=editedData)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['hideSankey'], True)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Patch should also succeed with a JSON change
         with open(FILENAME_MULTIWINNER) as f:
             response = self.client.patch(url, data={'jsonFile': f})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['hideSankey'], True)
         filenameBasename = os.path.splitext(os.path.basename(FILENAME_MULTIWINNER))[0]
         assert filenameBasename in response.data['jsonFile']
+        self.assertEqual(response.data['title'], "City of Eastpointe, Macomb County, MI")
 
         # But changing the owner is not allowed
         notadminId = get_user_model().objects.all().filter(username='notadmin')[0].id
@@ -599,6 +597,15 @@ class RestAPITests(APITestCase):
         logs = APIRequestLog.objects.all()
         self.assertEqual(logs[0].method, 'POST')
         self.assertEqual(logs[1].method, 'GET')
+
+    def test_defaults(self):
+        """ Ensure the correct defaults are used on upload """
+        self._authenticate_as('notadmin')
+        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        self.assertEqual(oneRoundObject.hideSankey, False)
+        self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):
