@@ -81,9 +81,9 @@ class TestHelpers():
         testClass.mockGetHost.return_value = "https://fakeurl.com"
 
     @classmethod
-    def copy_with_new_name(cls, jsonFileToCopy, newName):
+    def copy_with_new_name(cls, jsonFileToCopy, newName, newFilenamePrefix=None):
         """ Copies the file to a tempfile, but changes the name. Returns the tempfile """
-        tf = tempfile.NamedTemporaryFile(suffix='json')
+        tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
         with open(jsonFileToCopy, 'r') as f:
             data = json.loads(f.read())

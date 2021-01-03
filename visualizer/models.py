@@ -84,14 +84,17 @@ class JsonConfig(models.Model):
                 'hideDecimals']
 
     def _get_unique_slug(self):
+        # loop until the name is unique
         slug = slugify(self.jsonFile)
         if slug.endswith('json'):
             slug = slug[:-4]
-        uniqueSlug = slug
-        # at most 220 chars for slug, an enormous 35 for integers afterward
-        uniqueSlug = uniqueSlug[:220]
-        num = 1
 
+        # at most 220 chars for slug, 20 for title, leaving 15 for numbers
+        slug = slug[:220]
+
+        # loop until the name is unique
+        num = 1
+        uniqueSlug = slug
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
             uniqueSlug = '{}-{}'.format(slug, num)
             num += 1

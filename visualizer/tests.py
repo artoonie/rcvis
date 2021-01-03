@@ -97,6 +97,18 @@ class SimpleTests(TestCase):
         response = self.client.post('/upload.html', {'jsonFile': tf})
         self.assertEqual(response.status_code, 302)
 
+    def test_too_long_filename_succeed(self):
+        """ TODO: Make this test check that a filename with 255 chars gets truncated """
+        # Annoyingly this test doesn't work with a filename prefix > 87 chars
+        tf = TestHelpers.copy_with_new_name(
+            FILENAME_MULTIWINNER,
+            newName='any name',
+            newFilenamePrefix='x' * 87)
+        response = self.client.post('/upload.html', {'jsonFile': tf})
+        self.assertEqual(response.status_code, 302)
+        lastUpload = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        self.assertLess(len(lastUpload.slug), 100)
+
     # pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
