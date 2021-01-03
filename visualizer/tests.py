@@ -515,21 +515,19 @@ class RestAPITests(APITestCase):
         response = self.client.put(url, format='json', data=editedData)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        # Patch should succeed with simple bool changes
+        # Patch should fail with config changes
+        # TODO eventually allow this again - should be allowed to change config
         response = self.client.patch(url, format='json', data=editedData)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['hideSankey'], True)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Patch should also succeed with a JSON change
         with open(FILENAME_MULTIWINNER) as f:
             response = self.client.patch(url, data={'jsonFile': f})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['hideSankey'], True)
         filenameBasename = os.path.splitext(os.path.basename(FILENAME_MULTIWINNER))[0]
         assert filenameBasename in response.data['jsonFile']
+        self.assertEqual(response.data['title'], "City of Eastpointe, Macomb County, MI")
 
         # But changing the owner is not allowed
         notadminId = get_user_model().objects.all().filter(username='notadmin')[0].id
