@@ -24,7 +24,7 @@ class JsonConfig(models.Model):
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=255)
     uploadedAt = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -88,6 +88,8 @@ class JsonConfig(models.Model):
         if slug.endswith('json'):
             slug = slug[:-4]
         uniqueSlug = slug
+        # at most 220 chars for slug, an enormous 35 for integers afterward
+        uniqueSlug = uniqueSlug[:220]
         num = 1
 
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
