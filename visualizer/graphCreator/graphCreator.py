@@ -11,13 +11,13 @@ class BadJSONError(Exception):
 
 def get_correct_reader_for(fileObject):
     """ Loops through each of the three readers trying to find one that works on this file """
-    reader_getters = (get_rcvrc_reader, get_opavote_reader, get_electionbuddy_reader)
+    readerGetters = (get_rcvrc_reader, get_opavote_reader, get_electionbuddy_reader)
 
     exceptions = {}
-    for reader_getter in reader_getters:
-        maybe_reader = reader_getter(fileObject, exceptions)
-        if maybe_reader:
-            return maybe_reader
+    for readerGetter in readerGetters:
+        maybeReader = readerGetter(fileObject, exceptions)
+        if maybeReader:
+            return maybeReader
 
     # None of the readers returned
     raise BadJSONError(exceptions)

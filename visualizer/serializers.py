@@ -24,7 +24,6 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         read_only_but_validate_fields = ('numRounds', 'numCandidates', 'title')
         fields = ('jsonFile', 'owner') + read_only_fields + read_only_but_validate_fields
 
-
     def to_representation(self, instance):
         data = super(JsonConfigSerializer, self).to_representation(instance)
         request = self.context['request']
