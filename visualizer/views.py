@@ -1,5 +1,6 @@
 """ The django views file """
 
+import traceback
 import urllib.parse
 
 # Django helpers
@@ -72,7 +73,8 @@ class Upload(CreateView):
         except BadJSONError:
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
-            return render(self.request, 'visualizer/errorUploadFailedGeneric.html')
+            context = {'debugInfo': traceback.format_exc()}
+            return render(self.request, 'visualizer/errorUploadFailedGeneric.html', context=context)
 
         form.save()
         return super().form_valid(form)

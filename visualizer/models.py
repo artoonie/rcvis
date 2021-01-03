@@ -24,7 +24,7 @@ class JsonConfig(models.Model):
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=255)
     uploadedAt = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -84,12 +84,17 @@ class JsonConfig(models.Model):
                 'hideDecimals']
 
     def _get_unique_slug(self):
+        # loop until the name is unique
         slug = slugify(self.jsonFile)
         if slug.endswith('json'):
             slug = slug[:-4]
-        uniqueSlug = slug
-        num = 1
 
+        # at most 220 chars for slug, 20 for title, leaving 15 for numbers
+        slug = slug[:220]
+
+        # loop until the name is unique
+        num = 1
+        uniqueSlug = slug
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
             uniqueSlug = '{}-{}'.format(slug, num)
             num += 1

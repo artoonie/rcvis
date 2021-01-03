@@ -2,6 +2,7 @@
 Helper functions for unit and integration tests
 """
 
+import logging
 import json
 from mock import patch
 import tempfile
@@ -80,9 +81,9 @@ class TestHelpers():
         testClass.mockGetHost.return_value = "https://fakeurl.com"
 
     @classmethod
-    def copy_with_new_name(cls, jsonFileToCopy, newName):
+    def copy_with_new_name(cls, jsonFileToCopy, newName, newFilenamePrefix=None):
         """ Copies the file to a tempfile, but changes the name. Returns the tempfile """
-        tf = tempfile.NamedTemporaryFile(suffix='json')
+        tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
         with open(jsonFileToCopy, 'r') as f:
             data = json.loads(f.read())
@@ -92,3 +93,19 @@ class TestHelpers():
             json.dump(data, f)
 
         return tf
+
+    @classmethod
+    def silence_logging_spam(cls):
+        """ Clean up output of misc libraries """
+        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
+        for logger in loggers:
+            logger.setLevel(logging.CRITICAL)
+        logging.getLogger('boto').setLevel(logging.CRITICAL)
+        logging.getLogger('boto3').setLevel(logging.CRITICAL)
+        logging.getLogger('botocore').setLevel(logging.CRITICAL)
+        logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
+        logging.getLogger('matplotlib.pyplot').setLevel(logging.CRITICAL)
+        logging.getLogger('PIL').setLevel(logging.CRITICAL)
+        logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
+        logging.getLogger('selenium').setLevel(logging.CRITICAL)
+        logging.getLogger('urllib3').setLevel(logging.CRITICAL)

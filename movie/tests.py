@@ -23,6 +23,8 @@ FILENAME_AUDIO = 'testData/audio.mp3'
 FILENAME_SCRIPT = 'testData/expected-video-script.txt'
 FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo.png'
 
+TestHelpers.silence_logging_spam()
+
 # Mock helpers
 ORIG_FUNC_FOR_SPAWN_AUDIO = SingleMovieCreator._spawn_audio_creation_with_caption  # pylint: disable=protected-access
 MOVIE_PATCH_PREFIX = 'movie.creation.movieCreator.SingleMovieCreator.'

@@ -6,7 +6,6 @@ Unit and integration tests for the core visualizer app
 
 from enum import Enum
 import json
-import logging
 import os
 import platform
 import time
@@ -46,13 +45,7 @@ FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
-# Clean up output of misc libraries
-logging.getLogger('boto').setLevel(logging.CRITICAL)
-logging.getLogger('botocore').setLevel(logging.CRITICAL)
-logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
-logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
-logging.getLogger('selenium').setLevel(logging.CRITICAL)
-logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+TestHelpers.silence_logging_spam()
 
 
 class SimpleTests(TestCase):
@@ -103,6 +96,18 @@ class SimpleTests(TestCase):
         # Ensure success
         response = self.client.post('/upload.html', {'jsonFile': tf})
         self.assertEqual(response.status_code, 302)
+
+    def test_too_long_filename_succeed(self):
+        """ TODO: Make this test check that a filename with 255 chars gets truncated """
+        # Annoyingly this test doesn't work with a filename prefix > 87 chars
+        tf = TestHelpers.copy_with_new_name(
+            FILENAME_MULTIWINNER,
+            newName='any name',
+            newFilenamePrefix='x' * 87)
+        response = self.client.post('/upload.html', {'jsonFile': tf})
+        self.assertEqual(response.status_code, 302)
+        lastUpload = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        self.assertLess(len(lastUpload.slug), 100)
 
     # pylint: disable=R0201
     def test_various_configs(self):
