@@ -43,12 +43,12 @@ class RawFileData:
     def read_round(cls, fileObj):
         """ Reads the CSV data for the next round """
         headers = read_line_as_str(fileObj)
-        assert headers == "Candidate,Votes,Percentage\n"
+        assert headers.strip() == "Candidate,Votes,Percentage"
 
         candidates = {}
         while True:
             line = read_line_as_str(fileObj)
-            if line == "\n":
+            if line.strip() == "":
                 break
             candidate, votes, _ = line.split(',')
             candidates[candidate] = float(votes)
