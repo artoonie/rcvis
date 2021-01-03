@@ -47,7 +47,7 @@ class Graph:
     """ Data about the entire graph, including nodes and links between thhem """
 
     def __init__(self, title, threshold):
-        self.title = title
+        self.title = title.strip()
         self.threshold = threshold
         self.nodes = []
         self.links = []
