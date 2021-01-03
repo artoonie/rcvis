@@ -265,7 +265,7 @@ LOGGING = {
     },
     'loggers': {
         '': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console', 'file'] if DEBUG else ['file'],
             'level': 'INFO',
             'propagate': True,
         },

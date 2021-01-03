@@ -6,7 +6,6 @@ Unit and integration tests for the core visualizer app
 
 from enum import Enum
 import json
-import logging
 import os
 import platform
 import time
@@ -46,13 +45,7 @@ FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
-# Clean up output of misc libraries
-logging.getLogger('boto').setLevel(logging.CRITICAL)
-logging.getLogger('botocore').setLevel(logging.CRITICAL)
-logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
-logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
-logging.getLogger('selenium').setLevel(logging.CRITICAL)
-logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+TestHelpers.silence_logging_spam()
 
 
 class SimpleTests(TestCase):
