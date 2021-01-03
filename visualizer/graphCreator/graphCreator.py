@@ -1,8 +1,13 @@
 """ Helper functions to load a graph from a file """
 
+import logging
+import traceback
+
 import visualizer.graphCreator.readElectionbuddyCSV as electionbuddyCSV
 import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
 import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
+
+logger = logging.getLogger(__name__)
 
 
 class BadJSONError(Exception):
@@ -20,6 +25,7 @@ def get_correct_reader_for(fileObject):
             return maybeReader
 
     # None of the readers returned
+    logger.info("Upload failed: %s", str(exceptions))
     raise BadJSONError(exceptions)
 
 
@@ -27,8 +33,8 @@ def get_rcvrc_reader(fileObject, exceptions):
     """ Tries to return an RCVRC reader, or returns None and adds to exceptions """
     try:
         return rcvrcJson.JSONReader(fileObject)
-    except Exception as rcvrcException:  # pylint: disable=broad-except
-        exceptions["RCVRC JSON Errors"] = rcvrcException
+    except Exception:  # pylint: disable=broad-except
+        exceptions["RCVRC JSON Errors"] = traceback.format_exc()
         return None
 
 
@@ -36,8 +42,8 @@ def get_opavote_reader(fileObject, exceptions):
     """ Tries to return an OpaVote reader, or returns None and adds to exceptions """
     try:
         return opavoteJson.JSONReader(fileObject)
-    except Exception as opavoteException:  # pylint: disable=broad-except
-        exceptions["Opavote JSON Errors"] = opavoteException
+    except Exception:  # pylint: disable=broad-except
+        exceptions["Opavote JSON Errors"] = traceback.format_exc()
         return None
 
 
@@ -45,8 +51,8 @@ def get_electionbuddy_reader(fileObject, exceptions):
     """ Tries to return an electionbuddy reader, or returns None and adds to exceptions """
     try:
         return electionbuddyCSV.CSVReader(fileObject)
-    except Exception as electionBuddyExceptions:  # pylint: disable=broad-except
-        exceptions["Election Buddy CSV Errors"] = electionBuddyExceptions
+    except Exception:  # pylint: disable=broad-except
+        exceptions["Election Buddy CSV Errors"] = traceback.format_exc()
         return None
 
 
