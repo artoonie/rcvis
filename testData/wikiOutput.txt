@@ -1,0 +1,106 @@
+
+            {| class="wikitable sortable"
+            ! colspan=" 11 " | City of Eastpointe, Macomb County, MI <ref>
+                {{cite web
+                |title=City of Eastpointe, Macomb County, MI Ranked Choice Voting Election Results Visualization
+                |url=http://example.com/v/slug
+                |website=rcvis.com
+                |publisher=RCVIS
+                |date=January 03, 2021
+                }}
+            </ref>
+            |- style="background:#eee; text-align:center;" 
+            ! rowspan=2 style="text-align:center;" | Candidate
+                ! colspan=2 style="text-align:center;" | Round 1
+                ! colspan=2 style="text-align:center;" | Round 2
+                ! colspan=2 style="text-align:center;" | Round 3
+                ! colspan=2 style="text-align:center;" | Round 4
+                ! colspan=2 style="text-align:center;" | Round 5
+            |-
+                ! Votes
+                ! %
+                ! Votes
+                ! %
+                ! Votes
+                ! %
+                ! Votes
+                ! %
+                ! Votes
+                ! %
+                |-
+                ! scope="row" style="text-align:left;" | {{sortname| Harvey|Curley}}
+                        |  80
+                        |  20.0%
+                        |  144
+                        |  36.0%
+                        | {{won|}} 134
+                        | {{won|}} 33.5%
+                        | {{won|}} 134
+                        | {{won|}} 33.5%
+                        | {{won|}} 134
+                        | {{won|}} 33.5%
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | {{sortname| Larry|Edwards}}
+                        |  96
+                        |  24.0%
+                        |  96
+                        |  24.0%
+                        |  104.88
+                        |  26.2%
+                        |  184.88
+                        |  46.2%
+                        | {{won|}} 134
+                        | {{won|}} 33.5%
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | {{sortname| Mary|Hall-Rayford}}
+                        |  80
+                        |  20.0%
+                        |  80
+                        |  20.0%
+                        |  81.11
+                        |  20.3%
+                        |  81.11
+                        |  20.3%
+                        |  131.67
+                        |  32.9%
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | {{sortname| Sarah|Lucido}}
+                        |  80
+                        |  20.0%
+                        |  80
+                        |  20.0%
+                        |  80
+                        |  20.0%
+            ! colspan=4 style="text-align:center;" {{lost|Eliminated}}
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | Write-In
+                        |  64
+                        |  16.0%
+            ! colspan=8 style="text-align:center;" {{lost|Eliminated}}
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | {{sortname| Residual|Surplus}}
+                        |  0
+                        |  0.0%
+                        |  0
+                        |  0.0%
+                        |  0.01
+                        |  0.0%
+                        |  0.01
+                        |  0.0%
+                        |  0.02
+                        |  0.0%
+                |-
+                |-
+                ! scope="row" style="text-align:left;" | [[Instant-runoff voting#Invalid ballots and incomplete ballots|Inactive Ballots]]
+                        ! colspan="2" |   0 ballots
+                        ! colspan="2" |   0 ballots
+                        ! colspan="2" |   0 ballots
+                        ! colspan="2" |   0 ballots
+                        ! colspan="2" |   0.30 ballots
+                |-
+            |}
