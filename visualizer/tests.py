@@ -43,6 +43,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
+FILENAME_ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 TestHelpers.silence_logging_spam()
@@ -68,6 +69,7 @@ class SimpleTests(TestCase):
     def test_electionbuddy_loads(self):
         """ Opens the electionbuddy file """
         self._get_data_for_view(FILENAME_ELECTIONBUDDY)
+        self._get_data_for_view(FILENAME_ELECTIONBUDDY_NOABSTENTION)
 
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """
