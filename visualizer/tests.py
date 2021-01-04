@@ -654,6 +654,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser = TestHelpers.get_headless_browser()
 
         self.browser.implicitly_wait(10)
+        self._screenshotCount = 0
 
     def tearDown(self):
         """ Destroys the selenium browser """
@@ -785,6 +786,16 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _go_to_tab(self, tabId):
         self.browser.find_elements_by_id(tabId)[0].click()
+
+    def _debug_screenshot(self):
+        """ Saves a screenshot in the current directory for debugging """
+        # First, ensure we're not on Travis. This is only for local debugging.
+        assert not self.isUsingSauceLabs
+
+        # Save a screenshot
+        filename = f'screenshot_{self._screenshotCount}.png'
+        self.browser.save_screenshot(filename)
+        self._screenshotCount += 1
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -1102,3 +1113,25 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                     assert imagePathWithoutSuffix in href
                 else:
                     assert 't.me' in href
+
+    def test_slider_animates(self):
+        """ Check that the share tab has sane links for all buttons """
+        def get_slider_value(driver):
+            return driver.execute_script("return sliderStep.value()")
+
+        # Upload something with many rounds so we can catch the animation
+        self._upload(FILENAME_OPAVOTE)
+        numRounds = 19
+
+        # Wait until animation starts - when the slider is not at numRounds
+        WebDriverWait(self.browser, timeout=5, poll_frequency=0.1).until(
+            lambda d: get_slider_value(d) < numRounds)
+
+        # Grab the value
+        valueNow = get_slider_value(self.browser)
+
+        # Should be about two rounds higher now
+        time.sleep(0.1)
+        valueLater = get_slider_value(self.browser)
+
+        self.assertGreater(valueLater, valueNow)

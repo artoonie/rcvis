@@ -16,6 +16,8 @@ function swapTabVisibility(oldTabName, newTabName) {
   document.getElementById(newTabId).style.display = 'block';
 }
 
+let hasAnimatedSlider = false;
+
 function goToTab(newTabName) {
   if (newTabName == currentTabName) return;
 
@@ -29,7 +31,46 @@ function goToTab(newTabName) {
   document.getElementById('toggle-dynamic').style.display = canBeDynamic ? 'block' : 'none';
 
   // Update history
-  history.pushState(null,null,'#' + newTabName)
+  history.pushState(null,null,'#' + newTabName);
+
+  animateIfNeeded(newTabName);
+}
+
+function animateIfNeeded(newTabName) {
+  // TODO only run animation on interactive visualizations
+  if (hasAnimatedSlider) {
+    return;
+  }
+
+  if (newTabName == 'barchart') {
+    animateSlider(sliderStep)
+    hasAnimatedSlider = true;
+  }
+  else if (newTabName == 'round-by-round') {
+    animateSlider(sliderStepTabular)
+    hasAnimatedSlider = true;
+  }
+}
+
+function slideTo(sliderObj, round, numRounds) {
+  setTimeout(() => {
+    const didUserGrabControl = round != 1  && sliderObj.value() != round-1;
+    if (didUserGrabControl) {
+      return;
+    }
+
+    sliderObj.value(round);
+
+    if (round+1 < numRounds) {
+      slideTo(sliderObj, round+1, numRounds);
+    }
+  }, 50);
+}
+
+function animateSlider(sliderObj) {
+  const numRounds = 20;
+
+  slideTo(sliderObj, 1, numRounds);
 }
 
 function loadTabFromTag() {
