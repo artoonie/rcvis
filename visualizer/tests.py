@@ -11,6 +11,7 @@ import platform
 import time
 from datetime import datetime
 from urllib.parse import urlparse
+from mock import patch
 
 from django.core.cache import cache
 from django.core.files import File
@@ -216,8 +217,12 @@ class SimpleTests(TestCase):
         # Validate the response - this time the complete URL is needed
         assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
 
-    def test_wikicode(self):
+    @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
+    def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
+        # First mock out the date so the result is the same
+        mockGetDateString.return_value = "Today's Date - mocked out!"
+
         with open(FILENAME_MULTIWINNER, 'r+') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
 
@@ -226,7 +231,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4052
+        magicKnownTextLength = 4062
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r') as f:
             self.maxDiff = None

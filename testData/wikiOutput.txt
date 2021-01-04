@@ -6,7 +6,7 @@
                 |url=http://example.com/v/slug
                 |website=rcvis.com
                 |publisher=RCVIS
-                |date=January 03, 2021
+                |date=Today's Date - mocked out!
                 }}
             </ref>
             |- style="background:#eee; text-align:center;" 
