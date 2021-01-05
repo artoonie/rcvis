@@ -235,42 +235,4 @@ REST_FRAMEWORK = {
 
 }
 
-if not os.path.exists('/var/log/app-logs'):
-    try:
-        os.mkdir('/var/log/app-logs')
-    except PermissionError:
-        raise PermissionError('Please mkdir /var/log/app-logs first and chown it')
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {
-            'format': '%(name)-12s %(levelname)-8s %(message)s'
-        },
-        'file': {
-            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/app-logs/django.log',
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console', 'file'] if DEBUG else ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
-
 MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
