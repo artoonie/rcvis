@@ -27,19 +27,26 @@
   ],
   "buildpacks": [
     { "url": "heroku/chromedriver" },
-    { "url": "heroku/python" }
+    { "url": "heroku/google-chrome" },
+    { "url": "heroku/python" },
+    { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
+    { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
+    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
   ],
   "environments": {
     "test": {
       "scripts": {
-        "test": "python3 manage.py compress && python3 manage.py test"
+        "test": "./scripts/run-tests.sh"
       },
       "env": {
         "RCVIS_SECRET_KEY": {
           "generator": "secret"
         },
-        "RCVIS_DEBUG": true,
-        "RCVIS_HOST": "localhost"
+        "RCVIS_HOST": "localhost",
+        "OFFLINE_MODE": "True",
+        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MOVIE_FONT_NAME": "AvantGarde-Book",
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
       }
     }
   }

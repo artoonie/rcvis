@@ -636,7 +636,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["version"] = "70.0"
             capabilities["build"] = os.environ["HEROKU_TEST_RUN_ID"]
             capabilities["tags"] = ["CI"]
-            capabilities["name"] = os.environ["HEROKU_TEST_RUN_COMMIT_VERSION"] + ": " + self._testMethodName
+            capabilities["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
+            capabilities["name"] = os.environ["HEROKU_TEST_RUN_COMMIT_VERSION"] + \
+                ": " + self._testMethodName
             capabilities["commandTimeout"] = 100
             capabilities["maxDuration"] = 1200
             capabilities["screenResolution"] = "1280x1024"
@@ -657,7 +659,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def tearDown(self):
         """ Destroys the selenium browser """
-        if "HEROKU_TEST_RUN_ID" in os.environ:
+        if self.isUsingSauceLabs:
             sauceResult = "passed" if len(self._outcome.errors) == 0 else "failed"
             self.browser.execute_script("sauce:job-result={}".format(sauceResult))
         self.browser.quit()
