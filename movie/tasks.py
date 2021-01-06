@@ -22,7 +22,7 @@ def create_movie(pk, domain):
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--shm-size=512m")
 
-    browser = webdriver.Chrome('/usr/bin/chromedriver', options=chromeOptions)
+    browser = webdriver.Chrome(options=chromeOptions)
     browser.implicitly_wait(10)
 
     try:
