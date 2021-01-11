@@ -8,6 +8,7 @@ from enum import Enum
 import json
 import os
 import platform
+import re
 import time
 from datetime import datetime
 from urllib.parse import urlparse
@@ -547,7 +548,8 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        ownerId = response.data['owner'][-2]  # of the format url/api/users/<id>/
+        reResult = re.match('.*/api/users/([0-9]*)', response.data['owner'])
+        ownerId = reResult.groups()[0]
         self.assertEqual(ownerId, str(notadminId))
 
         # Changing the slug is an error
@@ -637,8 +639,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["build"] = os.environ["HEROKU_TEST_RUN_ID"]
             capabilities["tags"] = ["CI"]
             capabilities["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
-            capabilities["name"] = os.environ["HEROKU_TEST_RUN_COMMIT_VERSION"] + \
-                ": " + self._testMethodName
+            capabilities["name"] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
             capabilities["commandTimeout"] = 100
             capabilities["maxDuration"] = 1200
             capabilities["screenResolution"] = "1280x1024"
@@ -660,10 +661,17 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def tearDown(self):
         """ Destroys the selenium browser """
         if self.isUsingSauceLabs:
-            sauceResult = "passed" if len(self._outcome.errors) == 0 else "failed"
+            sauceResult = "passed" if not self._has_test_failed() else "failed"
             self.browser.execute_script("sauce:job-result={}".format(sauceResult))
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
+
+    def _has_test_failed(self):
+        """ helper for tearDown to check if the test has failed """
+        for _, error in self._outcome.errors:
+            if error:
+                return True
+        return False
 
     def _get_log(self):
         """ Returns and clears the console log """
@@ -1117,22 +1125,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_slider_animates(self):
         """ Check that the share tab has sane links for all buttons """
-        def get_slider_value(driver):
-            return driver.execute_script("return sliderStep.value()")
-
         # Upload something with many rounds so we can catch the animation
         self._upload(FILENAME_OPAVOTE)
-        numRounds = 19
 
-        # Wait until animation starts - when the slider is not at numRounds
+        # Ensure the animation happened
         WebDriverWait(self.browser, timeout=5, poll_frequency=0.1).until(
-            lambda d: get_slider_value(d) < numRounds)
-
-        # Grab the value
-        valueNow = get_slider_value(self.browser)
-
-        # Should be about two rounds higher now
-        time.sleep(0.1)
-        valueLater = get_slider_value(self.browser)
-
-        self.assertGreater(valueLater, valueNow)
+            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))

@@ -21,14 +21,22 @@
       }
     }
   ],
+  "env": {
+    "OFFLINE_MODE": "False",
+    "RCVIS_DEBUG": "False",
+    "DISABLE_COLLECTSTATIC": "1",
+
+    "MAGICK_CONFIGURE_PATH": "/app/.magick",
+    "MOVIE_FONT_NAME": "AvantGarde-Book",
+    "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+  },
   "buildpacks": [
     { "url": "heroku/chromedriver" },
     { "url": "heroku/google-chrome" },
     { "url": "heroku/python" },
     { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
     { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
-    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" },
-    { "url": "https://github.com/ojarva/django-compressor-heroku-buildpack.git" }
+    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
   ],
   "environments": {
     "test": {
@@ -40,9 +48,9 @@
           "generator": "secret"
         },
         "OFFLINE_MODE": "True",
+        "RCVIS_DEBUG": "True",
 
         "RCVIS_HOST": "localhost",
-        "OFFLINE_MODE": "False",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
         "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
@@ -57,9 +65,9 @@
           "generator": "secret"
         },
         "OFFLINE_MODE": "False",
+        "RCVIS_DEBUG": "False",
 
         "RCVIS_HOST": "localhost",
-        "OFFLINE_MODE": "False",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
         "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"

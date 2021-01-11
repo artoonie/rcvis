@@ -239,4 +239,6 @@ REST_FRAMEWORK = {
 
 MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
 
-django_heroku.settings(locals())
+if not OFFLINE_MODE:
+    # Otherwise tests will use a live database and not clear after each test
+    django_heroku.settings(locals())

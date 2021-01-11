@@ -16,7 +16,7 @@ function swapTabVisibility(oldTabName, newTabName) {
   document.getElementById(newTabId).style.display = 'block';
 }
 
-let hasAnimatedSlider = false;
+var hasAnimatedSlider = false;
 
 function goToTab(newTabName) {
   if (newTabName == currentTabName) return;
