@@ -14,6 +14,14 @@ def read_line_as_str(f):
     return line
 
 
+def peek_line(f):
+    """ Peeks at the next line without advancing """
+    pos = f.tell()
+    line = read_line_as_str(f)
+    f.seek(pos)
+    return line
+
+
 class RawFileData:
     """ Structure to hold the raw data read from the file,
         parsing it into very simple but still raw bits """
@@ -54,9 +62,19 @@ class RawFileData:
             candidates[candidate] = float(votes)
 
         # Eat summary lines (votes tallied, abstentions, newline)
-        read_line_as_str(fileObj)
-        read_line_as_str(fileObj)
-        read_line_as_str(fileObj)
+        line = read_line_as_str(fileObj)
+        assert line.startswith('Votes tallied')
+
+        # Abstentions line is apparently optional
+        line = peek_line(fileObj)
+        if line.startswith('Abstentions'):
+            read_line_as_str(fileObj)
+        else:
+            assert line.strip() == ''
+
+        # Check for newline
+        line = read_line_as_str(fileObj)
+        assert line.strip() == ''
 
         return candidates
 

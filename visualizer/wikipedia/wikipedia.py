@@ -19,9 +19,13 @@ class WikipediaExport():
         self.winnersSoFar = set()
         self.alreadyDrewEliminatedRow = set()
 
+    @classmethod
+    def _get_todays_date_string(cls):
+        return datetime.date.today().strftime("%B %d, %Y")
+
     def _create_reference(self):
         """ Creates a <ref> tag pointing back to RCVIS """
-        todaysDate = datetime.date.today().strftime("%B %d, %Y")
+        todaysDate = self._get_todays_date_string()
         title = self.graph.title + " Ranked Choice Voting Election Results Visualization"
         referenceUrl = self.visualizeReferenceUrl
 

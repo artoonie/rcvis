@@ -8,9 +8,11 @@ from enum import Enum
 import json
 import os
 import platform
+import re
 import time
 from datetime import datetime
 from urllib.parse import urlparse
+from mock import patch
 
 from django.core.cache import cache
 from django.core.files import File
@@ -43,6 +45,7 @@ FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
+FILENAME_ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 TestHelpers.silence_logging_spam()
@@ -68,6 +71,7 @@ class SimpleTests(TestCase):
     def test_electionbuddy_loads(self):
         """ Opens the electionbuddy file """
         self._get_data_for_view(FILENAME_ELECTIONBUDDY)
+        self._get_data_for_view(FILENAME_ELECTIONBUDDY_NOABSTENTION)
 
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """
@@ -214,8 +218,12 @@ class SimpleTests(TestCase):
         # Validate the response - this time the complete URL is needed
         assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
 
-    def test_wikicode(self):
+    @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
+    def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
+        # First mock out the date so the result is the same
+        mockGetDateString.return_value = "Today's Date - mocked out!"
+
         with open(FILENAME_MULTIWINNER, 'r+') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
 
@@ -224,7 +232,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4052
+        magicKnownTextLength = 4062
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r') as f:
             self.maxDiff = None
@@ -540,7 +548,8 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        ownerId = response.data['owner'][-2]  # of the format url/api/users/<id>/
+        reResult = re.match('.*/api/users/([0-9]*)', response.data['owner'])
+        ownerId = reResult.groups()[0]
         self.assertEqual(ownerId, str(notadminId))
 
         # Changing the slug is an error
@@ -619,7 +628,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def setUp(self):
         """ Creates the selenium browser. If on CI, connects to SauceLabs """
         super(LiveBrowserTests, self).setUp()
-        self.isUsingSauceLabs = "TRAVIS_BUILD_NUMBER" in os.environ
+        self.isUsingSauceLabs = "HEROKU_TEST_RUN_BRANCH" in os.environ
         if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
             accessKey = os.environ["SAUCE_ACCESS_KEY"]
@@ -627,10 +636,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             capabilities["platform"] = "Windows 10"
             capabilities["browserName"] = "chrome"
             capabilities["version"] = "70.0"
-            capabilities["tunnel-identifier"] = os.environ["TRAVIS_JOB_NUMBER"]
-            capabilities["build"] = os.environ["TRAVIS_BUILD_NUMBER"]
-            capabilities["tags"] = [os.environ["TRAVIS_PYTHON_VERSION"], "CI"]
-            capabilities["name"] = os.environ["TRAVIS_JOB_NUMBER"] + ": " + self._testMethodName
+            capabilities["build"] = os.environ["HEROKU_TEST_RUN_ID"]
+            capabilities["tags"] = ["CI"]
+            capabilities["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
+            capabilities["name"] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
             capabilities["commandTimeout"] = 100
             capabilities["maxDuration"] = 1200
             capabilities["screenResolution"] = "1280x1024"
@@ -647,14 +656,22 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser = TestHelpers.get_headless_browser()
 
         self.browser.implicitly_wait(10)
+        self._screenshotCount = 0
 
     def tearDown(self):
         """ Destroys the selenium browser """
-        if "TRAVIS_BUILD_NUMBER" in os.environ:
-            sauceResult = "passed" if len(self._outcome.errors) == 0 else "failed"
+        if self.isUsingSauceLabs:
+            sauceResult = "passed" if not self._has_test_failed() else "failed"
             self.browser.execute_script("sauce:job-result={}".format(sauceResult))
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
+
+    def _has_test_failed(self):
+        """ helper for tearDown to check if the test has failed """
+        for _, error in self._outcome.errors:
+            if error:
+                return True
+        return False
 
     def _get_log(self):
         """ Returns and clears the console log """
@@ -778,6 +795,16 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _go_to_tab(self, tabId):
         self.browser.find_elements_by_id(tabId)[0].click()
+
+    def _debug_screenshot(self):
+        """ Saves a screenshot in the current directory for debugging """
+        # First, ensure we're not on Travis. This is only for local debugging.
+        assert not self.isUsingSauceLabs
+
+        # Save a screenshot
+        filename = f'screenshot_{self._screenshotCount}.png'
+        self.browser.save_screenshot(filename)
+        self._screenshotCount += 1
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -1095,3 +1122,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                     assert imagePathWithoutSuffix in href
                 else:
                     assert 't.me' in href
+
+    def test_slider_animates(self):
+        """ Check that the share tab has sane links for all buttons """
+        # Upload something with many rounds so we can catch the animation
+        self._upload(FILENAME_OPAVOTE)
+
+        # Ensure the animation happened
+        WebDriverWait(self.browser, timeout=5, poll_frequency=0.1).until(
+            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
