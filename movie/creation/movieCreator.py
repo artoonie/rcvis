@@ -3,6 +3,7 @@ Movie generation entry point.
 Allows creation of movies from a jsonConfig at various resolutions.
 """
 
+import os
 import tempfile
 import time
 
@@ -20,7 +21,7 @@ from movie.creation.textToSpeech import TextToSpeechFactory
 from movie.creation.describer import Describer
 
 
-change_settings({"FFMPEG_BINARY": "/usr/bin/ffmpeg"})
+change_settings({"FFMPEG_BINARY": os.environ.get("IMAGEIO_FFMPEG_EXE", "/usr/bin/ffmpeg")})
 
 
 class ProbablyFailedToLaunchBrowser(Exception):

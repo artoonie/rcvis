@@ -1,0 +1,83 @@
+{
+  "name": "RCVIS",
+  "description": "Ranked Choice Voting Visualization",
+  "keywords": [
+  ],
+  "website": "https://www.rcvis.com/",
+  "repository": "https://github.com/artoonie/rcvis",
+  "logo": "https://rcvis.com/static/visualizer/logo.png",
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "hobby"
+    }
+  },
+  "image": "heroku/python",
+  "addons": [
+    {
+      "plan": "heroku-postgresql",
+      "options": {
+        "version": "13"
+      }
+    }
+  ],
+  "env": {
+    "OFFLINE_MODE": "False",
+    "RCVIS_DEBUG": "False",
+    "DISABLE_COLLECTSTATIC": "1",
+
+    "MAGICK_CONFIGURE_PATH": "/app/.magick",
+    "MOVIE_FONT_NAME": "AvantGarde-Book",
+    "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+  },
+  "buildpacks": [
+    { "url": "heroku/chromedriver" },
+    { "url": "heroku/google-chrome" },
+    { "url": "heroku/python" },
+    { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
+    { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
+    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
+  ],
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "./scripts/run-tests.sh"
+      },
+      "env": {
+        "RCVIS_SECRET_KEY": {
+          "generator": "secret"
+        },
+        "OFFLINE_MODE": "True",
+        "RCVIS_DEBUG": "True",
+
+        "RCVIS_HOST": "localhost",
+        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MOVIE_FONT_NAME": "AvantGarde-Book",
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+      }
+    },
+    "review": {
+      "scripts": {
+        "test": "./scripts/run-tests.sh"
+      },
+      "env": {
+        "RCVIS_SECRET_KEY": {
+          "generator": "secret"
+        },
+        "OFFLINE_MODE": "False",
+        "RCVIS_DEBUG": "False",
+
+        "RCVIS_HOST": "localhost",
+        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MOVIE_FONT_NAME": "AvantGarde-Book",
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+      },
+      "formation": {
+        "web": {
+          "quantity": 1,
+          "size": "free"
+        }
+      }
+    }
+  }
+}

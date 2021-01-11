@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+import django_heroku
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,8 +31,8 @@ DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
 if 'RCVIS_HOST_ALIAS' in os.environ:
     ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
-if 'RCVIS_HOST_ALIAS_2' in os.environ:
-    ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS_2'])
+if 'HEROKU_APP_NAME' in os.environ:
+    ALLOWED_HOSTS.append(os.environ['HEROKU_APP_NAME'] + '.heroku.com')
 
 
 # Application definition
@@ -235,42 +237,8 @@ REST_FRAMEWORK = {
 
 }
 
-if not os.path.exists('/var/log/app-logs'):
-    try:
-        os.mkdir('/var/log/app-logs')
-    except PermissionError:
-        raise PermissionError('Please mkdir /var/log/app-logs first and chown it')
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {
-            'format': '%(name)-12s %(levelname)-8s %(message)s'
-        },
-        'file': {
-            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'console'
-        },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/app-logs/django.log',
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['console', 'file'] if DEBUG else ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-    },
-}
-
 MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
+
+if not OFFLINE_MODE:
+    # Otherwise tests will use a live database and not clear after each test
+    django_heroku.settings(locals())
