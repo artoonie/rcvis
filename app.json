@@ -6,14 +6,10 @@
   "website": "https://www.rcvis.com/",
   "repository": "https://github.com/artoonie/rcvis",
   "logo": "https://rcvis.com/static/visualizer/logo.png",
-  "scripts": {
-    "build": "./scripts/build.sh",
-    "start": "python manage.py compres && python manage.py runserver"
-  },
   "formation": {
     "web": {
       "quantity": 1,
-      "size": "hobby-1x"
+      "size": "hobby"
     }
   },
   "image": "heroku/python",
@@ -31,7 +27,8 @@
     { "url": "heroku/python" },
     { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
     { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
-    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
+    { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" },
+    { "url": "https://github.com/ojarva/django-compressor-heroku-buildpack.git" }
   ],
   "environments": {
     "test": {
@@ -42,11 +39,36 @@
         "RCVIS_SECRET_KEY": {
           "generator": "secret"
         },
-        "RCVIS_HOST": "localhost",
         "OFFLINE_MODE": "True",
+
+        "RCVIS_HOST": "localhost",
+        "OFFLINE_MODE": "False",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
         "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+      }
+    },
+    "review": {
+      "scripts": {
+        "test": "./scripts/run-tests.sh"
+      },
+      "env": {
+        "RCVIS_SECRET_KEY": {
+          "generator": "secret"
+        },
+        "OFFLINE_MODE": "False",
+
+        "RCVIS_HOST": "localhost",
+        "OFFLINE_MODE": "False",
+        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MOVIE_FONT_NAME": "AvantGarde-Book",
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+      },
+      "formation": {
+        "web": {
+          "quantity": 1,
+          "size": "free"
+        }
       }
     }
   }

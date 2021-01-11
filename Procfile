@@ -1,5 +1,3 @@
-web: python3 manage.py makemigrations && \
-     python3 manage.py migrate &&\
-     python3 manage.py compress && \
-     python3 manage.py runserver
+release: python3 manage.py migrate
+web: gunicorn rcvis.wsgi
 movie: supervisord -c /etc/supervisor/supervisord.conf
