@@ -2,4 +2,5 @@
 
 set -eo pipefail
 
-python3 manage.py compress
+python3 manage.py compress --force
+python manage.py collectstatic --noinput
