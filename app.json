@@ -67,6 +67,7 @@
         "OFFLINE_MODE": "False",
         "RCVIS_DEBUG": "False",
 
+        "DISABLE_COLLECTSTATIC": "1",
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
