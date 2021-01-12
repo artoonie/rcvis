@@ -69,6 +69,10 @@ NOSE_ARGS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+
+    # This should be after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     # Order of the next 3 is important
@@ -106,27 +110,13 @@ WSGI_APPLICATION = 'rcvis.wsgi.application'
 # for django.sites (and thus, sitemap)
 SITE_ID = 1
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-if 'RDS_DB_NAME' in os.environ:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': os.environ['RDS_DB_NAME'],
-            'USER': os.environ['RDS_USERNAME'],
-            'PASSWORD': os.environ['RDS_PASSWORD'],
-            'HOST': os.environ['RDS_HOSTNAME'],
-            'PORT': os.environ['RDS_PORT'],
-        }
+# django_heroku will override this in production
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+}
 
 
 # Password validation
@@ -165,6 +155,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
@@ -174,6 +165,8 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
 )
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
 COMPRESS_ROOT = "static/"
 COMPRESS_ENABLED = True
 COMPRESS_FILTERS = {
@@ -241,4 +234,4 @@ MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
 
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
-    django_heroku.settings(locals())
+    django_heroku.settings(locals(), staticfiles=False, secret_key=False)
