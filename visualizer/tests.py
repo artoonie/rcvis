@@ -247,13 +247,14 @@ class SimpleTests(TestCase):
         with open(FILENAME_ELECTIONBUDDY, 'r+') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
         summary = graph.summarize()
-        assert len(summary.rounds) == 2
-        assert len(summary.candidates) == 3
+        assert len(summary.rounds) == 3
+        assert len(summary.candidates) == 4
         assert len(summary.rounds[0].eliminatedNames) == 0
         assert len(summary.rounds[0].winnerNames) == 0
-        assert summary.rounds[1].eliminatedNames[0] == 'Chocolate'
-        assert summary.rounds[1].winnerNames[0] == 'Vanilla'
-        assert summary.rounds[1].winnerNames[1] == 'Strawberry'
+        assert summary.rounds[1].eliminatedNames[0] == 'Nobody'
+        assert summary.rounds[2].eliminatedNames[0] == 'Chocolate'
+        assert summary.rounds[2].winnerNames[0] == 'Vanilla'
+        assert summary.rounds[2].winnerNames[1] == 'Strawberry'
 
     def test_uniqueness(self):
         """ Ensures filenames are not overwritten """
