@@ -130,7 +130,10 @@ class CSVReader(TabulatedResultsReaderBase):
         for eliminatedName in eliminated:
             # Weight where the votes went by how many votes each person had
             # before being eliminated
-            weight = roundData[eliminatedName] / totalNumVotesToTransfer
+            if totalNumVotesToTransfer == 0:
+                weight = 0
+            else:
+                weight = roundData[eliminatedName] / totalNumVotesToTransfer
 
             eliminatedItem = nameToItemMap[eliminatedName]
             transfersByItemScaled = {k: v * weight for k, v in transfersByItem.items()}

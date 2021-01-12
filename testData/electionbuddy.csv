@@ -1,4 +1,4 @@
-﻿Election Results for Test election RCV
+﻿Test basic transfer, with zero-transfer regression test
 
 Chancellor
 ********************
@@ -8,11 +8,21 @@ Candidate,Votes,Percentage
 Chocolate,1,16.7%
 Vanilla,2,33.3%
 Strawberry,3,50.0%
+Nobody,0,0%
 
 Votes tallied: 6
 Abstentions: 0
 
 Round 2
+Candidate,Votes,Percentage
+Chocolate,1,16.7%
+Vanilla,2,33.3%
+Strawberry,3,50.0%
+
+Votes tallied: 6
+Abstentions: 0
+
+Round 3
 Candidate,Votes,Percentage
 Vanilla,3,50.0%
 Strawberry,3,50.0%
