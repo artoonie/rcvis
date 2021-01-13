@@ -8,7 +8,7 @@ from django.views.generic.detail import DetailView
 
 from common.viewUtils import get_data_for_view
 from visualizer.models import JsonConfig, MovieGenerationStatuses
-from movie.tasks import launch_big_dynos_task
+from movie.tasks import launch_big_dynos
 
 
 #pylint: disable=too-many-ancestors
@@ -44,7 +44,7 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
         jsonconfig.save()
 
         # Launch a big dyno, which will in turn create the movie
-        launch_big_dynos_task.delay(jsonconfig.pk, domain)
+        launch_big_dynos(jsonconfig.pk, domain)
 
         return reverse('movieOnlyView', args=(jsonconfig.slug,))
 

@@ -12,13 +12,7 @@ imports = ('movie.tasks',)
 result_backend = None  # pylint: disable=invalid-name
 
 task_annotations = {
-    'tasks.create_movie_task': {'rate_limit': '1/s'},
-    'tasks.launch_big_dynos_task': {'rate_limit': '10/h'},
-}
-
-task_routes = {
-    'movie.tasks.create_movie_task': {'queue': 'create_movie'},
-    'movie.tasks.launch_big_dynos_task': {'queue': 'launch_big_dynos'},
+    'tasks.create_movie_task': {'rate_limit': '1/s'}
 }
 
 sqs_queue_name = os.environ['SQS_QUEUE_NAME']

@@ -107,11 +107,11 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movie/only-movie.html')
 
-    @patch('movie.tasks.launch_big_dynos_task.delay')
-    def test_movie_task_by_url(self, mockLaunchDyno):
-        """ Test launch_big_dynos_task() is called with .delay() on /createMovie """
-        mockLaunchDyno.return_value = None
-        mockLaunchDyno.assert_not_called()
+    @patch('movie.tasks.create_movie_task.delay')
+    def test_movie_task_by_url(self, mockCreateMovie):
+        """ Test create_movie_task() is called with .delay() when accessing /createMovie """
+        mockCreateMovie.return_value = None
+        mockCreateMovie.assert_not_called()
 
         # Create admin user
         admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
@@ -127,7 +127,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
                          '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplus')
-        mockLaunchDyno.assert_not_called()
+        mockCreateMovie.assert_not_called()
 
         # Log in and try again
         jsonConfig = TestHelpers.get_latest_json_config()
@@ -145,7 +145,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
                          "/visualizeMovie=macomb-multiwinner-surplus")
 
         # Ensure progress has begun
-        mockLaunchDyno.assert_called_once()
+        mockCreateMovie.assert_called_once()
 
         # Note - I wanted to test this without mocking, to watch the full
         # celery cycle, but the live browser uses the localhost database
