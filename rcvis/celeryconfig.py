@@ -11,7 +11,15 @@ imports = ('movie.tasks',)
 # No backend - we don't care about the results, we'll update the database
 result_backend = None  # pylint: disable=invalid-name
 
-task_annotations = {'tasks.create_movie': {'rate_limit': '1/s'}}
+task_annotations = {
+    'tasks.create_movie_task': {'rate_limit': '1/s'},
+    'tasks.launch_big_dynos_task': {'rate_limit': '10/h'},
+}
+
+task_routes = {
+    'movie.tasks.create_movie_task': {'queue': 'create_movie'},
+    'movie.tasks.launch_big_dynos_task': {'queue': 'launch_big_dynos'},
+}
 
 sqs_queue_name = os.environ['SQS_QUEUE_NAME']
 if not sqs_queue_name:
@@ -22,6 +30,6 @@ broker_transport_options = {
     'queue_name_prefix': sqs_queue_name
 }
 
-# At most two processes at once - can later be scaled as needed, but for now,
+# At most one process at once - can later be scaled as needed, but for now,
 # too many workers were spawned (seemingly ncores+1 despite requesting just ncores?)
-celeryd_concurrency = 2  # pylint: disable=invalid-name
+celeryd_concurrency = 1  # pylint: disable=invalid-name

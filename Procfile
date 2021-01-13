@@ -1,3 +1,3 @@
 release: python3 manage.py migrate
 web: gunicorn rcvis.wsgi
-movie: celery -A rcvis worker --loglevel info
+moviescaling: celery -A rcvis -Q launch_big_dynos worker --loglevel info

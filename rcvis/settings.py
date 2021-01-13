@@ -190,6 +190,7 @@ if not OFFLINE_MODE:
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
     AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     AWS_S3_FILE_OVERWRITE = False
+
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     MEDIA_URL = '/media/'
@@ -197,6 +198,11 @@ else:
     MEDIAFILES_DIRS = [
         os.path.join(BASE_DIR, "media"),
     ]
+
+# For scaling heroku workers up if needed
+HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY')
+HEROKU_APP_NAME = os.environ.get('HEROKU_APP_NAME')
+HEROKU_WORKER_DYNO_TYPE = os.environ.get('HEROKU_WORKER_DYNO_TYPE')
 
 AWS_DEFAULT_ACL = None
 
