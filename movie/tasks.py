@@ -6,37 +6,34 @@ import os
 import traceback
 
 from celery import shared_task
+from django.conf import settings
 import requests
 from selenium import webdriver
 
 from movie.creation.movieCreator import MovieCreationFactory
 from visualizer.models import JsonConfig, MovieGenerationStatuses
-from rcvis.settings import HEROKU_API_KEY, \
-                           HEROKU_APP_NAME, \
-                           HEROKU_WORKER_DYNO_TYPE, \
-                           OFFLINE_MODE
 
 
 def launch_big_dynos_task(pk, domain):
     """ Creates a heroku worker that has enough memory to process a video """
-    if not HEROKU_API_KEY:
+    if not settings.HEROKU_API_KEY:
         # Don't scale anything up, just call the next worker
         create_movie_task.delay(pk, domain)
         return
 
     headers = {
-        "Authorization": f"Bearer {HEROKU_API_KEY}",
+        "Authorization": f"Bearer {settings.HEROKU_API_KEY}",
         "Content-Type": "application/json",
         "Accept": "application/vnd.heroku+json; version=3"
     }
     data = {
         "attach": False,
         "command": "celery -A rcvis -Q create_movie worker --loglevel info",
-        "size": HEROKU_WORKER_DYNO_TYPE,
+        "size": settings.HEROKU_WORKER_DYNO_TYPE,
         "type": "moviegen",
         "time_to_live": 600
     }
-    url = f"https://api.heroku.com/apps/{HEROKU_APP_NAME}/dynos"
+    url = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}/dynos"
     response = requests.post(url, json=data, headers=headers)
     if response.json().get('state') != 'starting':
         jsonconfig = JsonConfig.objects.get(pk=pk)
@@ -46,6 +43,7 @@ def launch_big_dynos_task(pk, domain):
         return
 
     create_movie_task.delay(pk, domain)
+
 
 def create_movie_task(pk, domain):
     """ Create a movie for the config with the given primary key, using

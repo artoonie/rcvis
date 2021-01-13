@@ -16,7 +16,7 @@ from common.testUtils import TestHelpers
 from movie.creation.movieCreator import MovieCreationFactory, SingleMovieCreator
 from movie.creation.textToSpeech import GeneratedAudioWrapper, TextToSpeechFactory
 from movie.models import Movie, TextToSpeechCachedFile
-from movie.tasks import create_movie
+from movie.tasks import create_movie_task
 from visualizer.models import MovieGenerationStatuses
 
 FILENAME_AUDIO = 'testData/audio.mp3'
@@ -74,7 +74,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
     @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
     def test_movie_task_without_celery(self, mockGetNumRounds):
-        """ Test that the movie gets created when calling create_movie() directly """
+        """ Test that the movie gets created when calling create_movie_task() directly """
         mockGetNumRounds.return_value = 1
 
         # Upload a file
@@ -85,7 +85,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_json_config()
-        create_movie(jsonConfig.pk, self.live_server_url)
+        create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
         assert len(TextToSpeechCachedFile.objects.all()) == 4
@@ -107,11 +107,11 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movie/only-movie.html')
 
-    @patch('movie.tasks.create_movie.delay')
-    def test_movie_task_by_url(self, mockCreateMovie):
-        """ Test create_movie() is called with .delay() when accessing /createMovie as an admin """
-        mockCreateMovie.return_value = None
-        mockCreateMovie.assert_not_called()
+    @patch('movie.tasks.launch_big_dynos_task.delay')
+    def test_movie_task_by_url(self, mockLaunchDyno):
+        """ Test launch_big_dynos_task() is called with .delay() on /createMovie """
+        mockLaunchDyno.return_value = None
+        mockLaunchDyno.assert_not_called()
 
         # Create admin user
         admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
@@ -127,7 +127,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
                          '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplus')
-        mockCreateMovie.assert_not_called()
+        mockLaunchDyno.assert_not_called()
 
         # Log in and try again
         jsonConfig = TestHelpers.get_latest_json_config()
@@ -145,7 +145,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
                          "/visualizeMovie=macomb-multiwinner-surplus")
 
         # Ensure progress has begun
-        mockCreateMovie.assert_called_once()
+        mockLaunchDyno.assert_called_once()
 
         # Note - I wanted to test this without mocking, to watch the full
         # celery cycle, but the live browser uses the localhost database
@@ -210,7 +210,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         mockGenerateCaptions.return_value = []
         mockGenerateImage.return_value = moviepy.editor.ImageClip(FILENAME_ARBITRARY_IMAGE)
 
-        create_movie(jsonConfig.pk, self.live_server_url)
+        create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Read the script and get each line
         with open(FILENAME_SCRIPT, 'r') as f:
@@ -229,7 +229,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         TestHelpers.get_multiwinner_upload_response(self.client)
         jsonConfig = TestHelpers.get_latest_json_config()
-        create_movie(jsonConfig.pk, '/incorrect/url')
+        create_movie_task(jsonConfig.pk, '/incorrect/url')
 
         jsonConfig = TestHelpers.get_latest_json_config()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.FAILED
