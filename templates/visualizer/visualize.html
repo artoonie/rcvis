@@ -16,13 +16,16 @@
 
 	<script type="application/ld+json">
 		{
-			"@context" : "http://schema.org",
-			"@type" : "Dataset",
-			"name" : "{{title}}",
-			"description" : "RCVIS is open-source Ranked-Choice Voting Visualization software. Get in touch: team@rcvis.com.",
-			"temporalCoverage" : "{{ date }}",
-			"license" : "open-source",
-			"creator" : "RCVIS"
+      "@context" : "http://schema.org",
+      "@type" : "Dataset",
+      "name" : "{{title}}",
+      "description" : "RCVIS is open-source Ranked-Choice Voting Visualization software",
+      "temporalCoverage" : "{{ date }}",
+      "license" : "open-source",
+      "creator" : {
+        "@type": "Organization",
+        "name": "RCVIS"
+      }
 		}
 	</script>
 {% endblock %} 
