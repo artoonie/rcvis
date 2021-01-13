@@ -28,7 +28,20 @@
 
     "MAGICK_CONFIGURE_PATH": "/app/.magick",
     "MOVIE_FONT_NAME": "AvantGarde-Book",
-    "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+    "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+
+    "HEROKU_API_KEY": {
+      "description": "Required to scale up dynos for movie gen",
+      "required": true
+    },
+    "HEROKU_APP_NAME": {
+      "description": "Required to know the API endpoint to scale dynos",
+      "required": true
+    },
+    "HEROKU_WORKER_DYNO_TYPE": {
+      "description": "Which dyno type to use for movie gen?",
+      "required": true
+    }
   },
   "buildpacks": [
     { "url": "heroku/chromedriver" },
@@ -53,7 +66,8 @@
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
-        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+        "HEROKU_WORKER_DYNO_TYPE": "free"
       }
     },
     "review": {
@@ -71,7 +85,8 @@
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
-        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg"
+        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+        "HEROKU_WORKER_DYNO_TYPE": "free"
       },
       "formation": {
         "web": {

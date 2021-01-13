@@ -1,3 +1,3 @@
 release: python3 manage.py migrate
 web: gunicorn rcvis.wsgi
-movie: supervisord -c /etc/supervisor/supervisord.conf
+moviescaling: celery -A rcvis -Q launch_big_dynos worker --loglevel info
