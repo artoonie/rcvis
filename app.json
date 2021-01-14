@@ -57,6 +57,10 @@
   ],
   "environments": {
     "test": {
+      "formation": {
+        "quantity": 1,
+        "size": "standard-1x"
+      },
       "scripts": {
         "test": "./scripts/run-tests.sh"
       },
