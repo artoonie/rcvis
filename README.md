@@ -51,6 +51,7 @@ export SAUCE_ACCESS_KEY=''
 export SQS_QUEUE_NAME=''
 export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
 export MOVIE_FONT_NAME="Roboto"
+export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
 
 ```
 
