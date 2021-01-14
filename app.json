@@ -30,6 +30,10 @@
     "MOVIE_FONT_NAME": "AvantGarde-Book",
     "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
 
+    "AWS_POLLY_STORAGE_BUCKET": {
+      "description": "AWS bucket name for AWS Polly Speech Synth",
+      "required": true
+    },
     "HEROKU_API_KEY": {
       "description": "Required to scale up dynos for movie gen",
       "required": true

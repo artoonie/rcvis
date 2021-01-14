@@ -6,13 +6,13 @@ import os
 import tempfile
 import time
 
-from django.db.utils import DataError
+from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db.utils import DataError
 
 import boto3
 from botocore.exceptions import ClientError
 from movie.models import TextToSpeechCachedFile
-from movie.models import SPEECH_SYNTH_BUCKET_NAME as bucketName
 
 
 class AudioGenerationFailedException(Exception):
@@ -57,7 +57,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         """ Spawns the AWS job """
         return self.pollyClient.start_speech_synthesis_task(
             VoiceId='Joanna',
-            OutputS3BucketName=bucketName,
+            OutputS3BucketName=settings.AWS_POLLY_STORAGE_BUCKET_NAME,
             OutputS3KeyPrefix=self.prefix,
             OutputFormat='mp3',
             Text=text,
@@ -76,9 +76,12 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
         key = self._key_from_uri(uri)
 
         try:
-            self.s3Client.download_file(Key=key, Bucket=bucketName, Filename=toFilename)
+            self.s3Client.download_file(
+                Key=key,
+                Bucket=settings.AWS_POLLY_STORAGE_BUCKET_NAME,
+                Filename=toFilename)
         except ClientError as exception:
-            text = f"Failed to download file {uri}, bucket={bucketName}, key={key}"
+            text = f"Failed to download file {uri}, key={key}"
             if self.isCached:
                 text += "\nNote, this was a cached file being loaded from the database."
             print(text)
