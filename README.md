@@ -70,16 +70,10 @@ python3 manage.py runserver
 
 To run workers to generate movies (optional - only needed to use the movie generation flow):
 ```bash
-# In one terminal, use first queue which can launch larger workers
-source .env
-source venv/bin/activate
-celery -A rcvis worker -Q launch_big_dynos --loglevel info
-
-# In another terminal, with higher-memory heroku dynos, create movie
 source .env
 source venv/bin/activate
 export DISPLAY=":0" # if not already set
-celery -A rcvis worker -Q create_movie --loglevel info
+celery -A rcvis worker --loglevel info
 ```
 
 ## Examples

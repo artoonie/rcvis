@@ -14,33 +14,32 @@ from movie.creation.movieCreator import MovieCreationFactory
 from visualizer.models import JsonConfig, MovieGenerationStatuses
 
 
-def launch_big_dynos_task(pk, domain):
+def launch_big_dynos(pk, domain):
     """ Creates a heroku worker that has enough memory to process a video """
-    if not settings.HEROKU_API_KEY:
-        # Don't scale anything up, just call the next worker
-        create_movie_task.delay(pk, domain)
-        return
-
-    headers = {
-        "Authorization": f"Bearer {settings.HEROKU_API_KEY}",
-        "Content-Type": "application/json",
-        "Accept": "application/vnd.heroku+json; version=3"
-    }
-    data = {
-        "attach": False,
-        "command": "celery -A rcvis -Q create_movie worker --loglevel info",
-        "size": settings.HEROKU_WORKER_DYNO_TYPE,
-        "type": "moviegen",
-        "time_to_live": 600
-    }
-    url = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}/dynos"
-    response = requests.post(url, json=data, headers=headers)
-    if response.json().get('state') != 'starting':
-        jsonconfig = JsonConfig.objects.get(pk=pk)
-        jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
-        jsonconfig.save()
-        print("Could not launch dyno:", response.json())
-        return
+    if settings.HEROKU_API_KEY:
+        print(f"Launching a new, bigger dyno of size {settings.HEROKU_WORKER_DYNO_TYPE}")
+        headers = {
+            "Authorization": f"Bearer {settings.HEROKU_API_KEY}",
+            "Content-Type": "application/json",
+            "Accept": "application/vnd.heroku+json; version=3"
+        }
+        data = {
+            "attach": False,
+            "command": "celery -A rcvis worker --loglevel info",
+            "size": settings.HEROKU_WORKER_DYNO_TYPE,
+            "type": "moviegen",
+            "time_to_live": 600
+        }
+        url = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}/dynos"
+        response = requests.post(url, json=data, headers=headers)
+        if response.json().get('state') != 'starting':
+            jsonconfig = JsonConfig.objects.get(pk=pk)
+            jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
+            jsonconfig.save()
+            print("Could not launch dyno:", response.json())
+            return
+    else:
+        print("Not launching new dynos. Assuming Celery is running somewhere already.")
 
     create_movie_task.delay(pk, domain)
 
@@ -73,7 +72,6 @@ def create_movie_task(pk, domain):
 is_read_the_docs_env = os.environ.get('READTHEDOCS') == 'True'
 if not is_read_the_docs_env:
     create_movie_task = shared_task(create_movie_task)
-    launch_big_dynos_task = shared_task(launch_big_dynos_task)
 
 
 def _make_movies_for_config(browser, domain, jsonconfig):
