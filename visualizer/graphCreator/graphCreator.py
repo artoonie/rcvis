@@ -1,10 +1,10 @@
 """ Helper functions to load a graph from a file """
 
 import logging
-import traceback
+import json
 
-import visualizer.graphCreator.readElectionbuddyCSV as electionbuddyCSV
-import visualizer.graphCreator.readOpaVoteJSON as opavoteJson
+from rcvformats.conversions.automatic import AutomaticConverter
+
 import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
 
 logger = logging.getLogger(__name__)
@@ -14,46 +14,13 @@ class BadJSONError(Exception):
     """ An exception to be thrown if the JSON has errors """
 
 
-def get_correct_reader_for(fileObject):
+def convert_to_standardized_format(fileObject):
     """ Loops through each of the three readers trying to find one that works on this file """
-    readerGetters = (get_rcvrc_reader, get_opavote_reader, get_electionbuddy_reader)
-
-    exceptions = {}
-    for readerGetter in readerGetters:
-        maybeReader = readerGetter(fileObject, exceptions)
-        if maybeReader:
-            return maybeReader
-
-    # None of the readers returned
-    logger.info("Upload failed: %s", str(exceptions))
-    raise BadJSONError(exceptions)
-
-
-def get_rcvrc_reader(fileObject, exceptions):
-    """ Tries to return an RCVRC reader, or returns None and adds to exceptions """
     try:
-        return rcvrcJson.JSONReader(fileObject)
-    except Exception:  # pylint: disable=broad-except
-        exceptions["RCVRC JSON Errors"] = traceback.format_exc()
-        return None
-
-
-def get_opavote_reader(fileObject, exceptions):
-    """ Tries to return an OpaVote reader, or returns None and adds to exceptions """
-    try:
-        return opavoteJson.JSONReader(fileObject)
-    except Exception:  # pylint: disable=broad-except
-        exceptions["Opavote JSON Errors"] = traceback.format_exc()
-        return None
-
-
-def get_electionbuddy_reader(fileObject, exceptions):
-    """ Tries to return an electionbuddy reader, or returns None and adds to exceptions """
-    try:
-        return electionbuddyCSV.CSVReader(fileObject)
-    except Exception:  # pylint: disable=broad-except
-        exceptions["Election Buddy CSV Errors"] = traceback.format_exc()
-        return None
+        return AutomaticConverter().convert_to_ut(fileObject)
+    except Exception as exc:
+        logger.info("Upload failed: %s", str(exc))
+        raise BadJSONError("Upload failed") from exc
 
 
 def remove_last_winner_and_eliminated(graph, rounds):
@@ -81,9 +48,25 @@ def remove_last_winner_and_eliminated(graph, rounds):
 def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
     """ Load the given fileObject, create and return a graph """
     try:
-        jsonReader = get_correct_reader_for(fileObject)
-    except RuntimeError as runtimeException:
-        raise runtimeException
+        # First, try to load it directly, assuming it is a valid format
+        # This circumvents jsonschema validation needlessly
+        jsonData = json.load(fileObject)
+        jsonReader = rcvrcJson.JSONReader(jsonData)
+    except Exception:  # pylint: disable=broad-except
+        # If the loading failed, then attempt to convert it
+        fileObject.seek(0)
+
+        # First, try to convert
+        try:
+            jsonData = convert_to_standardized_format(fileObject)
+        except Exception as exc:
+            raise BadJSONError("File format is not valid:") from exc
+
+        # Then, try to load
+        try:
+            jsonReader = rcvrcJson.JSONReader(jsonData)
+        except Exception as exc:
+            raise BadJSONError("File schema was valid, but we could not interpret it") from exc
 
     graph = jsonReader.get_graph()
     rounds = jsonReader.get_rounds()
