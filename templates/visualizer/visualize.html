@@ -43,8 +43,9 @@
 {% endblock %}
 
 {% block maincontent %}
-<div class="section fp-auto-height" id="visualize-header-deferred-visibility">
+<div class="fp-auto-height" id="visualize-header-deferred-visibility">
   <header class="masthead bg-primary text-white text-left pb-0 pt-1"> <!-- dynamically loaded later -->
+  <div class="container">
       <h1 class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</h1>
       <p class="font-weight-light mb-0 pl-3">{{ date }}</p>
     <div class="d-flex align-items-left flex-column ml-0">
@@ -62,21 +63,21 @@
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
+            <a class="nav-link btn btn-outline-light" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicon_singletable.png' %}" width="20" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
+              <span class="tabtext">Summary table</span>
+            </a>
+        </li>
+        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicon_roundbyround.png' %}" width="20" alt="Round-By-Round icon. 'move cells to another location for editing' by icon 54 from the Noun Project."/>
-              <span class="tabtext">Round-by-Round</span>
+              <span class="tabtext">Tables by round</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn btn-outline-light" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicon_candidatesummary.png' %}" width="20" alt="Candidate summary icon. 'data set' by H Alberto Gongora from the Noun Project."/>
-              <span class="tabtext">Candidate Summary</span>
-            </a>
-        </li>
-        <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_singletable.png' %}" width="20" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
-              <span class="tabtext">Single Table Summary</span>
+              <span class="tabtext">Tables by candidate</span>
             </a>
         </li>
         <li class="nav-item">
@@ -93,12 +94,14 @@
         </li>
     </ul>
     </div>
+  </div>
   </header>
 
-    <h6 id="toggle-dynamic" class="ml-2 mt-2">
-		<a id="make-print-friendly" href="#" class="vis-interactive">Showing interactive content. Show print-friendly instead?</a>
-		<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
-	</h6>
+  <div class="container pl-0 pr-0">
+   <small id="toggle-dynamic" class="ml-2 mt-2 text-muted">
+	 	<a id="make-print-friendly" href="#" class="vis-interactive">Showing interactive content. Show print-friendly instead?</a>
+	 	<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
+	 </small>
 
     <div class="vis-wrapper" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
       <div class="vis-fixed">
@@ -137,6 +140,7 @@
     <div class="vis-wrapper" id="id-share" data-anchor="share" role="tabpanel" aria-labelledby="share-tab">
         {% include "share/share.html" %}
     </div>
+  </div>
 </div>
 {% endblock %}
 
