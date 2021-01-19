@@ -177,7 +177,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
               return colors[d.round];
           else
               // All previous rounds are dimmed
-			  return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.7))
+              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.9))
       }
   };
 
