@@ -253,8 +253,8 @@ class SimpleTests(TestCase):
         assert len(summary.rounds[0].winnerNames) == 0
         assert summary.rounds[1].eliminatedNames[0] == 'Nobody'
         assert summary.rounds[2].eliminatedNames[0] == 'Chocolate'
+        assert summary.rounds[1].winnerNames[0] == 'Strawberry'
         assert summary.rounds[2].winnerNames[0] == 'Vanilla'
-        assert summary.rounds[2].winnerNames[1] == 'Strawberry'
 
     def test_uniqueness(self):
         """ Ensures filenames are not overwritten """
