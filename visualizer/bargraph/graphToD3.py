@@ -53,6 +53,7 @@ class D3Bargraph:
 
 def get_label_for(rounds, i):
     roundInfo = rounds[i]
+
     def getStringFor(nameList):
         if len(nameList) == 0:
             return ''
@@ -63,11 +64,11 @@ def get_label_for(rounds, i):
 
     winStr = getStringFor(roundInfo.winnerNames)
 
-    if i < len(rounds)-1:
+    if i < len(rounds) - 1:
         # Note: candidates eliminated on the next round are
         # visualized on this round, so match the legend to that
         # (Do you hate this? I hate this)
-        nextRound = rounds[i+1]
+        nextRound = rounds[i + 1]
         elimStr = getStringFor(nextRound.eliminatedNames)
     else:
         elimStr = ''
