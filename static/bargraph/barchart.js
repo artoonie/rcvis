@@ -1,7 +1,7 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
+function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
   // First, transpose the data into layers
-  mappedData = candidatesRange.map(function(roundInfo) {
+  mappedData = eachRoundSummary.map(function(roundInfo) {
     return data.map(function(d) {
       return {x: d.candidate, y: d[roundInfo]};
     });
@@ -177,7 +177,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
               return colors[d.round];
           else
               // All previous rounds are dimmed
-			  return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.7))
+              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.9))
       }
   };
 
@@ -247,7 +247,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       }
       startText = "";
       if (d.isWinner)
-          startText = "✅ " ;
+          startText = "✔️ " ;
       if (isVertical)
       {
           return startText + votesToText(d[1], false, true);
@@ -410,8 +410,9 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
 
   let primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
   let secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
-  let candidateAxisTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 1.0);
 
+  // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
+  // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
   eachBar
     .join("text")
       .attr("class", "dataLabels")
@@ -421,6 +422,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr("text-anchor", isVertical ? "middle" : "end")
       .attr("font-size", primaryLabelTextSizeEm)
       .attr("fill", "currentColor")
+      .attr("dy", ".32em")
       .text(mainDataLabelTextFn);
 
   if (isVertical)
@@ -439,7 +441,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
           .call(candidatesAxis)
           .selectAll("text")
             .style("text-anchor", "end")
-            .attr("font-size", candidateAxisTextSizeEm)
+            .attr("font-size", primaryLabelTextSizeEm)
             .attr("transform", "rotate(-45)");
   }
   else {
@@ -447,13 +449,13 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
         .call(candidatesAxis)
         .selectAll("text")  
           .style("text-anchor", "start")
-          .attr("font-size", candidateAxisTextSizeEm);
+          .attr("font-size", primaryLabelTextSizeEm);
   }
 
   svg.append("g")
       .call(votesAxis)
       .selectAll("text")  
-        .attr("font-size", candidateAxisTextSizeEm);
+        .attr("font-size", primaryLabelTextSizeEm);
 
   d3.select(idOfLegendDiv)
     .append("g")
@@ -478,26 +480,6 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr("opacity", "0")
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return "Threshold to win: " + threshold; });
-
-  // Prep the tooltip bits, initial display is hidden
-  // Place this at the end so it renders on top
-  var tooltip = svg.append("g")
-    .attr("class", "toolTip")
-    .style("display", "none");
-      
-  tooltip.append("rect")
-    .attr("width", 200)
-    .attr("height", 25)
-    .attr("fill", "white")
-    .style("opacity", 0.5);
-  
-  tooltip.append("text")
-    .attr("x", 15)
-    .attr("dy", "1.2em")
-    .style("text-anchor", "left")
-    .attr("font-size", "1.6em")
-    .attr("font-weight", "bold");
-
 
   // Return animation controls
   var transitionEachBarForRound = function(round) {

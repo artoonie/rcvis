@@ -20,14 +20,14 @@ class D3Bargraph:
         for candidate in candidates.values():
             candidateJs = {'candidate': candidate.name}
             for i, votes in enumerate(candidate.votesAddedPerRound):
-                candidateJs[get_label_for(rounds[i])] = votes
+                candidateJs[get_label_for(rounds, i)] = votes
             candidatesJs.append(candidateJs)
 
         # Get the total votes per round
         totalVotesPerRound = [r.totalActiveVotes for r in rounds]
 
         # Make round labels
-        rounds = [get_label_for(rounds[i]) for i in range(numRounds)]
+        rounds = [get_label_for(rounds, i) for i in range(numRounds)]
 
         # Get the winners each round, flip list into dict
         numRoundsTilWin = {}
@@ -51,7 +51,9 @@ class D3Bargraph:
         self.js = js
 
 
-def get_label_for(roundInfo):
+def get_label_for(rounds, i):
+    roundInfo = rounds[i]
+
     def getStringFor(nameList):
         if len(nameList) == 0:
             return ''
@@ -60,8 +62,17 @@ def get_label_for(roundInfo):
         else:
             return f' ({len(nameList)} candidates)'
 
-    elimStr = getStringFor(roundInfo.eliminatedNames)
     winStr = getStringFor(roundInfo.winnerNames)
+
+    if i < len(rounds) - 1:
+        # Note: candidates eliminated on the next round are
+        # visualized on this round, so match the legend to that
+        # (Do you hate this? I hate this)
+        nextRound = rounds[i + 1]
+        elimStr = getStringFor(nextRound.eliminatedNames)
+    else:
+        elimStr = ''
+
     if elimStr != '':
         elimStr += ' eliminated'
     if winStr != '':
