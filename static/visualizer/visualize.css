@@ -21,21 +21,30 @@
   padding-right: 3px;
 }
 
-@media only screen and (max-width: 1100px) {
+.nav-tabs {
+  flex-wrap: nowrap; /* don't let the navbar take multiple lines */
+  border-bottom: none;
+}
+
+.nav-item {
+  flex-wrap: wrap;
+}
+
+@media only screen and (max-width: 1200px) {
   /* first reduce font size */
   .btn {
     font-size: 0.8rem;
     padding: 0.5rem;
   }
 }
-@media only screen and (max-width: 868px) {
+@media only screen and (max-width: 1000px) {
   /* then reduce again text */
   .btn {
     font-size: 0.7rem;
     padding: 0.4rem;
   }
 }
-@media only screen and (max-width: 750px) {
+@media only screen and (max-width: 800px) {
   /* then hide text */
   .tabtext {
     display: none;
