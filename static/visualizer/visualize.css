@@ -12,6 +12,14 @@
 .vis-fixed {
   display: none;
 }
+.tooltip-inner {
+  /* Don't let the tooltip clash with the label text */
+  background-color: #333;
+  color: #ccc;
+  border-radius: 3px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
 
 @media only screen and (max-width: 1100px) {
   /* first reduce font size */

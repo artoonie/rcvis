@@ -479,26 +479,6 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, candidatesRange, total
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return "Threshold to win: " + threshold; });
 
-  // Prep the tooltip bits, initial display is hidden
-  // Place this at the end so it renders on top
-  var tooltip = svg.append("g")
-    .attr("class", "toolTip")
-    .style("display", "none");
-      
-  tooltip.append("rect")
-    .attr("width", 200)
-    .attr("height", 25)
-    .attr("fill", "white")
-    .style("opacity", 0.5);
-  
-  tooltip.append("text")
-    .attr("x", 15)
-    .attr("dy", "1.2em")
-    .style("text-anchor", "left")
-    .attr("font-size", "1.6em")
-    .attr("font-weight", "bold");
-
-
   // Return animation controls
   var transitionEachBarForRound = function(round) {
     currRound = round;
