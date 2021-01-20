@@ -1,2 +1,2 @@
--r requirements-core.txt
--r requirements-not-for-readthedocs.txt
+-r infra/requirements-core.txt
+-r infra/requirements-not-for-readthedocs.txt
