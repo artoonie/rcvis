@@ -26,7 +26,7 @@
     "RCVIS_DEBUG": "False",
     "DISABLE_COLLECTSTATIC": "1",
 
-    "MAGICK_CONFIGURE_PATH": "/app/.magick",
+    "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
     "MOVIE_FONT_NAME": "AvantGarde-Book",
     "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
 
@@ -68,7 +68,7 @@
         "RCVIS_DEBUG": "True",
 
         "RCVIS_HOST": "localhost",
-        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
         "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
@@ -87,7 +87,7 @@
 
         "DISABLE_COLLECTSTATIC": "1",
         "RCVIS_HOST": "localhost",
-        "MAGICK_CONFIGURE_PATH": "/app/.magick",
+        "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
         "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
