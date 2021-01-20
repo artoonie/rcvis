@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework import serializers
 from rest_framework.settings import api_settings
 
-from visualizer.graphCreator.graphCreator import BadJSONError
+from visualizer.graph.graphCreator import BadJSONError
 from .models import JsonConfig
 from .validators import try_to_load_json
 

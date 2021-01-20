@@ -32,8 +32,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
-from visualizer.graphCreator.graphCreator import BadJSONError
-from visualizer.graphCreator.graphCreator import make_graph_with_file
+from visualizer.graph.graphCreator import BadJSONError
+from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.views import Oembed
 from visualizer.models import JsonConfig
 from visualizer.forms import JsonConfigForm

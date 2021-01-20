@@ -1,4 +1,4 @@
-from visualizer.graphCreator.colors import ColorGenerator, Color
+from visualizer.graph.colors import ColorGenerator, Color
 from visualizer.jsUtils import approx_length
 
 

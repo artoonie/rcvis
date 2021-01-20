@@ -5,7 +5,7 @@ import json
 
 from rcvformats.conversions.automatic import AutomaticConverter
 
-import visualizer.graphCreator.readRCVRCJSON as rcvrcJson
+import visualizer.graph.readRCVRCJSON as rcvrcJson
 
 logger = logging.getLogger(__name__)
 

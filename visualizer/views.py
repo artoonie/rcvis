@@ -24,7 +24,7 @@ from rest_framework_tracking.mixins import LoggingMixin
 from common import viewUtils
 from visualizer.common import make_complete_url
 from visualizer.forms import JsonConfigForm
-from visualizer.graphCreator.graphCreator import BadJSONError
+from visualizer.graph.graphCreator import BadJSONError
 from visualizer.models import JsonConfig
 from visualizer.permissions import IsOwnerOrReadOnly
 from visualizer.serializers import JsonConfigSerializer, UserSerializer
