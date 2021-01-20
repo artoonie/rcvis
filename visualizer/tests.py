@@ -811,7 +811,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Tests the resizing of the window and verifies that things fit """
         def fits_inside(elementWidth, pageWidth):
             # Checks that the element takes up most or all of the page, but not more
-            roomForMarginsPct = 0.1
+            roomForMarginsPct = 0.12
 
             minWidth = pageWidth * (1 - roomForMarginsPct)
             return minWidth < elementWidth <= pageWidth
@@ -865,9 +865,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Opavote is originally tall but not too wide
         self._upload(FILENAME_OPAVOTE)
         test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
-        # Sankey gets huge
+        # Sankey no longer gets huge - it caps out at 960px wide
         self._go_to_tab("sankey-tab")
-        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 800, 1200], 2000)
+        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 800], 1200)
         # Make the barchart vertical
         change_barchart_orientation()
         # Should have the same max width here...:( (TODO: set the device pixel ratio
