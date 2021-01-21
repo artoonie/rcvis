@@ -17,7 +17,7 @@ Modules
 
    visualizer
    movie
-   graphCreator
+   graph
    api
    common
 

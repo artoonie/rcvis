@@ -15,10 +15,10 @@ from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextCli
 import selenium
 
 from rcvis.settings import MOVIE_FONT_NAME
-from visualizer.graphCreator.graphCreator import make_graph_with_file
+from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.graph.roundDescriber import Describer
 from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
-from movie.creation.describer import Describer
 
 
 change_settings({"FFMPEG_BINARY": os.environ.get("IMAGEIO_FFMPEG_EXE", "/usr/bin/ffmpeg")})

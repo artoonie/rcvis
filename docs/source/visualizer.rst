@@ -7,7 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   graphCreator
+   graph
 
 Admin
 -----------------------

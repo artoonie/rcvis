@@ -17,3 +17,17 @@ path.domain {
 .tick {
   font-size: 0.7em;
 }
+.round-description-wrapper {
+  padding: 0px 10px 0px 50px;
+  border-radius: 10px;
+  height: 60px;
+  line-height: 60px;
+  font-size: 0.9em;
+  background-color: #e3f6ff;
+  display: none; /* Disable for now */
+}
+.round-description-text {
+  line-height: normal;
+  vertical-align: middle;
+  display: inline-block;
+}

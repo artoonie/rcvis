@@ -1,4 +1,5 @@
-from visualizer.graphCreator.colors import ColorGenerator, Color
+from visualizer.graph.colors import ColorGenerator, Color
+from visualizer.graph.roundDescriber import Describer
 from visualizer.jsUtils import approx_length
 
 
@@ -41,8 +42,11 @@ class D3Bargraph:
         longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
 
-        js = f'var data = {candidatesJs};'
-        js += f'\nvar candidatesRange = {list(rounds)};'
+        eachRoundTextSummary = Describer(graph).describe_all_rounds()
+
+        js = f'var candidateVoteCounts = {candidatesJs};'
+        js += f'\nvar humanFriendlyRoundNames = {list(rounds)};'
+        js += f'\nvar humanFriendlyRoundDescriptions = {eachRoundTextSummary};'
         js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'

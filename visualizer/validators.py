@@ -2,7 +2,7 @@
 
 import rest_framework.serializers as serializers
 
-from visualizer.graphCreator.graphCreator import make_graph_with_file
+from visualizer.graph.graphCreator import make_graph_with_file
 from .sankey.graphToD3 import D3Sankey
 
 

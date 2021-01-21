@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.common import make_complete_url
-from visualizer.graphCreator.graphCreator import make_graph_with_file
+from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
@@ -32,6 +32,7 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
 def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
+
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)

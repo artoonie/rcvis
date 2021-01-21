@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 
-from visualizer.graphCreator.graphCreator import make_graph_with_file
+from visualizer.graph.graphCreator import make_graph_with_file
 
 
 def set_defaults_from_json(apps, schema_editor):

@@ -16,7 +16,7 @@ var numRounds = {{ tabularByRoundInteractive.rounds|length }};
 var viewboxWidth = numRounds * 50 + 120;
 var viewboxHeight = 70;
 
-var numCandidates = data.length;
+var numCandidates = candidateVoteCounts.length;
 fixMaxWidthFor('bargraph-interactive-body', numCandidates);
 // window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
 
@@ -46,5 +46,19 @@ var gStep = d3
 gStep.call(sliderStep);
 
 var interactive = true;
-transitionEachBarForRound = makeBarGraph("#bargraph-interactive-body","#bargraph-interactive-legend", data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, interactive, threshold, config.doHideOverflowAndEliminated, !config.doUseHorizontalBarGraph, config.doDimPrevRoundColors);
+transitionEachBarForRound = makeBarGraph(
+  "#bargraph-interactive-body" /* idOfContainer */,
+  "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
+  candidateVoteCounts,
+  humanFriendlyRoundNames,
+  humanFriendlyRoundDescriptions,
+  totalVotesPerRound,
+  numRoundsTilWin,
+  colors,
+  longestLabelApxWidth,
+  interactive,
+  threshold,
+  config.doHideOverflowAndEliminated,
+  !config.doUseHorizontalBarGraph,
+  config.doDimPrevRoundColors);
 </script>

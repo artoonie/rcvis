@@ -1,15 +1,33 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, isInteractive, threshold, doHideSurplusAndEliminated, isVertical, doDimPrevRoundColors) {
+function makeBarGraph(
+  idOfContainer /* SVG container */,
+  idOfLegendOrRoundDescriber /* id for the legend (fixed) or round describer (interactive) */,
+  candidateVoteCounts /* List of candidate descriptions, where each list item has
+          keys .candidate for the name, and .<rounddescription> for the # of votes
+          on that round, where the <rounddescription> is a human-friendly description */,
+  humanFriendlyRoundNames /* The human-friendly keys noted above */,
+  humanFriendlyRoundDescriptions /* Longer form text of above - only room for this
+                                    in the interactive vis */,
+  totalVotesPerRound /* list of # of active ballots each round */,
+  numRoundsTilWin /* dict mapping winners to the round they won on */,
+  colors /* List of colors, one per round */,
+  longestLabelApxWidth /* How many pixels wide is the longest candidate name? */,
+  isInteractive /* toggles between print-friendly and interactive mode */,
+  threshold /* The threshold single value (cannot change over time currently) */,
+  doHideSurplusAndEliminated /* Hide surplus/eliminated? */,
+  isVertical /* Horizontal or vertical mode? */,
+  doDimPrevRoundColors /* Desaturate previous rounds? No-op on noninteractive */
+) {
   // First, transpose the data into layers
-  mappedData = eachRoundSummary.map(function(roundInfo) {
-    return data.map(function(d) {
+  mappedData = humanFriendlyRoundNames.map(function(roundInfo) {
+    return candidateVoteCounts.map(function(d) {
       return {x: d.candidate, y: d[roundInfo]};
     });
   });
   var candidateNames = mappedData[0].map(c => c.x);
-  var roundNames = Object.keys(data[0]).slice(1)
+  var roundNames = Object.keys(candidateVoteCounts[0]).slice(1)
   var numRounds = roundNames.length;
-  var stackSeries = d3.stack().keys(roundNames)(data);
+  var stackSeries = d3.stack().keys(roundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
   longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
@@ -24,7 +42,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, tota
       margin.bottom += 20; // Room for candidate name diagonally down
   }
 
-  var numCandidates = data.length;
+  var numCandidates = candidateVoteCounts.length;
 
   var maxWidth = 500; // of the viewbox - it can be scaled up by the outer div as needed
                       // NOTE: sync this 500 with barchart-common.js
@@ -343,6 +361,10 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, tota
         return notRoundedRect(x, y, width, height);
       }
   }
+  function descriptionOfCurrRound() {
+    // because round is 1-indexed :(
+    return humanFriendlyRoundDescriptions[currRound-1];
+  }
 
   // Hover text helper
   var barTextFn = function(d) {
@@ -457,9 +479,12 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, tota
       .selectAll("text")  
         .attr("font-size", primaryLabelTextSizeEm);
 
-  d3.select(idOfLegendDiv)
-    .append("g")
-      .call(legend);
+  if (!isInteractive) {
+    // Show a legend
+    d3.select(idOfLegendOrRoundDescriber)
+      .append("g")
+        .call(legend);
+  }
 
   // Draw the threshold dashed line
   var thresh_x1 = isVertical ? margin.left : margin.top;
@@ -482,8 +507,7 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, tota
       .attr("title", function(d) { return "Threshold to win: " + threshold; });
 
   // Return animation controls
-  var transitionEachBarForRound = function(round) {
-    currRound = round;
+  var transitionEachBarForRound = function() {
     eachBar.enter().selectAll("path.eachBar")
         .attr("d", function(d) { return getMaybeRoundedBarFor(this, d); });
     eachBar.enter().selectAll("path.eachBar").transition()
@@ -491,16 +515,32 @@ function makeBarGraph(idOfContainer, idOfLegendDiv, data, eachRoundSummary, tota
         .delay(0)
         .attr("fill", barColorFn);
   };
-  var transitionDataLabelsForRound = function(round) {
-    currRound = round;
+  var transitionDataLabelsForRound = function() {
     eachBar.enter().selectAll("text.dataLabels").transition()
         .duration(50)
         .delay(0)
         .attr("display", dataLabelDisplayFor)
   };
+  var transitionRoundDescriberForRound = function() {
+    if (!isInteractive) return;
+
+    d3.select(idOfLegendOrRoundDescriber)
+    .transition()
+      .duration(100)
+      .delay(0)
+      .style("opacity", "0");
+
+    d3.select(idOfLegendOrRoundDescriber)
+    .transition()
+      .delay(125)
+      .style("opacity", "1")
+      .text(descriptionOfCurrRound);
+  };
   var transitions = function(round) {
-    transitionEachBarForRound(round);
-    transitionDataLabelsForRound(round);
+    currRound = round;
+    transitionEachBarForRound();
+    transitionDataLabelsForRound();
+    transitionRoundDescriberForRound();
   };
 
   // Enable the bootstrap tooltip

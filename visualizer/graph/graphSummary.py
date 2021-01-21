@@ -1,6 +1,6 @@
 """ Summarize the graph to provide helper functions to different visualizers """
 
-from visualizer.graphCreator import rcvResult
+from visualizer.graph import rcvResult
 
 
 #pylint: disable=too-few-public-methods

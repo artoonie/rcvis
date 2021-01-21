@@ -2,9 +2,23 @@
 
 {{ bargraphjs|safe }}
 
-var numCandidates = data.length;
+var numCandidates = candidateVoteCounts.length;
 fixMaxWidthFor('bargraph-fixed-container', numCandidates);
 
 var interactive = false;
-makeBarGraph("#bargraph-fixed-body", "#bargraph-fixed-legend", data, candidatesRange, totalVotesPerRound, numRoundsTilWin, colors, longestLabelApxWidth, interactive, threshold, config.doHideOverflowAndEliminated, !config.doUseHorizontalBarGraph, config.doDimPrevRoundColors);
+makeBarGraph(
+  "#bargraph-fixed-body" /* idOfContainer */,
+  "#bargraph-fixed-legend" /* idOfLegendOrRoundDescriber */,
+  candidateVoteCounts,
+  humanFriendlyRoundNames,
+  humanFriendlyRoundDescriptions,
+  totalVotesPerRound,
+  numRoundsTilWin,
+  colors,
+  longestLabelApxWidth,
+  interactive,
+  threshold,
+  config.doHideOverflowAndEliminated,
+  !config.doUseHorizontalBarGraph,
+  config.doDimPrevRoundColors);
 </script>
