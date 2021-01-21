@@ -21,7 +21,7 @@ formats:
 python:
   version: 3.7
   install:
-    - requirements: requirements-for-readthedocs.txt
+    - requirements: infra/requirements-for-readthedocs.txt
     - method: pip
       path: .
       extra_requirements:
