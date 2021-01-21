@@ -32,6 +32,7 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
 def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
+
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)

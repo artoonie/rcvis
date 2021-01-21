@@ -116,6 +116,10 @@ class Describer:
         text += self._describe_redistribution_this_round(roundNum)
         return text
 
+    def describe_all_rounds(self):
+        """ Returns an array corresponding to the description of each round """
+        return [self.describe_round(i) for i in range(self.graph.numRounds)]
+
     def describe_initial_summary(self):
         """ Summarizes the entire election. """
         summary = self.graph.summarize()
