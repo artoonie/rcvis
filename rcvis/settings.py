@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'rest_framework_tracking',
     'django_cleanup.apps.CleanupConfig',
     'django_social_share',
+    'django_node_assets',
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -164,8 +165,13 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
+    'django_node_assets.finders.NodeModulesFinder',
 )
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+
+NODE_PACKAGE_JSON = 'package.json'
+NODE_MODULES_ROOT = 'node_modules'
+NODE_PACKAGE_MANAGER_EXECUTABLE = os.environ.get('NODE_PACKAGE_MANAGER_EXECUTABLE', '/usr/bin/npm')
 
 COMPRESS_ROOT = "static/"
 COMPRESS_ENABLED = True

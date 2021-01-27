@@ -537,6 +537,9 @@ function makeBarGraph(
       .text(descriptionOfCurrRound);
   };
   var transitions = function(round) {
+    // TODO make currRound 0-indexed instead of this insanity
+    round += 1;
+
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();

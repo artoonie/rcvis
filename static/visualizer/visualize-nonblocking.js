@@ -43,7 +43,7 @@ function animateIfNeeded(newTabName) {
   }
 
   if (newTabName == 'barchart') {
-    animateSlider(sliderStep)
+    // TODO animateSlider()
     hasAnimatedSlider = true;
   }
   else if (newTabName == 'round-by-round') {
