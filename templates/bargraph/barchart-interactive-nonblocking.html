@@ -30,22 +30,12 @@ transitionEachBarForRound = makeBarGraph(
   config.doDimPrevRoundColors);
 
 
-var timelineData = humanFriendlyRoundNames.map(function(name) {
-  return [{
-    summaryText: name,
-    className: name.includes('eliminated') ? 'timeline-info-bad' : 'timeline-info-good',
-    moreInfoText: name.includes('eliminated') ?
-      'The candidate had the fewest votes, so everybody who voted for this candidate now moves on to their next choice.' :
-      'The candidate reached the threshold and won'
-  }]
-})
-
 trs_createSliderAndTimeline({
   wrapperDivId: 'bargraph-slider-container',
   numTicks: numRounds,
-  widtH: viewboxWidth,
+  width: viewboxWidth,
   color: colors,
   sliderValueChanged: transitionEachBarForRound,
-  timelineData: timelineData
+  timelineData: generateTimelineData(humanFriendlyRoundNames)
 });
 </script>

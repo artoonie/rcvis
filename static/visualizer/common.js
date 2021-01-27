@@ -56,6 +56,27 @@ function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
   return candidateAxisTextSizeEm + "em";
 }
 
+let _timelineData_cached;
+function generateTimelineData(humanFriendlyRoundNames) {
+  /**
+   * Shared by both sliders' generations
+   */
+  if (_timelineData_cached !== undefined) {
+    return _timelineData_cached;
+  }
+  _timelineData_cached = humanFriendlyRoundNames.map(function(name) {
+    return [{
+      summaryText: name,
+      className: name.includes('eliminated') ? 'timeline-info-bad' : 'timeline-info-good',
+      moreInfoText: name.includes('eliminated') ?
+        'The candidate had the fewest votes, so everybody who voted for this candidate now moves on to their next choice.' :
+        'The candidate reached the threshold and won'
+    }]
+  });
+  return _timelineData_cached;
+}
+
+
 /* Color functions courtesy of https://codepen.io/hnq90/pen/YvoxMJ */
 // Converts a #ffffff hex string into an [r,g,b] array
 var h2r = function(hex) {

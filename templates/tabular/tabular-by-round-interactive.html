@@ -6,13 +6,12 @@
 {% endcompress %}
 
 <div class="responsive-table-wrapper">
-  <div class="col-12">
-    <div id="slider-step-tabular"></div>
+  <div id="tabular-by-round-slider-container" class="ml-auto mr-auto">
   </div>
 
   <div id="tabularByRoundInteractiveContainer" class="responsive-table">
     {% for round in tabularByRoundInteractive.rounds %}
-      <div id="tabbular_round_container_{{ forloop.counter }}">
+      <div id="tabular_round_container_{{ forloop.counter0 }}">
         <h4>Round {{ forloop.counter }}</h4>
         <table class="table">
           <thead class="thead-light">
