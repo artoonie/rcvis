@@ -18,3 +18,14 @@ h3 {
 h6 {
   font-size: 0.8em;
 }
+
+/* Styling the slider */
+.slider {
+  background-image:linear-gradient(170deg,#ffffff,#e7fcff);
+}
+.timeline {
+  background-image:linear-gradient(170deg,#ffffff,#e7fcff);
+}
+.expand-collapse-button {
+  background-image:linear-gradient(180deg,#f5feff,#ddf4f7);
+}

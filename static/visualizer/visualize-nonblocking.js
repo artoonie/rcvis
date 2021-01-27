@@ -43,34 +43,13 @@ function animateIfNeeded(newTabName) {
   }
 
   if (newTabName == 'barchart') {
-    // TODO animateSlider()
+    trs_animate('bargraph-slider-container')
     hasAnimatedSlider = true;
   }
   else if (newTabName == 'round-by-round') {
-    animateSlider(sliderStepTabular)
+    //animateSlider(sliderStepTabular)
     hasAnimatedSlider = true;
   }
-}
-
-function slideTo(sliderObj, round, numRounds) {
-  setTimeout(() => {
-    const didUserGrabControl = round != 1  && sliderObj.value() != round-1;
-    if (didUserGrabControl) {
-      return;
-    }
-
-    sliderObj.value(round);
-
-    if (round+1 < numRounds) {
-      slideTo(sliderObj, round+1, numRounds);
-    }
-  }, 50);
-}
-
-function animateSlider(sliderObj) {
-  const numRounds = 20;
-
-  slideTo(sliderObj, 1, numRounds);
 }
 
 function loadTabFromTag() {

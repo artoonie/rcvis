@@ -7,7 +7,7 @@ docs/build
 .coverage
 media/
 static/CACHE/
-static/node_modules/
+node_modules/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
