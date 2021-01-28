@@ -23,6 +23,7 @@ class Describer:
         self.textOnlyDescribers = [
             self._describe_the_round_number,
             self._describe_eliminated_this_round,
+            self._describe_transfers_this_round,
             self._describe_most_nonwinner_votes_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
@@ -30,6 +31,7 @@ class Describer:
         self.listOnlyDescribers = [
             self._describe_first_round,
             self._describe_eliminated_this_round,
+            self._describe_transfers_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
@@ -82,12 +84,15 @@ class Describer:
         """
         if len(listOfNames) == 0:
             return ""
-        if len(listOfNames) == 1:
-            return listOfNames[0] + whatHappenedToThemDescription
 
-        lastNameInList = listOfNames[-1]
-        otherNamesInList = ", ".join(listOfNames[:-1])
-        return otherNamesInList + " and " + lastNameInList + whatHappenedToThemDescription
+        if len(listOfNames) == 1:
+            nameString = listOfNames[0]
+        else:
+            lastNameInList = listOfNames[-1]
+            otherNamesInList = ", ".join(listOfNames[:-1])
+            nameString = otherNamesInList + " and " + lastNameInList
+
+        return whatHappenedToThemDescription.format(name=nameString)
 
     @classmethod
     def _list_to_describe_list_of_names(cls, listOfNames, verb, whatHappenedToThemDescription):
@@ -99,11 +104,19 @@ class Describer:
         listOfNames can be empty, in which case an empty list is returned.
         """
         return [{'summary': name + verb,
-                 'description': name + whatHappenedToThemDescription,
+                 'description': whatHappenedToThemDescription.format(name=name),
                  'verb': verb}
                 for name in listOfNames]
 
     def _describe_list_of_names(self, listOfNames, verb, whatHappenedToThemDescription):
+        """
+            Calls either _text_to_describe_list_of_names or _list_to_describe_list_of_names
+
+            :param listOfNames: A list of names to whom this happened
+            :param verb: A short description, only used when !summarizeAsParagraph
+            :param whatHappenedToThemDescription: A f-string that must contain {name}, \
+                where {name} will be replaced with either a single name or a list of names.
+        """
         # verb is ignored when self.summarizeAsParagraph
         if self.summarizeAsParagraph:
             result = self._text_to_describe_list_of_names(
@@ -116,11 +129,27 @@ class Describer:
 
     def _describe_eliminated_this_round(self, roundNum):
         """ e.g. "Foo had the fewest votes and was eliminated. "
-            Returns empty string if nobody was eliminated """
+            Returns empty string if nobody was eliminated.
+            Note that we look at the next round for eliminations, so it
+            lines up with the visualizations."""
         rounds = self.graph.summarize().rounds
-        eliminated = rounds[roundNum].eliminatedNames
-        whatHappened = " had the fewest votes and was eliminated. "
+        if roundNum == len(rounds) - 1:
+            eliminated = []
+        else:
+            eliminated = rounds[roundNum + 1].eliminatedNames
+        whatHappened = "{name} had the fewest votes and was eliminated. "
         return self._describe_list_of_names(eliminated, " eliminated", whatHappened)
+
+    def _describe_transfers_this_round(self, roundNum):
+        """ e.g. "Foo had the fewest votes and was eliminated. "
+            Returns empty string if nobody was eliminated.
+            Note that we look at the next round for eliminations, so it
+            lines up with the visualizations."""
+        rounds = self.graph.summarize().rounds
+        transfers = rounds[roundNum].eliminatedNames
+        whatHappened = "People who voted for {name} had their votes "\
+                       "transferred to their next choice. "
+        return self._describe_list_of_names(transfers, " transferred votes", whatHappened)
 
     def _describe_redistribution_this_round(self, roundNum):
         """ Describes redistribution, if there was any.
@@ -141,8 +170,8 @@ class Describer:
             surplusNumVotes = redistributedSumStrInt
         else:
             surplusNumVotes = "about " + redistributedSumStrInt
-        whatHappened = (" had more than enough votes to win, so to ensure no vote is wasted, "
-                        f"{surplusNumVotes} surplus votes were redistributed to other candidates. ")
+        whatHappened = "{name} had more than enough votes to win, so to ensure no vote is wasted, "\
+            f"{surplusNumVotes} surplus votes were redistributed to other candidates. "
         return self._describe_list_of_names(
             redistributedNames, " redistributed votes", whatHappened)
 
@@ -151,7 +180,8 @@ class Describer:
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
         eliminated = rounds[roundNum].winnerNames
-        whatHappened = " had the most votes and was elected. "
+        whatHappened = "{name} reached the threshold of "\
+            f"{self.graph.threshold} votes and was elected. "
         return self._describe_list_of_names(eliminated, " won", whatHappened)
 
     @classmethod
@@ -160,7 +190,7 @@ class Describer:
             return []
 
         return [{"summary": "Initial votes",
-                 "description": "The results of everybody's first-choice candidates",
+                 "description": "The results of everybody's first-choice candidates. ",
                  "verb": "initial"}]
 
     def describe_round(self, roundNum):
@@ -187,7 +217,8 @@ class Describer:
             raise NotImplementedError()
 
         wereOrWas = "was" if len(winners) == 1 else "were"
-        winnerText = self._describe_list_of_names(winners, None, f" {wereOrWas} elected. ")
+        winnerText = self._describe_list_of_names(winners, None, "{name} "
+                                                  f"{wereOrWas} elected. ")
 
         text = f"In this ranked choice voting election, there were {numRounds} rounds, after which "
         text += winnerText

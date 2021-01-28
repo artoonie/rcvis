@@ -18,6 +18,8 @@ showRound(numRounds-1)
 trs_createSliderAndTimeline({
   wrapperDivId: 'tabular-by-round-slider-container',
   numTicks: numRounds,
+  tickText: generateTickTexts(numRounds),
+  hideActiveTickText: doHideActiveTickText(numRounds),
   sliderValueChanged: showRound,
   timelineData: generateTimelineData(humanFriendlyEventsPerRound)
 });

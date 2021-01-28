@@ -33,6 +33,8 @@ trs_createSliderAndTimeline({
   wrapperDivId: 'bargraph-slider-container',
   numTicks: numRounds,
   color: colors,
+  tickText: generateTickTexts(numRounds),
+  hideActiveTickText: doHideActiveTickText(numRounds),
   sliderValueChanged: transitionEachBarForRound,
   timelineData: generateTimelineData(humanFriendlyEventsPerRound),
   showTimelineWhileAnimating: !config.doUseDescriptionInsteadOfTimeline

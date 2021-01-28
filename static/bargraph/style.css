@@ -11,6 +11,12 @@ path.domain {
 .y .tick line {
     stroke: #ddd;
 }
+
+.trs-wrapper {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .slider text {
   font-size: 1.3em;
 }
@@ -19,16 +25,24 @@ path.domain {
 }
 .round-description-wrapper {
   padding: 0px 10px 0px 50px;
+  box-shadow: 1px 5px 20px 0 #dedede;
   border-radius: 10px;
   height: 60px;
   line-height: 60px;
   font-size: 0.9em;
   background-color: #e3f6ff;
-  margin-top: 5px;
+  margin-top: 15px;
   display: none; /* Disable for now */
 }
 .round-description-text {
   line-height: normal;
   vertical-align: middle;
   display: inline-block;
+}
+
+#bargraph-interactive-body {
+  box-shadow: 1px 1px 10px 0 #dedede;
+  padding-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
 }
