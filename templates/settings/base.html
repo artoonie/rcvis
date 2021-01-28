@@ -8,58 +8,63 @@
 {% block beforeOptions %}
 {% endblock %}
 
- 	<div class="formArea">
+     <div class="formArea">
         {% block additionalOptions %}
         {% endblock %}
 
-		<button class="collapsible" id="bargraphOptions">▶ Bargraph visualization options</button>
-		<div class="optionscontent">
-			<p class="mt-3">
+        <button class="collapsible" id="bargraphOptions">▶ Bargraph visualization options</button>
+        <div class="optionscontent">
+            <p class="mt-3">
             <input type="hidden" name="doHideOverflowAndEliminated"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes</label>
+            <label><input type="checkbox" name="doHideOverflowAndEliminated"/> Hide overflow and eliminated votes</label>
+            </p>
+
+            <p>
+            <input type="hidden" name="doUseDescriptionInsteadOfTimeline"/><!-- To be sent in GET/POST if unchecked -->
+            <label><input type="checkbox" name="doUseDescriptionInsteadOfTimeline"> Use longform description instead of timeline</label>
             </p>
 
             <p>
             <input type="hidden" name="doUseHorizontalBarGraph"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="doUseHorizontalBarGraph" checked> Make horizontal instead of vertical</label>
-			</p>
+            <label><input type="checkbox" name="doUseHorizontalBarGraph" checked> Make horizontal instead of vertical</label>
+            </p>
 
             <p>
             <input type="hidden" name="doDimPrevRoundColors"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="doDimPrevRoundColors" checked> Highlight the current round when interactive</label>
-			</p>
-		</div>
+            <label><input type="checkbox" name="doDimPrevRoundColors" checked> Highlight the current round when interactive</label>
+            </p>
+        </div>
 
-		<button class="collapsible" id="sankeyOptions">▶ Sankey visualization options</button>
-		<div class="optionscontent">
-			<p class="mt-3">
+        <button class="collapsible" id="sankeyOptions">▶ Sankey visualization options</button>
+        <div class="optionscontent">
+            <p class="mt-3">
             <input type="hidden" name="hideSankey" value=""/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="hideSankey"/> Hide the sankey altogether</label>
-			</p>
+            <label><input type="checkbox" name="hideSankey"/> Hide the sankey altogether</label>
+            </p>
 
-			<p>
+            <p>
             <input type="hidden" name="rotateNames" value=""/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="rotateNames"/> Rotate the names of candidates on the top bar</label>
-			</p>
+            <label><input type="checkbox" name="rotateNames"/> Rotate the names of candidates on the top bar</label>
+            </p>
 
-			<p>
+            <p>
             <input type="hidden" name="horizontalSankey"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="horizontalSankey"/> Make it horizontal (default is vertical)</label>
-			</p>
-		</div>
+            <label><input type="checkbox" name="horizontalSankey"/> Make it horizontal (default is vertical)</label>
+            </p>
+        </div>
 
-		<button class="collapsible" id="tabularOptions">▶ Tabular visualization options</button>
-		<div class="optionscontent">
-			<p class="mt-3">
+        <button class="collapsible" id="tabularOptions">▶ Tabular visualization options</button>
+        <div class="optionscontent">
+            <p class="mt-3">
             <input type="hidden" name="hideTabular"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="hideTabular"/> Hide all tabular formats</label>
-			</p>
-			<p>
+            <label><input type="checkbox" name="hideTabular"/> Hide all tabular formats</label>
+            </p>
+            <p>
             <input type="hidden" name="onlyShowWinnersTabular"/><!-- To be sent in GET/POST if unchecked -->
-			<label><input type="checkbox" name="onlyShowWinnersTabular"/> Only show winners, hiding eliminated candidates</label>
-			</p>
-		</div>
-	</div>
+            <label><input type="checkbox" name="onlyShowWinnersTabular"/> Only show winners, hiding eliminated candidates</label>
+            </p>
+        </div>
+    </div>
 
 {% block afterOptions %}
 {% endblock %}

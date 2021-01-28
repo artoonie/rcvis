@@ -24,6 +24,7 @@ path.domain {
   line-height: 60px;
   font-size: 0.9em;
   background-color: #e3f6ff;
+  margin-top: 5px;
   display: none; /* Disable for now */
 }
 .round-description-text {

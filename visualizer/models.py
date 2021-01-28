@@ -62,6 +62,7 @@ class JsonConfig(models.Model):
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
+    doUseDescriptionInsteadOfTimeline = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
@@ -77,6 +78,7 @@ class JsonConfig(models.Model):
                 'onlyShowWinnersTabular',
                 'doHideOverflowAndEliminated',
                 'doUseHorizontalBarGraph',
+                'doUseDescriptionInsteadOfTimeline',
                 'hideSankey',
                 'hideTabular',
                 'doDimPrevRoundColors',

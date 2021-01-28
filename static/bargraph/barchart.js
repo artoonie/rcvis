@@ -361,9 +361,17 @@ function makeBarGraph(
         return notRoundedRect(x, y, width, height);
       }
   }
+
   function descriptionOfCurrRound() {
     // because round is 1-indexed :(
-    return humanFriendlyEventsPerRound[currRound-1];
+    const round = currRound - 1;
+    const roundData = humanFriendlyEventsPerRound[round];
+
+    return roundData.map(function(event) {
+      return event.description;
+    }).reduce(function(totalString, currText) {
+      return totalString + "\n" + currText;
+    }, "");
   }
 
   // Hover text helper

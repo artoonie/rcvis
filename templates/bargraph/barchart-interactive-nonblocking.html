@@ -34,6 +34,7 @@ trs_createSliderAndTimeline({
   numTicks: numRounds,
   color: colors,
   sliderValueChanged: transitionEachBarForRound,
-  timelineData: generateTimelineData(humanFriendlyEventsPerRound)
+  timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+  showTimelineWhileAnimating: !config.doUseDescriptionInsteadOfTimeline
 });
 </script>

@@ -47,10 +47,24 @@ function animateIfNeeded(newTabName) {
     hasAnimatedSlider = true;
   }
   else if (newTabName == 'round-by-round') {
-    //animateSlider(sliderStepTabular)
+    trs_animate('tabular-by-round-slider-container')
     hasAnimatedSlider = true;
   }
 }
+
+function chooseBetweenTimelineAndDescription() {
+  // Pretty hacky - just for evaluation
+  if (!config.doUseDescriptionInsteadOfTimeline) {
+    return;
+  }
+
+  var style = document.createElement('style');
+  document.head.appendChild(style);
+  var styleSheet = style.sheet;
+  styleSheet.insertRule('.expand-collapse-button { display: none !important}')
+  styleSheet.insertRule('.round-description-wrapper { display: block !important}')
+}
+
 
 function loadTabFromTag() {
     // c/o https://stackoverflow.com/a/9393768/1057105
@@ -100,5 +114,6 @@ document.getElementById("make-interactive").addEventListener("click", function(e
   return false;
 });
 
+chooseBetweenTimelineAndDescription()
 loadTabFromTag();
 hideTabsBasedOnConfig()
