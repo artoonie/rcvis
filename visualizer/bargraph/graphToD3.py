@@ -28,7 +28,7 @@ class D3Bargraph:
         totalVotesPerRound = [r.totalActiveVotes for r in rounds]
 
         # Make round labels
-        rounds = [get_label_for(rounds, i) for i in range(numRounds)]
+        roundLabels = [get_label_for(rounds, i) for i in range(numRounds)]
 
         # Get the winners each round, flip list into dict
         numRoundsTilWin = {}
@@ -42,11 +42,12 @@ class D3Bargraph:
         longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
 
-        eachRoundTextSummary = Describer(graph).describe_all_rounds()
+        roundDescriber = Describer(graph, summarizeAsParagraph=False)
+        humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
 
         js = f'var candidateVoteCounts = {candidatesJs};'
-        js += f'\nvar humanFriendlyRoundNames = {list(rounds)};'
-        js += f'\nvar humanFriendlyRoundDescriptions = {eachRoundTextSummary};'
+        js += f'\nvar humanFriendlyRoundNames = {list(roundLabels)};'
+        js += f'\nvar humanFriendlyEventsPerRound = {humanFriendlyEventsPerRound};'
         js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'

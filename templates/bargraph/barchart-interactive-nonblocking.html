@@ -6,7 +6,6 @@
 
 // For slider TODO sync with tabular-by-round-interactive.html
 var numRounds = {{ tabularByRoundInteractive.rounds|length }};
-var viewboxWidth = numRounds * 50 + 120;
 
 var numCandidates = candidateVoteCounts.length;
 fixMaxWidthFor('bargraph-interactive-body', numCandidates);
@@ -18,7 +17,7 @@ transitionEachBarForRound = makeBarGraph(
   "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
   candidateVoteCounts,
   humanFriendlyRoundNames,
-  humanFriendlyRoundDescriptions,
+  humanFriendlyEventsPerRound,
   totalVotesPerRound,
   numRoundsTilWin,
   colors,
@@ -33,9 +32,8 @@ transitionEachBarForRound = makeBarGraph(
 trs_createSliderAndTimeline({
   wrapperDivId: 'bargraph-slider-container',
   numTicks: numRounds,
-  width: viewboxWidth,
   color: colors,
   sliderValueChanged: transitionEachBarForRound,
-  timelineData: generateTimelineData(humanFriendlyRoundNames)
+  timelineData: generateTimelineData(humanFriendlyEventsPerRound)
 });
 </script>

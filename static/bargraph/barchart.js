@@ -6,7 +6,7 @@ function makeBarGraph(
           keys .candidate for the name, and .<rounddescription> for the # of votes
           on that round, where the <rounddescription> is a human-friendly description */,
   humanFriendlyRoundNames /* The human-friendly keys noted above */,
-  humanFriendlyRoundDescriptions /* Longer form text of above - only room for this
+  humanFriendlyEventsPerRound /* Longer form text of above - only room for this
                                     in the interactive vis */,
   totalVotesPerRound /* list of # of active ballots each round */,
   numRoundsTilWin /* dict mapping winners to the round they won on */,
@@ -363,7 +363,7 @@ function makeBarGraph(
   }
   function descriptionOfCurrRound() {
     // because round is 1-indexed :(
-    return humanFriendlyRoundDescriptions[currRound-1];
+    return humanFriendlyEventsPerRound[currRound-1];
   }
 
   // Hover text helper

@@ -57,21 +57,39 @@ function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
 }
 
 let _timelineData_cached;
-function generateTimelineData(humanFriendlyRoundNames) {
+
+function classNameForDescriptionVerb(verb) {
+  /**
+   * Returns a class name given the hardcode verb. Must sync with roundDescriber.py.
+   */
+  if (verb == ' won')
+    return 'timeline-info-good'
+  if (verb == ' eliminated')
+    return 'timeline-info-bad'
+  if (verb == ' redistributed votes')
+    return '' // default class
+  if (verb == 'initial')
+    return '' // default class
+  else
+    throw new Error("Unexpected verb " + verb +
+                    " - this function must be in sync with roundDescriber.py")
+}
+
+function generateTimelineData(humanFriendlyEventsPerRound) {
   /**
    * Shared by both sliders' generations
    */
   if (_timelineData_cached !== undefined) {
     return _timelineData_cached;
   }
-  _timelineData_cached = humanFriendlyRoundNames.map(function(name) {
-    return [{
-      summaryText: name,
-      className: name.includes('eliminated') ? 'timeline-info-bad' : 'timeline-info-good',
-      moreInfoText: name.includes('eliminated') ?
-        'The candidate had the fewest votes, so everybody who voted for this candidate now moves on to their next choice.' :
-        'The candidate reached the threshold and won'
-    }]
+  _timelineData_cached = humanFriendlyEventsPerRound.map(function(humanFriendlyEvents) {
+    return humanFriendlyEvents.map(function(humanFriendlyEvent) {
+      return {
+        summaryText: humanFriendlyEvent.summary,
+        className: classNameForDescriptionVerb(humanFriendlyEvent.verb),
+        moreInfoText: humanFriendlyEvent.description
+      }
+    })
   });
   return _timelineData_cached;
 }

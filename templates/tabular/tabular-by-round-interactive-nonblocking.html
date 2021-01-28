@@ -5,7 +5,6 @@
 
 // For slider TODO sync with barchart-interactive.html
 var numRounds = {{ tabularByRoundInteractive.rounds|length }};
-var viewboxWidth = numRounds * 50 + 120;
 
 function showRound(round) {
     for (i = 0; i < numRounds; i++) { 
@@ -19,9 +18,8 @@ showRound(numRounds-1)
 trs_createSliderAndTimeline({
   wrapperDivId: 'tabular-by-round-slider-container',
   numTicks: numRounds,
-  width: viewboxWidth,
   sliderValueChanged: showRound,
-  timelineData: generateTimelineData(humanFriendlyRoundNames)
+  timelineData: generateTimelineData(humanFriendlyEventsPerRound)
 });
 
 </script>

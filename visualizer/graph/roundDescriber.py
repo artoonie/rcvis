@@ -9,9 +9,30 @@ class Describer:
     """ Describes a graph in plain English.
         Iteratively call describe_round() on each round for the given graph. """
 
-    def __init__(self, graph):
-        """ Initializes the Describer """
+    def __init__(self, graph, summarizeAsParagraph):
+        """
+        Initializes the Describer
+
+        :param graph: The graph to summarize
+        :param summarizeAsParagraph: If true, the summary for each round is a paragraph.\
+            If false, the summary is a list of events for each round.
+        """
         self.graph = graph
+        self.summarizeAsParagraph = summarizeAsParagraph
+
+        self.textOnlyDescribers = [
+            self._describe_the_round_number,
+            self._describe_eliminated_this_round,
+            self._describe_most_nonwinner_votes_this_round,
+            self._describe_winners_this_round,
+            self._describe_redistribution_this_round
+        ]
+        self.listOnlyDescribers = [
+            self._describe_first_round,
+            self._describe_eliminated_this_round,
+            self._describe_winners_this_round,
+            self._describe_redistribution_this_round
+        ]
 
     @classmethod
     def _describe_the_round_number(cls, roundNum):
@@ -53,20 +74,45 @@ class Describer:
         return mostVotes.name + " received the most votes. "
 
     @classmethod
-    def _text_to_describe_list_of_names(cls, listOfNames, whatHappenedToThem):
+    def _text_to_describe_list_of_names(cls, listOfNames, whatHappenedToThemDescription):
         """
-        e.g. With listOfNames = [Foo,Bar,Baz] and whatHappenedToThem="ate chips":
+        e.g. With listOfNames = [Foo,Bar,Baz] and whatHappenedToThemDescription="ate chips":
         "Foo, Bar, and Baz ate chips. "
         listOfNames can be empty, in which case the empty string is returned.
         """
         if len(listOfNames) == 0:
             return ""
         if len(listOfNames) == 1:
-            return listOfNames[0] + whatHappenedToThem
+            return listOfNames[0] + whatHappenedToThemDescription
 
         lastNameInList = listOfNames[-1]
         otherNamesInList = ", ".join(listOfNames[:-1])
-        return otherNamesInList + " and " + lastNameInList + whatHappenedToThem
+        return otherNamesInList + " and " + lastNameInList + whatHappenedToThemDescription
+
+    @classmethod
+    def _list_to_describe_list_of_names(cls, listOfNames, verb, whatHappenedToThemDescription):
+        """
+        e.g. With listOfNames = [Foo,Bar,Baz], verb="ate", and whatHappenedToThem="ate chips":
+        [ {summary: "Foo ate", verb: "ate", description: "Foo at chips"},
+          {summary: "Bar ate", verb: "ate", description: "Bar at chips"},
+          {summary: "Baz ate", verb: "ate", description: "Baz at chips"} ]
+        listOfNames can be empty, in which case an empty list is returned.
+        """
+        return [{'summary': name + verb,
+                 'description': name + whatHappenedToThemDescription,
+                 'verb': verb}
+                for name in listOfNames]
+
+    def _describe_list_of_names(self, listOfNames, verb, whatHappenedToThemDescription):
+        # verb is ignored when self.summarizeAsParagraph
+        if self.summarizeAsParagraph:
+            result = self._text_to_describe_list_of_names(
+                listOfNames, whatHappenedToThemDescription)
+        else:
+            result = self._list_to_describe_list_of_names(
+                listOfNames, verb, whatHappenedToThemDescription)
+
+        return result
 
     def _describe_eliminated_this_round(self, roundNum):
         """ e.g. "Foo had the fewest votes and was eliminated. "
@@ -74,7 +120,7 @@ class Describer:
         rounds = self.graph.summarize().rounds
         eliminated = rounds[roundNum].eliminatedNames
         whatHappened = " had the fewest votes and was eliminated. "
-        return self._text_to_describe_list_of_names(eliminated, whatHappened)
+        return self._describe_list_of_names(eliminated, " eliminated", whatHappened)
 
     def _describe_redistribution_this_round(self, roundNum):
         """ Describes redistribution, if there was any.
@@ -97,7 +143,8 @@ class Describer:
             surplusNumVotes = "about " + redistributedSumStrInt
         whatHappened = (" had more than enough votes to win, so to ensure no vote is wasted, "
                         f"{surplusNumVotes} surplus votes were redistributed to other candidates. ")
-        return self._text_to_describe_list_of_names(redistributedNames, whatHappened)
+        return self._describe_list_of_names(
+            redistributedNames, " redistributed votes", whatHappened)
 
     def _describe_winners_this_round(self, roundNum):
         """ e.g. "Foo had the most votes and was elected. "
@@ -105,16 +152,26 @@ class Describer:
         rounds = self.graph.summarize().rounds
         eliminated = rounds[roundNum].winnerNames
         whatHappened = " had the most votes and was elected. "
-        return self._text_to_describe_list_of_names(eliminated, whatHappened)
+        return self._describe_list_of_names(eliminated, " won", whatHappened)
+
+    @classmethod
+    def _describe_first_round(cls, roundNum):
+        if roundNum != 0:
+            return []
+
+        return [{"summary": "Initial votes",
+                 "description": "The results of everybody's first-choice candidates",
+                 "verb": "initial"}]
 
     def describe_round(self, roundNum):
         """ Returns a long string of all the interesting things that happened this round. """
-        text = self._describe_the_round_number(roundNum)
-        text += self._describe_eliminated_this_round(roundNum)
-        text += self._describe_most_nonwinner_votes_this_round(roundNum)
-        text += self._describe_winners_this_round(roundNum)
-        text += self._describe_redistribution_this_round(roundNum)
-        return text
+        if self.summarizeAsParagraph:
+            result = ''.join([func(roundNum) for func in self.textOnlyDescribers])
+        else:
+            result = []
+            for func in self.listOnlyDescribers:
+                result += func(roundNum)
+        return result
 
     def describe_all_rounds(self):
         """ Returns an array corresponding to the description of each round """
@@ -130,7 +187,7 @@ class Describer:
             raise NotImplementedError()
 
         wereOrWas = "was" if len(winners) == 1 else "were"
-        winnerText = self._text_to_describe_list_of_names(winners, f" {wereOrWas} elected. ")
+        winnerText = self._describe_list_of_names(winners, None, f" {wereOrWas} elected. ")
 
         text = f"In this ranked choice voting election, there were {numRounds} rounds, after which "
         text += winnerText
