@@ -207,7 +207,7 @@ class SingleMovieCreator():
     def make_movie(self, outputFilename):
         """ Create a movie at a specific resolution """
         self.browser.set_window_size(self.size[0], self.size[1])
-        roundDescriber = Describer(self.graph)
+        roundDescriber = Describer(self.graph, summarizeAsParagraph=True)
 
         imageClips = []
 

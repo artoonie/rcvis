@@ -6,7 +6,7 @@ function makeBarGraph(
           keys .candidate for the name, and .<rounddescription> for the # of votes
           on that round, where the <rounddescription> is a human-friendly description */,
   humanFriendlyRoundNames /* The human-friendly keys noted above */,
-  humanFriendlyRoundDescriptions /* Longer form text of above - only room for this
+  humanFriendlyEventsPerRound /* Longer form text of above - only room for this
                                     in the interactive vis */,
   totalVotesPerRound /* list of # of active ballots each round */,
   numRoundsTilWin /* dict mapping winners to the round they won on */,
@@ -361,9 +361,17 @@ function makeBarGraph(
         return notRoundedRect(x, y, width, height);
       }
   }
+
   function descriptionOfCurrRound() {
     // because round is 1-indexed :(
-    return humanFriendlyRoundDescriptions[currRound-1];
+    const round = currRound - 1;
+    const roundData = humanFriendlyEventsPerRound[round];
+
+    return roundData.map(function(event) {
+      return event.description;
+    }).reduce(function(totalString, currText) {
+      return totalString + "\n" + currText;
+    }, "");
   }
 
   // Hover text helper
@@ -430,8 +438,13 @@ function makeBarGraph(
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
-  let primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
-  let secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  let primaryLabelTextSizeEm = "1em";
+  let secondaryLabelTextSizeEm = "1em";
+  if (isVertical) {
+    // only vertical needs to scale
+    getMagicTextLabelSize(longestLabelApxWidth, 0.8);
+    getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  }
 
   // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
   // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
@@ -537,6 +550,9 @@ function makeBarGraph(
       .text(descriptionOfCurrRound);
   };
   var transitions = function(round) {
+    // TODO make currRound 0-indexed instead of this insanity
+    round += 1;
+
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();

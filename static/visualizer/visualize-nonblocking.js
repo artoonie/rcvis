@@ -43,35 +43,28 @@ function animateIfNeeded(newTabName) {
   }
 
   if (newTabName == 'barchart') {
-    animateSlider(sliderStep)
+    trs_animate('bargraph-slider-container')
     hasAnimatedSlider = true;
   }
   else if (newTabName == 'round-by-round') {
-    animateSlider(sliderStepTabular)
+    trs_animate('tabular-by-round-slider-container')
     hasAnimatedSlider = true;
   }
 }
 
-function slideTo(sliderObj, round, numRounds) {
-  setTimeout(() => {
-    const didUserGrabControl = round != 1  && sliderObj.value() != round-1;
-    if (didUserGrabControl) {
-      return;
-    }
+function chooseBetweenTimelineAndDescription() {
+  // Pretty hacky - just for evaluation
+  if (!config.doUseDescriptionInsteadOfTimeline) {
+    return;
+  }
 
-    sliderObj.value(round);
-
-    if (round+1 < numRounds) {
-      slideTo(sliderObj, round+1, numRounds);
-    }
-  }, 50);
+  var style = document.createElement('style');
+  document.head.appendChild(style);
+  var styleSheet = style.sheet;
+  styleSheet.insertRule('.expand-collapse-button { display: none !important}')
+  styleSheet.insertRule('.round-description-wrapper { display: block !important}')
 }
 
-function animateSlider(sliderObj) {
-  const numRounds = 20;
-
-  slideTo(sliderObj, 1, numRounds);
-}
 
 function loadTabFromTag() {
     // c/o https://stackoverflow.com/a/9393768/1057105
@@ -121,5 +114,6 @@ document.getElementById("make-interactive").addEventListener("click", function(e
   return false;
 });
 
+chooseBetweenTimelineAndDescription()
 loadTabFromTag();
 hideTabsBasedOnConfig()

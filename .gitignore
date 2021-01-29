@@ -7,11 +7,9 @@ docs/build
 .coverage
 media/
 static/CACHE/
+node_modules/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-
-# Lazy: local uploads are dumped here
-*.json

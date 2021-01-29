@@ -1,49 +1,15 @@
 {% load static %}
 
-{% if offlineMode %}
-<script src="{% static 'localdeps/d3-simple-slider.min.js' %}"></script>
-{% else %}
-<script src="https://unpkg.com/d3-simple-slider@1.5.4/dist/d3-simple-slider.min.js"></script>
-{% endif %}
-
 <script type="text/javascript">
-
 
 {{ bargraphjs|safe }}
 
 // For slider TODO sync with tabular-by-round-interactive.html
 var numRounds = {{ tabularByRoundInteractive.rounds|length }};
-var viewboxWidth = numRounds * 50 + 120;
-var viewboxHeight = 70;
 
 var numCandidates = candidateVoteCounts.length;
 fixMaxWidthFor('bargraph-interactive-body', numCandidates);
 // window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
-
-// Step slider c/o https://bl.ocks.org/johnwalley/e1d256b81e51da68f7feb632a53c3518
-var sliderStep = d3
-  .sliderBottom()
-  .min(1)
-  .max(numRounds)
-  .width(numRounds * 45)
-  .height(50)
-    .tickFormat(function(d) { return "Round " + d;})
-  .ticks(numRounds-1)
-  .step(1)
-  .default(numRounds)
-  .on('onchange', val => {
-    transitionEachBarForRound(val);
-  });
-
-var gStep = d3
-  .select('div#slider-step')
-  .append('svg')
-  .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
-  .style("max-width", window.devicePixelRatio*viewboxWidth + "px")
-  .append('g')
-  .attr('transform', 'translate(20,30)');
-
-gStep.call(sliderStep);
 
 var interactive = true;
 transitionEachBarForRound = makeBarGraph(
@@ -51,7 +17,7 @@ transitionEachBarForRound = makeBarGraph(
   "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
   candidateVoteCounts,
   humanFriendlyRoundNames,
-  humanFriendlyRoundDescriptions,
+  humanFriendlyEventsPerRound,
   totalVotesPerRound,
   numRoundsTilWin,
   colors,
@@ -61,4 +27,16 @@ transitionEachBarForRound = makeBarGraph(
   config.doHideOverflowAndEliminated,
   !config.doUseHorizontalBarGraph,
   config.doDimPrevRoundColors);
+
+
+trs_createSliderAndTimeline({
+  wrapperDivId: 'bargraph-slider-container',
+  numTicks: numRounds,
+  color: colors,
+  tickText: generateTickTexts(numRounds),
+  hideActiveTickText: doHideActiveTickText(numRounds),
+  sliderValueChanged: transitionEachBarForRound,
+  timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
+});
 </script>
