@@ -1143,7 +1143,32 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._disable_all_animations()
         self._upload(FILENAME_MULTIWINNER)
 
-        # Ensure the expand/collapse button is visible
+        # The expand button is hidden
+        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
+        self.assertEqual(self._is_elem_visible(expandButton), False)
+
+        # And longform description is visible
+        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        self.assertEqual(self._is_elem_visible(desc), True)
+
+        # Give JS a second to catch up with the animation
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('Larry Edwards reached the threshold of 134', desc.text))
+        assert desc.text.endswith('redistributed to other candidates.')
+
+        # Go to the settings tab
+        self._go_to_tab("settings-tab")
+
+        # Then, toggle on the sankey tab from the settings page
+        self.browser.find_element_by_id("bargraphOptions").click()  # Open the dropdown
+        # Check the box (the second one, which isn't hidden)
+        self.browser.find_elements_by_name("doUseDescriptionInsteadOfTimeline")[1].click()
+        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
+
+        # Go to the bargraph
+        self._go_to_tab("barchart-tab")
+
+        # Now the the expand/collapse button is visible
         expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
         self.assertEqual(self._is_elem_visible(expandButton), True)
         expandButton.click()
@@ -1162,30 +1187,3 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         elems = self.browser.find_elements_by_class_name('timeline-info')
         # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
         self.assertEqual(len(elems), 2 * 9)
-
-        # Go to the settings tab
-        self._go_to_tab("settings-tab")
-
-        # Then, toggle on the sankey tab from the settings page
-        self.browser.find_element_by_id("bargraphOptions").click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("doUseDescriptionInsteadOfTimeline")[1].click()
-        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
-
-        # Go to the bargraph
-        self._go_to_tab("barchart-tab")
-
-        # Now the expand button is hidden - might need a breather
-        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
-        self._ensure_eventually_asserts(
-            lambda: self.assertEqual(self._is_elem_visible(expandButton), False))
-
-        # And longform description is visible
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertEqual(self._is_elem_visible(desc), True))
-
-        # Give JS a second to catch up with the animation
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards reached the threshold of 134', desc.text))
-        assert desc.text.endswith('redistributed to other candidates.')
