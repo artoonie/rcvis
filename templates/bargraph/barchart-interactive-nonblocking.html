@@ -1,42 +1,44 @@
 {% load static %}
 
 <script type="text/javascript">
+function makeInteractiveGraph() {
+  {{ bargraphjs|safe }}
 
-{{ bargraphjs|safe }}
+  // For slider TODO sync with tabular-by-round-interactive.html
+  const numRounds = {{ tabularByRoundInteractive.rounds|length }};
 
-// For slider TODO sync with tabular-by-round-interactive.html
-var numRounds = {{ tabularByRoundInteractive.rounds|length }};
+  const numCandidates = candidateVoteCounts.length;
+  fixMaxWidthFor('bargraph-interactive-body', numCandidates);
+  // window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
 
-var numCandidates = candidateVoteCounts.length;
-fixMaxWidthFor('bargraph-interactive-body', numCandidates);
-// window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
-
-var interactive = true;
-transitionEachBarForRound = makeBarGraph(
-  "#bargraph-interactive-body" /* idOfContainer */,
-  "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
-  candidateVoteCounts,
-  humanFriendlyRoundNames,
-  humanFriendlyEventsPerRound,
-  totalVotesPerRound,
-  numRoundsTilWin,
-  colors,
-  longestLabelApxWidth,
-  interactive,
-  threshold,
-  config.doHideOverflowAndEliminated,
-  !config.doUseHorizontalBarGraph,
-  config.doDimPrevRoundColors);
+  const interactive = true;
+  transitionEachBarForRound = makeBarGraph(
+    "#bargraph-interactive-body" /* idOfContainer */,
+    "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
+    candidateVoteCounts,
+    humanFriendlyRoundNames,
+    humanFriendlyEventsPerRound,
+    totalVotesPerRound,
+    numRoundsTilWin,
+    colorsPerRound,
+    longestLabelApxWidth,
+    interactive,
+    threshold,
+    config.doHideOverflowAndEliminated,
+    !config.doUseHorizontalBarGraph,
+    config.doDimPrevRoundColors);
 
 
-trs_createSliderAndTimeline({
-  wrapperDivId: 'bargraph-slider-container',
-  numTicks: numRounds,
-  color: colors,
-  tickText: generateTickTexts(numRounds),
-  hideActiveTickText: doHideActiveTickText(numRounds),
-  sliderValueChanged: transitionEachBarForRound,
-  timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
-});
+  trs_createSliderAndTimeline({
+    wrapperDivId: 'bargraph-slider-container',
+    numTicks: numRounds,
+    color: colorsPerRound,
+    tickText: generateTickTexts(numRounds),
+    hideActiveTickText: doHideActiveTickText(numRounds),
+    sliderValueChanged: transitionEachBarForRound,
+    timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+    timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
+  });
+}
+makeInteractiveGraph();
 </script>

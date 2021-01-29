@@ -1,4 +1,4 @@
-function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound) {
+function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound, colorThemeIndex) {
   // Below are crazy heuristics to try to get the graph to look good
   // on a variety of sizes.
   var units = "Votes";
@@ -41,6 +41,9 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   var viewboxSize1 = size1 + size1margin(cmargin);
 
   var lastRound = -1;
+
+  const colorThemeGenerator = getColorGenerator(colorThemeIndex);
+  const colorsPerCandidate = Array.from(colorThemeGenerator(numCandidates));
 
   function hackCharsForWidth(width, text) {
       var length = width/ESTIMATED_CHAR_WIDTH
@@ -135,7 +138,8 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       .enter().append("path")
         .attr("class", "link")
         .attr("d", path)
-        .style("fill", function(d) { return d3.rgb(d.color) })
+        .style("fill", function(d) { return d3.rgb(colorsPerCandidate[d.source.index]) })
+        .style("opacity", 0.3)
         .sort(function(a, b) { return ddim1(b) - ddim1(a); });
 
       // add the link titles
@@ -211,7 +215,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       node.append("rect")
         .attr(size1string(), function(d) { return ddim1(d); })
         .attr(size0string(), sankey.nodeSize0())
-        .style("fill", function(d) { return d.color })
+        .style("fill", function(d) { return colorsPerCandidate[d.index] })
       .append("title")
         .text(function(d) { 
             return d.name + "\n" + format(d.value); });

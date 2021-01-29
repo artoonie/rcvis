@@ -1,4 +1,3 @@
-from visualizer.graph.colors import ColorGenerator, Color
 from visualizer.graph.roundDescriber import Describer
 from visualizer.jsUtils import approx_length
 
@@ -36,9 +35,6 @@ class D3Bargraph:
             for winner in r.winnerNames:
                 numRoundsTilWin[winner] = r.round_i
 
-        palette = ColorGenerator(numRounds)
-        colors = [Color(next(palette)).as_hex() for i in range(numRounds)]
-
         longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
 
@@ -49,7 +45,6 @@ class D3Bargraph:
         js += f'\nvar humanFriendlyRoundNames = {list(roundLabels)};'
         js += f'\nvar humanFriendlyEventsPerRound = {humanFriendlyEventsPerRound};'
         js += f'\nvar threshold = {float(graph.threshold)};'
-        js += f'\nvar colors = {str(colors)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
         js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'
         js += f'\nvar numRoundsTilWin = {numRoundsTilWin};'

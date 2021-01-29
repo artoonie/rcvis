@@ -8,6 +8,7 @@ docs/build
 media/
 static/CACHE/
 node_modules/
+staticfiles/
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
