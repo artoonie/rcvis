@@ -1160,8 +1160,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.assertEqual(len(elems), 2 * 2)  # two eliminated, x2 graphs
 
         elems = self.browser.find_elements_by_class_name('timeline-info')
-        self.assertEqual(len(elems), 2 * 9)  # win/loss from above + three infos:
-                                             # initial, redistributed x2, transfer x2
+        # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
+        self.assertEqual(len(elems), 2 * 9)
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")

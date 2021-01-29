@@ -47,3 +47,39 @@ path.domain {
   margin-left: auto;
   margin-right: auto;
 }
+
+@media only screen and (max-width: 1200px) {
+  /* first reduce font size */
+  .round-description-wrapper {
+    font-size: 0.9rem;
+  }
+}
+@media only screen and (max-width: 800px) {
+  /* then reduce again text */
+  .round-description-wrapper {
+    font-size: 0.75rem;
+  }
+  .slider-item-hidden-slider {
+    font-size: 0.75rem;
+  }
+  .timeline {
+    font-size: 0.75rem;
+  }
+  .expand-collapse-button {
+    font-size: 0.75rem;
+  }
+}
+@media only screen and (max-width: 400px) {
+  .slider-item-hidden-slider {
+    font-size: 0.4rem;
+  }
+  .slider-item-hidden-slider-active{
+    padding-bottom: 6px;
+  }
+  .timeline {
+    font-size: 0.5rem;
+  }
+  .expand-collapse-button {
+    font-size: 0.5rem;
+  }
+}

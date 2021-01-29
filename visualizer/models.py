@@ -62,7 +62,7 @@ class JsonConfig(models.Model):
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
-    doUseDescriptionInsteadOfTimeline = models.BooleanField(default=False)
+    doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)

@@ -105,7 +105,7 @@ function generateTickTexts(numRounds) {
 
 function doHideActiveTickText(numRounds) {
   // The magic number swapping from "Rounds" mode to >> mode
-  return numRounds > 10;
+  return numRounds > 7;
 }
 
 

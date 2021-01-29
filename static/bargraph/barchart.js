@@ -438,8 +438,13 @@ function makeBarGraph(
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
-  let primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
-  let secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  let primaryLabelTextSizeEm = "1em";
+  let secondaryLabelTextSizeEm = "1em";
+  if (isVertical) {
+    // only vertical needs to scale
+    getMagicTextLabelSize(longestLabelApxWidth, 0.8);
+    getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+  }
 
   // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
   // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
