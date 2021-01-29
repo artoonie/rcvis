@@ -1160,7 +1160,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.assertEqual(len(elems), 2 * 2)  # two eliminated, x2 graphs
 
         elems = self.browser.find_elements_by_class_name('timeline-info')
-        self.assertEqual(len(elems), 2 * 7)  # win/loss + three infos: initial, redistributed x2
+        self.assertEqual(len(elems), 2 * 9)  # win/loss from above + three infos:
+                                             # initial, redistributed x2, transfer x2
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")
@@ -1186,5 +1187,5 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Give JS a second to catch up with the animation
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards had the most', desc.text))
+            lambda: self.assertIn('Larry Edwards reached the threshold of 134', desc.text))
         assert desc.text.endswith('redistributed to other candidates.')
