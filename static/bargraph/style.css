@@ -24,7 +24,7 @@ path.domain {
   font-size: 0.7em;
 }
 .round-description-wrapper {
-  padding: 0px 10px 0px 50px;
+  padding: 0px 10px 0px 10px;
   box-shadow: 1px 5px 20px 0 #dedede;
   border-radius: 10px;
   height: 60px;
@@ -33,6 +33,7 @@ path.domain {
   background-color: #e3f6ff;
   margin-top: 15px;
   display: none; /* Disable for now */
+  overflow-y: auto;
 }
 .round-description-text {
   line-height: normal;
