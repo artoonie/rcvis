@@ -3,7 +3,6 @@ import abc
 import datetime
 
 from visualizer import common
-from . import colors
 from . import rcvResult
 from .graph import Graph
 
@@ -204,11 +203,8 @@ class JSONReader:
             round0 = data['results'][0]
             itemNames = round0['tally'].items()
 
-            palette = colors.ColorGenerator(len(itemNames))
-
             for name, initialVotes in itemNames:
-                color = colors.Color(next(palette))
-                item = rcvResult.Item(name, color)
+                item = rcvResult.Item(name)
                 items[name] = item
                 graph.add_node(item, float(initialVotes))
             return items

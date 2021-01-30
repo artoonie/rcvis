@@ -6,6 +6,11 @@
     <script src="{% static 'bargraph/barchart-common.js' %}"></script>
 {% endcompress %}
 
+<script type="text/javascript">
+const colorThemeGenerator = getColorGenerator(config.colorTheme);
+const colorsPerRound = Array.from(colorThemeGenerator({{ tabularByRoundInteractive.rounds|length }}));
+</script>
+
 {% compress css file %}
     <link rel="stylesheet" href="{% static "bargraph/style.css" %}">
 {% endcompress %}

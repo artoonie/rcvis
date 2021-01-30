@@ -1,6 +1,9 @@
 <script>
-  for (var key in config)
-  {
-    $("input[name='"+key+"']").prop('checked', config[key]);
+  for (let key in config) {
+    if (key != 'colorTheme') {
+      $("input[name='"+key+"']").prop('checked', config[key]);
+    } else {
+      $("select[name='"+key+"']").prop('value', config[key]);
+    }
   }
 </script>

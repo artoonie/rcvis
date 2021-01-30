@@ -76,6 +76,7 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         graph.add_round(r, False)
     graph.add_round(rounds[-1], True)
 
+    graph.eliminationOrder = eliminationOrder
     graph.nodes = sorted(graph.nodes, key=lambda x: -eliminationOrder.index(x.item))
 
     if excludeFinalWinnerAndEliminatedCandidate:

@@ -8,6 +8,13 @@ from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 
 
+class ColorTheme(models.IntegerChoices):
+    """ Describes the status of movie generation for this model """
+    RAINBOW = 0, _('Full color spectrum')
+    PURPLE_TO_ORANGE = 1, _('Purple to orange')
+    ALTERNATING = 2, _('Alternating colors')
+
+
 class MovieGenerationStatuses(models.IntegerChoices):
     """ Describes the status of movie generation for this model """
     NOT_REQUESTED = 0, _('No movie generation has been requested')
@@ -63,6 +70,7 @@ class JsonConfig(models.Model):
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
     doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
+    colorTheme = models.IntegerField(choices=ColorTheme.choices, default=0)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
@@ -83,7 +91,8 @@ class JsonConfig(models.Model):
                 'hideTabular',
                 'doDimPrevRoundColors',
                 'excludeFinalWinnerAndEliminatedCandidate',
-                'hideDecimals']
+                'hideDecimals',
+                'colorTheme']
 
     def _get_unique_slug(self):
         # loop until the name is unique

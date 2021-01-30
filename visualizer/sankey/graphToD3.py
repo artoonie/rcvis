@@ -13,6 +13,9 @@ class D3Sankey:
         js += f'totalVotesPerRound = {totalVotesPerRound};\n'
         js += 'graph = {"nodes" : [], "links" : []};\n'
 
+        # Maps Items to a unique index. Used for color indexing.
+        indices = {item: i for i, item in enumerate(graph.eliminationOrder)}
+
         nodeIndices = {}
         for i, node in enumerate(graph.nodes):
             # Skip inactive (exhausted) nodes
@@ -25,7 +28,7 @@ class D3Sankey:
             js += '                   "value": %f,\n' % node.count
             js += '                   "isWinner": %d,\n' % node.isWinner
             js += '                   "isEliminated": %d,\n' % node.isEliminated
-            js += '                   "color": "%s"});\n' % node.color
+            js += '                   "index": "%s"});\n' % indices[node.item]
         for link in graph.links:
             # Skip inactive (exhausted) nodes
             if not link.source.item.isActive:
@@ -37,6 +40,6 @@ class D3Sankey:
             targetIndex = nodeIndices[link.target]
             js += 'graph.links.push({ "source": %d,\n' % sourceIndex
             js += '                   "target": %d,\n' % targetIndex
-            js += '                   "color": "%s",\n' % link.color
-            js += '                   "value":  %0.3f });\n' % link.value
+            js += '           "candidateIndex": %d,\n' % indices[link.source.item]
+            js += '                    "value": %0.3f });\n' % link.value
         self.js = js

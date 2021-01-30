@@ -1,17 +1,14 @@
 """ Helper methods to generate a Graph """
 
 from visualizer import common
-from .colors import Color
 
 
 #pylint: disable=too-few-public-methods
 class Item:
     """ A single Item, also known as a Candidate elsewhere in the Code. """
 
-    def __init__(self, name, color):
-        assert isinstance(color, Color)
+    def __init__(self, name):
         self.name = name
-        self.color = color
 
         # Mark inactive (exhausted) ballots
         self.isActive = name != common.INACTIVE_TEXT
