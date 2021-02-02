@@ -19,6 +19,12 @@ class JSONMigrateTask():
             for tallyResult in result['tallyResults']:
                 yield tallyResult
 
+    def is_rankit_data(self):
+        """ Is the jsonData from RankIt? """
+        if 'jurisdiction' not in self.data['config']:
+            return False
+        return self.data['config']['jurisdiction'] == 'RankIt Export'
+
     def rename(self, fromStr, toStr):
         """ A helper function to rename a candidate s/fromStr/toStr throughout the JSON """
         results = self.data['results']
@@ -155,6 +161,68 @@ class RenameExhaustedToInactive(JSONMigrateTask):
         self.rename('exhausted', common.INACTIVE_TEXT)
 
 
+class FixRankitMissingTransfers(JSONMigrateTask):
+    """ Rankit often forgets to eliminate candidates, they just drop them """
+
+    def _get_first_round_eliminations(self):
+        eliminatedNames = set()
+        for result in self.data['results'][0]['tallyResults']:
+            if 'eliminated' in result:
+                eliminatedNames.add(result['eliminated'])
+        return eliminatedNames
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        if len(results) < 2:
+            return
+        firstRoundTally = results[0]['tally']
+        secondRoundTally = results[1]['tally']
+        firstRoundEliminations = self._get_first_round_eliminations()
+
+        for name in firstRoundTally:
+            if name in secondRoundTally or name in firstRoundEliminations:
+                continue
+            results[0]['tallyResults'].append({'eliminated': name, 'transfers': {}})
+
+
+class FixRankitNoElimOnLastRound(JSONMigrateTask):
+    """ Rankit incorrectly eliminates on the last round """
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        lastRoundTally = results[-1]['tallyResults']
+        lastRoundTally = [r for r in lastRoundTally if 'eliminated' not in r]
+        results[-1]['tallyResults'] = lastRoundTally
+
+
+class FixRankitCombinedTallyResults(JSONMigrateTask):
+    """ Rankit includes eliminations and elected on the same tallyResult """
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        for result in results:
+            toAppendAtEnd = []
+            for tallyResult in result['tallyResults']:
+                if 'elected' not in tallyResult or 'eliminated' not in tallyResult:
+                    continue
+                toSplit = tallyResult['elected']
+                del tallyResult['elected']
+                toAppendAtEnd.append({'elected': toSplit, 'transfers': {}})
+            result['tallyResults'].extend(toAppendAtEnd)
+
+
 class JSONReader:
     """
     The class which reads the JSON and performs migrations
@@ -180,6 +248,9 @@ class JSONReader:
                     FixUndeclaredUWITask,
                     FixIgnoreResidualSurplus,
                     MakeTalliesANumber,
+                    FixRankitMissingTransfers,  # must come after MakeTalliesANumber
+                    FixRankitCombinedTallyResults,
+                    FixRankitNoElimOnLastRound,  # must come after FixRankitCombinedTallyResults
                     RenameCapitalizeResidualSurplus,
                     RenameExhaustedToInactive,
                     MakeExhaustedAndSurplusACandidate]
@@ -279,7 +350,8 @@ class JSONReader:
                 itemsRemaining.remove(winner)
         winners = reversed(winners)
 
-        # Sort remaining items by the number of votes they received
+        # Remaining items: survived til last round, neither eliminated nor elected
+        # sort by the number of votes they received
         itemsRemaining = sorted(itemsRemaining, key=lambda x: self.graph.nodesPerRound[-1][x].count)
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
