@@ -232,7 +232,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4062
+        magicKnownTextLength = 4094
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r') as f:
             self.maxDiff = None
@@ -250,10 +250,10 @@ class SimpleTests(TestCase):
         assert len(summary.rounds) == 3
         assert len(summary.candidates) == 4
         assert len(summary.rounds[0].eliminatedNames) == 0
-        assert len(summary.rounds[0].winnerNames) == 0
+        assert len(summary.rounds[0].winnerNames) == 1
         assert summary.rounds[1].eliminatedNames[0] == 'Nobody'
         assert summary.rounds[2].eliminatedNames[0] == 'Chocolate'
-        assert summary.rounds[1].winnerNames[0] == 'Strawberry'
+        assert summary.rounds[0].winnerNames[0] == 'Strawberry'
         assert summary.rounds[2].winnerNames[0] == 'Vanilla'
 
     def test_uniqueness(self):
@@ -1149,12 +1149,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # And longform description is visible
         desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
-        self.assertEqual(self._is_elem_visible(desc), True)
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(self._is_elem_visible(desc), True))
 
         # Give JS a second to catch up with the animation
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards reached the threshold of 134', desc.text))
-        assert desc.text.endswith('redistributed to other candidates.')
+            lambda: self.assertIn('Larry Edwards had more than enough', desc.text))
+        self.assertNotIn('Larry Edwards reached the threshold of 134', desc.text)
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")

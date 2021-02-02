@@ -94,10 +94,14 @@ class Graph:
 
         return node
 
+    def _ensure_no_last_round_transfers(self):
+        for transfer in self.transfersPerRound[-1]:
+            assert len(transfer.transfersByItem) == 0
+
     def _compute_transfers(self):
         """ Second pass: after all nodes are created, compute the edges """
         # No transfers allowed on last round
-        assert len(self.transfersPerRound[-1]) == 0
+        self._ensure_no_last_round_transfers()
 
         # For every other round:
         for i in range(self.numRounds - 1):
