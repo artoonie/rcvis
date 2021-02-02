@@ -19,9 +19,9 @@ class Item:
 class Transfer:
     """ Transfers is a mapping from Item objects to a number of transferred votes. """
 
-    def __init__(self, item, transfers):
+    def __init__(self, item, transfersByItem):
         self.item = item
-        self.transfers = transfers
+        self.transfersByItem = transfersByItem
 
 #pylint: disable=too-few-public-methods
 
@@ -44,3 +44,4 @@ class Round:
     def __init__(self):
         self.winners = []
         self.transfers = []
+        self.itemsToVotes = {}
