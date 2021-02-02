@@ -22,16 +22,16 @@ class Describer:
 
         self.textOnlyDescribers = [
             self._describe_the_round_number,
-            self._describe_eliminated_this_round,
             self._describe_transfers_this_round,
+            self._describe_eliminated_this_round,
             self._describe_most_nonwinner_votes_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
         self.listOnlyDescribers = [
             self._describe_first_round,
-            self._describe_eliminated_this_round,
             self._describe_transfers_this_round,
+            self._describe_eliminated_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
