@@ -1,0 +1,176 @@
+{
+    "config": {
+        "contest": "Which book shall we get into next?",
+        "date": "2021-01-16",
+        "jurisdiction": "RankIt Export",
+        "office": "None given",
+        "threshold": "9"
+    },
+    "results": [
+        {
+            "round": 1,
+            "tally": {
+                "The Dispossessed (Ursula Le Guin)": "0",
+                "The Wretched of the Earth  (Frantz Fanon)": "0",
+                "Anarchism and Other Essays (Emma Goldman)": "2",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "The History of Sexuality (Michel Foucault)": "0",
+                "Prefigurative Politics: Building Tomorrow Today (Paul Raekstad, Sofa Saio Gradin)": "0",
+                "Fatal Invention: How Science, Politics, and Big Business Re-create Race in the Twenty-first Century (Dorothy Roberts)": "1",
+                "Stolen (Grace Blakeley)": "0",
+                "Another Now: Dispatches from an Alternative Present (Yanis Varoufakis)": "1",
+                "Man's Search for Meaning (Viktor Frankl)": "3",
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "3",
+                "The Myth of Sisyphus (Albert Camus)": "1",
+                "Economics: The User Guide (Ha-Joon Chang)": "1",
+                "The Unique and its Property (Max Stirner)": "1",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "The Wretched of the Earth  (Frantz Fanon)"
+                }
+            ]
+        },
+        {
+            "round": 2,
+            "tally": {
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "3",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1",
+                "Economics: The User Guide (Ha-Joon Chang)": "1",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "The Unique and its Property (Max Stirner)": "1",
+                "Fatal Invention: How Science, Politics, and Big Business Re-create Race in the Twenty-first Century (Dorothy Roberts)": "1",
+                "Another Now: Dispatches from an Alternative Present (Yanis Varoufakis)": "1",
+                "Man's Search for Meaning (Viktor Frankl)": "3",
+                "Anarchism and Other Essays (Emma Goldman)": "2"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Another Now: Dispatches from an Alternative Present (Yanis Varoufakis)",
+                    "transfers": {
+                        "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 3,
+            "tally": {
+                "Economics: The User Guide (Ha-Joon Chang)": "1",
+                "The Unique and its Property (Max Stirner)": "1",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "Anarchism and Other Essays (Emma Goldman)": "2",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1",
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "4",
+                "Man's Search for Meaning (Viktor Frankl)": "3",
+                "Fatal Invention: How Science, Politics, and Big Business Re-create Race in the Twenty-first Century (Dorothy Roberts)": "1"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "The Unique and its Property (Max Stirner)"
+                }
+            ]
+        },
+        {
+            "round": 4,
+            "tally": {
+                "Anarchism and Other Essays (Emma Goldman)": "2",
+                "Fatal Invention: How Science, Politics, and Big Business Re-create Race in the Twenty-first Century (Dorothy Roberts)": "1",
+                "Man's Search for Meaning (Viktor Frankl)": "3",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "4",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1",
+                "Economics: The User Guide (Ha-Joon Chang)": "1"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Fatal Invention: How Science, Politics, and Big Business Re-create Race in the Twenty-first Century (Dorothy Roberts)",
+                    "transfers": {
+                        "Man's Search for Meaning (Viktor Frankl)": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 5,
+            "tally": {
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "4",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "Economics: The User Guide (Ha-Joon Chang)": "1",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1",
+                "Anarchism and Other Essays (Emma Goldman)": "2",
+                "Man's Search for Meaning (Viktor Frankl)": "4"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Economics: The User Guide (Ha-Joon Chang)",
+                    "transfers": {
+                        "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 6,
+            "tally": {
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "5",
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)": "1",
+                "Man's Search for Meaning (Viktor Frankl)": "4",
+                "Anarchism and Other Essays (Emma Goldman)": "2"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Gender Trouble: Feminism and the Subversion of Identity (Judith Butler)"
+                }
+            ]
+        },
+        {
+            "round": 7,
+            "tally": {
+                "Social Ecology and Communalism (Murray Bookchin)": "2",
+                "Anarchism and Other Essays (Emma Goldman)": "2",
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "5",
+                "Man's Search for Meaning (Viktor Frankl)": "4"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Social Ecology and Communalism (Murray Bookchin)",
+                    "transfers": {
+                        "Anarchism and Other Essays (Emma Goldman)": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 8,
+            "tally": {
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "5",
+                "Anarchism and Other Essays (Emma Goldman)": "3",
+                "Man's Search for Meaning (Viktor Frankl)": "4"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Anarchism and Other Essays (Emma Goldman)",
+                    "transfers": {
+                        "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "2"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 9,
+            "tally": {
+                "Man's Search for Meaning (Viktor Frankl)": "4",
+                "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)": "7"
+            },
+            "tallyResults": [
+                {
+                    "elected": "The Shock Doctrine: The Rise of Disaster Capitalism (Naomi Klein)",
+                    "eliminated": "Man's Search for Meaning (Viktor Frankl)"
+                }
+            ]
+        }
+    ]
+}

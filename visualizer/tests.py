@@ -41,6 +41,7 @@ from visualizer.wikipedia.wikipedia import WikipediaExport
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
+FILENAME_RANKIT = 'testData/10rounds.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
@@ -62,7 +63,13 @@ class SimpleTests(TestCase):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=File(f))
-            return get_data_for_view(config)
+            data = get_data_for_view(config)
+
+            # Sanity check: ensure it can load as a graph, too
+            f.seek(0)
+            make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
+
+        return data
 
     def test_opavote_loads(self):
         """ Opens the opavote file """
@@ -76,6 +83,11 @@ class SimpleTests(TestCase):
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """
         self._get_data_for_view(FILENAME_MULTIWINNER)
+
+    def test_rankit_loads(self):
+        """ Opens a rankit.vote file -
+            should be the same as Universal Tabulator but has failed in the past """
+        self._get_data_for_view(FILENAME_RANKIT)
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
@@ -232,7 +244,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4062
+        magicKnownTextLength = 4094
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r') as f:
             self.maxDiff = None
@@ -250,10 +262,10 @@ class SimpleTests(TestCase):
         assert len(summary.rounds) == 3
         assert len(summary.candidates) == 4
         assert len(summary.rounds[0].eliminatedNames) == 0
-        assert len(summary.rounds[0].winnerNames) == 0
+        assert len(summary.rounds[0].winnerNames) == 1
         assert summary.rounds[1].eliminatedNames[0] == 'Nobody'
         assert summary.rounds[2].eliminatedNames[0] == 'Chocolate'
-        assert summary.rounds[1].winnerNames[0] == 'Strawberry'
+        assert summary.rounds[0].winnerNames[0] == 'Strawberry'
         assert summary.rounds[2].winnerNames[0] == 'Vanilla'
 
     def test_uniqueness(self):
@@ -1149,12 +1161,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # And longform description is visible
         desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
-        self.assertEqual(self._is_elem_visible(desc), True)
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(self._is_elem_visible(desc), True))
 
         # Give JS a second to catch up with the animation
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards reached the threshold of 134', desc.text))
-        assert desc.text.endswith('redistributed to other candidates.')
+            lambda: self.assertIn('Larry Edwards had more than enough', desc.text))
+        self.assertNotIn('Larry Edwards reached the threshold of 134', desc.text)
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")

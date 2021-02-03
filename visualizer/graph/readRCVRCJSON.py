@@ -19,6 +19,12 @@ class JSONMigrateTask():
             for tallyResult in result['tallyResults']:
                 yield tallyResult
 
+    def is_rankit_data(self):
+        """ Is the jsonData from RankIt? """
+        if 'jurisdiction' not in self.data['config']:
+            return False
+        return self.data['config']['jurisdiction'] == 'RankIt Export'
+
     def rename(self, fromStr, toStr):
         """ A helper function to rename a candidate s/fromStr/toStr throughout the JSON """
         results = self.data['results']
@@ -113,25 +119,30 @@ class HideDecimalsTask(JSONMigrateTask):
                 xfers[name] = round(xfers[name])
 
 
-class MakeExhaustedACandidate(JSONMigrateTask):
+class MakeExhaustedAndSurplusACandidate(JSONMigrateTask):
     """ If there are "exhausted" ballots, make them a first-class citizen candidate """
 
-    def _make_exhausted_a_candidate(self):
+    def _make_it_a_candidate(self, searchText):
         """ Call this if exhausted was found. """
         numExhausted = 0
         results = self.data['results']
         for result in results:
-            result['tally']['exhausted'] = numExhausted
+            result['tally'][searchText] = numExhausted
             for tallyResult in result['tallyResults']:
-                if 'exhausted' in tallyResult['transfers']:
-                    numExhausted += tallyResult['transfers']['exhausted']
+                if searchText in tallyResult['transfers']:
+                    numExhausted += tallyResult['transfers'][searchText]
+
+    def _make_it_a_candidate_if_in_transfers(self, searchText):
+        """ Looks for searchText in transfers. If it exists, makes it a candidate. """
+        for tallyResult in self._enumerate_tally_results():
+            if searchText in tallyResult['transfers']:
+                self._make_it_a_candidate(searchText)
+                return
 
     def do(self):
         """ Run the migration """
-        for tallyResult in self._enumerate_tally_results():
-            if 'exhausted' in tallyResult['transfers']:
-                self._make_exhausted_a_candidate()
-                return
+        self._make_it_a_candidate_if_in_transfers(common.INACTIVE_TEXT)
+        self._make_it_a_candidate_if_in_transfers(common.RESIDUAL_SURPLUS_TEXT)
 
 
 class RenameCapitalizeResidualSurplus(JSONMigrateTask):
@@ -150,6 +161,68 @@ class RenameExhaustedToInactive(JSONMigrateTask):
         self.rename('exhausted', common.INACTIVE_TEXT)
 
 
+class FixRankitMissingTransfers(JSONMigrateTask):
+    """ Rankit often forgets to eliminate candidates, they just drop them """
+
+    def _get_first_round_eliminations(self):
+        eliminatedNames = set()
+        for result in self.data['results'][0]['tallyResults']:
+            if 'eliminated' in result:
+                eliminatedNames.add(result['eliminated'])
+        return eliminatedNames
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        if len(results) < 2:
+            return
+        firstRoundTally = results[0]['tally']
+        secondRoundTally = results[1]['tally']
+        firstRoundEliminations = self._get_first_round_eliminations()
+
+        for name in firstRoundTally:
+            if name in secondRoundTally or name in firstRoundEliminations:
+                continue
+            results[0]['tallyResults'].append({'eliminated': name, 'transfers': {}})
+
+
+class FixRankitNoElimOnLastRound(JSONMigrateTask):
+    """ Rankit incorrectly eliminates on the last round """
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        lastRoundTally = results[-1]['tallyResults']
+        lastRoundTally = [r for r in lastRoundTally if 'eliminated' not in r]
+        results[-1]['tallyResults'] = lastRoundTally
+
+
+class FixRankitCombinedTallyResults(JSONMigrateTask):
+    """ Rankit includes eliminations and elected on the same tallyResult """
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        results = self.data['results']
+        for result in results:
+            toAppendAtEnd = []
+            for tallyResult in result['tallyResults']:
+                if 'elected' not in tallyResult or 'eliminated' not in tallyResult:
+                    continue
+                toSplit = tallyResult['elected']
+                del tallyResult['elected']
+                toAppendAtEnd.append({'elected': toSplit, 'transfers': {}})
+            result['tallyResults'].extend(toAppendAtEnd)
+
+
 class JSONReader:
     """
     The class which reads the JSON and performs migrations
@@ -165,7 +238,8 @@ class JSONReader:
 
     def __init__(self, data):
         self.parse_data(data)
-        self.set_elimination_order(self.rounds, self.items)
+        self.graph.create_graph_from_rounds(self.rounds)
+        self.set_elimination_order(self.rounds, self.graph.items)
 
     def parse_data(self, data):
         """ Parses the JSON data, or raises an exception on failure """
@@ -174,9 +248,12 @@ class JSONReader:
                     FixUndeclaredUWITask,
                     FixIgnoreResidualSurplus,
                     MakeTalliesANumber,
-                    MakeExhaustedACandidate,
+                    FixRankitMissingTransfers,  # must come after MakeTalliesANumber
+                    FixRankitCombinedTallyResults,
+                    FixRankitNoElimOnLastRound,  # must come after FixRankitCombinedTallyResults
                     RenameCapitalizeResidualSurplus,
-                    RenameExhaustedToInactive]
+                    RenameExhaustedToInactive,
+                    MakeExhaustedAndSurplusACandidate]
 
         def parse_date(date):
             if not date:
@@ -198,16 +275,9 @@ class JSONReader:
 
             return graph
 
-        def initialize_members(data, graph):
-            items = {}
+        def initialize_items(data):
             round0 = data['results'][0]
-            itemNames = round0['tally'].items()
-
-            for name, initialVotes in itemNames:
-                item = rcvResult.Item(name)
-                items[name] = item
-                graph.add_node(item, float(initialVotes))
-            return items
+            return {name: rcvResult.Item(name) for name in round0['tally']}
 
         def load_transfer(tallyResults):
             transfersByName = tallyResults['transfers']
@@ -229,6 +299,9 @@ class JSONReader:
             rounds = []
             for currRound in data['results']:
                 rnd = rcvResult.Round()
+                for name, count in currRound['tally'].items():
+                    rnd.itemsToVotes[items[name]] = count
+
                 for tallyResults in currRound['tallyResults']:
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
@@ -244,12 +317,11 @@ class JSONReader:
             task(data).do()
 
         graph = load_graph(data)
-        items = initialize_members(data, graph)
+        items = initialize_items(data)
         rounds = load_rounds(data)
 
         self.graph = graph
         self.rounds = rounds
-        self.items = items.values()
 
     def get_graph(self):
         """ Returns the Graph object """
@@ -278,7 +350,8 @@ class JSONReader:
                 itemsRemaining.remove(winner)
         winners = reversed(winners)
 
-        # Sort remaining items by the number of votes they received
+        # Remaining items: survived til last round, neither eliminated nor elected
+        # sort by the number of votes they received
         itemsRemaining = sorted(itemsRemaining, key=lambda x: self.graph.nodesPerRound[-1][x].count)
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)

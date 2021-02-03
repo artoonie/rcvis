@@ -72,10 +72,6 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
     rounds = jsonReader.get_rounds()
     eliminationOrder = jsonReader.get_elimination_order()
 
-    for r in rounds[:-1]:
-        graph.add_round(r, False)
-    graph.add_round(rounds[-1], True)
-
     graph.eliminationOrder = eliminationOrder
     graph.nodes = sorted(graph.nodes, key=lambda x: -eliminationOrder.index(x.item))
 

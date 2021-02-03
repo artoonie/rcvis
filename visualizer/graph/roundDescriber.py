@@ -22,16 +22,16 @@ class Describer:
 
         self.textOnlyDescribers = [
             self._describe_the_round_number,
-            self._describe_eliminated_this_round,
             self._describe_transfers_this_round,
+            self._describe_eliminated_this_round,
             self._describe_most_nonwinner_votes_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
         self.listOnlyDescribers = [
             self._describe_first_round,
-            self._describe_eliminated_this_round,
             self._describe_transfers_this_round,
+            self._describe_eliminated_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
@@ -179,10 +179,10 @@ class Describer:
         """ e.g. "Foo had the most votes and was elected. "
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
-        eliminated = rounds[roundNum].winnerNames
+        winners = rounds[roundNum].winnerNames
         whatHappened = "{name} reached the threshold of "\
             f"{self.graph.threshold} votes and was elected. "
-        return self._describe_list_of_names(eliminated, " won", whatHappened)
+        return self._describe_list_of_names(winners, " won", whatHappened)
 
     @classmethod
     def _describe_first_round(cls, roundNum):
