@@ -164,9 +164,9 @@ class RenameExhaustedToInactive(JSONMigrateTask):
 class FixRankitMissingTransfers(JSONMigrateTask):
     """ Rankit often forgets to eliminate candidates, they just drop them """
 
-    def _get_first_round_eliminations(self):
+    def _get_eliminations(self, round_i):
         eliminatedNames = set()
-        for result in self.data['results'][0]['tallyResults']:
+        for result in self.data['results'][round_i]['tallyResults']:
             if 'eliminated' in result:
                 eliminatedNames.add(result['eliminated'])
         return eliminatedNames
@@ -177,16 +177,15 @@ class FixRankitMissingTransfers(JSONMigrateTask):
             return
 
         results = self.data['results']
-        if len(results) < 2:
-            return
-        firstRoundTally = results[0]['tally']
-        secondRoundTally = results[1]['tally']
-        firstRoundEliminations = self._get_first_round_eliminations()
+        for round_i in range(1, len(results)):
+            prevRound = results[round_i - 1]['tally']
+            thisRound = results[round_i]['tally']
+            eliminations = self._get_eliminations(round_i - 1)
 
-        for name in firstRoundTally:
-            if name in secondRoundTally or name in firstRoundEliminations:
-                continue
-            results[0]['tallyResults'].append({'eliminated': name, 'transfers': {}})
+            for name in prevRound:
+                if name not in thisRound and name not in eliminations:
+                    newElimination = {'eliminated': name, 'transfers': {}}
+                    results[round_i - 1]['tallyResults'].append(newElimination)
 
 
 class FixRankitNoElimOnLastRound(JSONMigrateTask):
@@ -223,6 +222,27 @@ class FixRankitCombinedTallyResults(JSONMigrateTask):
             result['tallyResults'].extend(toAppendAtEnd)
 
 
+class FixRankitMissingWinners(JSONMigrateTask):
+    """ Rankit stops including Winner in tally after they win """
+
+    def do(self):
+        """ Run the migration """
+        if not self.is_rankit_data():
+            return
+
+        winnerNamesToLastNumVotes = {}
+        for result in self.data['results']:
+            for tallyResult in result['tallyResults']:
+                if 'elected' not in tallyResult:
+                    continue
+                name = tallyResult['elected']
+                winnerNamesToLastNumVotes[name] = result['tally'][name]
+
+            for name in winnerNamesToLastNumVotes:
+                if name not in result['tally']:
+                    result['tally'][name] = winnerNamesToLastNumVotes[name]
+
+
 class JSONReader:
     """
     The class which reads the JSON and performs migrations
@@ -248,6 +268,7 @@ class JSONReader:
                     FixUndeclaredUWITask,
                     FixIgnoreResidualSurplus,
                     MakeTalliesANumber,
+                    FixRankitMissingWinners,  # Must come before FixRankitMissingTransfers
                     FixRankitMissingTransfers,  # must come after MakeTalliesANumber
                     FixRankitCombinedTallyResults,
                     FixRankitNoElimOnLastRound,  # must come after FixRankitCombinedTallyResults
