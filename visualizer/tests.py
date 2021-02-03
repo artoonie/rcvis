@@ -65,13 +65,7 @@ class SimpleTests(TestCase):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'r+') as f:
             config = JsonConfig(jsonFile=File(f))
-            data = get_data_for_view(config)
-
-            # Sanity check: ensure it can load as a graph, too
-            f.seek(0)
-            make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
-
-        return data
+            return get_data_for_view(config)
 
     def test_opavote_loads(self):
         """ Opens the opavote file """
