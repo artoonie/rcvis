@@ -317,7 +317,6 @@ class SimpleTests(TestCase):
         out = StringIO()
         with self.assertRaises(TypeError):
             call_command('checkLocalFiles', 'testData/', stdout=out)
-        self.assertIn('Successfully loaded testData/electionbuddy-regression.csv', out.getvalue())
 
 
 class ModelDeletionTests(TransactionTestCase):
