@@ -5,6 +5,7 @@ Unit and integration tests for the core visualizer app
 # pylint: disable=too-many-lines
 
 from enum import Enum
+from io import StringIO
 import json
 import os
 import platform
@@ -16,6 +17,7 @@ from mock import patch
 
 from django.core.cache import cache
 from django.core.files import File
+from django.core.management import call_command
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import TestCase, TransactionTestCase
@@ -233,6 +235,15 @@ class SimpleTests(TestCase):
         # Validate the response - this time the complete URL is needed
         assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
 
+    def test_oembed_keeps_vistype(self):
+        """ Ensure vistype is shepharded from visualize to visualizembedded via oembed """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = JsonConfig.objects.latest('-id').slug
+        visualizeUrl = reverse('visualize', args=(slug,)) + "?vistype=sankey"
+        response = self.client.get(visualizeUrl)
+
+        assert 'sankey' in response.context_data['oembed_url']
+
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
     def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
@@ -288,6 +299,25 @@ class SimpleTests(TestCase):
         model1 = JsonConfig.objects.get(slug=slug1)
 
         assert model0.jsonFile.name != model1.jsonFile.name
+
+    def test_management_commands(self):
+        """ Test that the management tests work """
+        # Upload two files
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        TestHelpers.get_multiwinner_upload_response(self.client)
+
+        # Load those two via the database
+        out = StringIO()
+        call_command('checkUploads', 0, 100, stdout=out)
+        self.assertIn('0: Successfully loaded macomb-multiwinner-surplus-1', out.getvalue())
+        self.assertIn('1: Successfully loaded macomb-multiwinner-surplus', out.getvalue())
+        self.assertIn('Successfully loaded configs', out.getvalue())
+
+        # Load all files in the testData/ directory (one of which raises a TypeError)
+        out = StringIO()
+        with self.assertRaises(TypeError):
+            call_command('checkLocalFiles', 'testData/', stdout=out)
+        self.assertIn('Successfully loaded testData/electionbuddy-regression.csv', out.getvalue())
 
 
 class ModelDeletionTests(TransactionTestCase):
