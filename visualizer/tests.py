@@ -48,6 +48,7 @@ FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
 FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
 FILENAME_ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
+FILENAME_ELECTIONBUDDY_REGRESSION = 'testData/electionbuddy-regression.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 TestHelpers.silence_logging_spam()
@@ -80,6 +81,7 @@ class SimpleTests(TestCase):
         """ Opens the electionbuddy file """
         self._get_data_for_view(FILENAME_ELECTIONBUDDY)
         self._get_data_for_view(FILENAME_ELECTIONBUDDY_NOABSTENTION)
+        self._get_data_for_view(FILENAME_ELECTIONBUDDY_REGRESSION)
 
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """

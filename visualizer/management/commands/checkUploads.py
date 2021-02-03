@@ -25,10 +25,12 @@ class Command(BaseCommand):
         end = start + count
         allJsonConfigs = JsonConfig.objects.all().order_by('-id')  # pylint: disable=no-member
         allJsonConfigs = allJsonConfigs[start:end]
-        for jsonConfig in allJsonConfigs:
+        for i, jsonConfig in enumerate(allJsonConfigs):
+            index = start + i
             try:
                 get_data_for_view(jsonConfig)
-                self.stdout.write(self.style.SUCCESS(f"Successfully loaded {jsonConfig.slug}"))
+                self.stdout.write(self.style.SUCCESS(
+                    f"{index}: Successfully loaded {jsonConfig.slug}"))
             except Exception as exc:  # pylint: disable=broad-except
                 raise CommandError(f'Could not load {jsonConfig.slug}: ' + str(exc))
 
