@@ -41,7 +41,8 @@ from visualizer.wikipedia.wikipedia import WikipediaExport
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
-FILENAME_RANKIT = 'testData/10rounds.json'
+FILENAME_BROKEN_RANKIT_1 = 'testData/rankit-malformed-1.json'
+FILENAME_BROKEN_RANKIT_2 = 'testData/rankit-malformed-2.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
@@ -87,7 +88,13 @@ class SimpleTests(TestCase):
     def test_rankit_loads(self):
         """ Opens a rankit.vote file -
             should be the same as Universal Tabulator but has failed in the past """
-        self._get_data_for_view(FILENAME_RANKIT)
+        # Uses FixRankitMissingTransfers,
+        #      FixRankitCombinedTallyResults,
+        #      FixRankitNoElimOnLastRound
+        self._get_data_for_view(FILENAME_BROKEN_RANKIT_1)
+
+        # Uses FixRankitMissingWinners
+        self._get_data_for_view(FILENAME_BROKEN_RANKIT_2)
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """

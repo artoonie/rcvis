@@ -13,7 +13,7 @@ bash <(curl -s https://codecov.io/bash) >/dev/null
 
 # Management script
 python3 manage.py migrate
-python3 manage.py testAllUploadsWork 1
+python3 manage.py testAllUploadsWork 0 1
 
 # Code quality
 ./scripts/test-code-quality.sh

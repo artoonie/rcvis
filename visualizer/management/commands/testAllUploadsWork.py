@@ -16,19 +16,20 @@ class Command(BaseCommand):
     help = 'Closes the specified poll for voting'
 
     def add_arguments(self, parser):
-        parser.add_argument('max', type=int)
+        parser.add_argument('start', type=int)  # Allow you to skip some if you've fixed em
+        parser.add_argument('count', type=int)  # Max number to look at
 
     def handle(self, *args, **options):
-        maxToView = options['max']
-        allJsonConfigs = JsonConfig.objects.all().order_by('id')  # pylint: disable=no-member
-        allJsonConfigs = allJsonConfigs[:maxToView]
+        start = options['start']
+        count = options['count']
+        end = start + count
+        allJsonConfigs = JsonConfig.objects.all().order_by('-id')  # pylint: disable=no-member
+        allJsonConfigs = allJsonConfigs[start:end]
         for jsonConfig in allJsonConfigs:
             try:
                 get_data_for_view(jsonConfig)
                 self.stdout.write(self.style.SUCCESS(f"Successfully loaded {jsonConfig.slug}"))
             except Exception as exc:  # pylint: disable=broad-except
-                text = f'Could not load {jsonConfig.slug}: ' + str(exc)
-                self.stderr.write(self.style.FAILURE(text))
-                raise CommandError(text)
+                raise CommandError(f'Could not load {jsonConfig.slug}: ' + str(exc))
 
-        self.stdout.write(self.style.SUCCESS(f"Successfully loaded up to {maxToView} configs"))
+        self.stdout.write(self.style.SUCCESS("Successfully loaded configs"))

@@ -1,0 +1,187 @@
+{
+    "config": {
+        "contest": "Rank your top favorites states (not all are listed) ",
+        "date": "2020-08-21",
+        "jurisdiction": "RankIt Export",
+        "office": "None given",
+        "threshold": "3"
+    },
+    "results": [
+        {
+            "round": 1,
+            "tally": {
+                "Maryland": "0",
+                "West Virgina": "1",
+                "Vermont": "0",
+                "Delaware": "0",
+                "California": "3",
+                "Massachusetts ": "1",
+                "Oregon": "0",
+                "North Dakota": "0",
+                "Texas": "1",
+                "Kansas": "0",
+                "Virginia": "0",
+                "Louisiana ": "0",
+                "Maine": "0",
+                "Utah": "0",
+                "New Mexico": "0",
+                "South Carolina": "1",
+                "Arizona": "2",
+                "Florida": "0",
+                "New York": "0",
+                "Pennsylvania ": "0",
+                "New Hampshire": "1",
+                "Hawaii": "1",
+                "Alaska": "0",
+                "Ohio": "0",
+                "Georgia": "0",
+                "Nevada": "0",
+                "Washington ": "2",
+                "North Carolina": "0",
+                "Montana": "1"
+            },
+            "tallyResults": []
+        },
+        {
+            "round": 2,
+            "tally": {
+                "Maryland": "0",
+                "Montana": "1",
+                "Hawaii": "1",
+                "Delaware": "0",
+                "Washington ": "2",
+                "Maine": "0",
+                "Louisiana ": "0",
+                "New York": "0",
+                "North Dakota": "0",
+                "Utah": "0",
+                "Ohio": "0",
+                "Oregon": "0",
+                "Massachusetts ": "1",
+                "New Hampshire": "1",
+                "Florida": "0",
+                "West Virgina": "1",
+                "Arizona": "2",
+                "New Mexico": "0",
+                "Georgia": "0",
+                "Vermont": "0",
+                "South Carolina": "1",
+                "Virginia": "0",
+                "Pennsylvania ": "0",
+                "Alaska": "0",
+                "Texas": "1",
+                "Kansas": "0",
+                "Nevada": "0",
+                "North Carolina": "0"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Pennsylvania ",
+                    "transfers": {
+                        "West Virgina": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 3,
+            "tally": {
+                "West Virgina": "2",
+                "Texas": "1",
+                "New Hampshire": "1",
+                "Arizona": "2",
+                "Montana": "1",
+                "South Carolina": "1",
+                "Massachusetts ": "1",
+                "Washington ": "2"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Texas"
+                }
+            ]
+        },
+        {
+            "round": 4,
+            "tally": {
+                "Washington ": "2",
+                "Arizona": "2",
+                "Massachusetts ": "1",
+                "New Hampshire": "1",
+                "South Carolina": "1",
+                "West Virgina": "2",
+                "Montana": "1"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Massachusetts ",
+                    "transfers": {
+                        "New Hampshire": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 5,
+            "tally": {
+                "New Hampshire": "2",
+                "Washington ": "2",
+                "Arizona": "2",
+                "Montana": "1",
+                "South Carolina": "1",
+                "West Virgina": "2"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Montana",
+                    "transfers": {
+                        "Arizona": "1"
+                    }
+                }
+            ]
+        },
+        {
+            "round": 6,
+            "tally": {
+                "Arizona": "3",
+                "South Carolina": "1",
+                "Washington ": "2",
+                "New Hampshire": "2",
+                "West Virgina": "2"
+            },
+            "tallyResults": [
+                {
+                    "elected": "Arizona"
+                }
+            ]
+        },
+        {
+            "round": 7,
+            "tally": {
+                "New Hampshire": "2",
+                "West Virgina": "2",
+                "South Carolina": "1",
+                "Washington ": "2"
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "South Carolina"
+                }
+            ]
+        },
+        {
+            "round": 8,
+            "tally": {
+                "West Virgina": "2",
+                "Washington ": "2",
+                "New Hampshire": "2"
+            },
+            "tallyResults": [
+                {
+                    "elected": "Washington ",
+                    "eliminated": "New Hampshire"
+                }
+            ]
+        }
+    ]
+}
