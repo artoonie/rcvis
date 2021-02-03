@@ -94,10 +94,12 @@ class Visualize(DetailView):
         data = viewUtils.get_data_for_view(config['jsonconfig'])
 
         # oembed href
+        vistype = self.request.GET.get('vistype', 'barchart-interactive')
         slug = config['jsonconfig'].slug
         iframeUrl = make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
         iframeUrl = urllib.parse.quote_plus(iframeUrl)
-        oembedUrl = make_complete_url(self.request, reverse("oembed")) + f"?url={iframeUrl}"
+        args = f"?url={iframeUrl}&vistype={vistype}"
+        oembedUrl = make_complete_url(self.request, reverse("oembed")) + args
         data['oembed_url'] = oembedUrl
 
         # html embedding

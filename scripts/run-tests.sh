@@ -11,9 +11,5 @@ python3 manage.py compress
 python3 manage.py test
 bash <(curl -s https://codecov.io/bash) >/dev/null
 
-# Management script
-python3 manage.py migrate >/dev/null
-python3 manage.py checkUploads 0 1
-
 # Code quality
 ./scripts/test-code-quality.sh
