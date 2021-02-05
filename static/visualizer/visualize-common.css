@@ -30,6 +30,26 @@
   flex-wrap: wrap;
 }
 
+svg {
+  shape-rendering: crispEdges;
+  font-size: .45em;
+  font-family: sans-serif;
+}
+
+/* Styling the slider */
+.slider {
+  background-image:linear-gradient(170deg,#ffffff,#e7fcff);
+}
+.timeline {
+  background-image:linear-gradient(170deg,#ffffff,#e7fcff);
+}
+.expand-collapse-button {
+  background-image:linear-gradient(180deg,#f5feff,#ddf4f7);
+}
+.timeline-info {
+  max-width: 400px;
+}
+
 @media only screen and (max-width: 1200px) {
   /* first reduce font size */
   .btn {
