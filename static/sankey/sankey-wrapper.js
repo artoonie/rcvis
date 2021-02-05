@@ -95,12 +95,14 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         return num + " " + units;
       };
 
+      // Dynamic max-width based on sankey size
+      d3.select("#sankey-body")
+          .style("max-width", getMaxWidth());
+
       // append the svg object to the body of the page
       var svg = d3.select("#sankey-body").append("svg")
           .attr("id", "sankey-svg")
           .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
-          .style("max-width", getMaxWidth())
-          .style("min-width", "300px")
         .append("g")
           .attr("transform", 
                 "translate(" + cmargin.left + "," + cmargin.top + ")");

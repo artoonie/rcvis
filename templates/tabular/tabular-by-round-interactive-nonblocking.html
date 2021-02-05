@@ -21,7 +21,8 @@ trs_createSliderAndTimeline({
   tickText: generateTickTexts(numRounds),
   hideActiveTickText: doHideActiveTickText(numRounds),
   sliderValueChanged: showRound,
-  timelineData: generateTimelineData(humanFriendlyEventsPerRound)
+  timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
 });
 
 </script>

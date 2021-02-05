@@ -1,6 +1,7 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 
+<div class="container">
 <div class="responsive-table-wrapper">
 <div class="responsive-table">
 {% for candidateTabulation in tabularByCandidate.tabulation %}
@@ -26,5 +27,6 @@
     </tbody>
 </table>
 {% endfor %}
+</div>
 </div>
 </div>
