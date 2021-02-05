@@ -149,14 +149,14 @@ function makeBarGraph(
   }
 
   // Draw everything
-  function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
+  function isEliminated(d) { return d.numRoundsTilEliminated <= currRound; }
   function isEliminatedThisRound(d) { return d.numRoundsTilEliminated <= d.round; }
-  function isWinner(d) { return d.numRoundsTilWin < currRound; }
-  var currRound = numRounds;
+  function isWinner(d) { return d.numRoundsTilWin <= currRound; }
+  var currRound = numRounds - 1;
   var barVotesSizeHelperFn = function(d) {
       return (votesRange(d[0]) - votesRange(d[1])) * (isVertical ? 1 : -1);
   }
-  var shouldDisplayFn = function(d) { return !isInteractive || d.round < currRound; }
+  var shouldDisplayFn = function(d) { return !isInteractive || d.round <= currRound; }
   var isEliminatedInteractiveFn = function(d) { return isInteractive && isEliminated(d); }
   var isSurplusFn = function(d) { return barVotesSizeHelperFn(d) <= 0; };
   var barVotesPosFn   = function(d) {
@@ -190,7 +190,7 @@ function makeBarGraph(
           if (!doDimPrevRoundColors || !isInteractive)
               // Don't dim previous round colors: either not requestsed, or this is the print view
               return colors[d.round]
-          if (d.round == currRound-1)
+          if (d.round == currRound)
               // Dimming on. Only the last round gets full colors.
               return colors[d.round];
           else
@@ -244,17 +244,37 @@ function makeBarGraph(
       }
       return candidatesRange(d.data.candidate) + offset;
   };
-  function isLatestRoundFor(d) {
-      if(isEliminated(d)) {
-        // If we've been eliminated by now, then check if this round is the last round alive
-        return d.numRoundsTilEliminated == d.round;
-      } else if(isWinner(d)) {
-        // A candidate can win at any time. Only include the round on which they won.
-        return d.numRoundsTilWin == d.round;
-      } else {
-        // Otherwise, check if this round is the latest available round
-        return currRound == d.round+1;
+  function doesCandidateGetAnyMoreVotes(d) {
+      // Is d.round the last round that this candidate has any changes?
+      // Use for rounding the right/top edge
+      // TODO memoize this, it's currently needlessly quadratic
+      if (d.doesCandidateGetAnyMoreVotes !== undefined) {
+        return d.doesCandidateGetAnyMoreVotes;
       }
+      for (let i = d.round + 1; i < numRounds; ++i) {
+        if (i > d.numRoundsTilEliminated) {
+          // Note: opavote data has transfers to a candidate after elimination,
+          // so this is a safety check against that
+          break;
+        }
+        if (d.data[humanFriendlyRoundNames[i]] > 0) {
+          d.doesCandidateGetAnyMoreVotes = true;
+          return true;
+        }
+      }
+      d.doesCandidateGetAnyMoreVotes = false;
+      return false;
+  }
+  function memoizeDoCandidatesGetAnyMoreVotes() {
+    for (var round_i = numRounds - 1; round_i >= 0; round_i--) {
+      for(var candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
+        // TODO here should be the memoizeeee
+        // why does the data format suckeeeeee
+      }
+    }
+  }
+  function isLatestRoundFor(d) {
+      return currRound == d.round;
   }; 
   function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
   var mainDataLabelTextFn = function(d) {
@@ -283,11 +303,11 @@ function makeBarGraph(
   };
   function rightRoundedRect(x, y, width, height, radius) {
       return "M" + x + "," + y
-           + "h" + (width - (2 * radius))
+           + "h" + (width - radius)
            + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
            + "v" + (height - 2 * radius)
            + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-           + "h" + ((2 * radius) - width)
+           + "h" + (radius - width)
            + "z";
   }
   function leftRoundedRect(x, y, width, height, radius) {
@@ -311,11 +331,11 @@ function makeBarGraph(
   function allRoundedRect(x, y, width, height, radius) {
       return "M" + x + "," + (y+radius)
            + "a" + radius + "," + -radius + " 0 0 1 " + radius + "," + -radius
-           + "h" + (width - radius)
+           + "h" + (width - 2*radius)
            + "a" + radius + "," + radius + " 0 0 1 " + radius + "," + radius
            + "v" + (height - 2*radius)
            + "a" + radius + "," + radius + " 0 0 1 " + -radius + "," + radius
-           + "h" + (-width + radius)
+           + "h" + (-width + 2*radius)
            + "a" + -radius + "," + -radius + " 0 0 1 " + -radius + "," + -radius
            + "z";
   }
@@ -344,7 +364,7 @@ function makeBarGraph(
         [width, height] = [height, width];
       }
 
-      if (data.round == 0 && isLatestRoundFor(data.round)) {
+      if (data.round == 0 && !doesCandidateGetAnyMoreVotes(data)) {
         // Eliminated or won on first round - round on all sides on horizontal, top on vertical
         if (isVertical) return  topRoundedRect(x, y, width, height, r);
         else            return allRoundedRect(x, y, width, height, r);
@@ -352,7 +372,7 @@ function makeBarGraph(
         // First round (vertical gets no rounding on first round)
         if (isVertical) return  notRoundedRect(x, y, width, height);
         else            return leftRoundedRect(x, y, width, height, r);
-      } else if (isLatestRoundFor(data)) {
+      } else if (!doesCandidateGetAnyMoreVotes(data)) {
         // Last round 
         if (isVertical) return   topRoundedRect(x, y, width, height, r);
         else            return rightRoundedRect(x, y, width, height, r);
@@ -363,8 +383,7 @@ function makeBarGraph(
   }
 
   function descriptionOfCurrRound() {
-    // because round is 1-indexed :(
-    const round = currRound - 1;
+    const round = currRound;
     const roundData = humanFriendlyEventsPerRound[round];
 
     return roundData.map(function(event) {
@@ -446,6 +465,7 @@ function makeBarGraph(
     getMagicTextLabelSize(longestLabelApxWidth, 0.6);
   }
 
+  // Labels: vote counts
   // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
   // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
   eachBar
@@ -460,6 +480,7 @@ function makeBarGraph(
       .attr("dy", ".32em")
       .text(mainDataLabelTextFn);
 
+  // Labels: names
   if (isVertical)
   {
       eachBar
@@ -486,11 +507,6 @@ function makeBarGraph(
           .style("text-anchor", "start")
           .attr("font-size", primaryLabelTextSizeEm);
   }
-
-  svg.append("g")
-      .call(votesAxis)
-      .selectAll("text")  
-        .attr("font-size", primaryLabelTextSizeEm);
 
   if (!isInteractive) {
     // Show a legend
@@ -520,7 +536,7 @@ function makeBarGraph(
       .attr("title", function(d) { return "Threshold to win: " + threshold; });
 
   // Return animation controls
-  var transitionEachBarForRound = function() {
+  function transitionEachBarForRound() {
     eachBar.enter().selectAll("path.eachBar")
         .attr("d", function(d) { return getMaybeRoundedBarFor(this, d); });
     eachBar.enter().selectAll("path.eachBar").transition()
@@ -528,13 +544,13 @@ function makeBarGraph(
         .delay(0)
         .attr("fill", barColorFn);
   };
-  var transitionDataLabelsForRound = function() {
+  function transitionDataLabelsForRound() {
     eachBar.enter().selectAll("text.dataLabels").transition()
         .duration(50)
         .delay(0)
         .attr("display", dataLabelDisplayFor)
   };
-  var transitionRoundDescriberForRound = function() {
+  function transitionRoundDescriberForRound() {
     if (!isInteractive) return;
 
     d3.select(idOfLegendOrRoundDescriber)
@@ -549,10 +565,7 @@ function makeBarGraph(
       .style("opacity", "1")
       .text(descriptionOfCurrRound);
   };
-  var transitions = function(round) {
-    // TODO make currRound 0-indexed instead of this insanity
-    round += 1;
-
+  function transitions(round) {
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();
