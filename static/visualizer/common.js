@@ -32,7 +32,7 @@ function percentToText(candidateName, numVotes, totalVotes)
 {
   // Inactive ballots should not show %
   if (candidateName == "Inactive Ballots")
-    return "no choices left";
+    return "with no choices left";
 
   percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
   return "(" + percentVotes + "%)";
