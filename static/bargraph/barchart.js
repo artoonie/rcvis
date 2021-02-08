@@ -149,8 +149,8 @@ function makeBarGraph(
   }
 
   // Draw everything
-  function isEliminated(d) { return d.numRoundsTilEliminated <= currRound; }
-  function isEliminatedThisRound(d) { return d.numRoundsTilEliminated <= d.round; }
+  function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
+  function isEliminatedThisRound(d) { return d.numRoundsTilEliminated < d.round; }
   function isWinner(d) { return d.numRoundsTilWin <= currRound; }
   var currRound = numRounds - 1;
   var barVotesSizeHelperFn = function(d) {
