@@ -30,8 +30,8 @@ class Describer:
         ]
         self.listOnlyDescribers = [
             self._describe_first_round,
-            self._describe_transfers_this_round,
             self._describe_eliminated_this_round,
+            self._describe_transfers_this_round,
             self._describe_winners_this_round,
             self._describe_redistribution_this_round
         ]
@@ -129,14 +129,9 @@ class Describer:
 
     def _describe_eliminated_this_round(self, roundNum):
         """ e.g. "Foo had the fewest votes and was eliminated. "
-            Returns empty string if nobody was eliminated.
-            Note that we look at the next round for eliminations, so it
-            lines up with the visualizations."""
+            Returns empty string if nobody was eliminated."""
         rounds = self.graph.summarize().rounds
-        if roundNum == len(rounds) - 1:
-            eliminated = []
-        else:
-            eliminated = rounds[roundNum + 1].eliminatedNames
+        eliminated = rounds[roundNum].eliminatedNames
         whatHappened = "{name} had the fewest votes and was eliminated. "
         return self._describe_list_of_names(eliminated, " eliminated", whatHappened)
 
