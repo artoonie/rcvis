@@ -16,8 +16,8 @@
           <thead class="thead-light">
             <tr>
               <th scope="col">Candidate</th>
-              <th style="max-width: 200px" scope="col" class="cell-with-padding">What changed</th>
-              <th scope="col" class="cell-with-padding">Current total votes</th>
+              <th style="max-width: 200px" scope="col">What changed</th>
+              <th scope="col">Current total votes</th>
             </tr>
           </thead>
         
@@ -35,9 +35,9 @@
               <tr style="background-color: #fff">
               {% endif %}
                   <th scope="row">{{ candidate.name }}</th>
-                  <td class="cell-with-padding">{{ candidate.change }}</td>
-                  <td class="cell-with-padding"><strong>{{ candidate.primaryLabel }}</strong><br/>
-                                                        {{ candidate.secondaryLabel }}</td>
+                  <td>{{ candidate.change }}</td>
+                  <td><strong>{{ candidate.primaryLabel }}</strong><br/>
+                              {{ candidate.secondaryLabel }}</td>
               </tr>
             {% endfor %}
           </tbody>

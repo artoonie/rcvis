@@ -858,8 +858,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
         def fits_inside(elementWidth, pageWidth):
-            # Checks that the element takes up most or all of the page, but not more
-            roomForMarginsPct = 0.12
+            # Checks that the element takes up at least 75% of the page
+            roomForMarginsPct = 0.25
 
             minWidth = pageWidth * (1 - roomForMarginsPct)
             return minWidth < elementWidth <= pageWidth
@@ -929,7 +929,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # This one sidescrolls on mobile, it's a fixed size
         self._go_to_tab("single-table-summary-tab")
-        test_sane_resizing_of("single-table-summary-table", [600], 800)
+        test_sane_resizing_of("single-table-summary-table", [800], 1300)
 
     def test_oneround(self):
         """ Tests we do something sane in a single-round election """

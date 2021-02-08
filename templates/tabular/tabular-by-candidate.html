@@ -16,9 +16,9 @@
         {% for roundTabulation in candidateTabulation.rounds %}
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
-            <td class="cell-with-padding">{{ roundTabulation.summary }}</td>
-            <td class="cell-with-padding"><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
-                                                  {{ roundTabulation.secondaryLabel }}</td>
+            <td>{{ roundTabulation.summary }}</td>
+            <td><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
+                        {{ roundTabulation.secondaryLabel }}</td>
         </tr>
         {% endfor %}
     </tbody>
