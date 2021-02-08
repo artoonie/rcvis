@@ -30,6 +30,11 @@
   flex-wrap: wrap;
 }
 
+.shadow-wrapper {
+  box-shadow: 1px 1px 10px 0 #dedede;
+  margin: 10px auto 10px auto;
+}
+
 svg {
   shape-rendering: crispEdges;
   font-size: .45em;

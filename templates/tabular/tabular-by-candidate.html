@@ -1,17 +1,14 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 
-<div class="container">
-<div class="responsive-table-wrapper">
-<div class="responsive-table">
 {% for candidateTabulation in tabularByCandidate.tabulation %}
-<table class="table">
+<table class="shadow-wrapper table fixed-width-table">
     <h4> {{ candidateTabulation.name }} </h4>
     <thead class="thead-light">
         <tr>
-            <th scope="col" width="10%">Round</th>
-            <th scope="col" width="80%">What changed</th>
-            <th scope="col" width="10%">Current total votes</th>
+            <th scope="col">Round</th>
+            <th scope="col" style="max-width: 800px">What changed</th>
+            <th scope="col">Current total votes</th>
         </tr>
     </thead>
 
@@ -19,7 +16,7 @@
         {% for roundTabulation in candidateTabulation.rounds %}
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
-            <td>{{ roundTabulation.summary }}</td>
+            <td class="cell-with-padding">{{ roundTabulation.summary }}</td>
             <td class="cell-with-padding"><strong>{{ roundTabulation.primaryLabel }}</strong><br/>
                                                   {{ roundTabulation.secondaryLabel }}</td>
         </tr>
@@ -27,6 +24,3 @@
     </tbody>
 </table>
 {% endfor %}
-</div>
-</div>
-</div>

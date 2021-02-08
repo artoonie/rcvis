@@ -1,6 +1,9 @@
 .responsive-table {
     white-space: nowrap;
-    width: 1%;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
     padding-left: 0px;
     padding-right: 0px;
 }
@@ -14,6 +17,11 @@
 .cell-with-padding {
     padding-left: 0px !important;
     padding-right: 0px !important;
+}
+.fixed-width-table {
+    max-width: 1200px;
+    width: 95%;
+    table-layout:fixed;
 }
 .table .thead-light th {
     background-color: #e3f6ff;

@@ -5,19 +5,18 @@
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 {% endcompress %}
 
-<div class="responsive-table-wrapper">
   <div id="tabular-by-round-slider-container" class="ml-auto mr-auto">
   </div>
 
-  <div id="tabularByRoundInteractiveContainer" class="responsive-table">
+  <div id="tabularByRoundInteractiveContainer">
     {% for round in tabularByRoundInteractive.rounds %}
       <div id="tabular_round_container_{{ forloop.counter0 }}">
         <h4 class="mt-2">Round {{ forloop.counter }}</h4>
-        <table class="table">
+        <table class="shadow-wrapper table fixed-width-table">
           <thead class="thead-light">
             <tr>
               <th scope="col">Candidate</th>
-              <th scope="col" class="cell-with-padding">What changed</th>
+              <th style="max-width: 200px" scope="col" class="cell-with-padding">What changed</th>
               <th scope="col" class="cell-with-padding">Current total votes</th>
             </tr>
           </thead>
@@ -46,4 +45,3 @@
       </div>
     {% endfor %}
   </div>
-</div>
