@@ -1,14 +1,33 @@
 .responsive-table {
     white-space: nowrap;
-    width: 1%;
-    padding-left: 20px;
-    padding-right: 20px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0px;
+    padding-right: 0px;
 }
 .responsive-table-wrapper {
     width: 100%;
+    max-width: 95vw;
     overflow-x: auto;
+    margin: auto;
+    width: fit-content;
 }
-.cell-with-padding {
-    padding-left: 40px !important;
-    padding-right: 40px !important;
+.fixed-width-table {
+    max-width: 1200px;
+    width: 95%;
+    table-layout:fixed;
+}
+.table .thead-light th {
+    background-color: #e3f6ff;
+}
+.table thead th {
+  border-bottom: none;
+}
+.table td, .table th {
+  padding: 0.4em 1.8rem 0.4em 1.8rem;
+}
+h3 {
+  padding-left: 1em;
+  padding-right: 1em;
 }

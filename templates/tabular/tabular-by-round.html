@@ -6,12 +6,12 @@
 
 <div class="responsive-table-wrapper">
 <div id="tabularByRoundInteractiveContainer" class="responsive-table">
-<table class="table">
+<table class="shadow-wrapper table fixed-width-table">
     <thead class="thead-light">
         <tr>
             <th scope="col">Round</th>
-            <th scope="col" class="cell-with-padding">Eliminated</th>
-            <th scope="col" class="cell-with-padding">Winners</th>
+            <th scope="col">Eliminated</th>
+            <th scope="col">Winners</th>
         </tr>
     </thead>
 
@@ -19,8 +19,8 @@
         {% for roundTabulation in tabularByRound.tabulation %}
         <tr>
             <th scope="row">Round {{ roundTabulation.round_i }}</th>
-            <td class="cell-with-padding">{{ roundTabulation.eliminated|safe }}</td>
-            <td class="cell-with-padding">{{ roundTabulation.winners|safe }}</td>
+            <td>{{ roundTabulation.eliminated|safe }}</td>
+            <td>{{ roundTabulation.winners|safe }}</td>
         </tr>
         {% endfor %}
     </tbody>

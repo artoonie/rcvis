@@ -23,10 +23,10 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       tmargin = {top:  0,                        left: 50}, // topbar
       bottomLabelPadding = 20
       size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
-      hackExtraPadding = numCandidates*30, // we need extra room because the
+      hackExtraPadding = numCandidates*20, // we need extra room because the
                                            // ideal size may not be the actual size
                                            // once all the nodes are expanded to their minimum sizes
-      size1 = idealTotalSize1 + size1margin(cmargin) + hackExtraPadding;
+      size1 = idealTotalSize1 + hackExtraPadding;
   if (config.rotateNames)
   {
       var tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5; // +5 handles one-char names well
@@ -38,7 +38,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   }
 
   var viewboxSize0 = size0 + size0margin(cmargin);
-  var viewboxSize1 = size1 + size1margin(cmargin);
+  var viewboxSize1 = size1;
 
   var lastRound = -1;
 
@@ -81,7 +81,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
                                       : size1 + " " + size0;
   }
 
-  function getMaxWidth() {
+  function getIdealWidth() {
     return (size0string() == "width" ? viewboxSize0 : viewboxSize1) + "px";
   }
 
@@ -95,12 +95,14 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         return num + " " + units;
       };
 
+      // Dynamic max-width based on sankey size
+      d3.select("#sankey-body")
+          .style("width", getIdealWidth());
+
       // append the svg object to the body of the page
       var svg = d3.select("#sankey-body").append("svg")
           .attr("id", "sankey-svg")
           .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
-          .style("max-width", getMaxWidth())
-          .style("min-width", "300px")
         .append("g")
           .attr("transform", 
                 "translate(" + cmargin.left + "," + cmargin.top + ")");
@@ -196,7 +198,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
               return dim0(d) - roundSize0*0.4 - 50;
          })
         .attr("y", function(d) {
-              return avgNodeSize1 * 1.5
+              return 60
          })
       }
       else
@@ -247,7 +249,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       var viewboxLeft = -tmargin.left
       var topbarG = d3.select('#topbar').append("svg")
           .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
-          .style("max-width", getMaxWidth())
+          .style("max-width", getIdealWidth())
           .append("g")
       return topbarG;
   }

@@ -1,14 +1,14 @@
 {% load static %}
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 
-<div class="responsive-table-wrapper" id="single-table-summary-wrapper">
+<div class="shadow-wrapper responsive-table-wrapper" id="single-table-summary-wrapper">
 <div class="responsive-table">
 <table class="table" id="single-table-summary-table">
     <thead class="thead-light">
         <tr>
             <th scope="col" class="col-auto">Candidate name </th>
             {% for roundTabulation in singleTableSummary.rounds %}
-                <th scope="col" class="col-auto cell-with-padding">Round {{ forloop.counter }}</th>
+                <th scope="col" class="col-auto">Round {{ forloop.counter }}</th>
             {% endfor %}
         </tr>
     </thead>
@@ -22,13 +22,12 @@
                  <td style="background-color: #FFBFBF"></td>
                  {% else %}
                  <td
-                     class="cell-with-padding"
                      {% if round.isWinner %}
                      style="background-color: #BFFFCC"
                      {% endif %}
                  >
-                      <h3>{{ round.primaryLabel }}</h3><br/>
-                          {{ round.secondaryLabel }}
+                      <h3 class="primaryLabel">{{ round.primaryLabel }}</h3><br/>
+                                              {{ round.secondaryLabel }}
                  </td>
                  {% endif %}
             {% endfor %}

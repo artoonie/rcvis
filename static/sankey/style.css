@@ -40,3 +40,8 @@
   font-size: 3em;
   opacity: 0.2;
 }
+
+#sankey-body {
+  min-width: 300px;
+  max-width: 95%;
+}

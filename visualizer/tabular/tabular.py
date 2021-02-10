@@ -9,7 +9,7 @@ def makePrimarySecondaryLabels(numVotes, allVotes, item):
         secondaryLabel = votify(numVotes)
     else:
         primaryLabel = intify(numVotes)
-        secondaryLabel = "ballots with no choices left"
+        secondaryLabel = "ballots"
     return (primaryLabel, secondaryLabel)
 
 
