@@ -1,8 +1,9 @@
+""" Utility functions shared across views, in either movie or visualizer apps """
+
 from django.shortcuts import render
 
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
-from visualizer.common import make_complete_url
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
@@ -29,7 +30,9 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     html = httpResponse.content.decode('utf-8')
     return html
 
+
 def get_data_for_view(config):
+    """ All data needed to pass on to the visualize or visualizeembedded view """
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
 

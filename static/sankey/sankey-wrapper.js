@@ -7,7 +7,6 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   const roundSize0 = nodeSize0 + nodePadding + linkPadding
   const totalSize0 = numRounds * roundSize0
   const idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
-  const size1TopbarTextPadding = 300; // allow room for long text on last candidate
   const disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
   let heightUntilSticky;
   if (disableMagicTopBar)

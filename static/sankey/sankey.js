@@ -107,8 +107,6 @@ d3.sankey = function(totalSize0) {
   // Iteratively assign the breadth (x-position) for each node.
   // Nodes are assigned the maximum breadth of incoming neighbors plus one;
   // nodes with no incoming links are assigned breadth zero, while
-  // uncomment moveSinksRight to make:
-  //          nodes with no outgoing links are assigned the maximum breadth.
   function computeNodeBreadths() {
     let max_dim0 = 0;
     nodes.forEach(function(node) {
@@ -118,27 +116,7 @@ d3.sankey = function(totalSize0) {
     });
 
     scaleNodeBreadths((totalSize0 - nodeSize0) / max_dim0);
-
-    //
-    // moveSinksRight(x);
   }
-
-  function moveSourcesRight() {
-    nodes.forEach(function(node) {
-      if (!node.targetLinks.length) {
-        set_dim0(node, d3.min(node.sourceLinks, function(d) { return dim0(d.target); }) - 1);
-      }
-    });
-  }
-
-  function moveSinksRight(dim0) {
-    nodes.forEach(function(node) {
-      if (!node.sourceLinks.length) {
-        set_dim0(node, dim0 - 1);
-      }
-    });
-  }
-
   function scaleNodeBreadths(kdim0) {
     nodes.forEach(function(node) {
       set_dim0(node, dim0(node) * kdim0);
@@ -222,7 +200,6 @@ d3.sankey = function(totalSize0) {
         }
         // Push any overlapping nodes down.
         nodes.sort(ascendingDepth);
-        let totalShift = 0;
         for (i = 0; i < n; ++i) {
           node = nodes[i];
           new_ddim1 = dim1_0 - dim1(node);
