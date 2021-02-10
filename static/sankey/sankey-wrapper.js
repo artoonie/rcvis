@@ -1,52 +1,55 @@
 function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound, colorThemeIndex) {
   // Below are crazy heuristics to try to get the graph to look good
   // on a variety of sizes.
-  var units = "Votes";
-  var nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, the more room you want to display connections.
-  var linkPadding = 60
-  var roundSize0 = nodeSize0 + nodePadding + linkPadding
-  var totalSize0 = numRounds * roundSize0
-  var idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
-  var size1TopbarTextPadding = 300; // allow room for long text on last candidate
-  var disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
-  if(disableMagicTopBar)
-      var heightUntilSticky = 20000000;
+  const units = "Votes";
+  const nodePadding = 20 + 0.5*Math.min(numCandidates,10) // the more candidates, the more room you want to display connections.
+  const linkPadding = 60
+  const roundSize0 = nodeSize0 + nodePadding + linkPadding
+  const totalSize0 = numRounds * roundSize0
+  const idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
+  const size1TopbarTextPadding = 300; // allow room for long text on last candidate
+  const disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
+  let heightUntilSticky;
+  if (disableMagicTopBar)
+      heightUntilSticky = 20000000;
   else
-      var heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
-  var stickyHysteresis = 180; // How far you scroll back up before the top bar "unsticks"
+      heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
+  const stickyHysteresis = 180; // How far you scroll back up before the top bar "unsticks"
 
-  var ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
+  const ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
 
   // set the dimensions and margins of the graph
-  var leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth * ESTIMATED_CHAR_WIDTH : 0;
-  var cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNames}, // content
-      tmargin = {top:  0,                        left: 50}, // topbar
-      bottomLabelPadding = 20
-      size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
-      hackExtraPadding = numCandidates*20, // we need extra room because the
-                                           // ideal size may not be the actual size
-                                           // once all the nodes are expanded to their minimum sizes
-      size1 = idealTotalSize1 + hackExtraPadding;
+  const leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth * ESTIMATED_CHAR_WIDTH : 0;
+  const cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNames}, // content
+        tmargin = {top:  0,                        left: 50}, // topbar
+        bottomLabelPadding = 20,
+        size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
+        hackExtraPadding = numCandidates*20, // we need extra room because the
+                                             // ideal size may not be the actual size
+                                             // once all the nodes are expanded to their minimum sizes
+        size1 = idealTotalSize1 + hackExtraPadding;
+  let tmarginLength;
+  let rotationOffset = 0;
   if (config.rotateNames)
   {
-      var tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5; // +5 handles one-char names well
-      var rotationOffset = config.horizontalSankey ? tmarginLength*.7071067/2.0 : tmarginLength*.7071067;
+      tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5; // +5 handles one-char names well
+      rotationOffset = config.horizontalSankey ? tmarginLength*.7071067/2.0 : tmarginLength*.7071067;
   }
   else
   {
-      var tmarginLength = config.horizontalSankey ? leftPadForHorizontalNames : 40;
+      tmarginLength = config.horizontalSankey ? leftPadForHorizontalNames : 40;
   }
 
-  var viewboxSize0 = size0 + size0margin(cmargin);
-  var viewboxSize1 = size1;
+  const viewboxSize0 = size0 + size0margin(cmargin);
+  const viewboxSize1 = size1;
 
-  var lastRound = -1;
+  let lastRound = -1;
 
   const colorThemeGenerator = getColorGenerator(colorThemeIndex);
   const colorsPerCandidate = Array.from(colorThemeGenerator(numCandidates));
 
   function hackCharsForWidth(width, text) {
-      var length = width/ESTIMATED_CHAR_WIDTH
+      const length = width/ESTIMATED_CHAR_WIDTH
       if(length >= text.length - 3) {
           return text;
       } else {
@@ -60,7 +63,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       return hackCharsForWidth(d.dx, d.name);
   }
   function textForNode(d) {
-      var s = "";
+      let s = "";
       if(d.isEliminated)
           s += "❌ " ;
       if(d.isWinner)
@@ -87,11 +90,12 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
   function makeGraph(graph) {
       // format variables
-      var formatNumber = d3.format(",.2f");    // two decimal places
-      var format = function(d) {
+      const formatNumber = d3.format(",.2f");    // two decimal places
+      const format = function(d) {
         // format num if it's a float
-        if(d%1 != 0) var num = formatNumber(d);
-        else         var num = d;
+        let num;
+        if(d%1 != 0) num = formatNumber(d);
+        else         num = d;
         return num + " " + units;
       };
 
@@ -100,7 +104,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
           .style("width", getIdealWidth());
 
       // append the svg object to the body of the page
-      var svg = d3.select("#sankey-body").append("svg")
+      const svg = d3.select("#sankey-body").append("svg")
           .attr("id", "sankey-svg")
           .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
         .append("g")
@@ -108,12 +112,12 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
                 "translate(" + cmargin.left + "," + cmargin.top + ")");
 
       // Set the sankey diagram properties
-      var sankey = d3.sankey(totalSize0)
+      const sankey = d3.sankey(totalSize0)
           .nodeSize0(nodeSize0)
           .nodePadding(nodePadding)
           .size([0, idealTotalSize1]);
 
-      var path = sankey.link();
+      const path = sankey.link();
 
       sankey
         .nodes(graph.nodes)
@@ -122,11 +126,11 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
       // the function for moving the nodes
       function dragmove(d) {
-          var translate0 = dim0(d);
-          var translate1 = (set_dim1(d, Math.max(
+          const translate0 = dim0(d);
+          const translate1 = (set_dim1(d, Math.max(
                             0, Math.min(size1 - ddim1(d), dim1(d3.event))))
                            );
-          commad = commaSeparate(translate0, translate1)
+          const commad = commaSeparate(translate0, translate1)
           d3.select(this)
             .attr("transform", 
                   "translate(" + commad + ")");
@@ -135,7 +139,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       }
 
       // add in the links
-      var link = svg.append("g").selectAll(".link")
+      const link = svg.append("g").selectAll(".link")
         .data(graph.links)
       .enter().append("path")
         .attr("class", "link")
@@ -150,12 +154,12 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
               return format(d.value); });
 
       // add in the nodes
-      var node = svg.append("g").selectAll(".node")
+      const node = svg.append("g").selectAll(".node")
         .data(graph.nodes)
       .enter().append("g")
         .attr("class", "node")
         .attr("transform", function(d) { 
-            commad = commaSeparate(dim0(d), dim1(d))
+            const commad = commaSeparate(dim0(d), dim1(d))
             return "translate(" + commad + ")"; })
         .attr("cursor", function(d) { return d.round != 0 ? "move" : "unset"; } )
         .call(d3.drag()
@@ -183,7 +187,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         .text(getNodeLabelText);
       }
 
-      var labels = svg.append("g").selectAll(".roundLabels")
+      const labels = svg.append("g").selectAll(".roundLabels")
           // TODO we shouldn't assume dim1 is at zero but
           // this is the easiest way to get unique values
           // and computing the height based on nodeSize0
@@ -223,7 +227,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
             return d.name + "\n" + format(d.value); });
 
       // add in the title for the nodes
-      var SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN = 100;
+      const SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN = 100;
     function magicShift(d) {
           if(ddim1(d) > SHIFT_TEXT_LEFT_IF_WIDTH_LESS_THAN || size1string() != "width")
               return textXPos(d);
@@ -246,8 +250,8 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   }
 
   function makeTopBar(graph) {
-      var viewboxLeft = -tmargin.left
-      var topbarG = d3.select('#topbar').append("svg")
+      const viewboxLeft = -tmargin.left
+      const topbarG = d3.select('#topbar').append("svg")
           .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
           .style("max-width", getIdealWidth())
           .append("g")
@@ -256,7 +260,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
   function makeRound1SpecialLabel(topbarG) {
      // First round is above the sankey SVG so needs to be handled specially
-     var round1Label = topbarG.append("g").
+     const round1Label = topbarG.append("g").
         append("text")
         .attr("class", 'roundLabels' );
 
@@ -276,15 +280,15 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
   function populateTopBarFor(topbarG, round) {
       lastRound = round;
-      var data = graph.nodes.filter(function(d){return d.round == round;});
-      var topbar = topbarG
+      const data = graph.nodes.filter(function(d){return d.round == round;});
+      const topbar = topbarG
         .selectAll(".topbar_element")
         .data(data, function(d) { return d; });
 
-      var topbar_g = topbar.enter().append("g")
+      const topbar_g = topbar.enter().append("g")
         .attr('class', 'topbar_element')
         .attr("transform", function(d) { 
-            commad = commaSeparate(0, dim1(d))
+            const commad = commaSeparate(0, dim1(d))
             return "translate(" + commad + ")"; })
         .attr(size1string(), function(d) { return ddim1(d); })
         .attr(size0string(), nodeSize0)
@@ -313,16 +317,16 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   }
 
   function getBodyMarginInt() {
-      var style = window.getComputedStyle(document.body);
-      var bodyMargin = style.getPropertyValue('margin-left');
+      const style = window.getComputedStyle(document.body);
+      const bodyMargin = style.getPropertyValue('margin-left');
       return parseInt(bodyMargin, 10);
   }
 
-  function notifyScrolled() {
+  function notifyScrolled(round1SpecialLabel) {
     // TODO this only supports vertical sankey mode
     if (!doLockTopBarOnScroll) return;
 
-    var x = -window.pageXOffset + bodyMargin;
+    const x = -window.pageXOffset + bodyMargin;
     if (window.pageYOffset >= sticky) {
       topbarDiv.classList.add("sticky")
       round1SpecialLabel.style("display", "none")
@@ -331,10 +335,10 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       round1SpecialLabel.style("display", "inherit")
     }
     topbarDiv.style.left = x+"px"; 
-    var desiredHeight = size1string() == "height" ? viewboxSize1 : viewboxSize0;
-    var actualHeight = document.getElementById('sankey-body').offsetHeight;
-    var viewportScale =  actualHeight/desiredHeight
-    var round = (window.pageYOffset + tmarginLength)/(viewportScale*roundSize0) - viewportScale*cmargin.top
+    const desiredHeight = size1string() == "height" ? viewboxSize1 : viewboxSize0;
+    const actualHeight = document.getElementById('sankey-body').offsetHeight;
+    const viewportScale =  actualHeight/desiredHeight
+    let round = (window.pageYOffset + tmarginLength)/(viewportScale*roundSize0) - viewportScale*cmargin.top
     round = Math.floor(round);
     round = Math.min(round, numRounds)
     round = Math.max(round - 1, 0)
@@ -342,17 +346,17 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         populateTopBarFor(topbarG, round)
     }
   }
-  var topbarDiv = document.getElementById("topbar");
-  var sticky = topbarDiv.offsetTop + heightUntilSticky;
-  var bodyMargin = getBodyMarginInt()
+  const topbarDiv = document.getElementById("topbar");
+  const sticky = topbarDiv.offsetTop + heightUntilSticky;
+  const bodyMargin = getBodyMarginInt()
   makeGraph(graph);
-  var topbarG = makeTopBar(graph);
+  const topbarG = makeTopBar(graph);
   if (!config.horizontalSankey) {
+    const round1SpecialLabel = makeRound1SpecialLabel(topbarG);
     if (!disableMagicTopBar)
     {
-      window.onscroll = function() {notifyScrolled()};
+      window.onscroll = function() {notifyScrolled(round1SpecialLabel)};
     }
-    var round1SpecialLabel = makeRound1SpecialLabel(topbarG);
     populateTopBarFor(topbarG, 0)
   }
 }
