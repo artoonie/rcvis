@@ -4,13 +4,14 @@ Helper functions for unit and integration tests
 
 import logging
 import json
-from mock import patch
 import tempfile
+from mock import patch
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
+
 
 class TestHelpers():
     """ Helper function for various test classes below """

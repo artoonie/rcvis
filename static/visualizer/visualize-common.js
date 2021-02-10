@@ -1,15 +1,15 @@
 // Simplify number: e.g. use 1.1k instead of 1,135, 3.2m instead of 3,159,023
 function simplifyNumber(num)
 {
-  tmp = num
-  numCommas = 0;
+  let tmp = num;
+  let numCommas = 0;
   while(tmp % 1000 != tmp) {
     numCommas++;
     tmp /= 1000;
   }
-  units = ["", "k", "m"]
-  unit_ptr = 0
-  for (var i = 0; i < Math.min(numCommas, 2); ++i)
+  const units = ["", "k", "m"];
+  let unit_ptr = 0
+  for (let i = 0; i < Math.min(numCommas, 2); ++i)
   {
       num /= 100;
       num = Math.round(num);
@@ -21,6 +21,7 @@ function simplifyNumber(num)
 
 function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
 {
+  let roundedVotes;
   if (doSimplifyNumber && numVotes >= 1000)
       roundedVotes = simplifyNumber(numVotes);
   else
@@ -34,7 +35,7 @@ function percentToText(candidateName, numVotes, totalVotes)
   if (candidateName == "Inactive Ballots")
     return "with no choices left";
 
-  percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
+  const percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
   return "(" + percentVotes + "%)";
 }
 
@@ -47,7 +48,7 @@ function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
 {
   // I'm really sorry about this. Make the text smaller for very long labels.
   let candidateAxisTextSizeEm = 2;
-  let maxTextSizeFor2em = 13;
+  const maxTextSizeFor2em = 13;
   if (longestLabelApxWidth > maxTextSizeFor2em)
   {
       candidateAxisTextSizeEm /= longestLabelApxWidth/maxTextSizeFor2em;

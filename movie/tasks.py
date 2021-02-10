@@ -60,7 +60,7 @@ def create_movie_task(pk, domain):
     try:
         jsonconfig = JsonConfig.objects.get(pk=pk)
         _make_movies_for_config(browser, domain, jsonconfig)
-    except BaseException as exception:  # pylint: disable=broad-except
+    except Exception as exception:  # pylint: disable=broad-except
         jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
         jsonconfig.save()
         print("Movie generation failed: ", exception)

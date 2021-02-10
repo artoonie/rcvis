@@ -226,20 +226,11 @@ class RoundTabulation:
                 f"{link.value} {voteTxt} from {link.source.item.name}")
 
         transferText = andify("Gained ", transfers, "")
-        ONLY_SHOW_TEXT_RELEVANT_TO_ME = True
-        if ONLY_SHOW_TEXT_RELEVANT_TO_ME:
-            # Only show info relevant to this candidate
-            winnerText = "Elected " if item.name in thisRoundInfo.winnerNames else ""
-            eliminatedText = "Eliminated " if item.name in thisRoundInfo.eliminatedNames else ""
-            self.summary = winnerText + eliminatedText + transferText
-        else:
-            # Show info from everybody
-            eliminatedText = andify(
-                "", thisRoundInfo.eliminatedNames, " eliminated")
-            winnerText = andify("", thisRoundInfo.winnerNames, " elected")
 
-            self.summary = "; ".join(
-                [t for t in (winnerText, eliminatedText, transferText) if t])
+        # Only show info relevant to this candidate
+        winnerText = "Elected " if item.name in thisRoundInfo.winnerNames else ""
+        eliminatedText = "Eliminated " if item.name in thisRoundInfo.eliminatedNames else ""
+        self.summary = winnerText + eliminatedText + transferText
 
 
 """ Make into a comma-separated list, with the oxford comma, prefixed/suffixed if non-empty """

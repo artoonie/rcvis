@@ -468,7 +468,7 @@ class RestAPITests(APITestCase):
                     # If it's not, print out a more helpful message
                     try:
                         self.assertEqual(response.status_code, expectedStatus)
-                    except BaseException:
+                    except Exception:
                         print(f"Permissions are incorrect for {user}, {model}, {action}")
                         print(response.content)
                         raise

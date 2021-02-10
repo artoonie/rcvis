@@ -70,7 +70,6 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
             # Don't print full traceback here - we don't control this message as closely,
             # and it might (?) contain keys.
             raise serializers.ValidationError({'jsonFile': ["Unknown error: " + str(exception)]})
-        return None
 
     def check_for_superfluous_fields_before_modification(self, data):
         """ Raises a ValidationError if the data does not have superfluous fields. """

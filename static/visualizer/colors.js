@@ -66,7 +66,7 @@ function lab2rgb(lab) {
 
   return [Math.round(Math.max(0, Math.min(1, r)) * 255), 
           Math.round(Math.max(0, Math.min(1, g)) * 255), 
-          Math.round(Math.max(0, Math.min(1, b)) * 255)]
+          Math.round(Math.max(0, Math.min(1, b)) * 255)];
 }
 
 function rgb2lab(rgb){
@@ -87,7 +87,7 @@ function rgb2lab(rgb){
   y = (y > 0.008856) ? Math.pow(y, 1/3) : (7.787 * y) + 16/116;
   z = (z > 0.008856) ? Math.pow(z, 1/3) : (7.787 * z) + 16/116;
 
-  return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)]
+  return [(116 * y) - 16, 500 * (x - y), 200 * (y - z)];
 }
 
 function lab2hex(lab) {
