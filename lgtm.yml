@@ -1,0 +1,7 @@
+path_classifiers:
+  test:
+    - "*/test.py"
+  docs:
+    - "docs/*"
+  library:
+    - "static/localdeps/*"
