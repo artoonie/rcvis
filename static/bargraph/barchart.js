@@ -83,6 +83,9 @@ function makeBarGraph(
         .style("stroke", "white")
         .style("stroke-width", 1);
   
+  // Add metadata to stackSeries and filter out already-eliminated candidates
+  addMetadataToEachBar();
+
   // Set x, y and colors
   const candidatesDomain = d3.scaleBand()
         .domain(candidateNames)
@@ -142,10 +145,12 @@ function makeBarGraph(
             .text(d => d);
   }
 
+  let currRound = numRounds - 1;
+  let prevRound = currRound;
+
   // Draw everything
   function isEliminated(d) { return d.numRoundsTilEliminated < currRound; }
   function isEliminatedThisRound(d) { return d.numRoundsTilEliminated < d.round; }
-  let currRound = numRounds - 1;
   function barVotesSizeHelperFn(d) {
       return (votesRange(d[0]) - votesRange(d[1])) * (isVertical ? 1 : -1);
   }
@@ -266,9 +271,7 @@ function makeBarGraph(
     }
   }
   */
-  function isLatestRoundFor(d) {
-      return currRound == d.round;
-  }; 
+  function isLatestRoundFor(d) { return currRound == d.round; };
   function dataLabelDisplayFor(d) { return isLatestRoundFor(d) ? null : "none" }; 
   function mainDataLabelTextFn(d) {
       // Horizontal shows "eliminated" or "x votes (y%)"
@@ -339,22 +342,31 @@ function makeBarGraph(
            + "h" + (-width)
            + "z";
   }
-  function getMaybeRoundedBarFor(object, data) {
+  function getBBoxFor(data) {
       let x = candidatesRange(data.data.candidate);
       let y = barVotesPosFn(data);
       let width = candidatesRange.bandwidth() * 0.9;
       let height = barVotesSizeFn(data);
+
+      if (!isVertical) {
+        [x, y] = [y, x];
+        [width, height] = [height, width];
+      }
+
+      return {x, y, width, height};
+  }
+  function getMaybeRoundedBarFor(object, data) {
+      let size = getBBoxFor(data);
+      let x = size.x;
+      let y = size.y;
+      let width = size.width;
+      let height = size.height;
       let r = 4;
       r = Math.min(r, width/2.0, height/2.0); // Don't let the radius expand the bar
 
       if (height == 0 || width == 0) {
         // Don't draw a strip of a radius on eliminated rounds
         return '';
-      }
-
-      if (!isVertical) {
-        [x, y] = [y, x];
-        [width, height] = [height, width];
       }
 
       if (data.round == 0 && !doesCandidateGetAnyMoreVotes(data)) {
@@ -392,44 +404,41 @@ function makeBarGraph(
       return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
   };
 
-  const eachBar = svg.append("g")
-    .selectAll("g")
-    .data(stackSeries)
-    .join("g")
-    .selectAll("path")
-    .data(function(d, i) {
-      // @param d The data on the bars
-      // @param i The round number
-      const numCandidates = d.length;
-      let maxNumRounds = 0;
-      for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
-      {
-        // We're doing a naughty thing and assuming that the number of keys minus one is the
-        // number of rounds this candidate survivided (the keys are each round + one for "candidate").
-        // We verify that assumption by looking at the max number of rounds after this loop.
-        // Note: we ensure 0-indexing for consistency with d.rounds
-        let numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 2;
+  function addMetadataToEachBar() {
+      for (let round_i = 0; round_i < stackSeries.length; ++round_i) {
+          const d = stackSeries[round_i];
+          const numCandidates = d.length;
 
-        let candidateName = d[candidate_i].data["candidate"]
-        d[candidate_i].round = i;
-        d[candidate_i].numRoundsTilWin = numRoundsTilWin[candidateName]
-        d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= i
-        maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated+1);
+          let maxNumRounds = 0;
+          for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
+          {
+            // We're doing a naughty thing and assuming that the number of keys minus one is the
+            // number of rounds this candidate survivided (the keys are each round + one for "candidate").
+            // We verify that assumption by looking at the max number of rounds after this loop.
+            // Note: we ensure 0-indexing for consistency with d.rounds
+            let numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 2;
 
-        // When/if they're eliminated
-        if (numRoundsTilEliminated == numRounds-1) {
-          numRoundsTilEliminated = numRounds + 1; // i.e. never eliminated
-        }
-        d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
+            let candidateName = d[candidate_i].data["candidate"]
+            d[candidate_i].round = round_i;
+            d[candidate_i].numRoundsTilWin = numRoundsTilWin[candidateName]
+            d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= round_i
+            maxNumRounds = Math.max(maxNumRounds, numRoundsTilEliminated+1);
+
+            // When/if they're eliminated
+            if (numRoundsTilEliminated == numRounds-1) {
+              numRoundsTilEliminated = numRounds + 1; // i.e. never eliminated
+            }
+            d[candidate_i].numRoundsTilEliminated = numRoundsTilEliminated;
+          }
+
+          if(maxNumRounds != numRounds)
+          {
+              throw new Error("Assumption did not hold! See comment above.");
+          }
+
+          stackSeries[round_i] = d;
       }
-
-      if(maxNumRounds != numRounds)
-      {
-          throw new Error("Assumption did not hold! See comment above.");
-      }
-
-      return d;
-    });
+  }
 
   let candidatePosStr, votesPosStr, candidateSizeStr, votesSizeStr;
   if (isVertical) {
@@ -443,6 +452,14 @@ function makeBarGraph(
     candidateSizeStr = "height";
     votesSizeStr = "width";
   }
+
+  const eachBar = svg.append("g")
+    .selectAll("g")
+    .data(stackSeries)
+    .join("g")
+    .selectAll("path")
+    .data((d, i) => stackSeries[i]);
+
   eachBar
     .join("path")
       .attr("class", "eachBar")
@@ -529,13 +546,79 @@ function makeBarGraph(
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return "Threshold to win: " + threshold; });
 
+  function moveBarsToAnimationStartPoint() {
+    // Where is the transfer coming from?
+    const transferFrom = eachBar.enter().filter(function(d) {
+      const prevRound = currRound - 1;
+      if (d.round == 0 && d.numRoundsTilEliminated == prevRound) {
+        // get first round of candidate eliminated this round
+        d.xferType = 'elimination';
+        return true;
+      }
+      if (d.round == currRound && d[1] < d[0]) {
+        // surplus transfer
+        d.xferType = 'surplus';
+        return true;
+      }
+      return false;
+    })
+
+    // If we found something to transfer from, start the animation bars from there
+    if (transferFrom.nodes().length > 0) {
+      const elimNode = transferFrom.nodes()[0];
+      const elimData = elimNode.__data__;
+      const elimSize = getBBoxFor(elimData);
+      let xShift = 0;
+      eachBar.enter()
+          .filter(isLatestRoundFor)
+          .selectAll("path.eachBar")
+          .attr("fill", barColorFn)
+          .attr("opacity", 0.3)
+          .attr("transform", function(d, i) {
+            // Set initial x shift
+            // Note, this is called twice: https://stackoverflow.com/a/27578308/1057105
+            // So we need to reset on the second time around
+            if (i == 0) {
+              if (elimData.xferType == 'elimination') {
+                // Elimination transfer
+                xShift = elimSize.x;
+              } else {
+                // Surplus transfer needs to start the movement from the
+                // same place the hashes start (== threshold)
+                xShift = elimSize.x - elimSize.width;
+              }
+            }
+
+            const mySize = getBBoxFor(d);
+            const x = xShift - mySize.x;
+            const y = elimSize.y - mySize.y;
+            xShift += mySize.width;
+
+            return "translate(" + x + "," + y + ")"
+          });
+    }
+  }
+
   // Return animation controls
   function transitionEachBarForRound() {
-    eachBar.enter().selectAll("path.eachBar")
+    eachBar.enter().selectAll("path")
         .attr("d", function(d) { return getMaybeRoundedBarFor(this, d); });
-    eachBar.enter().selectAll("path.eachBar").transition()
+
+    if (currRound == prevRound + 1) {
+      moveBarsToAnimationStartPoint()
+    }
+
+    // don't animate hashes moving around - override the transform
+    eachBar.enter().selectAll("path.eachBar")
+        .filter(d => isSurplusFn(d))
+        .attr("transform", "translate(0,0)");
+    // hashes should show immediately
+    eachBar.enter().selectAll("path.eachBar")
+        .transition()
         .duration(300)
-        .delay(0)
+        .delay(50)
+        .attr("opacity", 1)
+        .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
   function transitionDataLabelsForRound() {
@@ -555,11 +638,12 @@ function makeBarGraph(
 
     d3.select(idOfLegendOrRoundDescriber)
     .transition()
-      .delay(125)
+      .delay(350)
       .style("opacity", "1")
       .text(descriptionOfCurrRound);
   };
   function transitions(round) {
+    prevRound = currRound;
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();

@@ -37,7 +37,8 @@ function makeInteractiveGraph() {
     hideActiveTickText: doHideActiveTickText(numRounds),
     sliderValueChanged: transitionEachBarForRound,
     timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-    timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
+    timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
+    timeBetweenStepsMs: 350
   });
 }
 makeInteractiveGraph();
