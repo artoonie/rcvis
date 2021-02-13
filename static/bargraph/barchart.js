@@ -1,13 +1,11 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
 function makeBarGraph(
   idOfContainer /* SVG container */,
-  idOfLegendOrRoundDescriber /* id for the legend (fixed) or round describer (interactive) */,
+  idOfLegend /* id for the legend (fixed)  */,
   candidateVoteCounts /* List of candidate descriptions, where each list item has
           keys .candidate for the name, and .<rounddescription> for the # of votes
           on that round, where the <rounddescription> is a human-friendly description */,
   humanFriendlyRoundNames /* The human-friendly keys noted above */,
-  humanFriendlyEventsPerRound /* Longer form text of above - only room for this
-                                    in the interactive vis */,
   totalVotesPerRound /* list of # of active ballots each round */,
   numRoundsTilWin /* dict mapping winners to the round they won on */,
   colors /* List of colors, one per round */,
@@ -387,17 +385,6 @@ function makeBarGraph(
       }
   }
 
-  function descriptionOfCurrRound() {
-    const round = currRound;
-    const roundData = humanFriendlyEventsPerRound[round];
-
-    return roundData.map(function(event) {
-      return event.description;
-    }).reduce(function(totalString, currText) {
-      return totalString + "\n" + currText;
-    }, "");
-  }
-
   // Hover text helper
   function barTextFn(d) {
       const text = !isEliminatedThisRound(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
@@ -521,7 +508,7 @@ function makeBarGraph(
 
   if (!isInteractive) {
     // Show a legend
-    d3.select(idOfLegendOrRoundDescriber)
+    d3.select(idOfLegend)
       .append("g")
         .call(legend);
   }
@@ -627,27 +614,11 @@ function makeBarGraph(
         .delay(0)
         .attr("display", dataLabelDisplayFor)
   };
-  function transitionRoundDescriberForRound() {
-    if (!isInteractive) return;
-
-    d3.select(idOfLegendOrRoundDescriber)
-    .transition()
-      .duration(100)
-      .delay(0)
-      .style("opacity", "0");
-
-    d3.select(idOfLegendOrRoundDescriber)
-    .transition()
-      .delay(350)
-      .style("opacity", "1")
-      .text(descriptionOfCurrRound);
-  };
   function transitions(round) {
     prevRound = currRound;
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();
-    transitionRoundDescriberForRound();
   };
 
   // Enable the bootstrap tooltip

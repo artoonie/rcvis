@@ -40,10 +40,12 @@ class D3Bargraph:
 
         roundDescriber = Describer(graph, summarizeAsParagraph=False)
         humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
+        humanFriendlySummary = roundDescriber.describe_initial_summary()
 
         js = f'var candidateVoteCounts = {candidatesJs};'
         js += f'\nvar humanFriendlyRoundNames = {list(roundLabels)};'
         js += f'\nvar humanFriendlyEventsPerRound = {humanFriendlyEventsPerRound};'
+        js += f'\nvar humanFriendlySummary = "{humanFriendlySummary}";'
         js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
         js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'

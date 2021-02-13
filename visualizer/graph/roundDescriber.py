@@ -212,8 +212,14 @@ class Describer:
             raise NotImplementedError()
 
         wereOrWas = "was" if len(winners) == 1 else "were"
-        winnerText = self._describe_list_of_names(winners, None, "{name} "
-                                                  f"{wereOrWas} elected. ")
+        # Initial summary is always just text
+        try:
+            originalSummarizeAsParagraph = self.summarizeAsParagraph
+            self.summarizeAsParagraph = True
+            winnerText = self._describe_list_of_names(winners, None, "{name} "
+                                                      f"{wereOrWas} elected. ")
+        finally:
+            self.summarizeAsParagraph = originalSummarizeAsParagraph
 
         text = f"In this ranked choice voting election, there were {numRounds} rounds, after which "
         text += winnerText
