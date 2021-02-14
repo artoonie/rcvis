@@ -1172,14 +1172,34 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                 else:
                     assert 't.me' in href
 
-    def test_slider_animates(self):
+    def test_slider_animates_and_summary_shown(self):
         """ Check that the share tab has sane links for all buttons """
-        # Upload something with many rounds so we can catch the animation
-        self._upload(FILENAME_OPAVOTE)
+        # Upload something with few rounds so the animation doesn't take too long
+        self._upload(FILENAME_THREE_ROUND)
 
-        # Ensure the animation happened
-        WebDriverWait(self.browser, timeout=5, poll_frequency=0.1).until(
+        # Ensure the animation started
+        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
             lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+
+        # Ensure description is inital summary
+        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('what happened in each round', desc.text))
+
+        # Wait for animation to complete
+        WebDriverWait(self.browser, timeout=1.5, poll_frequency=0.1).until(
+            lambda d: self.browser.execute_script("return !isBargraphAnimationInProgress;"))
+
+        # Check that the text hasn't changed
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('what happened in each round', desc.text))
+
+        # Now move the slider
+        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 0)")
+
+        # Check that the text updates now
+        self._ensure_eventually_asserts(
+            lambda: self.assertNotIn('what happened in each round', desc.text))
 
     def test_timeline_and_longform_desc(self):
         """ Ensures the timeline show correct data, and that it can be toggled to show
@@ -1195,6 +1215,19 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
             lambda: self.assertEqual(self._is_elem_visible(desc), True))
+
+        # Cancel animation by clicking on first element
+        # Note: trs_moveSliderTo does not cancel animation, only clicking does
+        container = self.browser.find_element_by_id('bargraph-slider-container')
+        firstTick = container.find_elements_by_class_name('slider-item')[0]
+        # Note - need an action chain because the first tick isn't actually receiving the click,
+        # the slider itself handles it, and selenium throws ElementClickInterceptedException
+        ActionChains(self.browser).move_to_element(firstTick)\
+            .click(firstTick)\
+            .perform()
+
+        # Move animation to end
+        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
 
         # Give JS a second to catch up with the animation
         self._ensure_eventually_asserts(

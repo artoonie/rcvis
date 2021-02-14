@@ -209,7 +209,7 @@ class Describer:
         numRounds = len(summary.rounds)
 
         if len(winners) == 0:
-            raise NotImplementedError()
+            return "This election does not have any winners. "
 
         wereOrWas = "was" if len(winners) == 1 else "were"
         # Initial summary is always just text
