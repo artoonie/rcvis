@@ -1,4 +1,3 @@
-from visualizer.graph.roundDescriber import Describer
 from visualizer.jsUtils import approx_length
 
 
@@ -38,12 +37,8 @@ class D3Bargraph:
         longestLabelApxWidth = max([approx_length(n.label)
                                     for n in graph.nodesPerRound[0].values()])
 
-        roundDescriber = Describer(graph, summarizeAsParagraph=False)
-        humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
-
         js = f'var candidateVoteCounts = {candidatesJs};'
         js += f'\nvar humanFriendlyRoundNames = {list(roundLabels)};'
-        js += f'\nvar humanFriendlyEventsPerRound = {humanFriendlyEventsPerRound};'
         js += f'\nvar threshold = {float(graph.threshold)};'
         js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
         js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'

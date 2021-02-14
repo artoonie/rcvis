@@ -5,6 +5,7 @@ from django.shortcuts import render
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.graph.roundDescriber import Describer
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
@@ -36,6 +37,10 @@ def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
 
+    roundDescriber = Describer(graph, summarizeAsParagraph=False)
+    humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
+    humanFriendlySummary = roundDescriber.describe_initial_summary()
+
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
@@ -53,6 +58,8 @@ def get_data_for_view(config):
         'singleTableSummary': singleTableSummary,
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
+        'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
+        'humanFriendlySummary': humanFriendlySummary,
         'offlineMode': offlineMode,
         'graph': graph
     }

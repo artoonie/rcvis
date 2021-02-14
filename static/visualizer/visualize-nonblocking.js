@@ -36,6 +36,10 @@ function goToTab(newTabName) {
   animateIfNeeded(newTabName);
 }
 
+function animationForBarchartCompleted() {
+    isBargraphAnimationInProgress = false;
+}
+
 function animateIfNeeded(newTabName) {
   // TODO only run animation on interactive visualizations
   if (hasAnimatedSlider) {
@@ -43,10 +47,12 @@ function animateIfNeeded(newTabName) {
   }
 
   if (newTabName == 'barchart') {
-    trs_animate('bargraph-slider-container')
+    showTextOnRoundDescriber(humanFriendlySummary)
+    isBargraphAnimationInProgress = true;
+
+    trs_animate('bargraph-slider-container', animationForBarchartCompleted)
     hasAnimatedSlider = true;
-  }
-  else if (newTabName == 'round-by-round') {
+  } else if (newTabName == 'round-by-round') {
     trs_animate('tabular-by-round-slider-container')
     hasAnimatedSlider = true;
   }

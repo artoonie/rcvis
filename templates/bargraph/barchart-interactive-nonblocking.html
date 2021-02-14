@@ -1,6 +1,41 @@
 {% load static %}
 
 <script type="text/javascript">
+
+var isBargraphAnimationInProgress = false;
+
+function showTextOnRoundDescriber(description) {
+  if (isBargraphAnimationInProgress) {
+    return;
+  }
+
+  const idOfLegendOrRoundDescriber = "#bargraph-interactive-round-description";
+
+  d3.select(idOfLegendOrRoundDescriber)
+  .transition()
+    .duration(100)
+    .delay(0)
+    .style("opacity", "0");
+
+  d3.select(idOfLegendOrRoundDescriber)
+  .transition()
+    .delay(350)
+    .style("opacity", "1")
+    .text(description);
+};
+
+
+function descriptionOfCurrRound(round) {
+  const roundData = humanFriendlyEventsPerRound[round];
+
+  return roundData.map(function(event) {
+    return event.description;
+  }).reduce(function(totalString, currText) {
+    return totalString + "\n" + currText;
+  }, "");
+}
+
+
 function makeInteractiveGraph() {
   {{ bargraphjs|safe }}
 
@@ -14,10 +49,9 @@ function makeInteractiveGraph() {
   const interactive = true;
   transitionEachBarForRound = makeBarGraph(
     "#bargraph-interactive-body" /* idOfContainer */,
-    "#bargraph-interactive-round-description" /* idOfLegendOrRoundDescriber */,
+    null /* idOfLegendOrRoundDescriber */,
     candidateVoteCounts,
     humanFriendlyRoundNames,
-    humanFriendlyEventsPerRound,
     totalVotesPerRound,
     numRoundsTilWin,
     colorsPerRound,
@@ -28,6 +62,10 @@ function makeInteractiveGraph() {
     !config.doUseHorizontalBarGraph,
     config.doDimPrevRoundColors);
 
+  function sliderValueChangedCallback(round) {
+    transitionEachBarForRound(round);
+    showTextOnRoundDescriber(descriptionOfCurrRound(round))
+  }
 
   trs_createSliderAndTimeline({
     wrapperDivId: 'bargraph-slider-container',
@@ -35,7 +73,7 @@ function makeInteractiveGraph() {
     color: colorsPerRound,
     tickText: generateTickTexts(numRounds),
     hideActiveTickText: doHideActiveTickText(numRounds),
-    sliderValueChanged: transitionEachBarForRound,
+    sliderValueChanged: sliderValueChangedCallback,
     timelineData: generateTimelineData(humanFriendlyEventsPerRound),
     timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
     timeBetweenStepsMs: 350
