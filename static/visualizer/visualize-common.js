@@ -80,7 +80,6 @@ function magicWordWrap(text) {
       text = textElem.text();
 
     let lineHeight = 1.1, // ems
-      y = textElem.attr("y"),
       dy = parseFloat(textElem.attr("dy")),
       tspan = textElem.text(null)
                       .append("tspan")
@@ -102,13 +101,13 @@ function magicWordWrap(text) {
     tspan.attr("dy", (dy - 0.5*lineHeight) + "em");
 
     // Create secondary text
-    tspan = textElem.append("tspan")
-                    .attr("class", "dataLabel secondaryDataLabel")
-                    .attr("x", textElem.attr("x"))
-                    .attr("y", textElem.attr("y"))
-                    .attr("dy", (dy + 0.8*lineHeight) + "em")
-                    .attr("text-anchor", textElem.attr("text-anchor"))
-                    .text(split[1]);
+    textElem.append("tspan")
+            .attr("class", "dataLabel secondaryDataLabel")
+            .attr("x", textElem.attr("x"))
+            .attr("y", textElem.attr("y"))
+            .attr("dy", (dy + 0.8*lineHeight) + "em")
+            .attr("text-anchor", textElem.attr("text-anchor"))
+            .text(split[1]);
   });
 }
 

@@ -45,6 +45,7 @@ FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
 FILENAME_BROKEN_RANKIT_1 = 'testData/rankit-malformed-1.json'
 FILENAME_BROKEN_RANKIT_2 = 'testData/rankit-malformed-2.json'
+FILENAME_CRAZY_NAMES = 'testData/candidateNameTesting.json'
 FILENAME_BAD_DATA = 'testData/test-baddata.json'
 FILENAME_ONE_ROUND = 'testData/oneRound.json'
 FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
@@ -1265,3 +1266,49 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         elems = self.browser.find_elements_by_class_name('timeline-info')
         # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
         self.assertEqual(len(elems), 2 * 9)
+
+    def test_crazy_names(self):
+        """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
+            too-long filenames are split at sane points """
+        self._upload(FILENAME_CRAZY_NAMES)
+        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
+        tags = bargraph.find_elements_by_tag_name('tspan')
+        expectedTags = [
+            "Winner!",
+
+            "3",
+
+            "A malicious name with",
+            "\"quotes\" and 'ticks'",
+
+            "A malicious name",
+            "<b>with html</b>",
+
+            "Don't split me",
+
+            "A name",
+            "(but now with commas, and parenthesis, and a number: #1)",
+
+            "A name",
+            "(but now (with nested parenthesis))",
+
+            "A name, however this time,",
+            "with several commas",
+
+            "Anamewithnospacesat-",
+            "allbutidohaveabang!",
+
+            "Anamewithnospacesata-",
+            "llholymolyguacamole",
+
+            "A name,",
+            "however this time with a comma",
+
+            "A longish name",
+            "(and an additional parenthetical)",
+
+            "A very long name with only spaces separating",
+            "everything wow this name is so long"
+        ]
+        for i, tag in enumerate(tags):
+            self.assertEqual(tag.text, expectedTags[i])

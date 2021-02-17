@@ -30,9 +30,8 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       size0 += linkPadding;
       size1 += avgNodeSize1;
   } else {
-      hackExtraPadding = numCandidates*20, // we need extra room because the
-                                           // ideal size may not be the actual size
-                                           // once all the nodes are expanded to their minimum sizes
+      // Extra padding to leave room for expansion (??) of something (???)
+      const hackExtraPadding = numCandidates*20;
       size0 += bottomLabelPadding;
       size1 += hackExtraPadding;
   }

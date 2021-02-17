@@ -50,7 +50,7 @@ function makeBarGraph(
   const aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
-      // Limit the horizontal bar size to [30, 70]
+      // Limit the horizontal bar size to [20, 70]
       const maximumHorizontalBarSize = 70;
       const minimumHorizontalBarSize = 20;
       maxHeight = Math.min(maxHeight, numCandidates*maximumHorizontalBarSize);
