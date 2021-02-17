@@ -20,6 +20,12 @@ path.domain {
 .slider text {
   font-size: 1.3em;
 }
+.dataLabel {
+  font-size: 0.8rem;
+}
+.secondaryDataLabel {
+  font-size: 0.6rem;
+}
 .round-description-wrapper {
   padding: 0px 10px 0px 10px;
   box-shadow: 1px 5px 20px 0 #dedede;
@@ -58,6 +64,17 @@ path.domain {
   }
 }
 @media only screen and (max-width: 425px) {
+  .dataLabel {
+    /* The SVG scaled down, so scale up the text */
+    font-size: 1.0rem;
+  }
+  .secondaryDataLabel {
+    /* The SVG scaled down, so scale up the text */
+    font-size: 0.8rem;
+  }
+  .round-description-wrapper {
+    font-size: 0.8em;
+  }
   .trs-wrapper {
     font-size: 0.5rem;
   }

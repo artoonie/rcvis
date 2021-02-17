@@ -18,15 +18,24 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   const ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
 
   // set the dimensions and margins of the graph
-  const leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth * ESTIMATED_CHAR_WIDTH : 0;
+  // leftPadForHorizontalNames: guess how wide the longest name will be, knowing that the multiline
+  // label means we divide it by two
+  const leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth/2.0 * ESTIMATED_CHAR_WIDTH : 0;
   const cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNames}, // content
         tmargin = {top:  0,                        left: 50}, // topbar
-        bottomLabelPadding = 20,
-        size0 = totalSize0 + size0margin(cmargin) + bottomLabelPadding,
-        hackExtraPadding = numCandidates*20, // we need extra room because the
-                                             // ideal size may not be the actual size
-                                             // once all the nodes are expanded to their minimum sizes
-        size1 = idealTotalSize1 + hackExtraPadding;
+        bottomLabelPadding = 20;
+  let size0 = totalSize0;
+  let size1 = idealTotalSize1;
+  if (config.horizontalSankey) {
+      size0 += linkPadding;
+      size1 += avgNodeSize1;
+  } else {
+      // Extra padding to leave room for expansion (??) of something (???)
+      const hackExtraPadding = numCandidates*20;
+      size0 += bottomLabelPadding;
+      size1 += hackExtraPadding;
+  }
+
   let tmarginLength;
   let rotationOffset = 0;
   if (config.rotateNames)
@@ -174,16 +183,19 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
       if (config.horizontalSankey)
       {
-      // For horizontal sankey, labels go on the first-round nodes,
-      // not on the top bar
-      node
-        .filter(function(d) { return d.round == 0 })
-        .append("text")
-        .attr("x", -5)
-        .attr("y", function(d) { return textYPos(d); } )
-        .attr("dy", ".35em")
-        .attr("text-anchor", "end")
-        .text(getNodeLabelText);
+        // For horizontal sankey, labels go on the first-round nodes,
+        // not on the top bar
+        node
+          .filter(function(d) { return d.round == 0 })
+          .append("text")
+          .attr("x", -5)
+          .attr("y", textYPos)
+          .attr("dy", ".35em")
+          .attr("text-anchor", "end")
+          .attr("class", "dataLabel")
+          .text(getNodeLabelText);
+        node.selectAll(".dataLabel")
+          .call(magicWordWrap);
       }
 
       const labels = svg.append("g").selectAll(".roundLabels")
@@ -235,7 +247,6 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         .append("text")
         .attr("x", magicShift) 
         .attr("y", textYPos)
-        .attr("dy", ".35em")
         .style("pointer-events", "all")
         .text(getNodeVotesText)
         .call(d3.drag());
@@ -243,7 +254,6 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         .append("text")
         .attr("x", magicShift)
         .attr("y", function(d) { return textYPos(d) + 20 })
-        .attr("dy", ".35em")
         .text(getNodePercentText)
         .call(d3.drag());
   }

@@ -22,7 +22,7 @@ var nodeSize0 = 10;
 var avgNodeSize1 = 70;
 
 function textXPos(d) { return 12; }
-function textYPos(d) { return 10; }
+function textYPos(d) { return 25; }
 
 var doLockTopBarOnScroll = false;
 

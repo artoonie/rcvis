@@ -44,19 +44,6 @@ function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes
   return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
 }
 
-function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
-{
-  // I'm really sorry about this. Make the text smaller for very long labels.
-  let candidateAxisTextSizeEm = 2;
-  const maxTextSizeFor2em = 13;
-  if (longestLabelApxWidth > maxTextSizeFor2em)
-  {
-      candidateAxisTextSizeEm /= longestLabelApxWidth/maxTextSizeFor2em;
-  }
-  candidateAxisTextSizeEm *= scalar;
-  return candidateAxisTextSizeEm + "em";
-}
-
 function classNameForDescriptionVerb(verb) {
   /**
    * Returns a class name given the hardcode verb. Must sync with roundDescriber.py.
@@ -74,6 +61,93 @@ function classNameForDescriptionVerb(verb) {
   else
     throw new Error("Unexpected verb " + verb +
                     " - this function must be in sync with roundDescriber.py")
+}
+
+/*
+ * Functions for magic word wrapping
+ */
+function magicWordWrap(text) {
+  /* If the candidate name is too long, wraps it using these rules:
+   * 1. If there is a parenthetical, that goes on the next line;
+   * 2. If there is a comma, it splits the two lines at the first comma;
+   * 3. Otherwise, evenly splits words between the first and second line, or
+   * 4. If there is only one, long word, splits that word in half
+   * Input is a <text>. This function adds one or two <tspan>s, replacing
+   * the existing text.
+   */
+  text.each(function() {
+    let textElem = d3.select(this),
+      text = textElem.text();
+
+    let lineHeight = 1.1, // ems
+      dy = parseFloat(textElem.attr("dy")),
+      tspan = textElem.text(null)
+                      .append("tspan")
+                      .attr("class", "dataLabel")
+                      .attr("x", textElem.attr("x"))
+                      .attr("y", textElem.attr("y"))
+                      .attr("dy", dy + "em")
+                      .attr("text-anchor", textElem.attr("text-anchor"))
+                      .text(text);
+
+    // If don't need a second line, stop here
+    if (!needsTwoLines(text)) {
+        return;
+    }
+    let split = splitText(text);
+
+    // Shift previous text up
+    tspan.text(split[0]);
+    tspan.attr("dy", (dy - 0.5*lineHeight) + "em");
+
+    // Create secondary text
+    textElem.append("tspan")
+            .attr("class", "dataLabel secondaryDataLabel")
+            .attr("x", textElem.attr("x"))
+            .attr("y", textElem.attr("y"))
+            .attr("dy", (dy + 0.8*lineHeight) + "em")
+            .attr("text-anchor", textElem.attr("text-anchor"))
+            .text(split[1]);
+  });
+}
+
+function splitText(text) {
+  /**
+   * Helper function for magicWordWrap. Always returns an array with
+   * exactly two elements
+   */
+  // First, split parantheticals, e.g. Bob (Incumbant) -> [Bob, (Incumbant)]
+  // Then, split commas, e.g. Bob, The First -> [Bob, The First]
+  for (const regexp of [/([^(]*)(\(.*\))/, /(.*,)(.*)/]) {
+    const match = text.match(regexp)
+    if (match) {
+        return [match[1], match[2]]
+    }
+  }
+
+  // Finally, split in the middle by words
+  let words = text.split(/\s+/);
+  if (words.length == 1) {
+    // Split a word down the middle
+    const word = words[0];
+    const splitPoint = Math.round(word.length / 2.0);
+    return [word.substring(0, splitPoint) + "-", word.substring(splitPoint)];
+  } else {
+    // Split array of words in half
+    const splitPoint = Math.round(words.length / 2.0);
+    return [words.slice(0, splitPoint).join(' '), words.slice(splitPoint).join(' ')];
+  }
+}
+
+function namesNeedAnyTwoLineLabels(names) {
+    for (const name of names) {
+       if (needsTwoLines(name)) return true;
+    }
+    return false;
+}
+
+function needsTwoLines(name) {
+    return name.length > 25;
 }
 
 /*
