@@ -1,0 +1,31 @@
+{
+  "config" : {
+    "contest" : "Test various candidate names",
+    "date" : "2021-02-17",
+    "jurisdiction" : "Sample Data",
+    "office" : "None",
+    "threshold" : "50000"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "3" : "500",
+      "A very long name with only spaces separating everything wow this name is so long" : "500",
+      "A longish name (and an additional parenthetical)" : "500",
+      "A name, however this time with a comma" : "500",
+      "Anamewithnospacesatallholymolyguacamole" : "500",
+      "Anamewithnospacesatallbutidohaveabang!" : "500",
+      "A name, however this time, with several commas" : "500",
+      "A name (but now (with nested parenthesis))" : "500",
+      "A name (but now with commas, and parenthesis, and a number: #1)" : "500",
+      "A short name that shouldn't be split" : "500",
+      "A malicious name <b>with html</b>" : "500",
+      "A malicious name with \"quotes\" and 'ticks'" : "500",
+      "Winner!" : "50001"
+    },
+    "tallyResults" : [ {
+      "elected" : "Winner!"
+    } ]
+  }
+  ]
+}

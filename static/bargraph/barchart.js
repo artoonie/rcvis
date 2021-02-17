@@ -50,9 +50,9 @@ function makeBarGraph(
   const aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
-      // Limit the horizontal bar size to [20, 70]
+      // Limit the horizontal bar size to [40, 70]
       const maximumHorizontalBarSize = 70;
-      const minimumHorizontalBarSize = 20;
+      const minimumHorizontalBarSize = 40;
       maxHeight = Math.min(maxHeight, numCandidates*maximumHorizontalBarSize);
       maxHeight = Math.max(maxHeight, numCandidates*minimumHorizontalBarSize);
   }
@@ -455,25 +455,16 @@ function makeBarGraph(
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
-  const primaryLabelTextSizeEm = "1em";
-  const secondaryLabelTextSizeEm = "1em";
-  if (isVertical) {
-    // only vertical needs to scale
-    getMagicTextLabelSize(longestLabelApxWidth, 0.8);
-    getMagicTextLabelSize(longestLabelApxWidth, 0.6);
-  }
-
   // Labels: vote counts
   // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
   // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
   eachBar
     .join("text")
-      .attr("class", "dataLabels")
+      .attr("class", "dataLabel")
       .attr(candidatePosStr, barCandidatesDataLabalPosFn)
       .attr(votesPosStr, barVotesMainDataLabelPosFn)
       .attr("display", dataLabelDisplayFor)
       .attr("text-anchor", isVertical ? "middle" : "end")
-      .attr("font-size", primaryLabelTextSizeEm)
       .attr("fill", "currentColor")
       .attr("dy", ".32em")
       .text(mainDataLabelTextFn);
@@ -481,9 +472,12 @@ function makeBarGraph(
   // Labels: names
   if (isVertical)
   {
+      const primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
+      const secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
+
       eachBar
         .join("text")
-          .attr("class", "dataLabels")
+          .attr("class", "dataLabel")
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
@@ -499,11 +493,15 @@ function makeBarGraph(
             .attr("transform", "rotate(-45)");
   }
   else {
-    svg.append("g")
-        .call(candidatesAxis)
-        .selectAll("text")  
-          .style("text-anchor", "start")
-          .attr("font-size", primaryLabelTextSizeEm);
+      const candidatesAxis = g => g
+            .attr("transform", `translate(20,0)`)
+            .call(d3.axisLeft(candidatesRange).tickSize(0))
+            .call(g => g.selectAll(".domain").remove())
+      svg.append("g")
+          .attr("class", "dataLabel")
+          .call(candidatesAxis)
+        .selectAll(".tick text")
+          .call(magicWordWrap);
   }
 
   if (!isInteractive) {
@@ -609,7 +607,7 @@ function makeBarGraph(
         .attr("fill", barColorFn);
   };
   function transitionDataLabelsForRound() {
-    eachBar.enter().selectAll("text.dataLabels").transition()
+    eachBar.enter().selectAll("text.dataLabel").transition()
         .duration(50)
         .delay(0)
         .attr("display", dataLabelDisplayFor)

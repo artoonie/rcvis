@@ -1,3 +1,5 @@
+import json
+
 from visualizer.jsUtils import approx_length
 
 
@@ -23,7 +25,7 @@ class D3Sankey:
                 continue
 
             nodeIndices[node] = i
-            js += 'graph.nodes.push({ "name": "%s",\n' % node.label
+            js += 'graph.nodes.push({ "name": %s,\n' % json.dumps(node.label)
             js += '                   "round": %d,\n' % node.roundNum
             js += '                   "value": %f,\n' % node.count
             js += '                   "isWinner": %d,\n' % node.isWinner
