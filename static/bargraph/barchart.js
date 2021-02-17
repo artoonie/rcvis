@@ -50,11 +50,17 @@ function makeBarGraph(
   const aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
-      // Limit the horizontal bar size to [40, 70]
+      // Limit the horizontal bar size to [30, 70]
       const maximumHorizontalBarSize = 70;
-      const minimumHorizontalBarSize = 40;
+      const minimumHorizontalBarSize = 20;
       maxHeight = Math.min(maxHeight, numCandidates*maximumHorizontalBarSize);
       maxHeight = Math.max(maxHeight, numCandidates*minimumHorizontalBarSize);
+  }
+
+  // If any of the labels are too long, the max height will be even longer.
+  // Check for that, and ensure it's then at least 40px high.
+  if (namesNeedAnyTwoLineLabels(candidateNames)) {
+      maxHeight = Math.max(numCandidates*40, maxHeight);
   }
 
   const width = maxWidth - margin.left - margin.right,
@@ -455,53 +461,60 @@ function makeBarGraph(
       .attr("data-toggle", "tooltip")
       .attr("title", function(d) { return barTextFn(d); });
 
-  // Labels: vote counts
-  // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
-  // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
-  eachBar
-    .join("text")
-      .attr("class", "dataLabel")
-      .attr(candidatePosStr, barCandidatesDataLabalPosFn)
-      .attr(votesPosStr, barVotesMainDataLabelPosFn)
-      .attr("display", dataLabelDisplayFor)
-      .attr("text-anchor", isVertical ? "middle" : "end")
-      .attr("fill", "currentColor")
-      .attr("dy", ".32em")
-      .text(mainDataLabelTextFn);
-
   // Labels: names
   if (isVertical)
   {
-      const primaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.8);
-      const secondaryLabelTextSizeEm = getMagicTextLabelSize(longestLabelApxWidth, 0.6);
-
-      eachBar
-        .join("text")
-          .attr("class", "dataLabel")
-          .attr(candidatePosStr, barCandidatesDataLabalPosFn)
-          .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
-          .attr("display", dataLabelDisplayFor)
-          .attr("text-anchor", "middle")
-          .attr("font-size", secondaryLabelTextSizeEm)
-          .text(secondaryDataLabelTextFn);
-
+      // Candidate name
       svg.append("g")
           .call(candidatesAxis)
           .selectAll("text")
             .style("text-anchor", "end")
-            .attr("font-size", primaryLabelTextSizeEm)
+            .attr("class", "dataLabel")
             .attr("transform", "rotate(-45)");
+
+      // Labels: vote counts (number)
+      eachBar
+        .join("text")
+          .attr(candidatePosStr, barCandidatesDataLabalPosFn)
+          .attr(votesPosStr, barVotesMainDataLabelPosFn)
+          .attr("display", dataLabelDisplayFor)
+          .attr("text-anchor", isVertical ? "middle" : "end")
+          .attr("fill", "currentColor")
+          .attr("font-size", "0.7em")
+          .text(mainDataLabelTextFn);
+
+      // Label: vote counts (percent)
+      eachBar
+        .join("text")
+          .attr(candidatePosStr, barCandidatesDataLabalPosFn)
+          .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
+          .attr("display", dataLabelDisplayFor)
+          .attr("text-anchor", "middle")
+          .attr("font-size", "0.4em")
+          .text(secondaryDataLabelTextFn);
   }
   else {
-      const candidatesAxis = g => g
-            .attr("transform", `translate(20,0)`)
-            .call(d3.axisLeft(candidatesRange).tickSize(0))
-            .call(g => g.selectAll(".domain").remove())
+      // Labels: candidate names
       svg.append("g")
           .attr("class", "dataLabel")
           .call(candidatesAxis)
         .selectAll(".tick text")
+          .attr("text-anchor", "start")
           .call(magicWordWrap);
+
+      // Labels: vote counts
+      // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
+      // https://github.com/d3/d3-axis/blob/master/src/axis.js#L74
+      eachBar
+        .join("text")
+          .attr("class", "dataLabel")
+          .attr(candidatePosStr, barCandidatesDataLabalPosFn)
+          .attr(votesPosStr, barVotesMainDataLabelPosFn)
+          .attr("display", dataLabelDisplayFor)
+          .attr("text-anchor", isVertical ? "middle" : "end")
+          .attr("fill", "currentColor")
+          .attr("dy", ".32em")
+          .text(mainDataLabelTextFn);
   }
 
   if (!isInteractive) {

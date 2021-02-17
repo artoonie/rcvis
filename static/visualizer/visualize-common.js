@@ -44,19 +44,6 @@ function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes
   return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
 }
 
-function getMagicTextLabelSize(longestLabelApxWidth, scalar=1.0)
-{
-  // I'm really sorry about this. Make the text smaller for very long labels.
-  let candidateAxisTextSizeEm = 2;
-  const maxTextSizeFor2em = 13;
-  if (longestLabelApxWidth > maxTextSizeFor2em)
-  {
-      candidateAxisTextSizeEm /= longestLabelApxWidth/maxTextSizeFor2em;
-  }
-  candidateAxisTextSizeEm *= scalar;
-  return candidateAxisTextSizeEm + "em";
-}
-
 function classNameForDescriptionVerb(verb) {
   /**
    * Returns a class name given the hardcode verb. Must sync with roundDescriber.py.
@@ -85,26 +72,27 @@ function magicWordWrap(text) {
    * 2. If there is a comma, it splits the two lines at the first comma;
    * 3. Otherwise, evenly splits words between the first and second line, or
    * 4. If there is only one, long word, splits that word in half
-   * Input is a container. This function adds <tspan>s to the container.
+   * Input is a <text>. This function adds one or two <tspan>s, replacing
+   * the existing text.
    */
-  const maxNumChars = 25;
   text.each(function() {
     let textElem = d3.select(this),
-      text = textElem.text(),
-      lineHeight = 1.1, // ems
+      text = textElem.text();
+
+    let lineHeight = 1.1, // ems
       y = textElem.attr("y"),
       dy = parseFloat(textElem.attr("dy")),
       tspan = textElem.text(null)
                       .append("tspan")
                       .attr("class", "dataLabel")
-                      .attr("x", 0)
-                      .attr("y", y)
+                      .attr("x", textElem.attr("x"))
+                      .attr("y", textElem.attr("y"))
                       .attr("dy", dy + "em")
-                      .attr("text-anchor", "start")
+                      .attr("text-anchor", textElem.attr("text-anchor"))
                       .text(text);
 
-    // If we need a second line, find a good splitting point.
-    if (text.length < maxNumChars) {
+    // If don't need a second line, stop here
+    if (!needsTwoLines(text)) {
         return;
     }
     let split = splitText(text);
@@ -116,10 +104,10 @@ function magicWordWrap(text) {
     // Create secondary text
     tspan = textElem.append("tspan")
                     .attr("class", "dataLabel secondaryDataLabel")
-                    .attr("x", 0)
-                    .attr("y", y)
+                    .attr("x", textElem.attr("x"))
+                    .attr("y", textElem.attr("y"))
                     .attr("dy", (dy + 0.8*lineHeight) + "em")
-                    .attr("text-anchor", "start")
+                    .attr("text-anchor", textElem.attr("text-anchor"))
                     .text(split[1]);
   });
 }
@@ -150,6 +138,17 @@ function splitText(text) {
     const splitPoint = Math.round(words.length / 2.0);
     return [words.slice(0, splitPoint).join(' '), words.slice(splitPoint).join(' ')];
   }
+}
+
+function namesNeedAnyTwoLineLabels(names) {
+    for (const name of names) {
+       if (needsTwoLines(name)) return true;
+    }
+    return false;
+}
+
+function needsTwoLines(name) {
+    return name.length > 25;
 }
 
 /*
