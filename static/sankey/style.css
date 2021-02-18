@@ -5,7 +5,6 @@
 
 .node text {
   pointer-events: none;
-  text-shadow: white 0px 1px 10px, gray 0px 0px 3px;
   font-size: 0.8em;
 }
 
