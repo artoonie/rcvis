@@ -14,14 +14,14 @@ $('#topbar').attr("style", style);
 
 {% compress js file %}
 <script src="{% static 'sankey/sankey.js' %}"></script>
-<script src="{% static 'sankey/setupHorizontal.js' %}"></script>
-<script src="{% static 'sankey/setupVertical.js' %}"></script>
+<script src="{% static 'sankey/setup-by-orientation.js' %}"></script>
 <script src="{% static 'sankey/sankey-wrapper.js' %}"></script>
 {% endcompress %}
 <script> {{ sankeyjs|safe }} </script>
 <script type="text/javascript">
 if (numRounds > 1)
 {
+  loadFunctions(config.horizontalSankey);
   makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound, config.colorTheme);
 }
 else
