@@ -15,7 +15,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       heightUntilSticky = 200; // how far you scroll down before the top bar "sticks" to the top
   const stickyHysteresis = 180; // How far you scroll back up before the top bar "unsticks"
 
-  const ESTIMATED_CHAR_WIDTH = 15; // yikes this is not correct
+  const ESTIMATED_CHAR_WIDTH = 18; // yikes this is not correct
 
   // set the dimensions and margins of the graph
   // leftPadForHorizontalNames: guess how wide the longest name will be, knowing that the multiline
@@ -40,7 +40,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   let rotationOffset = 0;
   if (config.rotateNames)
   {
-      tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH + 5; // +5 handles one-char names well
+      tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH;
       rotationOffset = config.horizontalSankey ? tmarginLength*.7071067/2.0 : tmarginLength*.7071067;
   }
   else
