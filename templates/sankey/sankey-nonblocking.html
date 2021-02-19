@@ -5,8 +5,8 @@
     <link rel="stylesheet" href="{% static "sankey/style.css" %}">
 {% endcompress %}
 
-<script>
-var style;
+<script type="text/javascript">
+let style;
 if (config.horizontalSankey) style = "position: absolute; width: 0px;";
 else                         style = "width: 100%";
 $('#topbar').attr("style", style);
@@ -17,8 +17,10 @@ $('#topbar').attr("style", style);
 <script src="{% static 'sankey/setup-by-orientation.js' %}"></script>
 <script src="{% static 'sankey/sankey-wrapper.js' %}"></script>
 {% endcompress %}
-<script> {{ sankeyjs|safe }} </script>
+
 <script type="text/javascript">
+{{ sankeyjs|safe }}  // lgtm [js/useless-expression]
+
 if (numRounds > 1)
 {
   loadFunctions(config.horizontalSankey);
