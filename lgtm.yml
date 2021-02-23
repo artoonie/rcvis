@@ -5,3 +5,5 @@ path_classifiers:
     - "docs/*"
   library:
     - "static/localdeps/*"
+  templates:
+    - "templates/*"
