@@ -214,7 +214,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
          })
         .attr("y", function(d) {
               return 60
-         })
+         });
       }
       else
       {
@@ -224,7 +224,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         })
         .attr("y", function(d) {
               return dim0(d) - roundSize0*0.2;
-        })
+        });
       }
       labels.text(function(d) { return "Round " + (d.round+1) });
 

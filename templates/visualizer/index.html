@@ -311,8 +311,6 @@
         recordHistory: false,
         paddingTop: document.getElementById('mainNav').offsetHeight + "px",
         afterLoad: function(origin, destination, direction) {
-          // Lazy-loading of other sections
-          var loadedSection = this;
           if(destination.anchor == 'whatis'){
             loadYoutubeDeferred();
           }

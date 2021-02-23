@@ -1,6 +1,6 @@
 <script type="text/javascript">
 function makeFixedGraph() {
-  {{ bargraphjs|safe }}
+  {{ bargraphjs|safe }}  // lgtm [js/useless-expression]
 
   const numCandidates = candidateVoteCounts.length;
   fixMaxWidthFor('bargraph-fixed-container', numCandidates);

@@ -8,7 +8,7 @@ function simplifyNumber(num)
     tmp /= 1000;
   }
   const units = ["", "k", "m"];
-  let unit_ptr = 0
+  let unit_ptr = 0;
   for (let i = 0; i < Math.min(numCommas, 2); ++i)
   {
       num /= 100;
