@@ -28,11 +28,18 @@ function showTextOnRoundDescriber(description) {
 function descriptionOfCurrRound(round) {
   const roundData = humanFriendlyEventsPerRound[round];
 
-  return roundData.map(function(event) {
+  let roundText = roundData.map(function(event) {
     return event.description;
   }).reduce(function(totalString, currText) {
     return totalString + "\n" + currText;
   }, "");
+
+  // Last round gets a summary, too
+  const numRounds = {{ tabularByRoundInteractive.rounds|length }};
+  if (round == numRounds - 1) {
+    roundText += "{{ humanFriendlySummary|safe }}";
+  }
+  return roundText;
 }
 
 

@@ -217,12 +217,15 @@ class Describer:
             originalSummarizeAsParagraph = self.summarizeAsParagraph
             self.summarizeAsParagraph = True
             winnerText = self._describe_list_of_names(winners, None, "{name} "
-                                                      f"{wereOrWas} elected. ")
+                                                      f"{wereOrWas} elected")
         finally:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 
-        text = f"In this ranked choice voting election, there were {numRounds} rounds, after which "
-        text += winnerText
-        text += "Here's what happened in each round. "
+        if self.summarizeAsParagraph:
+            text = f"In this Ranked Choice Voting election, there were {numRounds} rounds, "\
+                   f"after which {winnerText}. Here's what happened in each round. "
+        else:
+            text = f"After {numRounds} rounds of this Ranked Choice Voting election, "\
+                   f"{winnerText}. Move the slider to see what happened in each round."
 
         return text
