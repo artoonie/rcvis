@@ -1,14 +1,15 @@
-[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
+[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
 
 # RCVIS.com
-This repo is live at [rcvis.com](https://www.rcvis.com).
+See the site in action at [rcvis.com](https://www.rcvis.com).
 
 # Ranked Choice Voting Visualization
-Visualize ranked-choice voting results using d3.js and django.
+Visualize the results of ranked-choice voting elections.
 
-**What is RCV?** RCV allows you to rank your top candidates. As candidates get eliminated, any votes to that candidate get transferred to the voter's next choice.
+**What is RCV?** RCV allows you to have backup options. If your preferred candidate can't win, you still have a say: your vote gets _transferred_ to your next-best pick.
 
-**Why RCV?** RCV is spreading. In an RCV election, you can't spoil votes. Third-party candidates don't waste votes. Similar candidates help each other instead of hurting each other. They're less polarized and more fair. Multi-winner RCV elections mitigate the effects of gerrymandering. For more information, check out [FairVote's guide to the benefits of RCV elections](https://www.fairvote.org/rcv#rcvbenefits).
+**Why RCV?** In an RCV election, you can't spoil votes. Third-party candidates don't waste votes. Similar candidates help each other instead of hurting each other. They're less polarized and more fair. Multi-winner RCV elections mitigate the effects of gerrymandering. For more information, check out [FairVote's guide to the benefits of RCV elections](https://www.fairvote.org/rcv#rcvbenefits).
 
 **Why the visualizer?** In a traditional election, the results are easy to understand: how many votes did each candidate get? In an RCV election, it can be a harder to understand how a candidate one, based on what happens in each round. Our goal is to create a series of visualizations which can work for a variety of audiences on a variety of mediums: print, web, and TV.
 
@@ -64,6 +65,8 @@ To begin serving the website at localhost:8000:
 ```bash
 source .env
 source venv/bin/activate
+python3 manage.py npminstall
+python3 manage.py compress
 python3 manage.py runserver
 ```
 
@@ -107,22 +110,6 @@ You are limited to 1000 requests per hour as an authenticated user.
 
 ## oembed
 RCVIS implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
-
-## Functionality specifics of the Sankey diagram
-We have added a lot of complexity to the Sankey diagram to support elections with many candidates. Let this serve both as a list of specific features, and as a list of manual tests to run whenever modifying the Sankey diagram. (Yes, we have automated integration testing, but not all of these features have integration tests yet.)
-
-- Top bar of candidate names
-    - *Sticky*: On a short screen, when you scroll down far enough, it should become sticky and lock to the top of the page.
-    - *Live Candidates*: The bar should by dynamic based on the candidates shown at the top of the screen, not the very first round.
-    - As you continue to scroll down, the X positions of the candidate names should shift to continue to align with the _Live Candidates_.
-    - Candidates who are not _Live Candidates_ should be removed as you scroll down.
-    - On a skinny screen, when you sideways scroll (particularly when it's _Sticky_), the X position should continue to align with the _Live Candidates_.
-- Drag
-    - Dragging nodes should have both the text and connected links move
-- Long candidate names
-    - Candidate names should not overlap in the top bar. If a candidate name is very long, or a candidate’s number of votes makes its bar short, the name should automatically truncate to ellipses.
-    - When you hover over these ellipses, they should reveal the candidate’s full name
-    - There is an option to have either a horizontal or vertical sankey diagram.
 
 ## Testing
 Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).
