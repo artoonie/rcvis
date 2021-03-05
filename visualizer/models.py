@@ -64,7 +64,7 @@ class JsonConfig(models.Model):
     rotateNames = models.BooleanField(default=True)
     horizontalSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
-    doHideOverflowAndEliminated = models.BooleanField(default=True)
+    doHideOverflowAndEliminated = models.BooleanField(default=False)
     doUseHorizontalBarGraph = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
