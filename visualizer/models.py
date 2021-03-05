@@ -62,15 +62,15 @@ class JsonConfig(models.Model):
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
-    horizontalSankey = models.BooleanField(default=False)
+    horizontalSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
-    doHideOverflowAndEliminated = models.BooleanField(default=False)
+    doHideOverflowAndEliminated = models.BooleanField(default=True)
     doUseHorizontalBarGraph = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
     doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
-    colorTheme = models.IntegerField(choices=ColorTheme.choices, default=0)
+    colorTheme = models.IntegerField(choices=ColorTheme.choices, default=1)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
