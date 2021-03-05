@@ -202,7 +202,7 @@ class Describer:
         """ Returns an array corresponding to the description of each round """
         return [self.describe_round(i) for i in range(self.graph.numRounds)]
 
-    def describe_initial_summary(self):
+    def describe_initial_summary(self, isForVideo):
         """ Summarizes the entire election. """
         summary = self.graph.summarize()
         winners = [winner for round in summary.rounds for winner in round.winnerNames]
@@ -221,7 +221,7 @@ class Describer:
         finally:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 
-        if self.summarizeAsParagraph:
+        if isForVideo:
             text = f"In this Ranked Choice Voting election, there were {numRounds} rounds, "\
                    f"after which {winnerText}. Here's what happened in each round. "
         else:

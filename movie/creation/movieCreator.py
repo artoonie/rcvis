@@ -159,7 +159,7 @@ class SingleMovieCreator():
 
     def _generate_initial_summary(self, roundDescriber):
         """ The first thing we do is show the results. """
-        caption = roundDescriber.describe_initial_summary()
+        caption = roundDescriber.describe_initial_summary(isForVideo=True)
 
         lastRound = self._get_num_rounds() - 1
         return self._generate_clip_with_caption(lastRound, caption)

@@ -39,7 +39,7 @@ def get_data_for_view(config):
 
     roundDescriber = Describer(graph, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
-    humanFriendlySummary = roundDescriber.describe_initial_summary()
+    humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
 
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
