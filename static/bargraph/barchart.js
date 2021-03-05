@@ -10,7 +10,7 @@ function makeBarGraph(args) {
   const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
   const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
   const threshold = args.threshold; // The threshold single value (cannot change over time currently)
-  const doHideSurplusAndEliminated = args.doHideSurplusAndEliminated; // Hide surplus/eliminated?
+  const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
@@ -178,11 +178,19 @@ function makeBarGraph(args) {
       return Math.abs(barVotesSizeHelperFn(d));
   };
   const bgColor = window.getComputedStyle(document.body, null).getPropertyValue('background-color');
-  const eliminatedColor = doHideSurplusAndEliminated ? bgColor : "#CCC";
   function barColorFn(d) {
       if (isEliminatedInteractiveFn(d))
       {
-          return eliminatedColor;
+          if (eliminationBarColor == 0) {
+              return "#CCC";
+          }
+          if (eliminationBarColor == 1) {
+              return bgColor;
+          }
+          if (eliminationBarColor == 2) {
+              const colorOfNextRound = d.numRoundsTilEliminated + 1;
+              return r2h(_interpolateColor(h2r(colors[colorOfNextRound]), h2r("#F0F0F0"), 0.9));
+          }
       }
       else if(isSurplusFn(d))
       {
@@ -198,7 +206,7 @@ function makeBarGraph(args) {
               return colors[d.round];
           else
               // All previous rounds are dimmed
-              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.9))
+              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#FFFFFF"), 0.8))
       }
   };
 

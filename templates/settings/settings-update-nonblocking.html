@@ -1,6 +1,6 @@
 <script>
   for (let key in config) {
-    if (key != 'colorTheme') {
+    if (key != 'colorTheme' && key != 'eliminationBarColor') {
       $("input[name='"+key+"']").prop('checked', config[key]);
     } else {
       $("select[name='"+key+"']").prop('value', config[key]);

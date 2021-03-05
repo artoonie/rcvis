@@ -1073,8 +1073,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             return toc - tic
 
         def is_cache_much_faster():
-            loadWithoutCache = measure_load_time(f"{fn1}?doHideOverflowAndEliminated=on")
-            loadWithCache = measure_load_time(f"{fn1}?doHideOverflowAndEliminated=on")
+            loadWithoutCache = measure_load_time(f"{fn1}?hideSankey=on")
+            loadWithCache = measure_load_time(f"{fn1}?hideSankey=on")
             # Verify that it's at least 2x faster with cache (closer to 5x on
             # selenium, 200x in real life)
             return loadWithoutCache > loadWithCache * 2
