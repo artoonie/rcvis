@@ -78,6 +78,7 @@ class JsonConfig(models.Model):
     doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
     colorTheme = models.IntegerField(choices=ColorTheme.choices, default=1)
     eliminationBarColor = models.IntegerField(choices=EliminationBarColor.choices, default=0)
+    doHideSurplusAndEliminated = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
@@ -99,7 +100,8 @@ class JsonConfig(models.Model):
                 'excludeFinalWinnerAndEliminatedCandidate',
                 'hideDecimals',
                 'colorTheme',
-                'eliminationBarColor']
+                'eliminationBarColor',
+                'doHideSurplusAndEliminated']
 
     def _get_unique_slug(self):
         # loop until the name is unique

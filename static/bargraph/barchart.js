@@ -9,6 +9,7 @@ function makeBarGraph(args) {
   const colors = args.colors; // List of colors, one per round
   const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
   const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
+  const doHideSurplusAndEliminated = args.doHideSurplusAndEliminated; // To only show candidates, not "extra" stuff
   const threshold = args.threshold; // The threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
@@ -20,7 +21,12 @@ function makeBarGraph(args) {
                                                         // where the <rounddescription> is a
                                                         // the humanFriendlyRoundName for that round
 
-  // First, transpose the data into layers
+  // Before doing anything else, remove non-candidate names from the struct
+  if (doHideSurplusAndEliminated) {
+      hideResidualSurplusAndInactiveBallots(candidateVoteCounts);
+  }
+
+  // Transpose the data into d3 layers
   const mappedData = humanFriendlyRoundNames.map(function(roundInfo) {
     return candidateVoteCounts.map(function(d) {
       return {x: d.candidate, y: d[roundInfo]};
@@ -442,6 +448,18 @@ function makeBarGraph(args) {
           }
 
           stackSeries[round_i] = d;
+      }
+  }
+  function hideResidualSurplusAndInactiveBallots(candidateVoteCounts) {
+      let indicesToRemove = [];
+      for (let i = 0; i < candidateVoteCounts.length; ++i) {
+          const candidateName = candidateVoteCounts[i].candidate;
+          if (candidateName == inactiveBallotsString || candidateName == residualSurplusString) {
+              indicesToRemove.push(i);
+          }
+      }
+      for (let i = indicesToRemove.length - 1; i >= 0; --i) {
+          candidateVoteCounts.splice(indicesToRemove[i], 1);
       }
   }
 

@@ -1,3 +1,6 @@
+const residualSurplusString = "Residual Surplus";
+const inactiveBallotsString = "Inactive Ballots";
+
 // Simplify number: e.g. use 1.1k instead of 1,135, 3.2m instead of 3,159,023
 function simplifyNumber(num)
 {
@@ -32,7 +35,7 @@ function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
 function percentToText(candidateName, numVotes, totalVotes)
 {
   // Inactive ballots should not show %
-  if (candidateName == "Inactive Ballots")
+  if (candidateName == inactiveBallotsString)
     return "with no choices left";
 
   const percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
