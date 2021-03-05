@@ -482,6 +482,7 @@ function makeBarGraph(args) {
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, barVotesMainDataLabelPosFn)
           .attr("display", dataLabelDisplayFor)
+          .attr("class", "dataLabel")
           .attr("text-anchor", isVertical ? "middle" : "end")
           .attr("fill", "currentColor")
           .attr("font-size", "0.7em")
