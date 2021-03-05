@@ -1,21 +1,25 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(
-  idOfContainer /* SVG container */,
-  idOfLegend /* id for the legend (fixed)  */,
-  candidateVoteCounts /* List of candidate descriptions, where each list item has
-          keys .candidate for the name, and .<rounddescription> for the # of votes
-          on that round, where the <rounddescription> is a human-friendly description */,
-  humanFriendlyRoundNames /* The human-friendly keys noted above */,
-  totalVotesPerRound /* list of # of active ballots each round */,
-  numRoundsTilWin /* dict mapping winners to the round they won on */,
-  colors /* List of colors, one per round */,
-  longestLabelApxWidth /* How many pixels wide is the longest candidate name? */,
-  isInteractive /* toggles between print-friendly and interactive mode */,
-  threshold /* The threshold single value (cannot change over time currently) */,
-  doHideSurplusAndEliminated /* Hide surplus/eliminated? */,
-  isVertical /* Horizontal or vertical mode? */,
-  doDimPrevRoundColors /* Desaturate previous rounds? No-op on noninteractive */
-) {
+function makeBarGraph(args) {
+  // Unpack the args
+  const idOfContainer = args.idOfContainer; // SVG container
+  const idOfLegend = args.idOfLegend; // id for the legend (fixed) 
+  const humanFriendlyRoundNames = args.humanFriendlyRoundNames; // The human-friendly keys noted above
+  const totalVotesPerRound = args.totalVotesPerRound; // list of # of active ballots each round
+  const numRoundsTilWin = args.numRoundsTilWin; // dict mapping winners to the round they won on
+  const colors = args.colors; // List of colors, one per round
+  const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
+  const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
+  const threshold = args.threshold; // The threshold single value (cannot change over time currently)
+  const doHideSurplusAndEliminated = args.doHideSurplusAndEliminated; // Hide surplus/eliminated?
+  const isVertical = args.isVertical; // Horizontal or vertical mode?
+  const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
+  const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
+                                                        // Each dict has two keys:
+                                                        //  .candidate for the name,
+                                                        //  .<rounddescription> for the vote count,
+                                                        // where the <rounddescription> is a
+                                                        // the humanFriendlyRoundName for that round
+
   // First, transpose the data into layers
   const mappedData = humanFriendlyRoundNames.map(function(roundInfo) {
     return candidateVoteCounts.map(function(d) {
@@ -28,11 +32,11 @@ function makeBarGraph(
   const stackSeries = d3.stack().keys(roundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
-  longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
   const margin = {top: 10, right: 10, bottom: 35, left: 20};
   if(isVertical) {
-      margin.left += longestLabelApxWidth * .707; // Room for candidate name on left
-      margin.bottom += longestLabelApxWidth; // Room for candidate name at bottom
+      const labelWidthCorrected = longestLabelApxWidth * 1.2; // TODO hacky
+      margin.left += labelWidthCorrected * .707; // Room for candidate name on left
+      margin.bottom += labelWidthCorrected; // Room for candidate name at bottom
       margin.top += 20; // Room for data label
   }
   else {
@@ -67,7 +71,7 @@ function makeBarGraph(
         height = maxHeight - margin.top - margin.bottom;
 
   const viewboxWidth = width + margin.left + margin.right;
-  const viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth;
+  const viewboxHeight = height + margin.top + margin.bottom + (isVertical ? longestLabelApxWidth : 0);
   
   const svg = d3.select(idOfContainer)
     .append("svg")

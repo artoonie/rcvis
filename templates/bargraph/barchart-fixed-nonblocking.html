@@ -5,21 +5,22 @@ function makeFixedGraph() {
   const numCandidates = candidateVoteCounts.length;
   fixMaxWidthFor('bargraph-fixed-container', numCandidates);
 
-  const interactive = false;
-  makeBarGraph(
-    "#bargraph-fixed-body" /* idOfContainer */,
-    "#bargraph-fixed-legend" /* idOfLegend */,
+  const isInteractive = false;
+  makeBarGraph({
+    idOfContainer: "#bargraph-fixed-body",
+    idOfLegend: "#bargraph-fixed-legend",
     candidateVoteCounts,
     humanFriendlyRoundNames,
     totalVotesPerRound,
     numRoundsTilWin,
-    colorsPerRound,
+    colors: colorsPerRound,
     longestLabelApxWidth,
-    interactive,
+    isInteractive,
     threshold,
-    config.doHideOverflowAndEliminated,
-    !config.doUseHorizontalBarGraph,
-    config.doDimPrevRoundColors);
+    doHideSurplusAndEliminated: config.doHideOverflowAndEliminated,
+    isVertical: !config.doUseHorizontalBarGraph,
+    doDimPrevRoundColors: config.doDimPrevRoundColors
+  });
 }
 makeFixedGraph();
 </script>
