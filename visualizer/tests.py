@@ -30,6 +30,7 @@ from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException, WebDriverException
+from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
@@ -843,6 +844,11 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         pageWidth = self.browser.execute_script('return $(window).width();')
         return 0 <= elemX < pageWidth
 
+    def _get_each_bargraph_tag(self):
+        """ Returns a list of candidate's tags in the interactive bargraph """
+        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
+        return bargraph.find_elements_by_tag_name('tspan')
+
     def _go_to_tab(self, tabId):
         self.browser.find_elements_by_id(tabId)[0].click()
 
@@ -926,7 +932,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Now let's look at sankey and the tables
         self._upload(FILENAME_THREE_ROUND)
         self._go_to_tab("sankey-tab")
-        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 600], 900)
+        test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 450], 900)
 
         # This one sidescrolls on mobile, it's a fixed size
         self._go_to_tab("single-table-summary-tab")
@@ -972,6 +978,57 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         assert not self._is_visible("sankey-tab")
 
         self._assert_log_len(0)
+
+    def test_setting_hide_surplus_and_inactive(self):
+        """ Ensure that "doHideSurplusAndEliminated" hides these options, only when they exist """
+        def _toggle_option():
+            self._go_to_tab("settings-tab")
+            self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
+            self.browser.find_elements_by_name("doHideSurplusAndEliminated")[1].click()
+            self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+
+        # 5 candidates + residual surplus + inactive ballots visible
+        self._upload(FILENAME_MULTIWINNER)
+        self.assertEqual(len(self._get_each_bargraph_tag()), 7)
+        _toggle_option()
+        self.assertEqual(len(self._get_each_bargraph_tag()), 5)
+
+        # 5 candidates, but nothing changes when toggled
+        self._upload(FILENAME_ONE_ROUND)
+        self.assertEqual(len(self._get_each_bargraph_tag()), 2)
+        _toggle_option()
+        self.assertEqual(len(self._get_each_bargraph_tag()), 2)
+
+    def test_setting_eliminated_colors(self):
+        """ Ensure eliminated color setting can be changed """
+        def _get_eliminated_color():
+            # Move the slider to stop animation
+            self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
+
+            # Get an eliminated bar by its text
+            bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
+            cssSelector = "path[data-original-title=\"On Round 1, has 64 votes (16%)\"]"
+            lastBarInLastRoundList = bargraph.find_elements_by_css_selector(cssSelector)
+            self.assertEqual(len(lastBarInLastRoundList), 1)
+            lastBarInLastRound = lastBarInLastRoundList[0]
+
+            # Get its color
+            return lastBarInLastRound.value_of_css_property("fill")
+
+        self._upload(FILENAME_MULTIWINNER)
+
+        gray = "rgb(204, 204, 204)"
+        self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), gray))
+
+        # Change option to show a dim version of the last-round color
+        self._go_to_tab("settings-tab")
+        self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
+        options = Select(self.browser.find_element_by_id("eliminationBarColor"))
+        options.select_by_index(2)
+        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+
+        notgray = "rgb(238, 237, 241)"
+        self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), notgray))
 
     def test_oembed(self):
         """ Tests the functionality of the oembed feature"""
@@ -1271,8 +1328,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
             too-long filenames are split at sane points """
         self._upload(FILENAME_CRAZY_NAMES)
-        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
-        tags = bargraph.find_elements_by_tag_name('tspan')
+        tags = self._get_each_bargraph_tag()
         expectedTags = [
             "Winner!",
 
