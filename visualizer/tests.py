@@ -980,11 +980,11 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._assert_log_len(0)
 
     def test_setting_hide_surplus_and_inactive(self):
-        """ Ensure that "doHideSurplusAndEliminated" hides these options, only when they exist """
+        """ Test config option doHideInactiveBallotsAndResidualSurplus """
         def _toggle_option():
             self._go_to_tab("settings-tab")
             self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
-            self.browser.find_elements_by_name("doHideSurplusAndEliminated")[1].click()
+            self.browser.find_elements_by_name("doHideInactiveBallotsAndResidualSurplus")[1].click()
             self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
 
         # 5 candidates + residual surplus + inactive ballots visible

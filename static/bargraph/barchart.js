@@ -9,7 +9,7 @@ function makeBarGraph(args) {
   const colors = args.colors; // List of colors, one per round
   const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
   const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
-  const doHideSurplusAndEliminated = args.doHideSurplusAndEliminated; // To only show candidates, not "extra" stuff
+  const doHideInactiveBallotsAndResidualSurplus = args.doHideInactiveBallotsAndResidualSurplus; // To only show candidates, not "extra" stuff
   const threshold = args.threshold; // The threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
@@ -22,7 +22,7 @@ function makeBarGraph(args) {
                                                         // the humanFriendlyRoundName for that round
 
   // Before doing anything else, remove non-candidate names from the struct
-  if (doHideSurplusAndEliminated) {
+  if (doHideInactiveBallotsAndResidualSurplus) {
       hideResidualSurplusAndInactiveBallots(candidateVoteCounts);
   }
 
@@ -76,8 +76,9 @@ function makeBarGraph(args) {
   const width = maxWidth - margin.left - margin.right,
         height = maxHeight - margin.top - margin.bottom;
 
+  const paddingForVertical = (isVertical ? longestLabelApxWidth*2 : 0);
   const viewboxWidth = width + margin.left + margin.right;
-  const viewboxHeight = height + margin.top + margin.bottom + (isVertical ? longestLabelApxWidth : 0);
+  const viewboxHeight = height + margin.top + margin.bottom + paddingForVertical;
   
   const svg = d3.select(idOfContainer)
     .append("svg")
@@ -240,11 +241,6 @@ function makeBarGraph(args) {
       {
           // Eliminated candidates
           return votesRange(0) + offset;
-      }
-      else if (doHideSurplusAndEliminated && isSurplusFn(d))
-      {
-          // Surplus votes that are hidden - go down one bar
-          return startOfBarPlusABit + barVotesSizeFn(d);
       }
 
       return startOfBarPlusABit;
@@ -511,7 +507,7 @@ function makeBarGraph(args) {
           .attr("class", "dataLabel")
           .attr("text-anchor", isVertical ? "middle" : "end")
           .attr("fill", "currentColor")
-          .attr("font-size", "0.7em")
+          .style("font-size", "0.7em")
           .text(mainDataLabelTextFn);
 
       // Label: vote counts (percent)
@@ -520,8 +516,9 @@ function makeBarGraph(args) {
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
+          .attr("class", "dataLabel")
           .attr("text-anchor", "middle")
-          .attr("font-size", "0.4em")
+          .style("font-size", "0.4em")
           .text(secondaryDataLabelTextFn);
   }
   else {
