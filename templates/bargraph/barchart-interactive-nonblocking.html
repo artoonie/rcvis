@@ -53,21 +53,23 @@ function makeInteractiveGraph() {
   fixMaxWidthFor('bargraph-interactive-body', numCandidates);
   // window.onresize = fixMaxWidth; TODO fix moving across monitors for interactive and static
 
-  const interactive = true;
-  transitionEachBarForRound = makeBarGraph(
-    "#bargraph-interactive-body" /* idOfContainer */,
-    null /* idOfLegendOrRoundDescriber */,
+  const isInteractive = true;
+  transitionEachBarForRound = makeBarGraph({
+    idOfContainer: "#bargraph-interactive-body",
+    idOfLegend: null,
     candidateVoteCounts,
     humanFriendlyRoundNames,
     totalVotesPerRound,
     numRoundsTilWin,
-    colorsPerRound,
+    colors: colorsPerRound,
     longestLabelApxWidth,
-    interactive,
+    isInteractive,
     threshold,
-    config.doHideOverflowAndEliminated,
-    !config.doUseHorizontalBarGraph,
-    config.doDimPrevRoundColors);
+    doHideInactiveBallotsAndResidualSurplus: config.doHideInactiveBallotsAndResidualSurplus,
+    eliminationBarColor: config.eliminationBarColor,
+    isVertical: !config.doUseHorizontalBarGraph,
+    doDimPrevRoundColors: config.doDimPrevRoundColors
+  });
 
   function sliderValueChangedCallback(round) {
     transitionEachBarForRound(round);

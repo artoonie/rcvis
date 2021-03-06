@@ -1,22 +1,32 @@
 // Makes a bar graph and returns a function that allows you to animate based on round
-function makeBarGraph(
-  idOfContainer /* SVG container */,
-  idOfLegend /* id for the legend (fixed)  */,
-  candidateVoteCounts /* List of candidate descriptions, where each list item has
-          keys .candidate for the name, and .<rounddescription> for the # of votes
-          on that round, where the <rounddescription> is a human-friendly description */,
-  humanFriendlyRoundNames /* The human-friendly keys noted above */,
-  totalVotesPerRound /* list of # of active ballots each round */,
-  numRoundsTilWin /* dict mapping winners to the round they won on */,
-  colors /* List of colors, one per round */,
-  longestLabelApxWidth /* How many pixels wide is the longest candidate name? */,
-  isInteractive /* toggles between print-friendly and interactive mode */,
-  threshold /* The threshold single value (cannot change over time currently) */,
-  doHideSurplusAndEliminated /* Hide surplus/eliminated? */,
-  isVertical /* Horizontal or vertical mode? */,
-  doDimPrevRoundColors /* Desaturate previous rounds? No-op on noninteractive */
-) {
-  // First, transpose the data into layers
+function makeBarGraph(args) {
+  // Unpack the args
+  const idOfContainer = args.idOfContainer; // SVG container
+  const idOfLegend = args.idOfLegend; // id for the legend (fixed) 
+  const humanFriendlyRoundNames = args.humanFriendlyRoundNames; // The human-friendly keys noted above
+  const totalVotesPerRound = args.totalVotesPerRound; // list of # of active ballots each round
+  const numRoundsTilWin = args.numRoundsTilWin; // dict mapping winners to the round they won on
+  const colors = args.colors; // List of colors, one per round
+  const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
+  const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
+  const doHideInactiveBallotsAndResidualSurplus = args.doHideInactiveBallotsAndResidualSurplus; // To only show candidates, not "extra" stuff
+  const threshold = args.threshold; // The threshold single value (cannot change over time currently)
+  const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
+  const isVertical = args.isVertical; // Horizontal or vertical mode?
+  const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
+  const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
+                                                        // Each dict has two keys:
+                                                        //  .candidate for the name,
+                                                        //  .<rounddescription> for the vote count,
+                                                        // where the <rounddescription> is a
+                                                        // the humanFriendlyRoundName for that round
+
+  // Before doing anything else, remove non-candidate names from the struct
+  if (doHideInactiveBallotsAndResidualSurplus) {
+      hideResidualSurplusAndInactiveBallots(candidateVoteCounts);
+  }
+
+  // Transpose the data into d3 layers
   const mappedData = humanFriendlyRoundNames.map(function(roundInfo) {
     return candidateVoteCounts.map(function(d) {
       return {x: d.candidate, y: d[roundInfo]};
@@ -28,11 +38,11 @@ function makeBarGraph(
   const stackSeries = d3.stack().keys(roundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
-  longestLabelApxWidth *= 1.2; // TODO hacky but deosn't chop data labels
   const margin = {top: 10, right: 10, bottom: 35, left: 20};
   if(isVertical) {
-      margin.left += longestLabelApxWidth * .707; // Room for candidate name on left
-      margin.bottom += longestLabelApxWidth; // Room for candidate name at bottom
+      const labelWidthCorrected = longestLabelApxWidth * 1.2; // TODO hacky
+      margin.left += labelWidthCorrected * .707; // Room for candidate name on left
+      margin.bottom += labelWidthCorrected; // Room for candidate name at bottom
       margin.top += 20; // Room for data label
   }
   else {
@@ -66,8 +76,9 @@ function makeBarGraph(
   const width = maxWidth - margin.left - margin.right,
         height = maxHeight - margin.top - margin.bottom;
 
+  const paddingForVertical = (isVertical ? longestLabelApxWidth*2 : 0);
   const viewboxWidth = width + margin.left + margin.right;
-  const viewboxHeight = height + margin.top + margin.bottom + longestLabelApxWidth;
+  const viewboxHeight = height + margin.top + margin.bottom + paddingForVertical;
   
   const svg = d3.select(idOfContainer)
     .append("svg")
@@ -174,11 +185,19 @@ function makeBarGraph(
       return Math.abs(barVotesSizeHelperFn(d));
   };
   const bgColor = window.getComputedStyle(document.body, null).getPropertyValue('background-color');
-  const eliminatedColor = doHideSurplusAndEliminated ? bgColor : "#CCC";
   function barColorFn(d) {
       if (isEliminatedInteractiveFn(d))
       {
-          return eliminatedColor;
+          if (eliminationBarColor == 0) {
+              return "#CCC";
+          }
+          if (eliminationBarColor == 1) {
+              return bgColor;
+          }
+          if (eliminationBarColor == 2) {
+              const colorOfNextRound = d.numRoundsTilEliminated + 1;
+              return r2h(_interpolateColor(h2r(colors[colorOfNextRound]), h2r("#F0F0F0"), 0.9));
+          }
       }
       else if(isSurplusFn(d))
       {
@@ -194,7 +213,7 @@ function makeBarGraph(
               return colors[d.round];
           else
               // All previous rounds are dimmed
-              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#F0F0F0"), 0.9))
+              return r2h(_interpolateColor(h2r(colors[d.round]), h2r("#FFFFFF"), 0.8))
       }
   };
 
@@ -222,11 +241,6 @@ function makeBarGraph(
       {
           // Eliminated candidates
           return votesRange(0) + offset;
-      }
-      else if (doHideSurplusAndEliminated && isSurplusFn(d))
-      {
-          // Surplus votes that are hidden - go down one bar
-          return startOfBarPlusABit + barVotesSizeFn(d);
       }
 
       return startOfBarPlusABit;
@@ -432,6 +446,18 @@ function makeBarGraph(
           stackSeries[round_i] = d;
       }
   }
+  function hideResidualSurplusAndInactiveBallots(candidateVoteCounts) {
+      let indicesToRemove = [];
+      for (let i = 0; i < candidateVoteCounts.length; ++i) {
+          const candidateName = candidateVoteCounts[i].candidate;
+          if (candidateName == inactiveBallotsString || candidateName == residualSurplusString) {
+              indicesToRemove.push(i);
+          }
+      }
+      for (let i = indicesToRemove.length - 1; i >= 0; --i) {
+          candidateVoteCounts.splice(indicesToRemove[i], 1);
+      }
+  }
 
   let candidatePosStr, votesPosStr, candidateSizeStr, votesSizeStr;
   if (isVertical) {
@@ -478,9 +504,10 @@ function makeBarGraph(
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, barVotesMainDataLabelPosFn)
           .attr("display", dataLabelDisplayFor)
+          .attr("class", "dataLabel")
           .attr("text-anchor", isVertical ? "middle" : "end")
           .attr("fill", "currentColor")
-          .attr("font-size", "0.7em")
+          .style("font-size", "0.7em")
           .text(mainDataLabelTextFn);
 
       // Label: vote counts (percent)
@@ -489,8 +516,9 @@ function makeBarGraph(
           .attr(candidatePosStr, barCandidatesDataLabalPosFn)
           .attr(votesPosStr, function(d) { return barVotesMainDataLabelPosFn(d) + 10})
           .attr("display", dataLabelDisplayFor)
+          .attr("class", "dataLabel")
           .attr("text-anchor", "middle")
-          .attr("font-size", "0.4em")
+          .style("font-size", "0.4em")
           .text(secondaryDataLabelTextFn);
   }
   else {

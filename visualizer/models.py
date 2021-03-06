@@ -15,6 +15,13 @@ class ColorTheme(models.IntegerChoices):
     ALTERNATING = 2, _('Alternating colors')
 
 
+class EliminationBarColor(models.IntegerChoices):
+    """ Describes the status of movie generation for this model """
+    GRAY = 0, _('Gray')
+    HIDDEN = 1, _('Hidden')
+    LAST_ROUND_COLOR = 2, _('Same color of transfer')
+
+
 class MovieGenerationStatuses(models.IntegerChoices):
     """ Describes the status of movie generation for this model """
     NOT_REQUESTED = 0, _('No movie generation has been requested')
@@ -62,15 +69,16 @@ class JsonConfig(models.Model):
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
-    horizontalSankey = models.BooleanField(default=False)
+    horizontalSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
-    doHideOverflowAndEliminated = models.BooleanField(default=False)
     doUseHorizontalBarGraph = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
     doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
-    colorTheme = models.IntegerField(choices=ColorTheme.choices, default=0)
+    colorTheme = models.IntegerField(choices=ColorTheme.choices, default=1)
+    eliminationBarColor = models.IntegerField(choices=EliminationBarColor.choices, default=0)
+    doHideInactiveBallotsAndResidualSurplus = models.BooleanField(default=False)
 
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
@@ -84,7 +92,6 @@ class JsonConfig(models.Model):
                 'rotateNames',
                 'horizontalSankey',
                 'onlyShowWinnersTabular',
-                'doHideOverflowAndEliminated',
                 'doUseHorizontalBarGraph',
                 'doUseDescriptionInsteadOfTimeline',
                 'hideSankey',
@@ -92,7 +99,9 @@ class JsonConfig(models.Model):
                 'doDimPrevRoundColors',
                 'excludeFinalWinnerAndEliminatedCandidate',
                 'hideDecimals',
-                'colorTheme']
+                'colorTheme',
+                'eliminationBarColor',
+                'doHideInactiveBallotsAndResidualSurplus']
 
     def _get_unique_slug(self):
         # loop until the name is unique

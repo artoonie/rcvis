@@ -9,6 +9,7 @@ from .models import JsonConfig
 class JsonConfigForm(forms.ModelForm):
     """ Used by the upload form """
     colorTheme = forms.IntegerField(required=False)
+    eliminationBarColor = forms.IntegerField(required=False)
 
     class Meta:
         """ Metadata is all we need here """
