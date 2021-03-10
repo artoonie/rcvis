@@ -221,11 +221,16 @@ class Describer:
         finally:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 
+        if len(winners) > 1:
+            electionType = "Multi-Winner Ranked Choice Voting election"
+        else:
+            electionType = "Ranked Choice Voting election"
+
         if isForVideo:
-            text = f"In this Ranked Choice Voting election, there were {numRounds} rounds, "\
+            text = f"In this {electionType}, there were {numRounds} rounds, "\
                    f"after which {winnerText}. Here's what happened in each round. "
         else:
-            text = f"After {numRounds} rounds of this Ranked Choice Voting election, "\
+            text = f"After {numRounds} rounds of this {electionType}, "\
                    f"{winnerText}. Move the slider to see what happened in each round."
 
         return text
