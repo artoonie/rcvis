@@ -102,10 +102,12 @@ function makeBarGraph(args) {
   addMetadataToEachBar();
 
   // Set x, y and colors
+  let maxVotesToShow = d3.max(stackSeries, d => d3.max(d, d => d[1]));
+  maxVotesToShow = Math.max(maxVotesToShow, threshold);
   const candidatesDomain = d3.scaleBand()
         .domain(candidateNames)
   const votesDomain = d3.scaleLinear()
-        .domain([0, d3.max(stackSeries, d => d3.max(d, d => d[1]))]);
+        .domain([0, maxVotesToShow]);
 
   let votesRange, candidatesRange;
   if (isVertical) {

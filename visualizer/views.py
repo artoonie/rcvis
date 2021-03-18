@@ -71,6 +71,7 @@ class Upload(CreateView):
             self.model.save()
 
         except BadJSONError:
+            print(traceback.format_exc())
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
             context = {'debugInfo': traceback.format_exc()}
