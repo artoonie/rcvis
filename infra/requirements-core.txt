@@ -20,7 +20,7 @@ pylint==2.5.3
 pylint-django==2.2.0
 
 # For django-rest
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 drf-api-tracking==1.7.8
 markdown==3.2.2
 
