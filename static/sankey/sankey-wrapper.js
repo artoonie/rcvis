@@ -6,7 +6,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   const linkPadding = 60
   const roundSize0 = nodeSize0 + nodePadding + linkPadding
   const totalSize0 = numRounds * roundSize0
-  const idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*30
+  const idealTotalSize1 = Math.min(numCandidates,5)*avgNodeSize1 + Math.max(numCandidates-5,0)*avgNodeSize1
   const disableMagicTopBar = true; // TODO figure out how to scale properly with responsive SVG
   let heightUntilSticky;
   if (disableMagicTopBar)
@@ -268,6 +268,9 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   }
 
   function makeRound1SpecialLabel(topbarG) {
+     // Remove the special round 1 label
+     d3.selectAll(".roundLabels").filter((d) => d.round == 0).remove();
+
      // First round is above the sankey SVG so needs to be handled specially
      const round1Label = topbarG.append("g").
         append("text")
@@ -359,6 +362,7 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   const sticky = topbarDiv.offsetTop + heightUntilSticky;
   const bodyMargin = getBodyMarginInt()
   makeGraph(graph);
+
   const topbarG = makeTopBar(graph);
   if (!config.horizontalSankey) {
     const round1SpecialLabel = makeRound1SpecialLabel(topbarG);
@@ -368,4 +372,13 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
     }
     populateTopBarFor(topbarG, 0)
   }
+}
+
+function fitSankeyViewboxToContents() {
+  // Hack: the sankey isn't always drawn fully inside the viewbox since we make a lot of guesses.
+  // This takes the "close enough" and fixes is to actually wrap the sankey.
+  const svg = document.getElementById('sankey-svg');
+  const bbox = svg.getBBox()
+  const p = 10; // padding
+  svg.setAttribute("viewBox", (bbox.x-p) + " " + (bbox.y-p) + " " + (bbox.width+p) + " " + (bbox.height+p));
 }

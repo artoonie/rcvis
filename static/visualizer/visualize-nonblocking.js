@@ -34,6 +34,11 @@ function goToTab(newTabName) {
   history.pushState(null,null,'#' + newTabName);
 
   animateIfNeeded(newTabName);
+
+  // Sankey wants a special resize
+  if (newTabName == 'sankey') {
+    fitSankeyViewboxToContents();
+  }
 }
 
 function animationForBarchartCompleted() {
