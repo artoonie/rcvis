@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@artoonie/timeline-range-slider": "^0.1.10"
+    "@artoonie/timeline-range-slider": "^0.1.11"
   },
   "devDependencies": {
     "jquery": "^3.2.1",
