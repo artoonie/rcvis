@@ -53,6 +53,16 @@ svg {
 .timeline-info {
   max-width: 400px;
 }
+.embedded-footer {
+  background: linear-gradient(0deg, aliceblue, transparent);
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding: 10px;
+}
+#embedded_body {
+  margin-left: 10px;
+  margin-right: 10px;
+}
 
 @media only screen and (max-width: 1200px) {
   /* first reduce font size */
