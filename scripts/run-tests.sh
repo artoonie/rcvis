@@ -8,7 +8,7 @@ trap "kill $SC_PID" EXIT
 
 # Run tests
 python3 manage.py compress
-python3 manage.py test
+python3 manage.py test --parallel 4
 bash <(curl -s https://codecov.io/bash) >/dev/null
 
 # Code quality

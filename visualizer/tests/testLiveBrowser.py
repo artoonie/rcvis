@@ -1,11 +1,7 @@
 """
-Unit and integration tests for the core visualizer app
+Integration tests with a live browser running the site
 """
 
-# pylint: disable=too-many-lines
-
-from enum import Enum
-from io import StringIO
 import json
 import os
 import platform
@@ -13,19 +9,10 @@ import re
 import time
 from datetime import datetime
 from urllib.parse import urlparse
-from mock import patch
 
-from django.core.cache import cache
-from django.core.files import File
-from django.core.management import call_command
-from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import TestCase, TransactionTestCase
-from django.test.client import RequestFactory
+from django.core.cache import cache
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework_tracking.models import APIRequestLog
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -34,639 +21,12 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
-from common.viewUtils import get_data_for_view
-from visualizer.graph.graphCreator import BadJSONError
-from visualizer.graph.graphCreator import make_graph_with_file
-from visualizer.views import Oembed
 from visualizer.models import JsonConfig
-from visualizer.forms import JsonConfigForm
-from visualizer.wikipedia.wikipedia import WikipediaExport
+from visualizer.tests import filenames
 
-FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
-FILENAME_OPAVOTE = 'testData/opavote-fairvote.json'
-FILENAME_BROKEN_RANKIT_1 = 'testData/rankit-malformed-1.json'
-FILENAME_BROKEN_RANKIT_2 = 'testData/rankit-malformed-2.json'
-FILENAME_CRAZY_NAMES = 'testData/candidateNameTesting.json'
-FILENAME_BAD_DATA = 'testData/test-baddata.json'
-FILENAME_ONE_ROUND = 'testData/oneRound.json'
-FILENAME_THREE_ROUND = 'testData/medium-rcvis.json'
-FILENAME_ELECTIONBUDDY = 'testData/electionbuddy.csv'
-FILENAME_ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
-FILENAME_ELECTIONBUDDY_REGRESSION = 'testData/electionbuddy-regression.csv'
 CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 TestHelpers.silence_logging_spam()
-
-
-class SimpleTests(TestCase):
-    """ Simple tests that do not require a live browser """
-
-    def setUp(self):
-        TestHelpers.setup_host_mocks(self)
-
-    @classmethod
-    def _get_data_for_view(cls, fn):
-        """ Opens the given file and creates a graph with it """
-        with open(fn, 'r+') as f:
-            config = JsonConfig(jsonFile=File(f))
-            return get_data_for_view(config)
-
-    def test_opavote_loads(self):
-        """ Opens the opavote file """
-        self._get_data_for_view(FILENAME_OPAVOTE)
-
-    def test_electionbuddy_loads(self):
-        """ Opens the electionbuddy file """
-        self._get_data_for_view(FILENAME_ELECTIONBUDDY)
-        self._get_data_for_view(FILENAME_ELECTIONBUDDY_NOABSTENTION)
-        self._get_data_for_view(FILENAME_ELECTIONBUDDY_REGRESSION)
-
-    def test_multiwinner_loads(self):
-        """ Opens the multiwinner file """
-        self._get_data_for_view(FILENAME_MULTIWINNER)
-
-    def test_rankit_loads(self):
-        """ Opens a rankit.vote file -
-            should be the same as Universal Tabulator but has failed in the past """
-        # Uses FixRankitMissingTransfers,
-        #      FixRankitCombinedTallyResults,
-        #      FixRankitNoElimOnLastRound
-        self._get_data_for_view(FILENAME_BROKEN_RANKIT_1)
-
-        # Uses FixRankitMissingWinners
-        self._get_data_for_view(FILENAME_BROKEN_RANKIT_2)
-
-    def test_bad_json_fails(self):
-        """ Opens the invalid file and asserts that it fails """
-        with self.assertRaises(BadJSONError):
-            self._get_data_for_view(FILENAME_BAD_DATA)
-
-    def test_too_long_name_fails(self):
-        """ Titles are limited to 256 chars """
-        # Write bad data
-        tf = TestHelpers.copy_with_new_name(FILENAME_MULTIWINNER, 'x' * 300)
-
-        # Ensure failure
-        response = self.client.post('/upload.html', {'jsonFile': tf})
-        self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
-
-        # Though, note: get_data_for_view won't fail
-        self._get_data_for_view(tf.name)
-
-        # Write good data
-        tf = TestHelpers.copy_with_new_name(FILENAME_MULTIWINNER, 'x' * 200)
-
-        # Ensure success
-        response = self.client.post('/upload.html', {'jsonFile': tf})
-        self.assertEqual(response.status_code, 302)
-
-    def test_too_long_filename_succeed(self):
-        """ TODO: Make this test check that a filename with 255 chars gets truncated """
-        # Annoyingly this test doesn't work with a filename prefix > 87 chars
-        tf = TestHelpers.copy_with_new_name(
-            FILENAME_MULTIWINNER,
-            newName='any name',
-            newFilenamePrefix='x' * 87)
-        response = self.client.post('/upload.html', {'jsonFile': tf})
-        self.assertEqual(response.status_code, 302)
-        lastUpload = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
-        self.assertLess(len(lastUpload.slug), 100)
-
-    # pylint: disable=R0201
-    def test_various_configs(self):
-        """ Tests toggling on/off each config option """
-        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t != 'jsonFile']
-        fn = FILENAME_MULTIWINNER
-        for configBoolToToggle in configBoolsToToggle:
-            with open(fn, 'r+') as f:
-                config = JsonConfig(jsonFile=File(f))
-                config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
-                get_data_for_view(config)
-
-    def test_home_page(self):
-        """ Tests that the home page loads """
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200)
-
-    def test_upload_file(self):
-        """ Tests uploading a random file """
-        response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
-
-    def test_upload_file_failure(self):
-        """ Tests that we get an error page if a file fails to upload """
-        with open(FILENAME_BAD_DATA) as f:
-            response = self.client.post('/upload.html', {'jsonFile': f})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
-
-    def test_large_file_failure(self):
-        """ Tests that we get an error page if a the file is too large """
-        # First test it succeeds when it's an okay filesize
-        # Caution, don't try to make this file huge or close to the limits, it'll slow
-        # down the tests trying to load ~2mb of data...
-        acceptableSizeJson = TestHelpers.generate_random_valid_json_of_size(
-            1024 * 1024 * 0.1)  # 0.1 MB
-        with open(acceptableSizeJson) as f:
-            response = self.client.post('/upload.html', {'jsonFile': f})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], "v/randomfile")
-
-        # Then verify it fails with a too-large filesize
-        tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
-        with open(tooLargeJson) as f:
-            response = self.client.post('/upload.html', {'jsonFile': f})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
-
-    def test_old_style_urls(self):
-        """ Ensure both /v/slug and /visualize=slug work """
-        def ensure_url_uses_template(url, template):
-            """ Helper function to ensure the given URL matches the template """
-            response = self.client.get("/" + url)
-            self.assertTemplateUsed(response, f'visualizer/{template}.html')
-
-        response = TestHelpers.get_multiwinner_upload_response(self.client)
-        uploadedUrl = response['location']
-
-        # New style - visualize
-        ensure_url_uses_template(uploadedUrl, 'visualize')
-
-        # Old style - visualize
-        oldStyleUrl = uploadedUrl.replace('v/', 'visualize=')
-        ensure_url_uses_template(oldStyleUrl, 'visualize')
-
-        # New style - embedded
-        embedUrl = uploadedUrl.replace('v/', 've/')
-        ensure_url_uses_template(embedUrl, 'visualize-embedded')
-
-        # Old style - embedded
-        oldStyleEmbedUrl = uploadedUrl.replace('v/', 'visualizeEmbedded=')
-        ensure_url_uses_template(oldStyleEmbedUrl, 'visualize-embedded')
-
-    def test_oembed_converts_url(self):
-        """ Check that the oembed converts a visualize URL to a visualizeEmbedded URL """
-        # First unit tests
-        view = Oembed()
-        func = view._get_visualize_embedded_url_from  # pylint:disable=protected-access
-        allowedUrls = ['https://fakeurl.com/visualize=fakeslug',
-                       'https://fakeurl.com/visualizeEmbedded=fakeslug',
-                       'https://fakeurl.com/v/fakeslug',
-                       'https://fakeurl.com/v/fakeslug?a=b',
-                       'https://fakeurl.com/ve/fakeslug',
-                       'https://fakeurl.com/visualizeMovie=fakeslug']
-        for allowedUrl in allowedUrls:
-            self.assertEqual(func(allowedUrl), '/ve/fakeslug')
-        disallowedUrls = ['https://fakeurl.com/oembed=fakeslug',
-                          'https://fakeurl.com/visualize=',
-                          'https://fakeurl.com/ve/']
-        for disallowedUrl in disallowedUrls:
-            self.assertEqual(func(disallowedUrl), None)
-
-        # Then integration tests for the View.
-        # Create a fake request
-        visualizeUrl = reverse('visualize', args=('fakeslug',))
-        requestData = {'url': 'https://fakeurl.com' + visualizeUrl}
-        request = RequestFactory().get(reverse('oembed'), requestData, HTTP_HOST='example.com')
-
-        # Get the response
-        jsonResponse = Oembed().get(request)
-        responseData = json.loads(jsonResponse.content)
-
-        # Validate the response - this time the complete URL is needed
-        assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
-
-    def test_oembed_keeps_vistype(self):
-        """ Ensure vistype is shepharded from visualize to visualizembedded via oembed """
-        TestHelpers.get_multiwinner_upload_response(self.client)
-        slug = JsonConfig.objects.latest('-id').slug
-        visualizeUrl = reverse('visualize', args=(slug,)) + "?vistype=sankey"
-        response = self.client.get(visualizeUrl)
-
-        assert 'sankey' in response.context_data['oembed_url']
-
-    @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
-    def test_wikicode(self, mockGetDateString):
-        """ Validate that the wikicode can be generated and hasn't inadvertently changed """
-        # First mock out the date so the result is the same
-        mockGetDateString.return_value = "Today's Date - mocked out!"
-
-        with open(FILENAME_MULTIWINNER, 'r+') as f:
-            graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
-
-        text = WikipediaExport(graph, "http://example.com/v/slug").create_wikicode()
-
-        # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
-        # validate syntax. For now, just validate it doesn't throw an exception, and that the
-        # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4094
-        self.assertEqual(len(text), magicKnownTextLength)
-        with open('testData/wikiOutput.txt', 'r') as f:
-            self.maxDiff = None
-            # Note: add \n to end of text because the file should be saved with \n
-            self.assertEqual(text + '\n', f.read())
-
-        # Ensure at least the text closes correctly
-        assert text[-2:] == "|}"
-
-    def test_electionbuddy_data_is_sane(self):
-        """ Validates some data about the electionbuddy file """
-        with open(FILENAME_ELECTIONBUDDY, 'r+') as f:
-            graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
-        summary = graph.summarize()
-        assert len(summary.rounds) == 3
-        assert len(summary.candidates) == 4
-        assert len(summary.rounds[0].eliminatedNames) == 0
-        assert len(summary.rounds[0].winnerNames) == 1
-        assert summary.rounds[1].eliminatedNames[0] == 'Nobody'
-        assert summary.rounds[2].eliminatedNames[0] == 'Chocolate'
-        assert summary.rounds[0].winnerNames[0] == 'Strawberry'
-        assert summary.rounds[2].winnerNames[0] == 'Vanilla'
-
-    def test_uniqueness(self):
-        """ Ensures filenames are not overwritten """
-        slug0 = "macomb-multiwinner-surplus"
-        slug1 = "macomb-multiwinner-surplus-1"
-
-        response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], f"v/{slug0}")
-
-        response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], f"v/{slug1}")
-
-        model0 = JsonConfig.objects.get(slug=slug0)
-        model1 = JsonConfig.objects.get(slug=slug1)
-
-        assert model0.jsonFile.name != model1.jsonFile.name
-
-    def test_management_commands(self):
-        """ Test that the management tests work """
-        # Upload two files
-        TestHelpers.get_multiwinner_upload_response(self.client)
-        TestHelpers.get_multiwinner_upload_response(self.client)
-
-        # Load those two via the database
-        out = StringIO()
-        call_command('checkUploads', 0, 100, stdout=out)
-        self.assertIn('0: Successfully loaded macomb-multiwinner-surplus-1', out.getvalue())
-        self.assertIn('1: Successfully loaded macomb-multiwinner-surplus', out.getvalue())
-        self.assertIn('Successfully loaded configs', out.getvalue())
-
-        # Load all files in the testData/ directory (one of which raises a TypeError)
-        out = StringIO()
-        with self.assertRaises(TypeError):
-            call_command('checkLocalFiles', 'testData/', stdout=out)
-
-
-class ModelDeletionTests(TransactionTestCase):
-    """ Testing model deletion requires a different base class:
-        docs.djangoproject.com/en/3.0/topics/db/transactions/#use-in-tests
-    """
-
-    def setUp(self):
-        TestHelpers.setup_host_mocks(self)
-
-    def test_file_deletion_on_model_deletion(self):
-        """ Verify that when a model is deleted, the associated file is too """
-        # Upload
-        with open(FILENAME_MULTIWINNER) as f:
-            self.client.post('/upload.html', {'jsonFile': f})
-        uploadedObject = TestHelpers.get_latest_json_config()
-
-        # Ensure it exists
-        path = uploadedObject.jsonFile.path
-        assert os.path.exists(path)
-
-        # Delete it
-        uploadedObject.delete()
-
-        # Ensure the file was also deleted
-        assert not os.path.exists(path)
-
-
-class RestAPITests(APITestCase):
-    """ Tests for the REST API """
-
-    def setUp(self):
-        # Create an admin user programmatically
-        admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
-        admin.is_staff = True
-        admin.save()
-
-        # Create a regular user programmatically
-        admin = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
-        admin.is_staff = False
-        admin.save()
-
-        TestHelpers.setup_host_mocks(self)
-
-    def _authenticate_as(self, username):
-        cache.clear()
-        if not username:
-            self.client.force_authenticate()  # pylint: disable=no-member
-        else:
-            user = get_user_model().objects.get(username=username)
-            self.client.force_authenticate(user=user)   # pylint: disable=no-member
-
-    def _upload_file_for_api(self, filename):
-        with open(filename) as f:
-            return self.client.post('/api/visualizations/', data={'jsonFile': f})
-
-    # This test has a lot of helper functions, allow it to be longer
-    # pylint: disable=too-many-statements
-    def test_permissions(self):
-        """ Test the permissions of several API calls on logged in, logged out, and admin users """
-        class Users(Enum):
-            """ What the users permission levels are """
-            ADMIN = 0
-            NOT_ADMIN = 1
-            LOGGED_OUT = 2
-
-        class Models(Enum):
-            """ What models to act upon """
-            USERS = 0
-            JSONS = 1
-
-        class Actions(Enum):
-            """ What actions to take, here corresponding to GET and POST """
-            LIST = 0
-            MAKE = 1
-
-        def authenticate_as(user):
-            if user == Users.ADMIN:
-                self._authenticate_as('admin')
-            elif user == Users.NOT_ADMIN:
-                self._authenticate_as('notadmin')
-            else:
-                self._authenticate_as(None)
-
-        def initialize_permission_matrix():
-            # Initialize with a loop to ensure nothing falls through the cracks
-            permissionMatrix = {}
-            for user in Users:
-                permissionMatrix[user] = {}
-                for model in Models:
-                    permissionMatrix[user][model] = {}
-                    for action in Actions:
-                        permissionMatrix[user][model][action] = None
-
-            adminUser = permissionMatrix[Users.ADMIN]
-            adminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
-            adminUser[Models.USERS][Actions.LIST] = status.HTTP_200_OK
-            adminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
-            adminUser[Models.USERS][Actions.MAKE] = status.HTTP_405_METHOD_NOT_ALLOWED
-
-            notAdminUser = permissionMatrix[Users.NOT_ADMIN]
-            notAdminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
-            notAdminUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
-            notAdminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
-            notAdminUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
-
-            loggedOutUser = permissionMatrix[Users.LOGGED_OUT]
-            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
-            loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
-            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
-            loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
-
-            return permissionMatrix
-
-        def run_command(model, action):
-            # Get URL
-            modelToUrl = {Models.USERS: '/api/users/',
-                          Models.JSONS: '/api/visualizations/'}
-            actionToCommand = {Actions.LIST: self.client.get,
-                               Actions.MAKE: self.client.post}
-
-            # Get the URL and function call (command)
-            url = modelToUrl[model]
-            command = actionToCommand[action]
-
-            # Get the data
-            if action == Actions.LIST:
-                # No data needed to GET
-                data = {}
-            elif model == Models.USERS:
-                # Username/Pass to create a USER (thought this will never succeed)
-                data = {"username": "user", "password": "pass"}
-            else:
-                # Special case: Upload a JSON here
-                # (because we want to contain the file pointer within the with statement)
-                with open(FILENAME_MULTIWINNER) as f:
-                    return command(url, data={'jsonFile': f})
-
-            return command(url, data=data, format="json")
-
-        permissionMatrix = initialize_permission_matrix()
-        for user in permissionMatrix:
-            authenticate_as(user)
-            for model in permissionMatrix[user]:
-                for action in permissionMatrix[user][model]:
-                    response = run_command(model, action)
-                    expectedStatus = permissionMatrix[user][model][action]
-
-                    # If it's not, print out a more helpful message
-                    try:
-                        self.assertEqual(response.status_code, expectedStatus)
-                    except Exception:
-                        print(f"Permissions are incorrect for {user}, {model}, {action}")
-                        print(response.content)
-                        raise
-
-    def test_list_models(self):
-        """ Honestly, just a weaker version of test_permissions with perhaps more clarity
-            and therefore a less bug-prone test """
-
-        # Log out / unauthenticate
-        self._authenticate_as(None)
-
-        # Not allowed to list users
-        response = self.client.get('/api/users/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-        # Not allowed to list jsons
-        response = self.client.get('/api/visualizations/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-        # Admins can see all pages
-        self._authenticate_as('admin')
-        response = self.client.get('/api/visualizations/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/api/users/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-        # Notadmins can see and upload visualizations
-        self._authenticate_as('notadmin')
-        response = self.client.get('/api/visualizations/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get('/api/users/', format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_put_with_no_file(self):
-        """ Checks that you can't try to create something without a jsonFile """
-        self._authenticate_as('admin')
-
-        with open(FILENAME_MULTIWINNER) as f:
-            response = self.client.post('/api/visualizations/', data={'jsonFizzile': f})
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_superfluous_fields(self):
-        """ Checks that no extra fields are allowed """
-        self._authenticate_as('admin')
-
-        with open(FILENAME_MULTIWINNER) as f:
-            # The regular way
-            response = self.client.post('/api/visualizations/', data={'jsonFile': f})
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-            # Sanity check seeking to start of file
-            f.seek(0)
-            response = self.client.post('/api/visualizations/', data={'jsonFile': f})
-            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-            # Nonexistent field
-            f.seek(0)
-            response = self.client.post('/api/visualizations/', data={'jsonFile': f, 'tt': 0})
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-            # Read-only field (generated by Model)
-            f.seek(0)
-            response = self.client.post('/api/visualizations/', data={'jsonFile': f, 'slug': 'hi'})
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-            # Read-only field (generated by Serializer)
-            f.seek(0)
-            response = self.client.post(
-                '/api/visualizations/',
-                data={
-                    'jsonFile': f,
-                    'numRounds': 2})
-            self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_uploads_and_edits(self):
-        """ Upload and edit a json in various ways """
-        self._authenticate_as('notadmin')
-
-        # Working data
-        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        # Bad data
-        response = self._upload_file_for_api(FILENAME_BAD_DATA)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # More bad data - too long filename
-        tf = TestHelpers.copy_with_new_name(FILENAME_MULTIWINNER, 'x' * 300)
-        response = self._upload_file_for_api(tf.name)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # Get the working data we just uploaded
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
-        self.assertEqual(oneRoundObject.owner.username, 'notadmin')
-        self.assertEqual(oneRoundObject.hideSankey, False)
-
-        # Get the URL and data on which to modify this
-        url = f'/api/visualizations/{oneRoundObject.id}/'
-        editedData = {'hideSankey': True}
-
-        # Put should fail with the incomplete data
-        response = self.client.put(url, format='json', data=editedData)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # Patch should fail with config changes
-        # TODO eventually allow this again - should be allowed to change config
-        response = self.client.patch(url, format='json', data=editedData)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        # Patch should also succeed with a JSON change
-        with open(FILENAME_MULTIWINNER) as f:
-            response = self.client.patch(url, data={'jsonFile': f})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        response = self.client.get(url, format='json')
-        filenameBasename = os.path.splitext(os.path.basename(FILENAME_MULTIWINNER))[0]
-        assert filenameBasename in response.data['jsonFile']
-        self.assertEqual(response.data['title'], "City of Eastpointe, Macomb County, MI")
-
-        # But changing the owner is not allowed
-        notadminId = get_user_model().objects.all().filter(username='notadmin')[0].id
-        response = self.client.patch(url, data={'owner': notadminId - 1})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        reResult = re.match('.*/api/users/([0-9]*)', response.data['owner'])
-        ownerId = reResult.groups()[0]
-        self.assertEqual(ownerId, str(notadminId))
-
-        # Changing the slug is an error
-        originalSlug = response.data['slug']
-        response = self.client.patch(url, data={'slug': 'notthis'})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        response = self.client.get(url)
-        assert response.data['slug'] == originalSlug
-
-        # And not even an admin can edit someone else's data
-        self._authenticate_as('admin')
-        response = self.client.patch(url, format='json', data=editedData)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-
-    def test_large_file_fails(self):
-        """ Ensure that large files fail via the API as well """
-        self._authenticate_as('notadmin')
-        response = self._upload_file_for_api(
-            TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3))  # 3mb
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_oembed_returns(self):
-        """ Ensure that the oembed data works """
-        self._authenticate_as('notadmin')
-        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-        slug = response.data['slug']
-        expectedUrl = reverse('visualize', args=(slug,))
-        assert response.data['visualizeUrl'].endswith(expectedUrl)
-
-        oembedUrl = response.data['oembedEndpointUrl']
-        response = self.client.get(oembedUrl)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_errors_returned(self):
-        """ Ensure that a stack trace is part of the returned error message """
-        self._authenticate_as('notadmin')
-
-        # Yes errors
-        response = self._upload_file_for_api(FILENAME_BAD_DATA)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        assert 'JSON is not valid' in response.data['jsonFile'][0]
-
-        # No errors
-        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        assert 'JSON is not valid' not in response.data['jsonFile'][0]
-
-    def test_analytics(self):
-        """ Ensure analytics are created """
-        self._authenticate_as('notadmin')
-        self.assertEqual(APIRequestLog.objects.all().count(), 0)
-        self._upload_file_for_api(FILENAME_ONE_ROUND)
-        self.assertEqual(APIRequestLog.objects.all().count(), 1)
-        self.client.get('/api/users/', format='json')
-        self.assertEqual(APIRequestLog.objects.all().count(), 2)
-
-        logs = APIRequestLog.objects.all()
-        self.assertEqual(logs[0].method, 'POST')
-        self.assertEqual(logs[1].method, 'GET')
-
-    def test_defaults(self):
-        """ Ensure the correct defaults are used on upload """
-        self._authenticate_as('notadmin')
-        response = self._upload_file_for_api(FILENAME_ONE_ROUND)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
-        self.assertEqual(oneRoundObject.hideSankey, False)
-        self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
 
 
 class LiveBrowserTests(StaticLiveServerTestCase):
@@ -809,7 +169,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         try:
             objects = JsonConfig.objects.latest('-id')
         except JsonConfig.DoesNotExist:
-            self._upload(FILENAME_MULTIWINNER)
+            self._upload(filenames.MULTIWINNER)
             return
 
         self.open(reverse('visualize', args=(objects[0].slug,)))
@@ -908,7 +268,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         minimumResizeableWidth = 400 if self.isUsingSauceLabs else 300
 
         # Multiwinner maxes out at 500px
-        self._upload(FILENAME_MULTIWINNER)
+        self._upload(filenames.MULTIWINNER)
         test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 450], 550)
 
         self._ensure_eventually_asserts(
@@ -918,7 +278,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 600], 1000)
 
         # Opavote is originally tall but not too wide
-        self._upload(FILENAME_OPAVOTE)
+        self._upload(filenames.OPAVOTE)
         test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
         # Sankey no longer gets huge - it caps out at 960px wide
         self._go_to_tab("sankey-tab")
@@ -930,7 +290,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
 
         # Now let's look at sankey and the tables
-        self._upload(FILENAME_THREE_ROUND)
+        self._upload(filenames.THREE_ROUND)
         self._go_to_tab("sankey-tab")
         test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 450], 900)
 
@@ -942,7 +302,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Tests we do something sane in a single-round election """
         # Regression test
         self.browser.set_window_size(800, 800)
-        self._upload(FILENAME_ONE_ROUND)
+        self._upload(filenames.ONE_ROUND)
         assert self._get_height("bargraph-interactive-body") < 800
 
     def test_settings_tab(self):
@@ -952,7 +312,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
-        fileUpload.send_keys(os.path.join(os.getcwd(), FILENAME_ONE_ROUND))
+        fileUpload.send_keys(os.path.join(os.getcwd(), filenames.ONE_ROUND))
         self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements_by_name("hideSankey")[1].click()
@@ -988,13 +348,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
 
         # 5 candidates + residual surplus + inactive ballots visible
-        self._upload(FILENAME_MULTIWINNER)
+        self._upload(filenames.MULTIWINNER)
         self.assertEqual(len(self._get_each_bargraph_tag()), 7)
         _toggle_option()
         self.assertEqual(len(self._get_each_bargraph_tag()), 5)
 
         # 5 candidates, but nothing changes when toggled
-        self._upload(FILENAME_ONE_ROUND)
+        self._upload(filenames.ONE_ROUND)
         self.assertEqual(len(self._get_each_bargraph_tag()), 2)
         _toggle_option()
         self.assertEqual(len(self._get_each_bargraph_tag()), 2)
@@ -1015,7 +375,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Get its color
             return lastBarInLastRound.value_of_css_property("fill")
 
-        self._upload(FILENAME_MULTIWINNER)
+        self._upload(filenames.MULTIWINNER)
 
         gray = "rgb(204, 204, 204)"
         self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), gray))
@@ -1137,12 +497,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             return loadWithoutCache > loadWithCache * 2
 
         # Upload a file, check cache
-        self._upload(FILENAME_OPAVOTE)
+        self._upload(filenames.OPAVOTE)
         fn1 = "/v/opavote-fairvote"
         assert is_cache_much_faster()
 
         # Uploading should clear all cache
-        self._upload(FILENAME_ONE_ROUND)
+        self._upload(filenames.ONE_ROUND)
         assert is_cache_much_faster()
 
         # But just visiting the upload page and returning should not clear cache
@@ -1233,7 +593,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_slider_animates_and_summary_shown(self):
         """ Check that the share tab has sane links for all buttons """
         # Upload something with few rounds so the animation doesn't take too long
-        self._upload(FILENAME_THREE_ROUND)
+        self._upload(filenames.THREE_ROUND)
 
         # Ensure the animation started
         WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
@@ -1263,7 +623,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Ensures the timeline show correct data, and that it can be toggled to show
             the longform description instead """
         self._disable_all_animations()
-        self._upload(FILENAME_MULTIWINNER)
+        self._upload(filenames.MULTIWINNER)
 
         # The expand button is hidden
         expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
@@ -1327,7 +687,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_crazy_names(self):
         """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
             too-long filenames are split at sane points """
-        self._upload(FILENAME_CRAZY_NAMES)
+        self._upload(filenames.CRAZY_NAMES)
         tags = self._get_each_bargraph_tag()
         expectedTags = [
             "Winner!",
