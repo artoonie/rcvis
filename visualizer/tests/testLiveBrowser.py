@@ -5,13 +5,11 @@ Integration tests with a live browser running the site
 import json
 import os
 import platform
-import re
 import time
 from datetime import datetime
 from urllib.parse import urlparse
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.core.cache import cache
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains

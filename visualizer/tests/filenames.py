@@ -1,3 +1,5 @@
+""" Filenames that various tests will want to load """
+
 MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 OPAVOTE = 'testData/opavote-fairvote.json'
 BROKEN_RANKIT_1 = 'testData/rankit-malformed-1.json'

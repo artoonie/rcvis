@@ -1,9 +1,19 @@
+"""
+Generates the dynamic, per-round Frequently-Asked-Questions
+"""
+
 import abc
 
 from visualizer.descriptors import common
 
 
 class FAQBase():
+    """
+    Abstract base class to generate FAQs.
+    Initialize it with a graph, then ask it each round whether it is currently relevant to show,
+    and if it is relevant, what question/answer to show.
+    """
+
     def __init__(self, graph):
         self.graph = graph
         self.summary = graph.summarize()
@@ -22,6 +32,8 @@ class FAQBase():
 
 
 class WhatHappeningSingleWinner(FAQBase):
+    """ Summary shown on all single-winner elections """
+
     def is_active(self, roundNum):
         return self.summary.numWinners <= 1
 
@@ -30,21 +42,23 @@ class WhatHappeningSingleWinner(FAQBase):
 
     def get_answer(self, roundNum):
         numEliminated = self.summary.numEliminated
-        common = "This is a single-winner Ranked Choice Voting election, "\
-                 "also known as an Instant Runoff Election. "\
-                 "Voters have ranked their candidates in order of preference. "\
-                 "Each voter still only had one vote, but if their top pick wasn't going to win, "\
-                 "their next choices were taken into account. "
+        base = "This is a single-winner Ranked Choice Voting election, "\
+            "also known as an Instant Runoff Election. "\
+            "Voters have ranked their candidates in order of preference. "\
+            "Each voter still only had one vote, but if their top pick wasn't going to win, "\
+            "their next choices were taken into account. "
         elim = f"The {numEliminated} lowest-performing candidates were eliminated in succession"
         if self.summary.numWinners == 0:
             win = "."
         else:
             winnerName = self.summary.winnerNames[0]
             win = f" until {winnerName} received more than 50% of the votes."
-        return common + elim + win
+        return base + elim + win
 
 
 class WhatHappeningMultiWinner(FAQBase):
+    """ Summary shown on all multi-winner elections """
+
     def is_active(self, roundNum):
         return self.summary.numWinners > 1
 
@@ -63,6 +77,8 @@ class WhatHappeningMultiWinner(FAQBase):
 
 
 class WhyEliminated(FAQBase):
+    """ Whenever someone is eliminated """
+
     def is_active(self, roundNum):
         return len(self.summary.rounds[roundNum].eliminatedNames) > 0
 
@@ -70,8 +86,7 @@ class WhyEliminated(FAQBase):
         elims = self.summary.rounds[roundNum].eliminatedNames
         if len(elims) == 1:
             return f"Why was {elims[0]} eliminated?"
-        else:
-            return common.text_to_describe_list_of_names(elims, "Why were {name} eliminated?")
+        return common.text_to_describe_list_of_names(elims, "Why were {name} eliminated?")
 
     def get_answer(self, roundNum):
         return "Because they had the fewest votes and could not win the election, "\
@@ -84,6 +99,8 @@ class WhyEliminated(FAQBase):
 
 
 class WhyBatchEliminated(FAQBase):
+    """ Whenever multiple people are eliminated """
+
     def is_active(self, roundNum):
         return len(self.summary.rounds[roundNum].eliminatedNames) > 1
 
@@ -99,6 +116,8 @@ class WhyBatchEliminated(FAQBase):
 
 
 class WhySingleWinner(FAQBase):
+    """ Whenever someone is elected in IRV """
+
     def is_active(self, roundNum):
         allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
@@ -114,6 +133,8 @@ class WhySingleWinner(FAQBase):
 
 
 class WhyMultiWinner(FAQBase):
+    """ Whenever someone is elected in STV """
+
     def is_active(self, roundNum):
         allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
@@ -137,6 +158,8 @@ class WhyMultiWinner(FAQBase):
 
 
 class WhyThreshold(FAQBase):
+    """ How the threshold is chosen in STV """
+
     def is_active(self, roundNum):
         allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
@@ -156,24 +179,26 @@ class WhyThreshold(FAQBase):
 
 
 class WhySurplusTransfer(FAQBase):
+    """ Why surplus transfers happen """
+
     def __init__(self, graph):
         super(WhySurplusTransfer, self).__init__(graph)
-        self._surplus_cache = {}
+        self._surplusCache = {}
 
     def is_active(self, roundNum):
         redistributionData = common.get_redistribution_data(self.graph, roundNum)
-        self._surplus_cache[roundNum] = redistributionData
+        self._surplusCache[roundNum] = redistributionData
 
         return len(redistributionData['names']) >= 1
 
     def get_question(self, roundNum):
-        redistributionData = self._surplus_cache[roundNum]
+        redistributionData = self._surplusCache[roundNum]
         lostVotes = common.intify_or_aboutify(redistributionData['sum'])
         names = common.comma_separated_names_with_and(redistributionData['names'])
         return f"Why did {names} lose {lostVotes} votes?"
 
     def get_answer(self, roundNum):
-        redistributionData = self._surplus_cache[roundNum]
+        redistributionData = self._surplusCache[roundNum]
         names = common.comma_separated_names_with_and(redistributionData['names'])
         threshold = self.graph.threshold
         numWinners = len(self.summary.rounds[roundNum].winnerNames)
@@ -185,6 +210,7 @@ class WhySurplusTransfer(FAQBase):
 
 
 class FAQGenerator():
+    """ Helper class to generate a full FAQ for this graph """
     generators = (WhatHappeningSingleWinner,
                   WhatHappeningMultiWinner,
                   WhyEliminated,
@@ -199,9 +225,11 @@ class FAQGenerator():
         self.generatorObjects = [g(self.graph) for g in self.generators]
 
     def describe_all_rounds(self):
+        """ Helper function around describe_round """
         return [self.describe_round(r) for r in range(len(self.graph.summarize().rounds))]
 
     def describe_round(self, roundNum):
+        """ Returns an ordered list of the FAQs to display for this round. """
         description = []
         for g in self.generatorObjects:
             if g.is_active(roundNum):

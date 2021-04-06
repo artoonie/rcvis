@@ -37,6 +37,7 @@ class SimpleTests(TestCase):
         assert len(allDescriptions[0]) == 2
 
     def test_multiwinner(self):
+        """ More extensive tests with the multiwinner FAQs, checking word-for-word accuracy """
         with open(filenames.MULTIWINNER, 'r') as f:
             graph = make_graph_with_file(f, False)
 

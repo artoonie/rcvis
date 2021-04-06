@@ -1,7 +1,15 @@
+"""
+Some common helper functions for describers.
+"""
+
 from math import fmod
 
 
 def comma_separated_names_with_and(listOfNames):
+    """
+    Returns a human-readable list of names:
+    comma-separated and with an "and" after the penultimate name if there are multiple names.
+    """
     if len(listOfNames) == 0:
         return ""
 
@@ -33,11 +41,13 @@ def intify_or_aboutify(num):
     numAsString = str(int(round(num)))
     if fmod(num, 1) < 1e-6:
         return numAsString
-    else:
-        return "about " + numAsString
+    return "about " + numAsString
 
 
 def get_redistribution_data(graph, roundNum):
+    """
+    Returns a {names: list, sum: float} dictionary representing the surplus transfers this round.
+    """
     candidates = graph.summarize().candidates
     redistributedNames = []
     redistributedSum = 0
