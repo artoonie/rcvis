@@ -6,10 +6,10 @@ set -e
 SC_PID=$!
 trap "kill $SC_PID" EXIT
 
+# Code quality first - fail fast
+./scripts/test-code-quality.sh
+
 # Run tests
 python3 manage.py compress
 python3 manage.py test --parallel 4
 bash <(curl -s https://codecov.io/bash) >/dev/null
-
-# Code quality
-./scripts/test-code-quality.sh

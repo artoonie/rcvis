@@ -232,8 +232,8 @@ class WhatIsInactiveBallots(FAQBase):
             rest = f"Because {numInactive} ballots had all of their choices eliminated, "\
                 "those ballots are no longer active in this round."
         else:
-            rest = f"In this round, all ballots are still active, "\
-                    "meaning that no ballot had all of their choices eliminated already."
+            rest = "In this round, all ballots are still active, "\
+                   "meaning that no ballot had all of their choices eliminated already."
         return base + rest
 
 
