@@ -48,11 +48,3 @@ Read RCVRC JSON
    :members:
    :undoc-members:
    :show-inheritance:
-
-Round Describer
--------------------------------------
-
-.. automodule:: visualizer.graph.roundDescriber
-   :members:
-   :undoc-members:
-   :show-inheritance:

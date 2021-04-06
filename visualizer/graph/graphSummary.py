@@ -11,6 +11,9 @@ class GraphSummary:
     candidates: dict  # Map: Graph.Item to CandidateInfo
     # Map: Graph.NodeData to list of graph.LinkData where link.target == node
     linksByTargetNode: dict
+    winners: list
+    numWinners: int
+    numEliminated: int
 
     def __init__(self, graph):
         numRounds = len(graph.nodesPerRound)
@@ -51,6 +54,9 @@ class GraphSummary:
         self.rounds = rounds
         self.candidates = candidates
         self.linksByTargetNode = linksByTargetNode
+        self.winnerNames = [i.name for i in alreadyWonInPreviousRound]
+        self.numWinners = len(self.winnerNames)
+        self.numEliminated = sum([len(r.eliminatedNames) for r in rounds])
 
 
 class RoundInfo:

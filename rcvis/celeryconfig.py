@@ -2,7 +2,7 @@
 
 import os
 
-## Broker settings.
+# Broker settings.
 broker_url = 'sqs://'  # pylint: disable=invalid-name
 
 # List of modules to import when the Celery worker starts.

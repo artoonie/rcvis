@@ -1,0 +1,64 @@
+[
+  [
+    {
+      "question": "What is happening?",
+      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+    }
+  ],
+  [
+    {
+      "question": "What is happening?",
+      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+    },
+    {
+      "question": "Why was Write-In eliminated?",
+      "answer": "Because they had the fewest votes and could not win the election, they were eliminated. To ensure people who voted for them still had their voices heard, their votes were transferred to their next choice. If you are familiar with the concept of runoff elections, you can think of these eliminations as holding a runoff without going back to the voting booth."
+    },
+    {
+      "question": "Why was Harvey Curley elected?",
+      "answer": "Because Harvey Curley received 134 votes, they were elected. The threshold of 134 votes was chosen to achieve proportional representation, equal to at least one out of every 3 voters supporting this candidate."
+    },
+    {
+      "question": "Why did they need 134 votes to win?",
+      "answer": "In a single-winner election, each elected candidate needs one in two voters to support them. Since each voter only gets one vote, the same requirement is not possible for this Single Transferrable Vote election. Instead, one in 3 voters must support each elected candidate."
+    }
+  ],
+  [
+    {
+      "question": "What is happening?",
+      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+    },
+    {
+      "question": "Why did Harvey Curley lose 10 votes?",
+      "answer": "A principle of RCV is that no vote should be wasted. Since Harvey Curley only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold."
+    }
+  ],
+  [
+    {
+      "question": "What is happening?",
+      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+    },
+    {
+      "question": "Why was Sarah Lucido eliminated?",
+      "answer": "Because they had the fewest votes and could not win the election, they were eliminated. To ensure people who voted for them still had their voices heard, their votes were transferred to their next choice. If you are familiar with the concept of runoff elections, you can think of these eliminations as holding a runoff without going back to the voting booth."
+    },
+    {
+      "question": "Why was Larry Edwards elected?",
+      "answer": "Because Larry Edwards received 134 votes, they were elected. The threshold of 134 votes was chosen to achieve proportional representation, equal to at least one out of every 3 voters supporting this candidate."
+    },
+    {
+      "question": "Why did they need 134 votes to win?",
+      "answer": "In a single-winner election, each elected candidate needs one in two voters to support them. Since each voter only gets one vote, the same requirement is not possible for this Single Transferrable Vote election. Instead, one in 3 voters must support each elected candidate."
+    }
+  ],
+  [
+    {
+      "question": "What is happening?",
+      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+    },
+    {
+      "question": "Why did Larry Edwards lose about 51 votes?",
+      "answer": "A principle of RCV is that no vote should be wasted. Since Larry Edwards only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold."
+    }
+  ]
+]

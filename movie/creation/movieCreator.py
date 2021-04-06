@@ -15,8 +15,8 @@ from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextCli
 import selenium
 
 from rcvis.settings import MOVIE_FONT_NAME
+from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
-from visualizer.graph.roundDescriber import Describer
 from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
 

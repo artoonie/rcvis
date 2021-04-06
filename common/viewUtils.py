@@ -1,11 +1,14 @@
 """ Utility functions shared across views, in either movie or visualizer apps """
 
+import json
+
 from django.shortcuts import render
 
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
+from visualizer.descriptors.faq import FAQGenerator
+from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
-from visualizer.graph.roundDescriber import Describer
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
@@ -40,6 +43,7 @@ def get_data_for_view(config):
     roundDescriber = Describer(graph, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
     humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
+    faqsPerRound = json.dumps(FAQGenerator(graph).describe_all_rounds())
 
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
@@ -60,6 +64,7 @@ def get_data_for_view(config):
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
         'humanFriendlySummary': humanFriendlySummary,
+        'faqsPerRound': faqsPerRound,
         'offlineMode': offlineMode,
         'graph': graph
     }

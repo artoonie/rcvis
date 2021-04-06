@@ -1,0 +1,185 @@
+{
+    "n_seats": 1,
+    "n_votes": 6,
+    "title": "Small Group RCV Election Demo 2",
+    "precision": 0,
+    "withdrawn": [],
+    "method": "Instant Runoff Voting",
+    "version": "1.0",
+    "candidates": [
+        "Candidate J",
+        "Candidate K",
+        "Candidate L",
+        "Candidate M",
+        "Candidate N",
+        "Candidate O",
+        "Candidate P"
+    ],
+    "winners": [
+        4
+    ],
+    "tie_breaks": [
+        [
+            2,
+            [
+                2,
+                3
+            ],
+            [
+                2
+            ]
+        ]
+    ],
+    "options": [
+        [
+            "batchElimination",
+            "Zero"
+        ],
+        [
+            "weakTieBreakMethod",
+            "Random"
+        ],
+        [
+            "removeOvervotes",
+            "Skip"
+        ],
+        [
+            "removeUndervotes",
+            "Skip"
+        ]
+    ],
+    "rounds": [
+        {
+            "count": [
+                2,
+                0,
+                1,
+                1,
+                2,
+                0,
+                0
+            ],
+            "exhausted": 0,
+            "continuing": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "n": 1,
+            "msg": "Count of first choices. ",
+            "winners": [],
+            "losers": [],
+            "action": {
+                "type": "first",
+                "desc": "Count of first choices. "
+            }
+        },
+        {
+            "count": [
+                2,
+                0,
+                1,
+                1,
+                2,
+                0,
+                0
+            ],
+            "exhausted": 0,
+            "continuing": [
+                0,
+                2,
+                3,
+                4
+            ],
+            "n": 2,
+            "msg": "Count after eliminating Candidate K, Candidate O, and Candidate P and transferring votes. Since this is the first elimination round, all candidates without any votes are eliminated. ",
+            "winners": [],
+            "losers": [
+                1,
+                5,
+                6
+            ],
+            "action": {
+                "type": "eliminate",
+                "candidates": [
+                    1,
+                    5,
+                    6
+                ],
+                "desc": "Since this is the first elimination round, all candidates without any votes are eliminated. "
+            }
+        },
+        {
+            "count": [
+                2,
+                0,
+                0,
+                1,
+                3,
+                0,
+                0
+            ],
+            "exhausted": 0,
+            "continuing": [
+                0,
+                3,
+                4
+            ],
+            "n": 3,
+            "msg": "Count after eliminating Candidate L and transferring votes. Candidates Candidate L and Candidate M were tied when choosing candidates to eliminate. Candidate Candidate L was chosen by breaking the tie manually. ",
+            "winners": [],
+            "losers": [
+                1,
+                2,
+                5,
+                6
+            ],
+            "action": {
+                "type": "eliminate",
+                "candidates": [
+                    2
+                ],
+                "desc": "Candidates Candidate L and Candidate M were tied when choosing candidates to eliminate. Candidate Candidate L was chosen by breaking the tie manually. "
+            }
+        },
+        {
+            "count": [
+                2,
+                0,
+                0,
+                0,
+                4,
+                0,
+                0
+            ],
+            "exhausted": 0,
+            "continuing": [
+                0
+            ],
+            "n": 4,
+            "msg": "Count after eliminating Candidate M and transferring votes. Candidate Candidate N is elected. ",
+            "winners": [
+                4
+            ],
+            "losers": [
+                1,
+                2,
+                3,
+                5,
+                6
+            ],
+            "action": {
+                "type": "eliminate",
+                "candidates": [
+                    3
+                ],
+                "desc": ""
+            }
+        }
+    ],
+    "n_valid_votes": 6
+}

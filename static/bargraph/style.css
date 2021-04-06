@@ -27,11 +27,10 @@ path.domain {
   font-size: 0.6rem;
 }
 .round-description-wrapper {
-  padding: 0px 10px 0px 10px;
+  padding: 5px 10px 0px 10px;
   box-shadow: 1px 5px 20px 0 #dedede;
   border-radius: 10px;
-  height: 60px;
-  line-height: 60px;
+  height: 60px;  /* Note: sync with hideFaqs() */
   font-size: 0.9em;
   background-color: #e3f6ff;
   margin-top: 15px;
@@ -44,8 +43,23 @@ path.domain {
   display: inline-block;
 }
 
+.faq-q {
+  font-weight: bold;
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.faq-a {
+  text-align: left;
+  margin-top: 0rem;
+}
+
 #bargraph-interactive-body {
   padding-top: 10px;
+}
+
+#bargraph-interactive-why-button {
+  opacity: 0%;  /* will show when animation completes */
 }
 
 @media only screen and (max-width: 1024px) {
