@@ -4,6 +4,7 @@ Generates the dynamic, per-round Frequently-Asked-Questions
 
 import abc
 
+from visualizer.common import INACTIVE_TEXT
 from visualizer.descriptors import common
 
 
@@ -209,6 +210,33 @@ class WhySurplusTransfer(FAQBase):
             f"{threshold}-vote threshold."
 
 
+class WhatIsInactiveBallots(FAQBase):
+    """ What does inactive ballots mean? """
+
+    def __init__(self, graph):
+        super(WhatIsInactiveBallots, self).__init__(graph)
+        inactive = [c for c in self.summary.candidates.values() if c.name == INACTIVE_TEXT]
+        self._inactiveCandidateInfoList = inactive
+
+    def is_active(self, roundNum):
+        return len(self._inactiveCandidateInfoList) != 0
+
+    def get_question(self, roundNum):
+        return "What are Inactive Ballots?"
+
+    def get_answer(self, roundNum):
+        inactiveItem = self._inactiveCandidateInfoList[0]
+        numInactive = inactiveItem.totalVotesPerRound[roundNum]
+        base = "Voters are not required to rank all candidates."
+        if numInactive != 0:
+            rest = f"Because {numInactive} ballots had all of their choices eliminated, "\
+                "those ballots are no longer active in this round."
+        else:
+            rest = "In this round, all ballots are still active, "\
+                   "meaning that no ballot had all of their choices eliminated already."
+        return base + rest
+
+
 class FAQGenerator():
     """ Helper class to generate a full FAQ for this graph """
     generators = (WhatHappeningSingleWinner,
@@ -218,7 +246,8 @@ class FAQGenerator():
                   WhySingleWinner,
                   WhyMultiWinner,
                   WhyThreshold,
-                  WhySurplusTransfer)
+                  WhySurplusTransfer,
+                  WhatIsInactiveBallots)
 
     def __init__(self, graph):
         self.graph = graph
