@@ -54,8 +54,8 @@ class GraphSummary:
         self.rounds = rounds
         self.candidates = candidates
         self.linksByTargetNode = linksByTargetNode
-        self.winners = alreadyWonInPreviousRound
-        self.numWinners = len(self.winners)
+        self.winnerNames = [i.name for i in alreadyWonInPreviousRound]
+        self.numWinners = len(self.winnerNames)
         self.numEliminated = sum([len(r.eliminatedNames) for r in rounds])
 
 

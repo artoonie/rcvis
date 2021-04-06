@@ -39,7 +39,7 @@ class WhatHappeningSingleWinner(FAQBase):
         if self.summary.numWinners == 0:
             win = "."
         else:
-            winnerName = self.summary.winners[0]
+            winnerName = self.summary.winnerNames[0]
             win = f" until {winnerName} received more than 50% of the votes."
         return common + elim + win
 
@@ -100,7 +100,7 @@ class WhyBatchEliminated(FAQBase):
 
 class WhySingleWinner(FAQBase):
     def is_active(self, roundNum):
-        allWinners = self.summary.winners
+        allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
         return len(allWinners) == 1 and len(thisRoundWinners) == 1
 
@@ -115,7 +115,7 @@ class WhySingleWinner(FAQBase):
 
 class WhyMultiWinner(FAQBase):
     def is_active(self, roundNum):
-        allWinners = self.summary.winners
+        allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
 
@@ -129,7 +129,7 @@ class WhyMultiWinner(FAQBase):
         winners = self.summary.rounds[roundNum].winnerNames
         winnerText = common.comma_separated_names_with_and(winners)
         threshold = self.graph.threshold
-        supportCount = len(self.summary.winners) + 1
+        supportCount = len(self.summary.winnerNames) + 1
         return f"Because {winnerText} received {threshold} votes, they were elected. "\
                f"The threshold of {threshold} votes was chosen to achieve proportional "\
                f"representation, equal to at least one out of every {supportCount} voters "\
@@ -138,7 +138,7 @@ class WhyMultiWinner(FAQBase):
 
 class WhyThreshold(FAQBase):
     def is_active(self, roundNum):
-        allWinners = self.summary.winners
+        allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
 
@@ -147,7 +147,7 @@ class WhyThreshold(FAQBase):
         return f"Why did they need {threshold} votes to win?"
 
     def get_answer(self, roundNum):
-        supportCount = len(self.summary.winners) + 1
+        supportCount = len(self.summary.winnerNames) + 1
         return f"In a single-winner election, each elected candidate needs "\
             "one in two voters to support them. Since each voter only gets one vote, "\
             "the same requirement is not possible for this Single Transferrable Vote "\

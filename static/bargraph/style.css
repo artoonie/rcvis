@@ -27,7 +27,7 @@ path.domain {
   font-size: 0.6rem;
 }
 .round-description-wrapper {
-  padding: 10px 10px 0px 10px;
+  padding: 5px 10px 0px 10px;
   box-shadow: 1px 5px 20px 0 #dedede;
   border-radius: 10px;
   height: 60px;  /* Note: sync with hideFaqs() */
@@ -56,6 +56,10 @@ path.domain {
 
 #bargraph-interactive-body {
   padding-top: 10px;
+}
+
+#bargraph-interactive-why-button {
+  opacity: 0%;  /* will show when animation completes */
 }
 
 @media only screen and (max-width: 1024px) {

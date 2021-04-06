@@ -43,6 +43,7 @@ function goToTab(newTabName) {
 
 function animationForBarchartCompleted() {
     isBargraphAnimationInProgress = false;
+    showFaqButton();
 }
 
 function animateIfNeeded(newTabName) {
@@ -52,7 +53,7 @@ function animateIfNeeded(newTabName) {
   }
 
   if (newTabName == 'barchart') {
-    showTextOnRoundDescriber(humanFriendlySummary)
+    showTextOnRoundDescriber(humanFriendlySummary, true)
     isBargraphAnimationInProgress = true;
 
     trs_animate('bargraph-slider-container', animationForBarchartCompleted)

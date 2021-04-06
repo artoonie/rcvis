@@ -4,7 +4,7 @@
 
 var isBargraphAnimationInProgress = false;
 
-function showTextOnRoundDescriber(description) {
+function showTextOnRoundDescriber(description, isInitialSummary) {
   if (isBargraphAnimationInProgress) {
     return;
   }
@@ -28,10 +28,12 @@ function showTextOnRoundDescriber(description) {
     .delay(350)
     .style("opacity", "1")
     .text(description);
-  d3.select(idOfWhyButton)
-  .transition()
-    .delay(350)
-    .style("opacity", "1");
+  if (!isInitialSummary) {
+    d3.select(idOfWhyButton)
+    .transition()
+      .delay(350)
+      .style("opacity", "1");
+  }
 };
 
 
@@ -47,7 +49,7 @@ function descriptionOfCurrRound(round) {
   // Last round gets a summary, too
   const numRounds = {{ tabularByRoundInteractive.rounds|length }};
   if (round == numRounds - 1) {
-    roundText += "{{ humanFriendlySummary|safe }}";
+    roundText += humanFriendlySummary;
   }
 
   return roundText;
@@ -78,6 +80,10 @@ function showFaqs() {
 }
 
 function hideFaqs() {
+  if (isBargraphAnimationInProgress) {
+    return;
+  }
+
   const idRoundDescriptionText = "#round-description-wrapper";
   const currHeight = d3.select(idRoundDescriptionText).node().offsetHeight;
   d3.select(idRoundDescriptionText)
@@ -89,12 +95,6 @@ function hideFaqs() {
 
   const idOfFaqTextDiv = "faq-text";
   document.getElementById(idOfFaqTextDiv).style.display = "none"
-
-  // Show the button to display the FAQs.
-  // Use opacity so the text doesn't shift - otherwise it's jarring
-  const idOfWhyButton = "#bargraph-interactive-why-button";
-  d3.select(idOfWhyButton)
-    .style("opacity", "100%");
 }
 
 function makeInteractiveGraph() {
@@ -128,7 +128,7 @@ function makeInteractiveGraph() {
   function sliderValueChangedCallback(round) {
     hideFaqs();
     transitionEachBarForRound(round);
-    showTextOnRoundDescriber(descriptionOfCurrRound(round));
+    showTextOnRoundDescriber(descriptionOfCurrRound(round), false);
     updateFaqText(round);
   }
 
@@ -143,6 +143,15 @@ function makeInteractiveGraph() {
     timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
     timeBetweenStepsMs: 350
   });
+}
+
+function showFaqButton() {
+  const idOfWhyButton = "#bargraph-interactive-why-button";
+  d3.select(idOfWhyButton)
+  .transition()
+    .delay(300)
+    .duration(300)
+    .style("opacity", "100%");
 }
 
 makeInteractiveGraph();
