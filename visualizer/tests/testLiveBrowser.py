@@ -728,3 +728,22 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         ]
         for i, tag in enumerate(tags):
             self.assertEqual(tag.text, expectedTags[i])
+
+    def test_faq(self):
+        """ Test the FAQ button works """
+        self._upload(filenames.MULTIWINNER)
+
+        # Starts at 60px
+        div = self.browser.find_element_by_id('round-description-wrapper')
+        self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 60))
+
+        # Expands to fit the FAQs
+        whyButton = self.browser.find_element_by_id('bargraph-interactive-why-button')
+        whyButton.click()
+        self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 60))
+
+        # Now move the slider
+        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 1)")
+
+        # Restores size on new round
+        self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 60))

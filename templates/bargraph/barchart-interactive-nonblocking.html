@@ -10,8 +10,14 @@ function showTextOnRoundDescriber(description) {
   }
 
   const idOfLegendOrRoundDescriber = "#bargraph-interactive-round-description";
+  const idOfWhyButton = "#bargraph-interactive-why-button";
 
   d3.select(idOfLegendOrRoundDescriber)
+  .transition()
+    .duration(100)
+    .delay(0)
+    .style("opacity", "0");
+  d3.select(idOfWhyButton)
   .transition()
     .duration(100)
     .delay(0)
@@ -22,6 +28,10 @@ function showTextOnRoundDescriber(description) {
     .delay(350)
     .style("opacity", "1")
     .text(description);
+  d3.select(idOfWhyButton)
+  .transition()
+    .delay(350)
+    .style("opacity", "1");
 };
 
 
@@ -39,9 +49,53 @@ function descriptionOfCurrRound(round) {
   if (round == numRounds - 1) {
     roundText += "{{ humanFriendlySummary|safe }}";
   }
+
   return roundText;
 }
 
+function updateFaqText(round) {
+  const faqsPerRound = {{ faqsPerRound|safe }};
+  const idOfFaqTextDiv = "faq-text";
+  let text = faqsPerRound[round]
+              .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
+                        "<p class='faq-a'>" + d['answer'] + "</p>")
+              .reduce((accum, val) => accum + val);
+  document.getElementById(idOfFaqTextDiv).innerHTML = text;
+}
+
+function showFaqs() {
+  const idRoundDescriptionText = "#round-description-wrapper";
+  d3.select(idRoundDescriptionText)
+    .style("height", "100%");
+
+  const idOfFaqTextDiv = "faq-text";
+  document.getElementById(idOfFaqTextDiv).style.display = "block"
+
+  // Hide the button used to get here
+  const idOfWhyButton = "#bargraph-interactive-why-button";
+  d3.select(idOfWhyButton)
+    .style("opacity", "0%");
+}
+
+function hideFaqs() {
+  const idRoundDescriptionText = "#round-description-wrapper";
+  const currHeight = d3.select(idRoundDescriptionText).node().offsetHeight;
+  d3.select(idRoundDescriptionText)
+    .style("height", currHeight + "px") // convert 100% to its actual height
+    .transition()
+      .delay(30)
+      .duration(600)
+      .style("height", "60px");
+
+  const idOfFaqTextDiv = "faq-text";
+  document.getElementById(idOfFaqTextDiv).style.display = "none"
+
+  // Show the button to display the FAQs.
+  // Use opacity so the text doesn't shift - otherwise it's jarring
+  const idOfWhyButton = "#bargraph-interactive-why-button";
+  d3.select(idOfWhyButton)
+    .style("opacity", "100%");
+}
 
 function makeInteractiveGraph() {
   {{ bargraphjs|safe }}
@@ -72,8 +126,10 @@ function makeInteractiveGraph() {
   });
 
   function sliderValueChangedCallback(round) {
+    hideFaqs();
     transitionEachBarForRound(round);
-    showTextOnRoundDescriber(descriptionOfCurrRound(round))
+    showTextOnRoundDescriber(descriptionOfCurrRound(round));
+    updateFaqText(round);
   }
 
   trs_createSliderAndTimeline({
@@ -88,5 +144,6 @@ function makeInteractiveGraph() {
     timeBetweenStepsMs: 350
   });
 }
+
 makeInteractiveGraph();
 </script>
