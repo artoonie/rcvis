@@ -2,7 +2,7 @@
 Describes what happened in each round of an RCV Election in plain English.
 """
 
-from math import fmod
+from visualizer.descriptors import common
 
 
 class Describer:
@@ -76,25 +76,6 @@ class Describer:
         return mostVotes.name + " received the most votes. "
 
     @classmethod
-    def _text_to_describe_list_of_names(cls, listOfNames, whatHappenedToThemDescription):
-        """
-        e.g. With listOfNames = [Foo,Bar,Baz] and whatHappenedToThemDescription="ate chips":
-        "Foo, Bar, and Baz ate chips. "
-        listOfNames can be empty, in which case the empty string is returned.
-        """
-        if len(listOfNames) == 0:
-            return ""
-
-        if len(listOfNames) == 1:
-            nameString = listOfNames[0]
-        else:
-            lastNameInList = listOfNames[-1]
-            otherNamesInList = ", ".join(listOfNames[:-1])
-            nameString = otherNamesInList + " and " + lastNameInList
-
-        return whatHappenedToThemDescription.format(name=nameString)
-
-    @classmethod
     def _list_to_describe_list_of_names(cls, listOfNames, verb, whatHappenedToThemDescription):
         """
         e.g. With listOfNames = [Foo,Bar,Baz], verb="ate", and whatHappenedToThem="ate chips":
@@ -110,7 +91,7 @@ class Describer:
 
     def _describe_list_of_names(self, listOfNames, verb, whatHappenedToThemDescription):
         """
-            Calls either _text_to_describe_list_of_names or _list_to_describe_list_of_names
+            Calls either common.text_to_describe_list_of_names or _list_to_describe_list_of_names
 
             :param listOfNames: A list of names to whom this happened
             :param verb: A short description, only used when !summarizeAsParagraph
@@ -119,7 +100,7 @@ class Describer:
         """
         # verb is ignored when self.summarizeAsParagraph
         if self.summarizeAsParagraph:
-            result = self._text_to_describe_list_of_names(
+            result = common.text_to_describe_list_of_names(
                 listOfNames, whatHappenedToThemDescription)
         else:
             result = self._list_to_describe_list_of_names(
@@ -149,22 +130,11 @@ class Describer:
     def _describe_redistribution_this_round(self, roundNum):
         """ Describes redistribution, if there was any.
             Returns empty string if there wasn't. """
-        candidates = self.graph.summarize().candidates
-        redistributedNames = []
-        redistributedSum = 0
-        for item, candidateInfo in candidates.items():
-            if roundNum >= len(candidateInfo.votesAddedPerRound):
-                continue
-            votesAdded = candidateInfo.votesAddedPerRound[roundNum]
-            if votesAdded < 0:
-                redistributedNames.append(item.name)
-                redistributedSum -= votesAdded
+        redistributionData = common.get_redistribution_data(self.graph, roundNum)
+        redistributedNames = redistributionData['names']
+        redistributedSum = redistributionData['sum']
 
-        redistributedSumStrInt = str(int(redistributedSum))
-        if fmod(redistributedSum, 1) < 1e-6:
-            surplusNumVotes = redistributedSumStrInt
-        else:
-            surplusNumVotes = "about " + redistributedSumStrInt
+        surplusNumVotes = common.intify_or_aboutify(redistributedSum)
         whatHappened = "{name} had more than enough votes to win, so to ensure no vote is wasted, "\
             f"{surplusNumVotes} surplus votes were redistributed to other candidates. "
         return self._describe_list_of_names(

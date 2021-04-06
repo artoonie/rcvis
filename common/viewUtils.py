@@ -4,8 +4,8 @@ from django.shortcuts import render
 
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
+from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
-from visualizer.graph.roundDescriber import Describer
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\

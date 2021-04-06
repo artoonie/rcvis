@@ -2,8 +2,6 @@
 Integration tests without a server
 """
 
-# pylint: disable=too-many-lines
-
 from io import StringIO
 import json
 import time
