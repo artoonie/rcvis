@@ -52,7 +52,7 @@
     { "url": "heroku/google-chrome" },
     { "url": "heroku/nodejs" },
     { "url": "heroku/python" },
-    { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
+    { "url": "https://github.com/artoonie/heroku-buildpack-ffmpeg-latest" },
     { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
     { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
   ],
