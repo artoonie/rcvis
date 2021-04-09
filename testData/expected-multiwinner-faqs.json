@@ -2,17 +2,17 @@
   [
     {
       "question": "What is happening?",
-      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates.In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
     },
     {
       "question": "Why was Write-In eliminated?",
@@ -24,31 +24,31 @@
     },
     {
       "question": "Why did they need 134 votes to win?",
-      "answer": "In a single-winner election, each elected candidate needs one in two voters to support them. Since each voter only gets one vote, the same requirement is not possible for this Single Transferrable Vote election. Instead, one in 3 voters must support each elected candidate."
+      "answer": "In a single-winner election, the winning candidate needs to earn the support of at least 1 in 2 voters. Since each voter only gets one vote, the same requirement is not possible for this Single Transferable Vote election. Instead, each winning candidate must earn the support of 1 in 3 voters."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates.In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
     },
     {
       "question": "Why did Harvey Curley lose 10 votes?",
-      "answer": "A principle of RCV is that no vote should be wasted. Since Harvey Curley only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold."
+      "answer": "A principle of RCV is that no vote should be wasted. Since Harvey Curley only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold. The 10 votes were are redistributed to remaining candidates proportionally based on voters' next choices."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates.In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
     },
     {
       "question": "Why was Sarah Lucido eliminated?",
@@ -60,25 +60,25 @@
     },
     {
       "question": "Why did they need 134 votes to win?",
-      "answer": "In a single-winner election, each elected candidate needs one in two voters to support them. Since each voter only gets one vote, the same requirement is not possible for this Single Transferrable Vote election. Instead, one in 3 voters must support each elected candidate."
+      "answer": "In a single-winner election, the winning candidate needs to earn the support of at least 1 in 2 voters. Since each voter only gets one vote, the same requirement is not possible for this Single Transferable Vote election. Instead, each winning candidate must earn the support of 1 in 3 voters."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates.In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a multi-winner Ranked Choice Voting election, also known as a Single Transferable Vote Election. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
     },
     {
       "question": "Why did Larry Edwards lose about 51 votes?",
-      "answer": "A principle of RCV is that no vote should be wasted. Since Larry Edwards only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold."
+      "answer": "A principle of RCV is that no vote should be wasted. Since Larry Edwards only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 0 candidates can reach the 134-vote threshold. The 51 votes were are redistributed to remaining candidates proportionally based on voters' next choices."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates.Because 0.304 ballots had all of their choices eliminated, those ballots are no longer active in this round."
+      "answer": "Voters are not required to rank all candidates. Because 0.304 ballots had all of their choices eliminated, those ballots are no longer active in this round."
     }
   ]
 ]
