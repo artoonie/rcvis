@@ -208,7 +208,7 @@ class WhySurplusTransfer(FAQBase):
         lostVotes = int(round(redistributionData['sum']))  # note: don't aboutify
         names = common.comma_separated_names_with_and(redistributionData['names'])
         threshold = self.graph.threshold
-        numWinners = len(self.summary.rounds[roundNum].winnerNames)
+        numWinners = self.summary.numWinners
         return "A principle of RCV is that no vote should be wasted. "\
             f"Since {names} only needed {threshold} votes, "\
             "any vote beyond that should not be wasted, and is instead redistributed. "\
