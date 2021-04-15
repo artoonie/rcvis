@@ -190,7 +190,7 @@ class SingleMovieCreator():
         imageClip = self._generate_image_for_round_synchronously(lastRound)
         imageClip.save_frame(outputFilename)
 
-    def make_movie(self, outputFilename):
+    def make_movie(self, mp4Filename, gifFilename):
         """ Create a movie at a specific resolution """
         roomForCaptions = 200
 
@@ -219,10 +219,12 @@ class SingleMovieCreator():
             # Needs this tempfile or elasticbeanstalk will try writing to somewhere it can't
             # delete=False because moviepy will delete the file for us
             composite.write_videofile(
-                outputFilename,
+                mp4Filename,
                 fps=2,
                 temp_audiofile=tf.name,
                 audio_codec='aac')
+
+        composite.speedx(3.0).write_gif(gifFilename, fps=1)
 
         # moviepy is awful at garbage collection. Do it manually.
         self.toDelete.extend(imageClips)
@@ -251,15 +253,17 @@ class MovieCreationFactory():
         self.browser.execute_script(get_script_to_disable_animations())
 
     @classmethod
-    def save_and_upload(cls, movie, slug, videoFileObject, titleImageFileObject):
+    def save_and_upload(cls, movie, slug, mp4FileObject, gifFileObject, titleImageFileObject):
         """
         Saves data to the given movie object and uploads the video and image
         to the movie model.
         """
         # Note: do not use get_available_name, as .file_overwrite is True
-        videoFn = movie.movieFile.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
+        mp4Fn = movie.movieFile.storage.get_alternative_name(file_root=slug, file_ext=".mp4")
+        gifFn = movie.gifFile.storage.get_alternative_name(file_root=slug, file_ext=".gif")
         imageFn = movie.titleImage.storage.get_alternative_name(file_root=slug, file_ext=".png")
-        movie.movieFile.save(videoFn, File(videoFileObject))
+        movie.movieFile.save(mp4Fn, File(mp4FileObject))
+        movie.gifFile.save(gifFn, File(gifFileObject))
         movie.titleImage.save(imageFn, File(titleImageFileObject))
         movie.save()
 
@@ -278,12 +282,13 @@ class MovieCreationFactory():
         movie.resolutionHeight = height
         movie.generatedOnApplicationVersion = "TODO"
 
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as videoTempFile, \
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4TempFile, \
+                tempfile.NamedTemporaryFile(suffix=".gif") as gifTempFile, \
                 tempfile.NamedTemporaryFile(suffix=".png") as imageTempFile:
             try:
-                creator.make_movie(videoTempFile.name)
+                creator.make_movie(mp4TempFile.name, gifTempFile.name)
                 creator.make_static_image(imageTempFile.name)
-                self.save_and_upload(movie, self.jsonconfig.slug, videoTempFile, imageTempFile)
+                self.save_and_upload(movie, self.jsonconfig.slug, mp4TempFile, gifTempFile, imageTempFile)
             finally:
                 # Force additional garbage collection asap
                 del creator

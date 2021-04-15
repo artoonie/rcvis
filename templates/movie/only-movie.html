@@ -37,6 +37,9 @@
     <p>Debug info: No movie exists</p>
     {% endif %}
     </div>
+    {% if movie.gifFile %}
+    <p><img src="{{ movie.gifFile.url }}"></p>
+    {% endif %}
 
     {% include "visualizer/common-visualizer-nonblocking.html" %}
 
