@@ -125,7 +125,7 @@ class SingleMovieCreator():
 
     def _generate_image_for_round_synchronously(self, roundNum):
         try:
-            self.browser.execute_script(f'transitionEachBarForRound({roundNum+1});')
+            self.browser.execute_script(f'transitionEachBarForRound({roundNum});')
         except selenium.common.exceptions.JavascriptException as exception:
             errorText = "This error commonly occurs with Xvfb issues: "
             errorText += str(exception)
@@ -150,7 +150,7 @@ class SingleMovieCreator():
 
         return self._generate_clip_with_caption(roundNum, caption)
 
-    def _generate_gif_for_round(self, caption, roundNum):
+    def _generate_gif_for_round(self, caption, duration, roundNum):
         # First update the HTML to match the caption & round num
         self._set_captions_on_page(roundNum, caption)
 
@@ -158,7 +158,7 @@ class SingleMovieCreator():
         imageClip0 = self._generate_image_for_round_synchronously(roundNum)
 
         # 1s
-        imageClip1 = imageClip0.set_duration(1)
+        imageClip1 = imageClip0.set_duration(duration)
         imageClip = imageClip1.resize(self.size)
 
         self.toDelete.extend([imageClip0, imageClip1, imageClip])
@@ -259,8 +259,9 @@ class SingleMovieCreator():
 
         # Each round
         for i in range(self._get_num_rounds()):
+            duration = 1 if i != self._get_num_rounds() - 1 else 5
             clip = self._generate_gif_for_round(
-                f"Ranked choice voting results for:<br/>\"{self.graph.title}\"", i)
+                f"Ranked choice voting results for:<br/>\"{self.graph.title}\"", duration, i)
             imageClips.append(clip)
 
         composite = concatenate_videoclips(imageClips)
