@@ -1,5 +1,9 @@
 {% load static %}
+{% load compress %}
+
+{% compress css file %}
 <link rel="stylesheet" type="text/css" href="{% static 'bargraph/style.css' %}">
+{% endcompress %}
 
 <div class="container-fluid">
   <div class="row d-flex justify-content-left align-items-start">

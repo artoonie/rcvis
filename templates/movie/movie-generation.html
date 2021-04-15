@@ -1,4 +1,5 @@
 {% load static %}
+{% load compress %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +8,10 @@
 {% include "visualizer/common-header.html" %}
 {% include "visualizer/common-visualizer-header.html" %}
 
+{% compress css file %}
 <link rel="stylesheet" href="{% static 'movie/style.css' %}">
+{% endcompress %}
+
 <script>
 function flushAllD3Transitions() {
   var now = performance.now;
