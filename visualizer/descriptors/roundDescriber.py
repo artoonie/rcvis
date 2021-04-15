@@ -197,7 +197,8 @@ class Describer:
             electionType = "Ranked Choice Voting election"
 
         if isForVideo:
-            text = f"In this {electionType}, there were {numRounds} rounds, "\
+            wereOrWas = "was" if numRounds == 1 else "were"
+            text = f"In this {electionType}, there {wereOrWas} {numRounds} rounds, "\
                    f"after which {winnerText}. Here's what happened in each round. "
         else:
             text = f"After {numRounds} rounds of this {electionType}, "\

@@ -97,8 +97,10 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Ensure it's completed
         jsonConfig = TestHelpers.get_latest_json_config()
         assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
+        assert os.path.exists(jsonConfig.movieHorizontal.gifFile.path)
         assert os.path.exists(jsonConfig.movieHorizontal.titleImage.path)
         assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
+        assert os.path.exists(jsonConfig.movieVertical.gifFile.path)
         assert os.path.exists(jsonConfig.movieVertical.titleImage.path)
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.COMPLETE
 
@@ -175,27 +177,28 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         slug = "slug"
         assert self._num_movies() == 0
 
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as videoTf,\
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4Tf,\
+                tempfile.NamedTemporaryFile(suffix=".gif") as gifTf,\
                 tempfile.NamedTemporaryFile(suffix=".png") as imageTf:
             movie = Movie()
             movie.resolutionWidth = 1
             movie.resolutionHeight = 1
             movie.generatedOnApplicationVersion = "N/A"
-            MovieCreationFactory.save_and_upload(movie, slug, videoTf, imageTf)
+            MovieCreationFactory.save_and_upload(movie, slug, mp4Tf, gifTf, imageTf)
             actualVideoFn = movie.movieFile.url
+            actualGifFn = movie.gifFile.url
         assert actualVideoFn != slug
         assert slug in actualVideoFn
         assert '.mp4' in actualVideoFn  # might not be at the end - AWS adds keys to URL GET
+        assert '.gif' in actualGifFn  # might not be at the end - AWS adds keys to URL GET
         assert self._num_movies() == 1
 
     @mock.patch('moviepy.video.VideoClip.VideoClip.write_videofile')
     @mock.patch(MOVIE_PATCH_PREFIX + '_generate_image_for_round_synchronously', autospec=True)
-    @mock.patch(MOVIE_PATCH_PREFIX + '_generate_captions_with_duration', autospec=True)
     @mock.patch(MOVIE_PATCH_PREFIX + '_spawn_audio_creation_with_caption', autospec=True)
     def test_captions_all_as_expected(
             self,
             mockSpawnAudio,
-            mockGenerateCaptions,
             mockGenerateImage,
             mockWriteVideoFile):
         """ Integration test to verify the end-to-end script """
@@ -207,7 +210,6 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Mock the video generation to make it faster
         mockWriteVideoFile.return_value = None
-        mockGenerateCaptions.return_value = []
         mockGenerateImage.return_value = moviepy.editor.ImageClip(FILENAME_ARBITRARY_IMAGE)
 
         create_movie_task(jsonConfig.pk, self.live_server_url)
