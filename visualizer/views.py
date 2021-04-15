@@ -111,7 +111,7 @@ class Visualize(DetailView):
 
         # wikipedia embedding
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
-        referenceUrl += "#tabular-candidate-by-round"
+        referenceUrl += "#single-table-summary"
         data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode()
 
         return data

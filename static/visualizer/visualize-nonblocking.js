@@ -21,6 +21,12 @@ var hasAnimatedSlider = false;
 function goToTab(newTabName) {
   if (newTabName == currentTabName) return;
 
+  const newTab = $('.nav-tabs a[href="#' + newTabName + '"]');
+  if (newTab.length == 0) {
+    console.log("You provided an invalid tab name (" + newTabName + ").");
+    newTabName = 'barchart';
+  }
+
   // Select tab via bootstrap
   swapTabVisibility(currentTabName, newTabName);
   currentTabName = newTabName;
