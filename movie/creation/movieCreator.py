@@ -110,10 +110,12 @@ class SingleMovieCreator():
         return self.textToSpeechFactory.text_to_speech(caption)
 
     def _set_captions_on_page(self, roundNum, caption):
-        rt = "Round " + str(roundNum + 1)
-        ct = caption.replace("'", "\\'")
-        self.browser.execute_script(f"document.getElementById('movieRoundNum').innerHTML = '{rt}';")
-        self.browser.execute_script(f"document.getElementById('caption').innerHTML = '{ct}';")
+        roundText = "Round " + str(roundNum + 1)
+        captionText = caption.replace("'", "\\'")
+        roundScript = f"document.getElementById('movieRoundNum').innerHTML = '{roundText}';"
+        captionScript = f"document.getElementById('caption').innerHTML = '{captionText}';"
+        self.browser.execute_script(roundScript)
+        self.browser.execute_script(captionScript)
 
     def _generate_image_for_round_synchronously(self, roundNum):
         try:
@@ -125,7 +127,7 @@ class SingleMovieCreator():
             errorText += self.browser.page_source
             raise ProbablyFailedToLaunchBrowser(errorText)
         time.sleep(0.3)  # flushAllD3Transitions doesn't seem to work...
-        self.browser.execute_script("flushAllD3Transitions();");
+        self.browser.execute_script("flushAllD3Transitions();")
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)
@@ -192,8 +194,6 @@ class SingleMovieCreator():
 
     def make_movie(self, mp4Filename, gifFilename):
         """ Create a movie at a specific resolution """
-        roomForCaptions = 200
-
         roundDescriber = Describer(self.graph, summarizeAsParagraph=True)
 
         imageClips = []
@@ -224,7 +224,7 @@ class SingleMovieCreator():
                 temp_audiofile=tf.name,
                 audio_codec='aac')
 
-        composite.speedx(3.0).write_gif(gifFilename, fps=1)
+        composite.speedx(3.0).write_gif(gifFilename, fps=1)  # pylint: disable=no-member
 
         # moviepy is awful at garbage collection. Do it manually.
         self.toDelete.extend(imageClips)
@@ -252,6 +252,7 @@ class MovieCreationFactory():
         self.browser.get(url)
         self.browser.execute_script(get_script_to_disable_animations())
 
+    # pylint: disable=too-many-arguments
     @classmethod
     def save_and_upload(cls, movie, slug, mp4FileObject, gifFileObject, titleImageFileObject):
         """
@@ -288,7 +289,12 @@ class MovieCreationFactory():
             try:
                 creator.make_movie(mp4TempFile.name, gifTempFile.name)
                 creator.make_static_image(imageTempFile.name)
-                self.save_and_upload(movie, self.jsonconfig.slug, mp4TempFile, gifTempFile, imageTempFile)
+                self.save_and_upload(
+                    movie,
+                    self.jsonconfig.slug,
+                    mp4TempFile,
+                    gifTempFile,
+                    imageTempFile)
             finally:
                 # Force additional garbage collection asap
                 del creator

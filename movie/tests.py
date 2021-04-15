@@ -195,12 +195,10 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
     @mock.patch('moviepy.video.VideoClip.VideoClip.write_videofile')
     @mock.patch(MOVIE_PATCH_PREFIX + '_generate_image_for_round_synchronously', autospec=True)
-    @mock.patch(MOVIE_PATCH_PREFIX + '_generate_captions_with_duration', autospec=True)
     @mock.patch(MOVIE_PATCH_PREFIX + '_spawn_audio_creation_with_caption', autospec=True)
     def test_captions_all_as_expected(
             self,
             mockSpawnAudio,
-            mockGenerateCaptions,
             mockGenerateImage,
             mockWriteVideoFile):
         """ Integration test to verify the end-to-end script """
@@ -212,7 +210,6 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Mock the video generation to make it faster
         mockWriteVideoFile.return_value = None
-        mockGenerateCaptions.return_value = []
         mockGenerateImage.return_value = moviepy.editor.ImageClip(FILENAME_ARBITRARY_IMAGE)
 
         create_movie_task(jsonConfig.pk, self.live_server_url)

@@ -69,6 +69,7 @@ def get_data_for_view(config):
         'graph': graph
     }
 
+
 def get_script_to_disable_animations():
     """ Disables transitions on the current page """
     return "var animDisabler = document.createElement('style');\

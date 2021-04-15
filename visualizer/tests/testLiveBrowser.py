@@ -120,11 +120,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _disable_all_animations(self):
         """ Disables transitions on the current page """
-        script = "var animDisabler = document.createElement('style');\
-                  animDisabler.textContent = '*{ transition: none !important;\
-                                            transition-property: none !important; }';\
-                  document.head.appendChild(animDisabler);"
-        self.browser.execute_script(viewUtils.get_script_to_disable_animations())
+        self.browser.execute_script(get_script_to_disable_animations())
 
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
