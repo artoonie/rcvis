@@ -45,6 +45,12 @@ class SingleMovieCreator():
 
         self.toDelete = []
 
+    def _delete_intermediate_clips(self):
+        for clip in self.toDelete:
+            clip.close()
+            del clip
+        self.toDelete = []
+
     def _text_on_background(self, writtenText, spokenText, backgroundImageFn):
         """
         Writes writtenText on the given background image,
@@ -144,6 +150,21 @@ class SingleMovieCreator():
 
         return self._generate_clip_with_caption(roundNum, caption)
 
+    def _generate_gif_for_round(self, caption, roundNum):
+        # First update the HTML to match the caption & round num
+        self._set_captions_on_page(roundNum, caption)
+
+        # Create background image
+        imageClip0 = self._generate_image_for_round_synchronously(roundNum)
+
+        # 1s
+        imageClip1 = imageClip0.set_duration(1)
+        imageClip = imageClip1.resize(self.size)
+
+        self.toDelete.extend([imageClip0, imageClip1, imageClip])
+
+        return imageClip
+
     def _generate_initial_summary(self, roundDescriber):
         """ The first thing we do is show the results. """
         caption = roundDescriber.describe_initial_summary(isForVideo=True)
@@ -192,7 +213,7 @@ class SingleMovieCreator():
         imageClip = self._generate_image_for_round_synchronously(lastRound)
         imageClip.save_frame(outputFilename)
 
-    def make_movie(self, mp4Filename, gifFilename):
+    def make_movie(self, mp4Filename):
         """ Create a movie at a specific resolution """
         roundDescriber = Describer(self.graph, summarizeAsParagraph=True)
 
@@ -224,15 +245,33 @@ class SingleMovieCreator():
                 temp_audiofile=tf.name,
                 audio_codec='aac')
 
-        composite.speedx(3.0).write_gif(gifFilename, fps=1)  # pylint: disable=no-member
-
         # moviepy is awful at garbage collection. Do it manually.
         self.toDelete.extend(imageClips)
         self.toDelete.append(composite)
-        for clip in self.toDelete:
-            clip.close()
-            del clip
-        self.toDelete = []
+        self._delete_intermediate_clips()
+
+    def make_gif(self, gifFilename):
+        """ Creates a gif without titles or captions, just the rounds """
+        imageClips = []
+
+        showLogoScript = "document.getElementById('logo').style.display = 'block';"
+        self.browser.execute_script(showLogoScript)
+
+        # Each round
+        for i in range(self._get_num_rounds()):
+            clip = self._generate_gif_for_round(
+                f"Ranked choice voting results for:<br/>\"{self.graph.title}\"", i)
+            imageClips.append(clip)
+
+        composite = concatenate_videoclips(imageClips)
+        composite.write_gif(gifFilename, fps=1)
+
+        hideLogoScript = "document.getElementById('logo').style.display = 'none';"
+        self.browser.execute_script(hideLogoScript)
+
+        self.toDelete.extend(imageClips)
+        self.toDelete.append(composite)
+        self._delete_intermediate_clips()
 
 
 class MovieCreationFactory():
@@ -287,8 +326,9 @@ class MovieCreationFactory():
                 tempfile.NamedTemporaryFile(suffix=".gif") as gifTempFile, \
                 tempfile.NamedTemporaryFile(suffix=".png") as imageTempFile:
             try:
-                creator.make_movie(mp4TempFile.name, gifTempFile.name)
+                creator.make_movie(mp4TempFile.name)
                 creator.make_static_image(imageTempFile.name)
+                creator.make_gif(gifTempFile.name)
                 self.save_and_upload(
                     movie,
                     self.jsonconfig.slug,
