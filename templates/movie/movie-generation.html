@@ -6,9 +6,28 @@
 <head>
 {% include "visualizer/common-header.html" %}
 {% include "visualizer/common-visualizer-header.html" %}
+
+<link rel="stylesheet" href="{% static 'movie/style.css' %}">
+<script>
+function flushAllD3Transitions() {
+  var now = performance.now;
+  performance.now = function() { return Infinity; };
+  d3.timerFlush();
+  performance.now = now;
+ }
+</script>
+
 </head>
 <body>
+<div id="movieRoundNum">
+Round Number
+</div>
+<div>
 {% include "bargraph/barchart-interactive.html" %}
+</div>
+<div id="caption">
+Caption
+</div>
 
 {% include "visualizer/common-visualizer-nonblocking.html" %}
 {% include "bargraph/barchart-common-nonblocking.html" %}
@@ -16,16 +35,16 @@
 
 <script>
     $("#bargraph-slider-container").hide();
-    $("#bargraph-interactive-body").css("maxWidth", "90%");
     $("#bargraph-interactive-legend").hide();
-    $("body").css("margin-left", "100px");
-    $("body").css("margin-right", "100px");
-    $("body").css("margin-bottom", "100px");
-    {% if config.doUseHorizontalBarGraph %}
-    $("body").css("margin-top", "100px");
-    {% else %}
-    $("body").css("margin-top", "0px");
-    {% endif %}
+
+    const roomForCaptions = 300;
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const widthScalar = (windowHeight - roomForCaptions)/windowHeight;
+    const maxWidth = windowWidth * widthScalar;
+    // TODO not sure why this doesn't work:
+    //$("#bargraph-interactive-body").css("maxWidth", maxWidth + "px");
+    $("#bargraph-interactive-body").css("maxWidth", "750px");
 </script>
 
 </body>

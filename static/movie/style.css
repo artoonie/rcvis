@@ -1,0 +1,21 @@
+body {
+  overflow: hidden;
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+#movieRoundNum {
+  font-size: 45px;
+  width: 100%;
+  text-align: center;
+}
+
+#caption {
+  font-size: 25px;
+  width: 100%;
+  text-align: center;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: white;
+}

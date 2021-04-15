@@ -14,6 +14,7 @@ from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextCli
     concatenate_videoclips
 import selenium
 
+from common.viewUtils import get_script_to_disable_animations
 from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
@@ -108,28 +109,11 @@ class SingleMovieCreator():
         """ Returns a GeneratedAudioWrapper which you should poll for completion """
         return self.textToSpeechFactory.text_to_speech(caption)
 
-    def _generate_captions_with_duration(self, roundNum, caption, duration):
-        roundText0 = TextClip("\nRound " + str(roundNum + 1),
-                              font=self.fontName,
-                              fontsize=70,
-                              color="black",
-                              size=(self.size),
-                              method="caption",
-                              align="North")
-
-        captionText0 = TextClip(caption,
-                                font=self.fontName,
-                                fontsize=40,
-                                color="black",
-                                size=(self.size),
-                                method="caption",
-                                align="South")
-        roundText = roundText0.set_duration(duration)
-        captionText = captionText0.set_duration(duration)
-
-        self.toDelete.extend([roundText0, roundText, captionText0, captionText])
-
-        return [roundText, captionText]
+    def _set_captions_on_page(self, roundNum, caption):
+        rt = "Round " + str(roundNum + 1)
+        ct = caption.replace("'", "\\'")
+        self.browser.execute_script(f"document.getElementById('movieRoundNum').innerHTML = '{rt}';")
+        self.browser.execute_script(f"document.getElementById('caption').innerHTML = '{ct}';")
 
     def _generate_image_for_round_synchronously(self, roundNum):
         try:
@@ -140,7 +124,8 @@ class SingleMovieCreator():
             errorText += "\n\nCurrent browser context:\n"
             errorText += self.browser.page_source
             raise ProbablyFailedToLaunchBrowser(errorText)
-        time.sleep(0.1)
+        time.sleep(0.3)  # flushAllD3Transitions doesn't seem to work...
+        self.browser.execute_script("flushAllD3Transitions();");
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)
@@ -166,6 +151,9 @@ class SingleMovieCreator():
 
     def _generate_clip_with_caption(self, roundNum, caption):
         """ Uses the caption to create audio and visual captions for the round """
+        # First update the HTML to match the caption & round num
+        self._set_captions_on_page(roundNum, caption)
+
         # Create audio
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
 
@@ -177,12 +165,11 @@ class SingleMovieCreator():
         audioClip = AudioFileClip(audioFile.name)
         audioDuration = audioClip.duration
 
-        # Create captions and set durations
-        captionClips = self._generate_captions_with_duration(roundNum, caption, audioDuration)
+        # Set audio durations
         imageClip = imageClip0.set_duration(audioDuration)
 
         # Combine everything
-        combined0 = CompositeVideoClip([imageClip] + captionClips)
+        combined0 = CompositeVideoClip([imageClip])
         combined1 = combined0.set_duration(audioDuration)
         combined2 = combined1.set_audio(audioClip)
         combined = combined2.resize(self.size)
@@ -190,7 +177,6 @@ class SingleMovieCreator():
         self.toDelete.extend([audioClip,
                               combined0, combined1, combined2, combined,
                               imageClip0, imageClip])
-        self.toDelete.extend(captionClips)
 
         return combined
 
@@ -206,7 +192,8 @@ class SingleMovieCreator():
 
     def make_movie(self, outputFilename):
         """ Create a movie at a specific resolution """
-        self.browser.set_window_size(self.size[0], self.size[1])
+        roomForCaptions = 200
+
         roundDescriber = Describer(self.graph, summarizeAsParagraph=True)
 
         imageClips = []
@@ -261,6 +248,7 @@ class MovieCreationFactory():
         url = "%s%s" % (domain, path)
 
         self.browser.get(url)
+        self.browser.execute_script(get_script_to_disable_animations())
 
     @classmethod
     def save_and_upload(cls, movie, slug, videoFileObject, titleImageFileObject):

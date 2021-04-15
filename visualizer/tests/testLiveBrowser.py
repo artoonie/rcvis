@@ -19,6 +19,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
+from common.viewUtils import get_script_to_disable_animations
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
 
@@ -123,7 +124,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
                   animDisabler.textContent = '*{ transition: none !important;\
                                             transition-property: none !important; }';\
                   document.head.appendChild(animDisabler);"
-        self.browser.execute_script(script)
+        self.browser.execute_script(viewUtils.get_script_to_disable_animations())
 
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
