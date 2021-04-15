@@ -25,7 +25,7 @@ class Movie(models.Model):
     """ An automatically-generated Movie showing the interaction. """
     generatedOnApplicationVersion = models.CharField(max_length=30)
     movieFile = models.FileField(max_length=512, upload_to='movies')
-    gifFile = models.FileField(max_length=512, upload_to='gifs', null=True)
+    gifFile = models.FileField(max_length=512, upload_to="gifs", null=True, blank=True)
     titleImage = models.ImageField(upload_to='movieTitleImages', null=True)
 
     resolutionWidth = models.PositiveIntegerField(
