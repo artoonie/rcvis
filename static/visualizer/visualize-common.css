@@ -5,8 +5,6 @@
 .vis-wrapper {
   /* initially everything is hidden, js will enable */
   display: none;
-  margin-bottom: 20px;
-  margin-top: 20px;
 }
 
 .vis-fixed {
@@ -26,8 +24,28 @@
   border-bottom: none;
 }
 
+.tabtext {
+  vertical-align: center;
+}
+
+.electiontitleheading {
+  border-left: 3px solid black;
+  padding-left: 4px;
+}
+
 .nav-item {
   flex-wrap: wrap;
+  color: #000;
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.selected-nav {
+  border-bottom: 1px solid white;
+}
+
+.tabswitchnavbar {
+  flex-direction: row;
 }
 
 .shadow-wrapper {

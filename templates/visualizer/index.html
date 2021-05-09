@@ -20,22 +20,30 @@
 {% endblock %}
 
 {% block navlinks %}
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Sample Elections</a>
-</li>
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">Visualization Types</a>
-</li>
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Upload</a>
-</li>
+<button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+  Menu
+  <i class="fas fa-bars"></i>
+</button>
+<div class="collapse navbar-collapse" id="navbarResponsive">
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item mx-0 mx-lg-1">
+      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Example Elections</a>
+    </li>
+    <li class="nav-item mx-0 mx-lg-1">
+      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">DataViz Types</a>
+    </li>
+    <li class="nav-item mx-0 mx-lg-1">
+      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Create A Visualization</a>
+    </li>
+  </ul>
+</div>
 {% endblock %}
 
 {% block maincontent %}
   <!-- Masthead -->
   <div class="section homedescriptor" id="id-intro">
       <p><h1 class="page-section-heading text-center text-uppercase text-secondary mb-0">Ranked Choice Voting ballots are <a href="https://www.fairvote.org/ranking_is_easy_a_response_to_misleading_claims_about_voter_errors">easy to fill out</a>.</h1></p>
-      <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVIS makes the results easy to understand, too.</h2></p>
+      <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVis makes the results easy to understand, too.</h2></p>
 
       <div class="divider-custom divider-dark">
         <div class="divider-custom-line"></div>
@@ -266,7 +274,7 @@
         <div class="row justify-content-center">
           <div class="descriptors">
             <small>
-              <p>The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVIS can ingest and visualize.</p>
+              <p>The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVis can ingest and visualize.</p>
             </small>
           </div>
         </div>
@@ -281,7 +289,7 @@
         <div class="row justify-content-center">
           <div class="descriptors">
             <small>
-              <p>The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVIS.</p>
+              <p>The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVis.</p>
             </small>
           </div>
         </div>

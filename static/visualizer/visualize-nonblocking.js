@@ -1,5 +1,5 @@
 // Handle bootstrap nav clicks
-$('.nav-tabs a').on('click', function (e) {
+$('a[data-toggle="changeviz"]').on('click', function (e) {
   e.preventDefault()
   const tab = this.id;
   goToTab(tab.substring(0, tab.length - 4)); // remove "-tab" to get the data-anchor
@@ -21,10 +21,15 @@ var hasAnimatedSlider = false;
 function goToTab(newTabName) {
   if (newTabName == currentTabName) return;
 
+  // Update navigation
+  if (currentTabName != null) {
+    $('a[data-toggle="changeviz"][href="#' + currentTabName + '"]').removeClass('selected-nav');
+  }
+  $('a[data-toggle="changeviz"][href="#' + newTabName + '"]').addClass('selected-nav');
+
   // Select tab via bootstrap
   swapTabVisibility(currentTabName, newTabName);
   currentTabName = newTabName;
-  $('.nav-tabs a[href="#' + newTabName + '"]').tab('show');
 
   // Update whether interactive/static toggle is there
   const canBeDynamic = newTabName == 'barchart' || newTabName == 'round-by-round';

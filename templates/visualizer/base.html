@@ -18,17 +18,9 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo.png' %}" width="60" alt="RCVIS logo" id="logo" /></a>
-      <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        Menu
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto">
+        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo-white.png' %}" width="120" alt="RCVis logo" id="logo" /></a>
 {% block navlinks %}
 {% endblock %}
-        </ul>
-      </div>
     </div>
   </nav>
 
@@ -43,10 +35,8 @@
 
         <!-- Footer Location -->
         <div class="col-lg-4 mb-5 mb-lg-0">
-          <h4 class="text-uppercase mb-4">Supported File Formats</h4>
-          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a>
-          <br/><a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>
-          <br/><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">ElectionBuddy's Online Elections</a>
+          <h4 class="text-uppercase mb-4">Collaborations</h4>
+          <p class="lead mb-0">Want to use our visualizer for your election, poll, or infographic? The easiest way is to get in touch: <a class="link-on-blue" href="mailto:team@rcvis.com">team@RCVis.com</a>.</p>
         </div>
 
         <!-- Footer Social Icons -->
@@ -69,7 +59,8 @@
         <!-- Footer About Text -->
         <div class="col-lg-4">
           <h4 class="text-uppercase mb-4">About</h4>
-          <p class="lead mb-0">RCVIS is open-source Ranked-Choice Voting Visualization software. Get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.</p>
+          <p class="lead mb-0">RCVis is <a class="link-on-blue"  href="https://github.com/artoonie/rcvis">open-source</a> Ranked-Choice Voting Visualization software.
+          It supports data from Rankit.Vote, ElectionBuddy, Opavote, and RCTab via the <a class="link-on-blue" href="https://github.com/artoonie/rcvformats">RCVFormats</a> library.</p>
         </div>
 
       </div>

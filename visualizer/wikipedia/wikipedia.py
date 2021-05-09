@@ -24,7 +24,7 @@ class WikipediaExport():
         return datetime.date.today().strftime("%B %d, %Y")
 
     def _create_reference(self):
-        """ Creates a <ref> tag pointing back to RCVIS """
+        """ Creates a <ref> tag pointing back to RCVis """
         todaysDate = self._get_todays_date_string()
         title = self.graph.title + " Ranked Choice Voting Election Results Visualization"
         referenceUrl = self.visualizeReferenceUrl
@@ -34,7 +34,7 @@ class WikipediaExport():
                 |title=""" + title + """
                 |url=""" + referenceUrl + """
                 |website=rcvis.com
-                |publisher=RCVIS
+                |publisher=RCVis
                 |date=""" + todaysDate + """
                 }}
             </ref>"""
