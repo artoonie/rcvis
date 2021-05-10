@@ -39,7 +39,7 @@
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
-  --font-family-sans-serif: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-family-sans-serif: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
@@ -50,7 +50,6 @@
 }
 
 html {
-  font-family: sans-serif;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
@@ -62,7 +61,7 @@ footer, header, nav, section {
 
 body {
   margin: 0;
-  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family-sans-serif: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.5;
@@ -200,7 +199,6 @@ textarea {
 
 h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0.5rem;
-  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   font-weight: 700;
   line-height: 1.2;
 }
@@ -1182,9 +1180,9 @@ button.bg-primary:hover, button.bg-primary:focus {
 .btn-social {
   border-radius: 100%;
   display: inline-flex;
-  width: 3.25rem;
-  height: 3.25rem;
-  font-size: 1.25rem;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
   justify-content: center;
   align-items: center;
 }
@@ -1192,7 +1190,6 @@ button.bg-primary:hover, button.bg-primary:focus {
 #mainNav {
   padding-top: 0.1rem;
   padding-bottom: 0.1rem;
-  font-family: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 #mainNav .navbar-brand {
@@ -1204,7 +1201,6 @@ button.bg-primary:hover, button.bg-primary:focus {
 }
 
 #mainNav .navbar-nav li.nav-item a.nav-link {
-  font-size: 12px;
   color: #fff;
   font-weight: 500;
 }
@@ -1257,11 +1253,13 @@ button.bg-primary:hover, button.bg-primary:focus {
 }
 
 .footer {
-  margin-top: 3rem;
-  padding-top: 5rem;
-  padding-bottom: 5rem;
-  background-color: #4747ff;
-  color: #fff;
+  margin-top: 5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-image: linear-gradient(0deg, #e4f3fd, #4747ff00);
+  color: #000;
+  opacity: 75%;
+  font-size: 0.8em;
 }
 
 .copyright {
