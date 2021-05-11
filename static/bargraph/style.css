@@ -32,7 +32,7 @@ path.domain {
   border-radius: 10px;
   height: 65px;  /* Note: sync with hideFaqs() */
   font-size: 0.9em;
-  background-color: #e3f6ff;
+  background-color: #fafdff;
   margin-top: 15px;
   display: none; /* Disable for now */
   overflow-y: auto;
@@ -60,10 +60,14 @@ path.domain {
 
 #bargraph-interactive-why-button {
   opacity: 0%;  /* will show when animation completes */
+  font-weight: bold;
 }
 
 #faq-text {
   display: none;
+}
+.prev-next-button {
+  color: white;
 }
 
 @media only screen and (max-width: 1024px) {

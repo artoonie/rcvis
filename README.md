@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
 
-# RCVIS.com
+# RCVis.com
 See the site in action at [rcvis.com](https://www.rcvis.com).
 
 # Ranked Choice Voting Visualization
@@ -89,13 +89,6 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 | --- | --- |
 | ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
 
-## Inpsiration
-[City of Minneapolis](http://vote.minneapolismn.gov/results/2017/2017-mayor-tabulation)
-
-[Sohan Murthy's SF Mayoral Sankey](https://medium.com/@sohanmurthy/visualizing-san-franciscos-mayoral-election-results-91db11477605)
-
-[FairVote's 2018 Santa Fe Visualization](https://www.fairvote.org/2018_election)
-
 ## RESTful API
 Addition documentation for the REST API is available at [rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/).
 
@@ -109,7 +102,7 @@ To get started with programmatic access to rcvis:
 You are limited to 1000 requests per hour as an authenticated user.
 
 ## oembed
-RCVIS implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
 
 ## Testing
 Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).

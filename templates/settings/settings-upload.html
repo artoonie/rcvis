@@ -51,22 +51,22 @@ function handleFiles(files)
             <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">ElectionBuddy Preferential Voting (CSV)</a></li>
           </ol>
           <p class="mt-2 mb-0">
-            To use RCVIS, you need to upload the results of an election or poll which has already occured.
-            RCVIS does not host any RCV polls, it only visualizes the results of an election.
+            To use RCVis, you need to upload the results of an election or poll which has already occured.
+            RCVis does not host any RCV polls, it only visualizes the results of an election.
           </p>
         </div>
       </div>
       <div class="collapse" id="exampledata">
         <div class="card card-body mb-3 d-block bg-light">
-          <h5 class="card-title">Other ways to try out RCVIS</h5>
+          <h5 class="card-title">Other ways to try out RCVis</h5>
           <ol class="list-group">
             <li class="list-group-item"><a href="{% url 'index'  %}#examples">Check out some examples</a></li>
             <li class="list-group-item"><a href="https://rankit.vote">Create a poll on rankit</a></li>
             <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">Host an election on ElectionBuddy</a></li>
           </ol>
           <p class="mt-2 mb-0">
-            If you're curious about using RCVIS for an upcoming election, please get in touch at <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
-            If you're just poking around, you can explore previous elections using the <a href="{% url 'index'  %}#examples">examples</a> link above.
+            If you're curious about using RCVis for an upcoming election, please get in touch at <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
+            If you're just poking around, you can <a href="{% url 'index'  %}#examples">explore previous elections</a> which used RCVis.
           </p>
         </div>
       </div>
@@ -104,7 +104,7 @@ function handleFiles(files)
 
 {% block afterOptions %}
       <div class="narrowbox mt-3">
-        <button id="uploadButton" type="submit" class="btn btn-primary btn-xl" disabled>Upload to RCVIS</button>
+        <button id="uploadButton" type="submit" class="btn btn-primary btn-xl" disabled>Upload to RCVis</button>
       </div>
     </div>
   </div>

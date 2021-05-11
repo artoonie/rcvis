@@ -192,7 +192,7 @@ class Describer:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 
         if len(winners) > 1:
-            electionType = "Multi-Winner Ranked Choice Voting election"
+            electionType = "Proportional, Multi-Winner Ranked Choice Voting election"
         else:
             electionType = "Ranked Choice Voting election"
 

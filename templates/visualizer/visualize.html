@@ -19,90 +19,75 @@
       "@context" : "http://schema.org",
       "@type" : "Dataset",
       "name" : "{{title}}",
-      "description" : "RCVIS is open-source Ranked-Choice Voting Visualization software",
+      "description" : "RCVis is open-source Ranked-Choice Voting Visualization software",
       "temporalCoverage" : "{{ date }}",
       "license" : "open-source",
       "creator" : {
         "@type": "Organization",
-        "name": "RCVIS"
+        "name": "RCVis"
       }
 		}
 	</script>
 {% endblock %} 
 
 {% block navlinks %}
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#examples">Sample Elections</a>
-</li>
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/index.html#types">Visualization Types</a>
-</li>
-<li class="nav-item mx-0 mx-lg-1">
-  <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Upload</a>
-</li>
-{% endblock %}
-
-{% block maincontent %}
-<div class="fp-auto-height" id="visualize-header-deferred-visibility">
-  <header class="masthead bg-primary text-white text-left pb-0 pt-1"> <!-- dynamically loaded later -->
-  <div class="container px-0">
-      <h1 class="masthead-subheading font-weight-light mb-0 pl-3">{{ title }}</h1>
-      <p class="font-weight-light mb-0 pl-3">{{ date }}</p>
-    <div class="align-items-left ml-0">
-    <ul class="nav nav-tabs" id="tablist" role="tablist">
+      <ul class="navbar-nav ml-auto tabswitchnavbar">
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="barchart" aria-selected="true">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_barchart.png' %}" width="20" alt="Barchart icon"/>
+            <a class="nav-link btn" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="barchart" aria-selected="true">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/barchart.png' %}" width="18" alt="Barchart icon"/>
               <span class="tabtext">Bar Chart</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_sankey">
-            <a class="nav-link btn btn-outline-light" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_sankey.png' %}" width="20" alt="Sankey icon. 'sankey graph' by Product Pencil from the Noun Project."/>
+            <a class="nav-link btn" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/sankey.png' %}" width="18" alt="Sankey icon. 'sankey graph' by Product Pencil from the Noun Project."/>
               <span class="tabtext">Sankey</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_singletable.png' %}" width="20" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
+            <a class="nav-link btn" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
               <span class="tabtext">Summary table</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_roundbyround.png' %}" width="20" alt="Round-By-Round icon. 'move cells to another location for editing' by icon 54 from the Noun Project."/>
+            <a class="nav-link btn" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/roundbyround.png' %}" width="18" alt="Round-By-Round icon. 'move cells to another location for editing' by icon 54 from the Noun Project."/>
               <span class="tabtext">Tables by round</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn btn-outline-light" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_candidatesummary.png' %}" width="20" alt="Candidate summary icon. 'data set' by H Alberto Gongora from the Noun Project."/>
+            <a class="nav-link btn" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/candidatesummary.png' %}" width="18" alt="Candidate summary icon. 'data set' by H Alberto Gongora from the Noun Project."/>
               <span class="tabtext">Tables by candidate</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="settings" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_settings.png' %}" width="20" alt="Settings icon"/>
+            <a class="nav-link btn" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="settings" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/settings.png' %}" width="18" alt="Settings icon"/>
               <span class="tabtext">Settings</span>
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link btn btn-outline-light" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="share" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicon_share.png' %}" width="20" alt="Share icon"/>
+            <a class="nav-link btn" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="share" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/share.png' %}" width="18" alt="Share icon"/>
               <span class="tabtext">Share</span>
             </a>
         </li>
-    </ul>
-    </div>
+      </ul>
+{% endblock %}
+
+{% block maincontent %}
+<div class="fp-auto-height" id="visualize-header-deferred-visibility">
+  <header class="masthead text-left pb-1 pt-1">
+  <div class="container px-0">
+      <h1 class="masthead-subheading font-weight-light electiontitleheading mt-1 mb-0 ml-3">{{ title }}</h1>
+      <p class="font-weight-light mb-0 ml-3">{{ date }}</p>
+      <h6 class="font-weight-light mb-1 ml-3">The results of a ranked-choice voting election</h6>
   </div>
   </header>
 
   <div class="text-center px-0">
-   <small id="toggle-dynamic" class="ml-2 mt-2 text-muted">
-	 	<a id="make-print-friendly" href="#" class="vis-interactive">Showing interactive content. Show print-friendly instead?</a>
-	 	<a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
-	 </small>
-
     <div class="container vis-wrapper" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
       <div class="vis-fixed">
           {% include "bargraph/barchart-fixed.html" %}
@@ -140,6 +125,11 @@
     <div class="vis-wrapper" id="id-share" data-anchor="share" role="tabpanel" aria-labelledby="share-tab">
         {% include "share/share.html" %}
     </div>
+
+    <small id="toggle-dynamic" class="mt-0 text-muted">
+      <a id="make-print-friendly" href="#" class="vis-interactive">Showing interactive content. Show print-friendly instead?</a>
+      <a id="make-interactive" href="#" class="vis-fixed">Showing print-friendly content. Show interactive instead?</a>
+    </small>
   </div>
 </div>
 {% endblock %}

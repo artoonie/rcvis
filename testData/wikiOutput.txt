@@ -5,7 +5,7 @@
                 |title=City of Eastpointe, Macomb County, MI Ranked Choice Voting Election Results Visualization
                 |url=http://example.com/v/slug
                 |website=rcvis.com
-                |publisher=RCVIS
+                |publisher=RCVis
                 |date=Today's Date - mocked out!
                 }}
             </ref>

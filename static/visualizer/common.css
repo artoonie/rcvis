@@ -21,8 +21,10 @@ h6 {
   font-size: 0.8rem;
 }
 
-@media only screen and (max-width: 450px) {
-  #logo {
-    width: 40px;
-  }
+.link-on-blue {
+  color:#b2ff00;
+}
+
+.link-on-blue:hover {
+  color:#e1ff9c;
 }

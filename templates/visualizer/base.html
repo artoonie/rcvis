@@ -18,17 +18,9 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo.png' %}" width="60" alt="RCVIS logo" id="logo" /></a>
-      <button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        Menu
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav ml-auto">
+        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo-white.png' %}" width="120" alt="RCVis logo" id="logo" /></a>
 {% block navlinks %}
 {% endblock %}
-        </ul>
-      </div>
     </div>
   </nav>
 
@@ -37,49 +29,30 @@
 {% endblock %}
   <!-- Footer -->
  <div class="section fp-auto-height">
-  <footer class="footer text-center">
+  <footer class="footer">
     <div class="container">
-      <div class="row">
-
-        <!-- Footer Location -->
-        <div class="col-lg-4 mb-5 mb-lg-0">
-          <h4 class="text-uppercase mb-4">Supported File Formats</h4>
-          <a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator</a>
-          <br/><a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections</a>
-          <br/><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">ElectionBuddy's Online Elections</a>
-        </div>
-
-        <!-- Footer Social Icons -->
-        <div class="col-lg-4 mb-5 mb-lg-0">
-          <h4 class="text-uppercase mb-4">Online</h4>
-          <a class="btn btn-outline-light btn-social mx-1" href="https://github.com/artoonie/rcvis">
-            <i class="fab fa-fw fa-github"></i>
-          </a>
-          <a class="btn btn-outline-light btn-social mx-1" href="https://github.com/artoonie/rcvis/projects/1">
-            <i class="fas fa-bug"></i>
-          </a>
-          <a class="btn btn-outline-light btn-social mx-1" href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">
-            <i class="fab fa-fw fa-medium"></i>
-          </a>
-          <a class="btn btn-outline-light btn-social mx-1" href="mailto:team@rcvis.com">
-            <i class="fas fa-at"></i>
-          </a>
-        </div>
-
-        <!-- Footer About Text -->
-        <div class="col-lg-4">
-          <h4 class="text-uppercase mb-4">About</h4>
-          <p class="lead mb-0">RCVIS is open-source Ranked-Choice Voting Visualization software. Get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.</p>
-        </div>
-
-      </div>
+      <h5 class="mb-2">About RCVis</h5>
+      <p class="mb-0">RCVis is open-source Ranked-Choice Voting Visualization software.
+      <p class="mb-0">Let's Collaborate! To use these visualizations for your election, poll, or infographic,<br/>
+                      please get in touch: <a href="mailto:team@rcvis.com">team@RCVis.com</a>.</p>
+      <p class="mt-3 mb-0">
+        <a class="btn btn-outline-dark btn-social mx-1" href="https://github.com/artoonie/rcvis">
+          <i class="fab fa-fw fa-github"></i>
+        </a>
+        <a class="btn btn-outline-dark btn-social mx-1" href="https://twitter.com/ArminSamii">
+          <i class="fab fa-fw fa-twitter"></i>
+        </a>
+        <a class="btn btn-outline-dark btn-social mx-1" href="mailto:team@rcvis.com">
+          <i class="fas fa-at"></i>
+        </a>
+      </p>
     </div>
   </footer>
 
   <!-- Copyright Section -->
   <section class="copyright py-4 text-center text-white">
     <div class="container">
-      <small>Copyright &copy; Armin Samii 2021</small>
+      <small>Copyright &copy; 2021, Robot Armin LLC</small>
     </div>
   </section>
  </div>

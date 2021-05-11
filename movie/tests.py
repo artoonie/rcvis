@@ -21,7 +21,7 @@ from visualizer.models import MovieGenerationStatuses
 
 FILENAME_AUDIO = 'testData/audio.mp3'
 FILENAME_SCRIPT = 'testData/expected-video-script.txt'
-FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo.png'
+FILENAME_ARBITRARY_IMAGE = 'static/visualizer/logo-white.png'
 
 TestHelpers.silence_logging_spam()
 
