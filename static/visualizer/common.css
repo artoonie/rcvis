@@ -20,11 +20,3 @@ h6 {
 #mainNav .navbar-toggler {
   font-size: 0.8rem;
 }
-
-.link-on-blue {
-  color:#b2ff00;
-}
-
-.link-on-blue:hover {
-  color:#e1ff9c;
-}

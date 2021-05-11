@@ -261,7 +261,7 @@ class SingleMovieCreator():
         for i in range(self._get_num_rounds()):
             duration = 1 if i != self._get_num_rounds() - 1 else 5
             clip = self._generate_gif_for_round(
-                f"Ranked choice voting results for:<br/>\"{self.graph.title}\"", duration, i)
+                f"Ranked-Choice Voting results for<br/>{self.graph.title}", duration, i)
             imageClips.append(clip)
 
         composite = concatenate_videoclips(imageClips)
