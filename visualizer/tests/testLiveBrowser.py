@@ -742,3 +742,25 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Restores size on new round
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
+
+    def test_sankey_hide_round_num(self):
+        """ Test the setting "show sankey round number" """
+        self._upload(filenames.MULTIWINNER)
+
+        self._go_to_tab("sankey-tab")
+        labels = self.browser.find_elements_by_class_name('roundLabels')
+        self.assertEqual(len(labels), 5)
+
+        # Go to the settings tab
+        self._go_to_tab("settings-tab")
+
+        # Then, toggle on the sankey tab from the settings page
+        self.browser.find_element_by_id("sankeyOptions").click()  # Open the dropdown
+        # Check the box (the second one, which isn't hidden)
+        self.browser.find_elements_by_name("showRoundNumbersOnSankey")[1].click()
+        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
+
+        # Go to the bargraph, now it should be zero
+        self._go_to_tab("sankey-tab")
+        labels = self.browser.find_elements_by_class_name('roundLabels')
+        self.assertEqual(len(labels), 0)

@@ -96,6 +96,39 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
     return (size0string() == "width" ? viewboxSize0 : viewboxSize1) + "px";
   }
 
+  function makeRoundLabels(svg) {
+    const labels = svg.append("g").selectAll(".roundLabels")
+        // TODO we shouldn't assume dim1 is at zero but
+        // this is the easiest way to get unique values
+        // and computing the height based on nodeSize0
+        // didn't work for some reason?
+      .data(graph.nodes.filter(function(d){return dim1(d) == 0;}))
+      .enter().append("text")
+      .attr("class", 'roundLabels' );
+    if (config.horizontalSankey)
+    {
+      labels
+      .attr("x", function(d) {
+            return dim0(d) - roundSize0*0.4 - 50;
+       })
+      .attr("y", function(d) {
+            return 60
+       });
+    }
+    else
+    {
+      labels
+      .attr("x", function(d) {
+            return avgNodeSize1 * 1.5
+      })
+      .attr("y", function(d) {
+            return dim0(d) - roundSize0*0.2;
+      });
+    }
+
+    labels.text(function(d) { return "Round " + (d.round+1) });
+  }
+
   function makeGraph(graph) {
       // format variables
       const formatNumber = d3.format(",.2f");    // two decimal places
@@ -198,35 +231,10 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
           .call(magicWordWrap);
       }
 
-      const labels = svg.append("g").selectAll(".roundLabels")
-          // TODO we shouldn't assume dim1 is at zero but
-          // this is the easiest way to get unique values
-          // and computing the height based on nodeSize0
-          // didn't work for some reason?
-        .data(graph.nodes.filter(function(d){return dim1(d) == 0;}))
-        .enter().append("text")
-        .attr("class", 'roundLabels' );
-      if (config.horizontalSankey)
+      if (config.showRoundNumbersOnSankey)
       {
-        labels
-        .attr("x", function(d) {
-              return dim0(d) - roundSize0*0.4 - 50;
-         })
-        .attr("y", function(d) {
-              return 60
-         });
+        makeRoundLabels(svg);
       }
-      else
-      {
-        labels
-        .attr("x", function(d) {
-              return avgNodeSize1 * 1.5
-        })
-        .attr("y", function(d) {
-              return dim0(d) - roundSize0*0.2;
-        });
-      }
-      labels.text(function(d) { return "Round " + (d.round+1) });
 
       // add the rectangles for the nodes
       node.append("rect")
@@ -365,10 +373,13 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
 
   const topbarG = makeTopBar(graph);
   if (!config.horizontalSankey) {
-    const round1SpecialLabel = makeRound1SpecialLabel(topbarG);
-    if (!disableMagicTopBar)
+    if (config.showRoundNumbersOnSankey)
     {
-      window.onscroll = function() {notifyScrolled(round1SpecialLabel)};
+      const round1SpecialLabel = makeRound1SpecialLabel(topbarG);
+      if (!disableMagicTopBar)
+      {
+        window.onscroll = function() {notifyScrolled(round1SpecialLabel)};
+      }
     }
     populateTopBarFor(topbarG, 0)
   }
