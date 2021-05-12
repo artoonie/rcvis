@@ -70,6 +70,7 @@ class JsonConfig(models.Model):
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
     horizontalSankey = models.BooleanField(default=True)
+    showRoundNumbersOnSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     doUseHorizontalBarGraph = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
@@ -91,6 +92,7 @@ class JsonConfig(models.Model):
         return ['jsonFile',
                 'rotateNames',
                 'horizontalSankey',
+                'showRoundNumbersOnSankey',
                 'onlyShowWinnersTabular',
                 'doUseHorizontalBarGraph',
                 'doUseDescriptionInsteadOfTimeline',
