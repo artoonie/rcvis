@@ -51,6 +51,8 @@ class JsonConfig(models.Model):
     numRounds = models.IntegerField()
     numCandidates = models.IntegerField()
 
+    dataSourceURL = models.URLField(max_length=512, null=True, blank=True)
+
     # Movie
     movieGenerationStatus = models.IntegerField(
         choices=MovieGenerationStatuses.choices,
@@ -103,7 +105,8 @@ class JsonConfig(models.Model):
                 'hideDecimals',
                 'colorTheme',
                 'eliminationBarColor',
-                'doHideInactiveBallotsAndResidualSurplus']
+                'doHideInactiveBallotsAndResidualSurplus',
+                'dataSourceURL']
 
     def _get_unique_slug(self):
         # loop until the name is unique

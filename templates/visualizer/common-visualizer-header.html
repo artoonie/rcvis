@@ -36,6 +36,7 @@
   config.doHideInactiveBallotsAndResidualSurplus = {% if config.doHideInactiveBallotsAndResidualSurplus %} true {% else %} false {% endif %};
   config.colorTheme = {{ config.colorTheme }};
   config.eliminationBarColor = {{ config.eliminationBarColor }};
+  config.dataSourceURL = "{{ config.dataSourceURL }}";
 
   // 2. Load any overrides (not supported in Internet Explorer)
   let searchParams = new URLSearchParams(window.location.search);

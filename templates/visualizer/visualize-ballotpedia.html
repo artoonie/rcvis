@@ -1,0 +1,43 @@
+{% load static %}
+{% load compress %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+{% include "visualizer/common-header.html" %}
+{% include "visualizer/common-visualizer-header.html" %}
+
+<!--
+{% compress css file %}
+<link href="{% static 'visualizer/visualize-ballotpedia.css' %}" rel="stylesheet">
+{% endcompress %}
+-->
+<link href="{% static 'visualizer/visualize-ballotpedia.css' %}" rel="stylesheet">
+</head>
+
+<body id="embedded-body">
+<div id="bp-header">{{title}}</div>
+{% include "bargraph/barchart-interactive.html" %}
+<div id="bp-info" class="container">
+  <div id="bp-infobox-left">There were no incumbents in this race. <a href="#">Source</a></div>
+  <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
+</div>
+  
+
+<!-- Footer -->
+<section id="bp-footer">
+  <a href="/v/{{ config.slug }}" target="_blank">
+    <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
+  </a>
+</section>
+
+
+{% include "visualizer/common-visualizer-nonblocking.html" %}
+{% include "bargraph/barchart-common-nonblocking.html" %}
+{% include "bargraph/barchart-interactive-nonblocking.html" %}
+
+</body>
+
+</html>
+

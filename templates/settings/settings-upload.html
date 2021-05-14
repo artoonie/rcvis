@@ -103,6 +103,11 @@ function handleFiles(files)
 {% endblock %}
 
 {% block afterOptions %}
+      <div class="container mt-3">
+        <label for="dataSourceURL">URL of Data Source:</label>
+        <input type="url" id="dataSourceURL" name="dataSourceURL"/>
+      </div>
+
       <div class="narrowbox mt-3">
         <button id="uploadButton" type="submit" class="btn btn-primary btn-xl" disabled>Upload to RCVis</button>
       </div>

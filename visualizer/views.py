@@ -22,7 +22,7 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
 from common import viewUtils
-from visualizer.common import make_complete_url
+from visualizer.common import make_complete_url, intify
 from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.models import JsonConfig
@@ -131,6 +131,18 @@ class VisualizeEmbedded(DetailView):
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
 
+        return data
+
+@method_decorator(xframe_options_exempt, name='dispatch')
+class VisualizeBallotpedia(DetailView):
+    """ The embedded visualization, pointed to from Oembed """
+    model = JsonConfig
+    template_name = 'visualizer/visualize-ballotpedia.html'
+
+    def get_context_data(self, **kwargs):
+        config = super().get_context_data(**kwargs)
+        data = viewUtils.get_data_for_view(config['jsonconfig'])
+        data['numVotesFirstRound'] = intify(data['graph'].summarize().rounds[0].totalActiveVotes)
         return data
 
 
