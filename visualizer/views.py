@@ -22,13 +22,14 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
 from common import viewUtils
+from visualizer import validators
 from visualizer.common import make_complete_url, intify
 from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig
 from visualizer.permissions import IsOwnerOrReadOnly
 from visualizer.serializers import JsonConfigSerializer, UserSerializer
-from visualizer.validators import try_to_load_json
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 
@@ -62,7 +63,8 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            graph = try_to_load_json(form.cleaned_data['jsonFile'])
+            graph = validators.try_to_load_json(form.cleaned_data['jsonFile'])
+            validators.try_to_load_sidecar(graph, form.cleaned_data['candidateSidecarFile'])
 
             self.model = form.save(commit=False)
             self.model.title = graph.title
@@ -70,18 +72,31 @@ class Upload(CreateView):
             self.model.numCandidates = len(graph.summarize().candidates)
             self.model.save()
 
-        except BadJSONError:
-            print(traceback.format_exc())
+        except BadJSONError as e:
+            form.add_error('jsonFile', traceback.format_exc(limit=1))
+            return self.form_invalid(form)
+        except BadSidecarError as e:
+            form.add_error('candidateSidecarFile', str(e))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
-            context = {'debugInfo': traceback.format_exc()}
+            exceptionString = traceback.format_exc()
+            print(exceptionString)
+
+            # Not sure how dangerous this traceback can be...
+            # Limit it to admins only
+            if self.request.user.is_anonymous:
+                context = {'debugInfo': 'Please log in or contact us to see detailed errors'}
+            else:
+                context = {'debugInfo': exceptionString}
+
             return render(self.request, 'visualizer/errorUploadFailedGeneric.html', context=context)
 
         form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        return render(self.request, 'visualizer/errorBadJson.html')
+        context = {'formErrorList': form.errors}
+        return render(self.request, 'visualizer/errorBadJson.html', context=context)
 
 
 class Visualize(DetailView):

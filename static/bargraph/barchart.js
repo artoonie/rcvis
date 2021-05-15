@@ -532,6 +532,7 @@ function makeBarGraph(args) {
 
       const imageSize = Math.min(candidatesRange.bandwidth() * .75, 48);
       const textShift = imageSize + 10;
+      const circleDefId = idOfContainer + "-thumbnailCirclizer";
 
       const candidateNameLabels = candidateWrapper.selectAll(".tick text")
           .attr("text-anchor", "start")
@@ -539,7 +540,7 @@ function makeBarGraph(args) {
           .call(magicWordWrap);
 
       defs.append("clipPath")
-        .attr("id", "thumbnail-circlizer")
+        .attr("id", circleDefId)
         .append("circle")
         .attr("cx", imageSize/2)
         .attr("cy", 0)
@@ -547,7 +548,7 @@ function makeBarGraph(args) {
       candidateWrapper.selectAll(".tick")
           .append("image")
             .attr("href", "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Jerry_Weiers.gif")
-            .attr("clip-path", "url(#thumbnail-circlizer)")
+            .attr("clip-path", `url(#${circleDefId})`)
             .attr("width", imageSize)
             .attr("height", imageSize)
             .attr("y", -imageSize/2);

@@ -3,6 +3,7 @@
 import rest_framework.serializers as serializers
 
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.sidecar.reader import SidecarReader
 from .sankey.graphToD3 import D3Sankey
 
 
@@ -42,3 +43,10 @@ def try_to_load_json(jsonFile):
     ensure_title_is_under_256_chars(graph)
 
     return graph
+
+def try_to_load_sidecar(graph, sidecarJsonFilepath):
+    if sidecarJsonFilepath == None:
+        return
+
+    reader = SidecarReader(sidecarJsonFilepath)
+    reader.assert_valid(graph)

@@ -38,6 +38,7 @@ class JsonConfig(models.Model):
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
+    candidateSidecarFile = models.FileField(null=True, blank=True)
     slug = models.SlugField(unique=True, max_length=255)
     uploadedAt = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
@@ -52,6 +53,7 @@ class JsonConfig(models.Model):
     numCandidates = models.IntegerField()
 
     dataSourceURL = models.URLField(max_length=512, null=True, blank=True)
+    areResultsCertified = models.BooleanField(default=False)
 
     # Movie
     movieGenerationStatus = models.IntegerField(
@@ -92,6 +94,7 @@ class JsonConfig(models.Model):
         """ All editable fields of JsonConfig - must be kept up to date with the list
             of fields above. (I'm sure there's a way to do this automatically...) """
         return ['jsonFile',
+                'candidateSidecarFile',
                 'rotateNames',
                 'horizontalSankey',
                 'showRoundNumbersOnSankey',
