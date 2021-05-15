@@ -39,6 +39,10 @@ def get_data_for_view(config):
     """ All data needed to pass on to the visualize or visualizeembedded view """
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
+    if config.candidateSidecarFile:
+        candidateSidecarData = json.dumps(json.load(config.candidateSidecarFile))
+    else:
+        candidateSidecarData = {}
 
     roundDescriber = Describer(graph, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
@@ -66,7 +70,8 @@ def get_data_for_view(config):
         'humanFriendlySummary': humanFriendlySummary,
         'faqsPerRound': faqsPerRound,
         'offlineMode': offlineMode,
-        'graph': graph
+        'graph': graph,
+        'candidateSidecarData': candidateSidecarData
     }
 
 

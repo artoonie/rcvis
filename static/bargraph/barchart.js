@@ -14,6 +14,7 @@ function makeBarGraph(args) {
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
+  const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
                                                         // Each dict has two keys:
                                                         //  .candidate for the name,
@@ -461,6 +462,35 @@ function makeBarGraph(args) {
           candidateVoteCounts.splice(indicesToRemove[i], 1);
       }
   }
+  function replaceTextWithSidecarData(d3TextElem) {
+    /*
+     * Wraps the text element in a href from the sidecar data.
+     * Precondition: this candidate must have sidecar data
+     */
+    d3TextElem.each(function() {
+      const textElem = d3.select(this),
+        name = textElem.text(),
+        data = candidateSidecarData['info'][name],
+        href = data['moreinfo_url'];
+        party = data['party'];
+        isIncumbent = data['incumbent'];
+
+        const link = textElem.text(null)
+          .append("a")
+          .attr("href", href)
+          .attr("dy", ".32em")
+          .style("fill", "#1c5f99")
+          .text(name);
+        textElem.append("tspan")
+          .attr("dx", "5px")
+          .style("fill", "#999")
+          .text(party);
+
+        if (isIncumbent) {
+          link.classed("dataLabelIncumbent", true);
+        }
+    });
+  }
 
   let candidatePosStr, votesPosStr, candidateSizeStr, votesSizeStr;
   if (isVertical) {
@@ -525,33 +555,60 @@ function makeBarGraph(args) {
           .text(secondaryDataLabelTextFn);
   }
   else {
-      // Labels: candidate names
       const candidateWrapper = svg.append("g")
           .attr("class", "dataLabel")
           .call(candidatesAxis);
 
-      const imageSize = Math.min(candidatesRange.bandwidth() * .75, 48);
-      const textShift = imageSize + 10;
-      const circleDefId = idOfContainer + "-thumbnailCirclizer";
+      if (candidateSidecarData != null)
+      {
+          const imageSize = Math.min(candidatesRange.bandwidth() * .75, 48);
+          const circleDefId = idOfContainer + "-thumbnailCirclizer";
 
-      const candidateNameLabels = candidateWrapper.selectAll(".tick text")
-          .attr("text-anchor", "start")
-          .attr("x", textShift)
-          .call(magicWordWrap);
+          defs.append("clipPath")
+            .attr("id", circleDefId)
+            .append("circle")
+            .attr("cx", imageSize/2)
+            .attr("cy", 0)
+            .attr("r", imageSize/2);
 
-      defs.append("clipPath")
-        .attr("id", circleDefId)
-        .append("circle")
-        .attr("cx", imageSize/2)
-        .attr("cy", 0)
-        .attr("r", imageSize/2);
-      candidateWrapper.selectAll(".tick")
-          .append("image")
-            .attr("href", "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Jerry_Weiers.gif")
-            .attr("clip-path", `url(#${circleDefId})`)
-            .attr("width", imageSize)
-            .attr("height", imageSize)
-            .attr("y", -imageSize/2);
+          const candidatesWithoutSidecarData = candidateWrapper.selectAll(".tick")
+            .filter(d => candidateSidecarData['info'][d] === undefined);
+
+          const candidatesWithSidecarData = candidateWrapper.selectAll(".tick")
+            .filter(d => candidateSidecarData['info'][d] !== undefined);
+
+          candidatesWithSidecarData.selectAll(".tick text")
+              .call(c => replaceTextWithSidecarData(c));
+
+          candidatesWithSidecarData
+            .append("image")
+              .attr("href", d => candidateSidecarData['info'][d]['photo_url'])
+              .attr("clip-path", `url(#${circleDefId})`)
+              .attr("width", imageSize)
+              .attr("height", imageSize)
+              .attr("y", -imageSize/2);
+
+          // Shift the text over and word wrap
+          const textShift = imageSize + 10;
+          candidatesWithoutSidecarData.selectAll(".tick text")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+          candidatesWithSidecarData.selectAll("a")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+      }
+      else
+      {
+          // Shift the text over and word wrap
+          const textShift = 10;
+          candidateWrapper.selectAll(".tick text")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+      }
+
 
       // Labels: vote counts
       // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
