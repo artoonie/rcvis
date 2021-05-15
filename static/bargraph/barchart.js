@@ -87,8 +87,8 @@ function makeBarGraph(args) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   const surplusPatternId = "diagonalHatch"+idOfContainer;
-  svg.append("defs")
-    .append("pattern")
+  const defs = svg.append("defs");
+  defs.append("pattern")
     .attr("id", surplusPatternId)
     .attr("patternUnits", "userSpaceOnUse")
     .attr("width", 4)
@@ -97,6 +97,7 @@ function makeBarGraph(args) {
         .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" )
         .style("stroke", "white")
         .style("stroke-width", 1);
+
   
   // Add metadata to stackSeries and filter out already-eliminated candidates
   addMetadataToEachBar();
@@ -525,12 +526,31 @@ function makeBarGraph(args) {
   }
   else {
       // Labels: candidate names
-      svg.append("g")
+      const candidateWrapper = svg.append("g")
           .attr("class", "dataLabel")
-          .call(candidatesAxis)
-        .selectAll(".tick text")
+          .call(candidatesAxis);
+
+      const imageSize = Math.min(candidatesRange.bandwidth() * .75, 48);
+      const textShift = imageSize + 10;
+
+      const candidateNameLabels = candidateWrapper.selectAll(".tick text")
           .attr("text-anchor", "start")
+          .attr("x", textShift)
           .call(magicWordWrap);
+
+      defs.append("clipPath")
+        .attr("id", "thumbnail-circlizer")
+        .append("circle")
+        .attr("cx", imageSize/2)
+        .attr("cy", 0)
+        .attr("r", imageSize/2);
+      candidateWrapper.selectAll(".tick")
+          .append("image")
+            .attr("href", "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Jerry_Weiers.gif")
+            .attr("clip-path", "url(#thumbnail-circlizer)")
+            .attr("width", imageSize)
+            .attr("height", imageSize)
+            .attr("y", -imageSize/2);
 
       // Labels: vote counts
       // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:
