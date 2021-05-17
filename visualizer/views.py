@@ -158,6 +158,13 @@ class VisualizeBallotpedia(DetailView):
         config = super().get_context_data(**kwargs)
         data = viewUtils.get_data_for_view(config['jsonconfig'])
         data['numVotesFirstRound'] = intify(data['graph'].summarize().rounds[0].totalActiveVotes)
+
+        sidecarData = data['candidateSidecarDataPyObj']
+        if sidecarData == None:
+            data['hasIncumbents'] = False
+        else:
+            i = sidecarData['info']
+            data['hasIncumbents'] = any(d['incumbent'] for d in sidecarData['info'].values())
         return data
 
 

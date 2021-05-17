@@ -40,9 +40,10 @@ def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
     if config.candidateSidecarFile:
-        candidateSidecarData = json.dumps(json.load(config.candidateSidecarFile))
+        candidateSidecarDataPyObj = json.load(config.candidateSidecarFile)
     else:
-        candidateSidecarData = {}
+        candidateSidecarDataPyObj = None
+    candidateSidecarData = json.dumps(candidateSidecarDataPyObj)
 
     roundDescriber = Describer(graph, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
@@ -71,6 +72,7 @@ def get_data_for_view(config):
         'faqsPerRound': faqsPerRound,
         'offlineMode': offlineMode,
         'graph': graph,
+        'candidateSidecarDataPyObj': candidateSidecarDataPyObj,
         'candidateSidecarData': candidateSidecarData
     }
 

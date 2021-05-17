@@ -20,7 +20,17 @@
 <div id="bp-header">{{title}}</div>
 {% include "bargraph/barchart-interactive.html" %}
 <div id="bp-info" class="container">
-  <div id="bp-infobox-left">There were no incumbents in this race. <a href="#">Source</a></div>
+  <div id="bp-infobox-left">
+    {% if hasIncumbents %}
+      Incumbents are <span class="dataLabelIncumbent">bolded and underlined</span>.
+    {% else %}
+      There were no incumbents in this race.
+    {% endif %}
+    {% if config.areResultsCertified %}
+      The results have been certified.
+    {% endif %}
+    <a href="#">Source</a>
+  </div>
   <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
 </div>
   
