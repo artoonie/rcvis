@@ -72,11 +72,11 @@ class Upload(CreateView):
             self.model.numCandidates = len(graph.summarize().candidates)
             self.model.save()
 
-        except BadJSONError as e:
+        except BadJSONError:
             form.add_error('jsonFile', traceback.format_exc(limit=1))
             return self.form_invalid(form)
-        except BadSidecarError as e:
-            form.add_error('candidateSidecarFile', str(e))
+        except BadSidecarError as exception:
+            form.add_error('candidateSidecarFile', str(exception))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
@@ -148,6 +148,7 @@ class VisualizeEmbedded(DetailView):
 
         return data
 
+
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeBallotpedia(DetailView):
     """ The embedded visualization, pointed to from Oembed """
@@ -160,10 +161,9 @@ class VisualizeBallotpedia(DetailView):
         data['numVotesFirstRound'] = intify(data['graph'].summarize().rounds[0].totalActiveVotes)
 
         sidecarData = data['candidateSidecarDataPyObj']
-        if sidecarData == None:
+        if sidecarData is None:
             data['hasIncumbents'] = False
         else:
-            i = sidecarData['info']
             data['hasIncumbents'] = any(d['incumbent'] for d in sidecarData['info'].values())
         return data
 

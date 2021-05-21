@@ -37,7 +37,8 @@
 
 <!-- Footer -->
 <section id="bp-footer">
-  <a href="/v/{{ config.slug }}" target="_blank">
+  
+  <a href="{% url 'visualize' config.slug %}" target="_blank">
     <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
   </a>
 </section>

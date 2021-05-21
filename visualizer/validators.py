@@ -44,9 +44,21 @@ def try_to_load_json(jsonFile):
 
     return graph
 
+
 def try_to_load_sidecar(graph, sidecarJsonFilepath):
-    if sidecarJsonFilepath == None:
+    """ Checks that the optional sidecar JSON has no errors
+        Raises:
+         - BadSidecarError: JSON cannot be loaded. Reason is in the exception message.
+         - ValidationError: 2mb limit is reached
+         - Anything else: unknown error
+        Returns:
+         - Nothing
+    """
+    if sidecarJsonFilepath is None:
         return
+
+    # Check filesize before opening a massive file
+    ensure_file_is_under_2_mb(sidecarJsonFilepath)
 
     reader = SidecarReader(sidecarJsonFilepath)
     reader.assert_valid(graph)

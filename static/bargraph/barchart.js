@@ -471,8 +471,8 @@ function makeBarGraph(args) {
       const textElem = d3.select(this),
         name = textElem.text(),
         data = candidateSidecarData['info'][name],
-        href = data['moreinfo_url'];
-        party = data['party'];
+        href = data['moreinfo_url'],
+        party = data['party'],
         isIncumbent = data['incumbent'];
 
         const link = textElem.text(null)
