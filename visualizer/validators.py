@@ -7,12 +7,12 @@ from visualizer.sidecar.reader import SidecarReader
 from .sankey.graphToD3 import D3Sankey
 
 
-def ensure_file_is_under_2_mb(jsonFile):
+def ensure_file_is_under_2_mb(jsonFileObj):
     """ Limit file size to 2mb"""
     maxFileSize = 1024 * 1024 * 2  # 2MB
-    if jsonFile.size > maxFileSize:
+    if jsonFileObj.size > maxFileSize:
         raise serializers.ValidationError('Max file size is {} and your file size is {}'.
-                                          format(maxFileSize, jsonFile.size))
+                                          format(maxFileSize, jsonFileObj.size))
 
 
 def ensure_title_is_under_256_chars(graph):
@@ -23,7 +23,7 @@ def ensure_title_is_under_256_chars(graph):
                                           format(maxTitleSize, len(graph.title)))
 
 
-def try_to_load_json(jsonFile):
+def try_to_load_json(jsonFileObj):
     """ Checks that the JSON can be loaded and is under 2mb.
         Raises:
          - BadJSONError: JSON cannot be loaded
@@ -33,9 +33,9 @@ def try_to_load_json(jsonFile):
          - Loaded graph
     """
     # Check filesize before opening a massive file
-    ensure_file_is_under_2_mb(jsonFile)
+    ensure_file_is_under_2_mb(jsonFileObj)
 
-    graph = make_graph_with_file(jsonFile, False)
+    graph = make_graph_with_file(jsonFileObj, False)
     graph.summarize()
     D3Sankey(graph)  # sanity check the graph can be created
 

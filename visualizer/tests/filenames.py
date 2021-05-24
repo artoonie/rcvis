@@ -12,3 +12,5 @@ THREE_ROUND = 'testData/medium-rcvis.json'
 ELECTIONBUDDY = 'testData/electionbuddy.csv'
 ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
 ELECTIONBUDDY_REGRESSION = 'testData/electionbuddy-regression.csv'
+
+THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
