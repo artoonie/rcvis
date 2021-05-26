@@ -100,7 +100,8 @@ class SimpleTests(TestCase):
     # pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
-        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t != 'jsonFile']
+        fieldsToIgnore = ('jsonFile', 'candidateSidecarFile')
+        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t not in fieldsToIgnore]
         fn = filenames.MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:

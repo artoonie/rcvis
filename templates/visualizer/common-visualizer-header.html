@@ -34,10 +34,8 @@
   config.hideTabular = {% if config.hideTabular %} true {% else %} false {% endif %};
   config.doDimPrevRoundColors = {% if config.doDimPrevRoundColors %} true {% else %} false {% endif %};
   config.doHideInactiveBallotsAndResidualSurplus = {% if config.doHideInactiveBallotsAndResidualSurplus %} true {% else %} false {% endif %};
-  config.areResultsCertified = {% if config.areResultsCertified %} true {% else %} false {% endif %};
   config.colorTheme = {{ config.colorTheme }};
   config.eliminationBarColor = {{ config.eliminationBarColor }};
-  config.dataSourceURL = "{{ config.dataSourceURL }}";
 
   // 2. Load any overrides (not supported in Internet Explorer)
   let searchParams = new URLSearchParams(window.location.search);

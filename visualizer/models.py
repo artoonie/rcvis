@@ -109,7 +109,8 @@ class JsonConfig(models.Model):
                 'colorTheme',
                 'eliminationBarColor',
                 'doHideInactiveBallotsAndResidualSurplus',
-                'dataSourceURL']
+                'dataSourceURL',
+                'areResultsCertified']
 
     def _get_unique_slug(self):
         # loop until the name is unique

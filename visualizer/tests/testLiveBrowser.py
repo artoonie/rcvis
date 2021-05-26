@@ -444,7 +444,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
             # Will throw exception if does not exist
-            self.browser.find_element_by_id("embedded_body")
+            self.browser.find_element_by_id("embedded-body")
 
         # And even an invalid URL does not have errors - but it does show the error message
         errorUrl = embeddedUrl + "?vistype=no_such_vistype"

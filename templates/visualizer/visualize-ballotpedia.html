@@ -29,7 +29,10 @@
     {% if config.areResultsCertified %}
       The results have been certified.
     {% endif %}
-    <a href="#">Source</a>
+
+    {% if config.dataSourceURL %}
+        <a href="{{ config.dataSourceURL }}">Source</a>
+    {% endif %}
   </div>
   <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
 </div>
