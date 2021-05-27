@@ -34,9 +34,8 @@ function makeBarGraph(args) {
     });
   });
   const candidateNames = mappedData[0].map(c => c.x);
-  const roundNames = Object.keys(candidateVoteCounts[0]).slice(1)
-  const numRounds = roundNames.length;
-  const stackSeries = d3.stack().keys(roundNames)(candidateVoteCounts);
+  const numRounds = humanFriendlyRoundNames.length;
+  const stackSeries = d3.stack().keys(humanFriendlyRoundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
   const margin = {top: 10, right: 10, bottom: 35, left: 20};
@@ -148,7 +147,7 @@ function makeBarGraph(args) {
         const g = svg
           .selectAll("g")
           .append("ul")
-          .data(roundNames)
+          .data(humanFriendlyRoundNames)
           .join("li")
           .style("list-style-type", "none")
 
@@ -444,7 +443,7 @@ function makeBarGraph(args) {
 
           if(maxNumRounds != numRounds)
           {
-              throw new Error("Assumption did not hold! See comment above.");
+              throw new Error(`Assumption did not hold! Found ${maxNumRounds} instead of ${numRounds} rounds. See comment above.`);
           }
 
           stackSeries[round_i] = d;
@@ -556,6 +555,7 @@ function makeBarGraph(args) {
   }
   else {
       const candidateWrapper = svg.append("g")
+          .attr("id", "candidateNamesWrapper")
           .attr("class", "dataLabel")
           .call(candidatesAxis);
 

@@ -51,6 +51,9 @@ class Graph:
         self.links = []
         self.dateString = ""
 
+        # This must be set manually by calling set_elimination_order
+        self.eliminationOrder = None
+
         # Used while building the graph only
         self.nodesPerRound = []
         self.transfersPerRound = []
@@ -73,6 +76,20 @@ class Graph:
         if self.summary is None:
             self.summary = GraphSummary(self)
         return self.summary
+
+    def get_items_for_names(self, listOfNames):
+        """ Given a list of all names, returns the corresponding Item for each naem """
+        allItems = list(set(n.item for n in self.nodes))
+        return sorted(allItems, key=lambda item: -listOfNames.index(item.name))
+
+    def set_elimination_order(self, orderedItems):
+        """
+        Given a list of Items, sets the elimination erder.
+        Does no validation that the given order is complete, but will likely throw
+        several errors here or elsewhere if you pass bad data.
+        """
+        self.eliminationOrder = orderedItems
+        self.nodes = sorted(self.nodes, key=lambda x: -orderedItems.index(x.item))
 
     def set_date(self, date):
         """ Sets the date of this election """

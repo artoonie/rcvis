@@ -3,13 +3,13 @@
   "info": {
     "Banana" : {
       "incumbent": false,
-      "photo_url": "https://example.com/image.gif",
+      "photo_url": "/static/visualizer/logo-white.png",
       "moreinfo_url": "https://ballotpedia.org/Link",
       "party": "(Nonpartisan)"
     },
     "Blackberry" : {
       "incumbent": true,
-      "photo_url": "https://example.com/image.gif",
+      "photo_url": "/static/visualizer/logo-white.png",
       "moreinfo_url": "https://ballotpedia.org/Link",
       "party": "(Green)"
     }

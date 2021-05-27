@@ -24,7 +24,7 @@ class SidecarReader:
 
     def assert_valid(self, graph):
         """
-        Ensures the file is valid, or raises a BadSidecarError if not
+        Ensures the file is valid, or raises a BadSidecarError if not.
         """
         try:
             self._assert_valid(graph)

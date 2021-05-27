@@ -35,12 +35,18 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     return html
 
 
+# pylint: disable=too-many-locals
 def get_data_for_view(config):
     """ All data needed to pass on to the visualize or visualizeembedded view """
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
     if config.candidateSidecarFile:
         candidateSidecarDataPyObj = json.load(config.candidateSidecarFile)
+
+        # TODO this doesn't feel good - the graph should load this natively,
+        # not have it snuck here.
+        orderedItems = graph.get_items_for_names(candidateSidecarDataPyObj['order'])
+        graph.set_elimination_order(orderedItems)
     else:
         candidateSidecarDataPyObj = None
     candidateSidecarData = json.dumps(candidateSidecarDataPyObj)
