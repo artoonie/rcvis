@@ -148,7 +148,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._assert_log_len(0)
 
     def _upload(self, jsonFilename, sidecarFilename=None):
-        """ Uploads the given local file """
+        """ Uploads the given local files. The sidecar file is optional. """
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), jsonFilename))
@@ -768,7 +768,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         labels = self.browser.find_elements_by_class_name('roundLabels')
         self.assertEqual(len(labels), 0)
 
-    def test_sidecar_file(self):
+    def test_sidecar_file_elimination_order(self):
         """ Tests the elimination order of the sidecar file """
         self._upload(filenames.THREE_ROUND, filenames.THREE_ROUND_SIDECAR)
         candidates = self.browser.find_element_by_id("candidateNamesWrapper")

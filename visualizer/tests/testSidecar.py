@@ -17,7 +17,7 @@ TestHelpers.silence_logging_spam()
 
 
 class SidecarTests(TestCase):
-    """ Simple tests that do not require a live browser """
+    """ Tests validating sidecar file functionality """
 
     def setUp(self):
         TestHelpers.setup_host_mocks(self)

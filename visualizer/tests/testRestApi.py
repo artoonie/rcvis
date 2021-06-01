@@ -117,6 +117,8 @@ class RestAPITests(APITestCase):
             modelToUrl = {Models.USERS: '/api/users/',
                           Models.VISJS: '/api/visualizations/',
                           Models.VISBP: '/api/bp/'}
+            visModelToFileKey = {Models.VISJS: 'jsonFile',
+                                 Models.VISBP: 'resultsSummaryFile'}
             actionToCommand = {Actions.LIST: self.client.get,
                                Actions.MAKE: self.client.post}
 
@@ -135,7 +137,8 @@ class RestAPITests(APITestCase):
                 # Special case: Upload a JSON here
                 # (because we want to contain the file pointer within the with statement)
                 with open(filenames.MULTIWINNER) as f:
-                    return command(url, data={'jsonFile': f})
+                    key = visModelToFileKey[model]
+                    return command(url, data={key: f})
 
             return command(url, data=data, format="json")
 
