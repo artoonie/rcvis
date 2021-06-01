@@ -10,7 +10,8 @@ from visualizer import sitemaps
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'visualizations', views.JsonConfigViewSet)
+router.register(r'visualizations', views.JsonOnlyViewSet)
+router.register(r'bp', views.BallotpediaViewSet)
 router.register(r'users', views.UserViewSet)
 
 sitemaps = {
@@ -23,6 +24,7 @@ urlpatterns = [
     path('index.html', views.Index.as_view(), name='index'),
     path('v/<slug>', views.Visualize.as_view(), name='visualize'),
     path('ve/<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
+    path('vb/<slug>', views.VisualizeBallotpedia.as_view(), name='visualizeBallotpedia'),
     path('upload.html', views.Upload.as_view(), name='upload'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
 

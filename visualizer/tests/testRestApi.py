@@ -14,8 +14,9 @@ from rest_framework.test import APITestCase
 from rest_framework_tracking.models import APIRequestLog
 
 from common.testUtils import TestHelpers
-from visualizer.models import JsonConfig
 from visualizer.tests import filenames
+
+TestHelpers.silence_logging_spam()
 
 
 class RestAPITests(APITestCase):
@@ -59,7 +60,8 @@ class RestAPITests(APITestCase):
         class Models(Enum):
             """ What models to act upon """
             USERS = 0
-            JSONS = 1
+            VISJS = 1
+            VISBP = 2
 
         class Actions(Enum):
             """ What actions to take, here corresponding to GET and POST """
@@ -85,21 +87,27 @@ class RestAPITests(APITestCase):
                         permissionMatrix[user][model][action] = None
 
             adminUser = permissionMatrix[Users.ADMIN]
-            adminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.VISJS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.VISBP][Actions.LIST] = status.HTTP_200_OK
             adminUser[Models.USERS][Actions.LIST] = status.HTTP_200_OK
-            adminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            adminUser[Models.VISJS][Actions.MAKE] = status.HTTP_201_CREATED
+            adminUser[Models.VISBP][Actions.MAKE] = status.HTTP_201_CREATED
             adminUser[Models.USERS][Actions.MAKE] = status.HTTP_405_METHOD_NOT_ALLOWED
 
             notAdminUser = permissionMatrix[Users.NOT_ADMIN]
-            notAdminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            notAdminUser[Models.VISJS][Actions.LIST] = status.HTTP_200_OK
+            notAdminUser[Models.VISBP][Actions.LIST] = status.HTTP_200_OK
             notAdminUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
-            notAdminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            notAdminUser[Models.VISJS][Actions.MAKE] = status.HTTP_201_CREATED
+            notAdminUser[Models.VISBP][Actions.MAKE] = status.HTTP_201_CREATED
             notAdminUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
 
             loggedOutUser = permissionMatrix[Users.LOGGED_OUT]
-            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISJS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISBP][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
             loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
-            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISJS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISBP][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
             loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
 
             return permissionMatrix
@@ -107,7 +115,10 @@ class RestAPITests(APITestCase):
         def run_command(model, action):
             # Get URL
             modelToUrl = {Models.USERS: '/api/users/',
-                          Models.JSONS: '/api/visualizations/'}
+                          Models.VISJS: '/api/visualizations/',
+                          Models.VISBP: '/api/bp/'}
+            visModelToFileKey = {Models.VISJS: 'jsonFile',
+                                 Models.VISBP: 'resultsSummaryFile'}
             actionToCommand = {Actions.LIST: self.client.get,
                                Actions.MAKE: self.client.post}
 
@@ -126,7 +137,8 @@ class RestAPITests(APITestCase):
                 # Special case: Upload a JSON here
                 # (because we want to contain the file pointer within the with statement)
                 with open(filenames.MULTIWINNER) as f:
-                    return command(url, data={'jsonFile': f})
+                    key = visModelToFileKey[model]
+                    return command(url, data={key: f})
 
             return command(url, data=data, format="json")
 
@@ -234,7 +246,7 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Get the working data we just uploaded
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        oneRoundObject = TestHelpers.get_latest_upload()
         self.assertEqual(oneRoundObject.owner.username, 'notadmin')
         self.assertEqual(oneRoundObject.hideSankey, False)
 
@@ -335,6 +347,19 @@ class RestAPITests(APITestCase):
         self._authenticate_as('notadmin')
         response = self._upload_file_for_api(filenames.ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        oneRoundObject = TestHelpers.get_latest_upload()
         self.assertEqual(oneRoundObject.hideSankey, False)
         self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
+
+    def test_sidecar_not_allowed_on_simple_endpoint(self):
+        """ Ensure you can not include candidateSidecarFile on /visualizations/"""
+        self._authenticate_as('notadmin')
+
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'jsonFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile}
+                response = self.client.post('/api/visualizations/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errMsg = b'{"non_field_errors":["You included superfluous fields: candidateSidecarFile"]}'
+        assert errMsg in response.content

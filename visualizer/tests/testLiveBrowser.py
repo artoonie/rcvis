@@ -147,11 +147,14 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.get(url)
         self._assert_log_len(0)
 
-    def _upload(self, fn):
-        """ Uploads the given local file """
+    def _upload(self, jsonFilename, sidecarFilename=None):
+        """ Uploads the given local files. The sidecar file is optional. """
         self.open('/upload.html')
         fileUpload = self.browser.find_element_by_id("jsonFile")
-        fileUpload.send_keys(os.path.join(os.getcwd(), fn))
+        fileUpload.send_keys(os.path.join(os.getcwd(), jsonFilename))
+        if sidecarFilename is not None:
+            fileUpload = self.browser.find_element_by_id("candidateSidecarFile")
+            fileUpload.send_keys(os.path.join(os.getcwd(), sidecarFilename))
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
         self._assert_log_len(0)
@@ -444,7 +447,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Try to avoid looking for elements that don't exist
             # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
             # Will throw exception if does not exist
-            self.browser.find_element_by_id("embedded_body")
+            self.browser.find_element_by_id("embedded-body")
 
         # And even an invalid URL does not have errors - but it does show the error message
         errorUrl = embeddedUrl + "?vistype=no_such_vistype"
@@ -764,3 +767,15 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._go_to_tab("sankey-tab")
         labels = self.browser.find_elements_by_class_name('roundLabels')
         self.assertEqual(len(labels), 0)
+
+    def test_sidecar_file_elimination_order(self):
+        """ Tests the elimination order of the sidecar file """
+        self._upload(filenames.THREE_ROUND, filenames.THREE_ROUND_SIDECAR)
+        candidates = self.browser.find_element_by_id("candidateNamesWrapper")
+        elemsInOrder = candidates.find_elements_by_class_name("dataLabel")
+
+        self.assertEqual(len(elemsInOrder), 4)
+        self.assertEqual(elemsInOrder[0].get_attribute('innerHTML'), "Banana")
+        self.assertEqual(elemsInOrder[1].get_attribute('innerHTML'), "Blackberry")
+        self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Vanilla")
+        self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Strawberry")

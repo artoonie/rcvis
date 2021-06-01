@@ -1,0 +1,41 @@
+#bp-header {
+  width: 100%;
+  background-color: #4c4c4c;
+  color: white;
+  font-size: 16px;
+  font-weight: 300;
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#bp-footer {
+  width: 100%;
+  background-color: #4747ff;
+  color: white;
+  font-size: 16px;
+  font-weight: 300;
+  text-align: center;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  vertical-align: center;
+}
+
+#bp-footer a {
+  color: white;
+}
+
+#bp-info {
+  display: flex;
+  color: #888;
+  font-size: 12px;
+}
+
+#bp-infobox-left {
+  flex: 1;
+  text-align: left;
+}
+#bp-infobox-right {
+  flex: 1;
+  text-align: right;
+}

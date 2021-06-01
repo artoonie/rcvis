@@ -14,6 +14,7 @@ function makeBarGraph(args) {
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
+  const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
                                                         // Each dict has two keys:
                                                         //  .candidate for the name,
@@ -33,9 +34,8 @@ function makeBarGraph(args) {
     });
   });
   const candidateNames = mappedData[0].map(c => c.x);
-  const roundNames = Object.keys(candidateVoteCounts[0]).slice(1)
-  const numRounds = roundNames.length;
-  const stackSeries = d3.stack().keys(roundNames)(candidateVoteCounts);
+  const numRounds = humanFriendlyRoundNames.length;
+  const stackSeries = d3.stack().keys(humanFriendlyRoundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
   const margin = {top: 10, right: 10, bottom: 35, left: 20};
@@ -87,8 +87,8 @@ function makeBarGraph(args) {
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   const surplusPatternId = "diagonalHatch"+idOfContainer;
-  svg.append("defs")
-    .append("pattern")
+  const defs = svg.append("defs");
+  defs.append("pattern")
     .attr("id", surplusPatternId)
     .attr("patternUnits", "userSpaceOnUse")
     .attr("width", 4)
@@ -97,6 +97,7 @@ function makeBarGraph(args) {
         .attr("d", "M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2" )
         .style("stroke", "white")
         .style("stroke-width", 1);
+
   
   // Add metadata to stackSeries and filter out already-eliminated candidates
   addMetadataToEachBar();
@@ -146,7 +147,7 @@ function makeBarGraph(args) {
         const g = svg
           .selectAll("g")
           .append("ul")
-          .data(roundNames)
+          .data(humanFriendlyRoundNames)
           .join("li")
           .style("list-style-type", "none")
 
@@ -442,7 +443,7 @@ function makeBarGraph(args) {
 
           if(maxNumRounds != numRounds)
           {
-              throw new Error("Assumption did not hold! See comment above.");
+              throw new Error(`Assumption did not hold! Found ${maxNumRounds} instead of ${numRounds} rounds. See comment above.`);
           }
 
           stackSeries[round_i] = d;
@@ -459,6 +460,35 @@ function makeBarGraph(args) {
       for (let i = indicesToRemove.length - 1; i >= 0; --i) {
           candidateVoteCounts.splice(indicesToRemove[i], 1);
       }
+  }
+  function replaceTextWithSidecarData(d3TextElem) {
+    /*
+     * Wraps the text element in a href from the sidecar data.
+     * Precondition: this candidate must have sidecar data
+     */
+    d3TextElem.each(function() {
+      const textElem = d3.select(this),
+        name = textElem.text(),
+        data = candidateSidecarData['info'][name],
+        href = data['moreinfo_url'],
+        party = data['party'],
+        isIncumbent = data['incumbent'];
+
+        const link = textElem.text(null)
+          .append("a")
+          .attr("href", href)
+          .attr("dy", ".32em")
+          .style("fill", "#1c5f99")
+          .text(name);
+        textElem.append("tspan")
+          .attr("dx", "5px")
+          .style("fill", "#999")
+          .text(party);
+
+        if (isIncumbent) {
+          link.classed("dataLabelIncumbent", true);
+        }
+    });
   }
 
   let candidatePosStr, votesPosStr, candidateSizeStr, votesSizeStr;
@@ -524,13 +554,61 @@ function makeBarGraph(args) {
           .text(secondaryDataLabelTextFn);
   }
   else {
-      // Labels: candidate names
-      svg.append("g")
+      const candidateWrapper = svg.append("g")
+          .attr("id", "candidateNamesWrapper")
           .attr("class", "dataLabel")
-          .call(candidatesAxis)
-        .selectAll(".tick text")
-          .attr("text-anchor", "start")
-          .call(magicWordWrap);
+          .call(candidatesAxis);
+
+      if (candidateSidecarData != null)
+      {
+          const imageSize = Math.min(candidatesRange.bandwidth() * .75, 48);
+          const circleDefId = idOfContainer + "-thumbnailCirclizer";
+
+          defs.append("clipPath")
+            .attr("id", circleDefId)
+            .append("circle")
+            .attr("cx", imageSize/2)
+            .attr("cy", 0)
+            .attr("r", imageSize/2);
+
+          const candidatesWithoutSidecarData = candidateWrapper.selectAll(".tick")
+            .filter(d => candidateSidecarData['info'][d] === undefined);
+
+          const candidatesWithSidecarData = candidateWrapper.selectAll(".tick")
+            .filter(d => candidateSidecarData['info'][d] !== undefined);
+
+          candidatesWithSidecarData.selectAll(".tick text")
+              .call(c => replaceTextWithSidecarData(c));
+
+          candidatesWithSidecarData
+            .append("image")
+              .attr("href", d => candidateSidecarData['info'][d]['photo_url'])
+              .attr("clip-path", `url(#${circleDefId})`)
+              .attr("width", imageSize)
+              .attr("height", imageSize)
+              .attr("y", -imageSize/2);
+
+          // Shift the text over and word wrap
+          const textShift = imageSize + 10;
+          candidatesWithoutSidecarData.selectAll(".tick text")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+          candidatesWithSidecarData.selectAll("a")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+      }
+      else
+      {
+          // Shift the text over and word wrap
+          const textShift = 10;
+          candidateWrapper.selectAll(".tick text")
+              .attr("text-anchor", "start")
+              .attr("x", textShift)
+              .call(magicWordWrap);
+      }
+
 
       // Labels: vote counts
       // Note: dy=0.32em to match axisLeft, as hardcoded in the d3 source:

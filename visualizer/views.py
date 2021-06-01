@@ -22,13 +22,14 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
 from common import viewUtils
-from visualizer.common import make_complete_url
+from visualizer import validators
+from visualizer.common import make_complete_url, intify
 from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig
 from visualizer.permissions import IsOwnerOrReadOnly
-from visualizer.serializers import JsonConfigSerializer, UserSerializer
-from visualizer.validators import try_to_load_json
+from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 
@@ -62,7 +63,9 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            graph = try_to_load_json(form.cleaned_data['jsonFile'])
+            graph = validators.try_to_load_jsons(
+                form.cleaned_data['jsonFile'],
+                form.cleaned_data['candidateSidecarFile'])
 
             self.model = form.save(commit=False)
             self.model.title = graph.title
@@ -71,17 +74,30 @@ class Upload(CreateView):
             self.model.save()
 
         except BadJSONError:
-            print(traceback.format_exc())
+            form.add_error('jsonFile', traceback.format_exc(limit=1))
+            return self.form_invalid(form)
+        except BadSidecarError as exception:
+            form.add_error('candidateSidecarFile', str(exception))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
-            context = {'debugInfo': traceback.format_exc()}
+            exceptionString = traceback.format_exc()
+            print(exceptionString)
+
+            # Not sure how dangerous this traceback can be...
+            # Limit it to admins only
+            if self.request.user.is_anonymous:
+                context = {'debugInfo': 'Please log in or contact us to see detailed errors'}
+            else:
+                context = {'debugInfo': exceptionString}
+
             return render(self.request, 'visualizer/errorUploadFailedGeneric.html', context=context)
 
         form.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        return render(self.request, 'visualizer/errorBadJson.html')
+        context = {'formErrorList': form.errors}
+        return render(self.request, 'visualizer/errorBadJson.html', context=context)
 
 
 class Visualize(DetailView):
@@ -131,6 +147,25 @@ class VisualizeEmbedded(DetailView):
         # oembed href
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
 
+        return data
+
+
+@method_decorator(xframe_options_exempt, name='dispatch')
+class VisualizeBallotpedia(DetailView):
+    """ The embedded visualization, pointed to from Oembed """
+    model = JsonConfig
+    template_name = 'visualizer/visualize-ballotpedia.html'
+
+    def get_context_data(self, **kwargs):
+        config = super().get_context_data(**kwargs)
+        data = viewUtils.get_data_for_view(config['jsonconfig'])
+        data['numVotesFirstRound'] = intify(data['graph'].summarize().rounds[0].totalActiveVotes)
+
+        sidecarData = data['candidateSidecarDataPyObj']
+        if sidecarData is None:
+            data['hasIncumbents'] = False
+        else:
+            data['hasIncumbents'] = any(d['incumbent'] for d in sidecarData['info'].values())
         return data
 
 
@@ -195,10 +230,20 @@ class Oembed(View):
 # For django REST
 
 
-class JsonConfigViewSet(LoggingMixin, viewsets.ModelViewSet):
+class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
-    serializer_class = JsonConfigSerializer
+    serializer_class = JsonOnlySerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class BallotpediaViewSet(LoggingMixin, viewsets.ModelViewSet):
+    """ API endpoint with all ballotpedia fields """
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
+    serializer_class = BallotpediaSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):

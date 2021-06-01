@@ -3,15 +3,16 @@
 import rest_framework.serializers as serializers
 
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.sidecar.reader import SidecarReader
 from .sankey.graphToD3 import D3Sankey
 
 
-def ensure_file_is_under_2_mb(jsonFile):
+def ensure_file_is_under_2_mb(jsonFileObj):
     """ Limit file size to 2mb"""
     maxFileSize = 1024 * 1024 * 2  # 2MB
-    if jsonFile.size > maxFileSize:
+    if jsonFileObj.size > maxFileSize:
         raise serializers.ValidationError('Max file size is {} and your file size is {}'.
-                                          format(maxFileSize, jsonFile.size))
+                                          format(maxFileSize, jsonFileObj.size))
 
 
 def ensure_title_is_under_256_chars(graph):
@@ -22,23 +23,31 @@ def ensure_title_is_under_256_chars(graph):
                                           format(maxTitleSize, len(graph.title)))
 
 
-def try_to_load_json(jsonFile):
+def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
     """ Checks that the JSON can be loaded and is under 2mb.
         Raises:
-         - BadJSONError: JSON cannot be loaded
+         - BadJSONError: Summary JSON cannot be loaded
+         - BadSidecarError: Sidecar JSON cannot be loaded
          - ValidationError: 2mb limit is reached
          - Anything else: unknown error
         Returns:
          - Loaded graph
     """
     # Check filesize before opening a massive file
-    ensure_file_is_under_2_mb(jsonFile)
+    ensure_file_is_under_2_mb(jsonFileObj)
+    if sidecarJsonFileObj is not None:
+        ensure_file_is_under_2_mb(sidecarJsonFileObj)
 
-    graph = make_graph_with_file(jsonFile, False)
+    graph = make_graph_with_file(jsonFileObj, False)
     graph.summarize()
     D3Sankey(graph)  # sanity check the graph can be created
 
     # Check title length
     ensure_title_is_under_256_chars(graph)
+
+    # check sidecar file:
+    if sidecarJsonFileObj is not None:
+        reader = SidecarReader(sidecarJsonFileObj)
+        reader.assert_valid(graph)
 
     return graph

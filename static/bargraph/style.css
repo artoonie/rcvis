@@ -23,6 +23,10 @@ path.domain {
 .dataLabel {
   font-size: 0.8rem;
 }
+.dataLabelIncumbent {
+  font-weight: bold;
+  text-decoration: underline;
+}
 .secondaryDataLabel {
   font-size: 0.6rem;
 }

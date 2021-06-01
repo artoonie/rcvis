@@ -8,7 +8,7 @@
 {% include "visualizer/common-visualizer-header.html" %}
 </head>
 
-<body id="embedded_body">
+<body id="embedded-body">
 {% if vistype == "sankey" %}
     {% include "sankey/sankey.html" %}
 {% elif vistype == "barchart-fixed" %}
@@ -30,7 +30,7 @@
   <!-- Footer -->
   <section class="embedded-footer text-center text-white">
     <div class="container">
-        <small><a href="/v/{{ config.slug }}" target="_blank">Additional visualizations at rcvis.com</a></small>
+        <small><a href="{% url 'visualize' config.slug %}" target="_blank">Additional visualizations at rcvis.com</a></small>
     </div>
   </section>
 

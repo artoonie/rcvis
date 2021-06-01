@@ -94,13 +94,14 @@ class SimpleTests(TestCase):
             newFilenamePrefix='x' * 87)
         response = self.client.post('/upload.html', {'jsonFile': tf})
         self.assertEqual(response.status_code, 302)
-        lastUpload = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        lastUpload = TestHelpers.get_latest_upload()
         self.assertLess(len(lastUpload.slug), 100)
 
     # pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
-        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t != 'jsonFile']
+        fieldsToIgnore = ('jsonFile', 'candidateSidecarFile')
+        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t not in fieldsToIgnore]
         fn = filenames.MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:
@@ -205,7 +206,7 @@ class SimpleTests(TestCase):
     def test_oembed_keeps_vistype(self):
         """ Ensure vistype is shepharded from visualize to visualizembedded via oembed """
         TestHelpers.get_multiwinner_upload_response(self.client)
-        slug = JsonConfig.objects.latest('-id').slug
+        slug = TestHelpers.get_latest_upload().slug
         visualizeUrl = reverse('visualize', args=(slug,)) + "?vistype=sankey"
         response = self.client.get(visualizeUrl)
 
