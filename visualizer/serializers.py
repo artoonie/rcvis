@@ -25,7 +25,12 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         model = JsonConfig
 
         owner = serializers.ReadOnlyField(source='owner.username')
-        read_only_fields = ('slug', 'movieHorizontal', 'movieVertical', 'movieGenerationStatus')
+        read_only_fields = (
+            'slug',
+            'id',
+            'movieHorizontal',
+            'movieVertical',
+            'movieGenerationStatus')
         read_only_but_validate_fields = ('numRounds', 'numCandidates', 'title')
         fields = read_only_fields + read_only_but_validate_fields
 
@@ -106,14 +111,22 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class JsonOnlySerializer(BaseVisualizationSerializer):
-    """ A serializer for specifying just the JSON file """
+    """
+    A serializer for specifying just the JSON file.
+    All other settings are set to their default values.
+    """
     class Meta(BaseVisualizationSerializer.Meta):
         writeable_fields = ('jsonFile', 'owner')
         fields = BaseVisualizationSerializer.Meta.fields + writeable_fields
 
 
 class BallotpediaSerializer(BaseVisualizationSerializer):
-    """ A serializer for specifying the Ballotpedia data """
+    """
+    A serializer for specifying the Ballotpedia data.
+    Instead of specifying jsonFile (which is confusing because the sidecar is also JSON),
+    this serializer uses "resultsSummaryFile" and "candidateSidecarFile", along with
+    the other two options bp wants: dataSourceURL and areResultsCertified.
+    """
     class Meta(BaseVisualizationSerializer.Meta):
         resultsSummaryFile = serializers.SerializerMethodField()
         bp_fields = ('jsonFile',  # Note: should not be passed directly

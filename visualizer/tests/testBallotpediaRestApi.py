@@ -26,7 +26,9 @@ class BallotpediaRestAPITests(APITestCase):
         self.client.force_authenticate(user=user)   # pylint: disable=no-member
 
     def test_ballotpedia_simple(self):
-        """ Ensure you can include candidateSidecarFile """
+        """
+        Basic test: ensure that resultsSummaryFile and candidateSidecarFile are uploaded.
+        """
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
@@ -35,7 +37,7 @@ class BallotpediaRestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_ballotpedia_sidecar_optional(self):
-        """ Sidecar is optional """
+        """ Ensure candidateSidecarFile is optional """
         with open(filenames.THREE_ROUND) as jsonFile:
             data = {'resultsSummaryFile': jsonFile}
             response = self.client.post('/api/bp/', data=data)
@@ -45,7 +47,7 @@ class BallotpediaRestAPITests(APITestCase):
     def test_ballotpedia_requires_renamed_field(self):
         """
         BP uses resultsSummaryFile instead of jsonFile.
-        Do not allow jsonFile.
+        Ensure jsonFile may not be specified.
         """
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
@@ -57,7 +59,7 @@ class BallotpediaRestAPITests(APITestCase):
         assert b'Pass resultsSummaryFile instead of jsonFile' in response.content
 
     def test_ballotpedia_data_error(self):
-        """ Ensure bp errors are in the returned message """
+        """ Ensure bp error messages are in the returned message """
         tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
                                           lambda d: d['order'].remove('Banana'))
         with open(filenames.THREE_ROUND) as jsonFile:
@@ -83,7 +85,7 @@ class BallotpediaRestAPITests(APITestCase):
         self.assertEqual(obj.areResultsCertified, False)
 
     def test_ballotpedia_options(self):
-        """ Ensure all additional ballotpedia options work """
+        """ Ensure all additional ballotpedia options can be specified and are respected """
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
@@ -98,7 +100,7 @@ class BallotpediaRestAPITests(APITestCase):
         self.assertEqual(obj.areResultsCertified, True)
 
     def test_ballotpedia_validates_url(self):
-        """ Ensure http:// is required in the data source URL """
+        """ Ensure a valid URL is required """
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
@@ -111,7 +113,10 @@ class BallotpediaRestAPITests(APITestCase):
         assert errMsg in response.content
 
     def test_ballotpedia_edits_put(self):
-        """ Ensure bp data can be edited with PUT - which requires all old fields """
+        """
+        Ensure bp data can be edited with PUT - which requires all fields.
+        Any field not specified will be set to its default value.
+        """
         # Upload initial
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
@@ -140,12 +145,12 @@ class BallotpediaRestAPITests(APITestCase):
         obj = TestHelpers.get_latest_upload()
         self.assertFalse(obj.areResultsCertified)
 
-        # PUT requires data
+        # PUT requires every field to be specified
         response = self.client.put(f'/api/bp/{obj.id}/', data={})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_ballotpedia_edits_patch(self):
-        """ Ensure bp data can be edited with PATCH - old fields are optional """
+        """ Ensure bp data can be edited with PATCH - all fields are optional """
         # Upload initial
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
@@ -170,10 +175,13 @@ class BallotpediaRestAPITests(APITestCase):
                 response = self.client.patch(f'/api/bp/{obj.id}/', data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # areResultsCertified is updated because it was not provided
+        # areResultsCertified is not updated because it was not provided -
+        # the default is not set, but it keeps its original value
         self.assertTrue(TestHelpers.get_latest_upload().areResultsCertified)
 
-        # PATCH does not require even required data
+        # PATCH does not require any field to be specified - check that even the
+        # required fields can be omitted, and that the other fields keep their value
+        # and are not reverted to the default.
         response = self.client.patch(f'/api/bp/{obj.id}/', data={})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(TestHelpers.get_latest_upload().areResultsCertified)

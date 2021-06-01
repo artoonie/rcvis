@@ -60,7 +60,8 @@ class RestAPITests(APITestCase):
         class Models(Enum):
             """ What models to act upon """
             USERS = 0
-            JSONS = 1
+            VISJS = 1
+            VISBP = 2
 
         class Actions(Enum):
             """ What actions to take, here corresponding to GET and POST """
@@ -86,21 +87,27 @@ class RestAPITests(APITestCase):
                         permissionMatrix[user][model][action] = None
 
             adminUser = permissionMatrix[Users.ADMIN]
-            adminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.VISJS][Actions.LIST] = status.HTTP_200_OK
+            adminUser[Models.VISBP][Actions.LIST] = status.HTTP_200_OK
             adminUser[Models.USERS][Actions.LIST] = status.HTTP_200_OK
-            adminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            adminUser[Models.VISJS][Actions.MAKE] = status.HTTP_201_CREATED
+            adminUser[Models.VISBP][Actions.MAKE] = status.HTTP_201_CREATED
             adminUser[Models.USERS][Actions.MAKE] = status.HTTP_405_METHOD_NOT_ALLOWED
 
             notAdminUser = permissionMatrix[Users.NOT_ADMIN]
-            notAdminUser[Models.JSONS][Actions.LIST] = status.HTTP_200_OK
+            notAdminUser[Models.VISJS][Actions.LIST] = status.HTTP_200_OK
+            notAdminUser[Models.VISBP][Actions.LIST] = status.HTTP_200_OK
             notAdminUser[Models.USERS][Actions.LIST] = status.HTTP_403_FORBIDDEN
-            notAdminUser[Models.JSONS][Actions.MAKE] = status.HTTP_201_CREATED
+            notAdminUser[Models.VISJS][Actions.MAKE] = status.HTTP_201_CREATED
+            notAdminUser[Models.VISBP][Actions.MAKE] = status.HTTP_201_CREATED
             notAdminUser[Models.USERS][Actions.MAKE] = status.HTTP_403_FORBIDDEN
 
             loggedOutUser = permissionMatrix[Users.LOGGED_OUT]
-            loggedOutUser[Models.JSONS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISJS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISBP][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
             loggedOutUser[Models.USERS][Actions.LIST] = status.HTTP_401_UNAUTHORIZED
-            loggedOutUser[Models.JSONS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISJS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
+            loggedOutUser[Models.VISBP][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
             loggedOutUser[Models.USERS][Actions.MAKE] = status.HTTP_401_UNAUTHORIZED
 
             return permissionMatrix
@@ -108,7 +115,8 @@ class RestAPITests(APITestCase):
         def run_command(model, action):
             # Get URL
             modelToUrl = {Models.USERS: '/api/users/',
-                          Models.JSONS: '/api/visualizations/'}
+                          Models.VISJS: '/api/visualizations/',
+                          Models.VISBP: '/api/bp/'}
             actionToCommand = {Actions.LIST: self.client.get,
                                Actions.MAKE: self.client.post}
 

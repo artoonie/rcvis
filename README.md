@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Sauce Test Status](https://saucelabs.com/buildstatus/artoonie)](https://app.saucelabs.com/u/artoonie) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
+[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
 
 # RCVis.com
@@ -89,17 +89,21 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 | --- | --- |
 | ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
 
-## RESTful API
-Addition documentation for the REST API is available at [rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/).
+## REST API
+The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
+We recommend you start by looking over the example code.
+Addition documentation is available at [rcvis.com/api/](https://www.rcvis.com/api/).
 
 To get started with programmatic access to rcvis:
 
 1. Email team@rcvis.com to obtain an account.
 2. Submit a GET request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `http GET https://www.rcvis.com/api/auth/get-token username='username' password="password"`.
-3. Submit a POST request to [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) to upload a file, including the file in the `jsonFile` field of the body.
-4. For any file uploaded via the API, you may modify it using PATCH requests.
 
-You are limited to 1000 requests per hour as an authenticated user.
+With your API key, you may access two endpoints:
+1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
+2. [https://www.rcvis.com/api/bp/](https://www.rcvis.com/api/bp/) requires field `resultsSummaryFile` with the body of a valid summary JSON and allows three optional fields: `candidateSidecarFile`, `dataSourceURL` (string), and `areResultsCertified` (boolean).
+
+For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 
 ## oembed
 RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
