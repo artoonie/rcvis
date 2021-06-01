@@ -8,12 +8,17 @@ from rest_framework import serializers
 from rest_framework.settings import api_settings
 
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.sidecar.reader import BadSidecarError
 from .models import JsonConfig
-from .validators import try_to_load_json
+from .validators import try_to_load_jsons
 
 
-class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
-    """ The rest_framework serializer for a JsonConfig Model """
+class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
+    """
+    The rest_framework serializer for a JsonConfig Model.
+    DRF expects a fixed set of options, so this uses the model defaults
+    and nothing more.
+    """
 
     class Meta:
         """ The meta class to simplify construction of the serializer """
@@ -22,10 +27,10 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         owner = serializers.ReadOnlyField(source='owner.username')
         read_only_fields = ('slug', 'movieHorizontal', 'movieVertical', 'movieGenerationStatus')
         read_only_but_validate_fields = ('numRounds', 'numCandidates', 'title')
-        fields = ('jsonFile', 'owner') + read_only_fields + read_only_but_validate_fields
+        fields = read_only_fields + read_only_but_validate_fields
 
     def to_representation(self, instance):
-        data = super(JsonConfigSerializer, self).to_representation(instance)
+        data = super(BaseVisualizationSerializer, self).to_representation(instance)
         request = self.context['request']
 
         visRelativeUrl = reverse('visualize', args=(instance.slug,))
@@ -46,26 +51,32 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         # Validate data - again, checking for errors but not raising.
         # Note that patch doesn't include jsonFile, just the object ID
         if 'jsonFile' in data:
-            graph = self.load_graph_or_errors(data['jsonFile'])
+            graph = self.load_graph_or_errors(
+                data['jsonFile'], data.get(
+                    'candidateSidecarFile', None))
 
             # Update data
             self.populate_model_with_json_data(data, graph)
 
         # Now run all other validations
-        data = super(JsonConfigSerializer, self).to_internal_value(data)
+        data = super(BaseVisualizationSerializer, self).to_internal_value(data)
 
         return data
 
         # validations happen after this point...
 
     @classmethod
-    def load_graph_or_errors(cls, jsonFile):
+    def load_graph_or_errors(cls, jsonFile, candidateSidecarFile):
         """ Returns the graph, or raises an error if it cannot. """
         try:
-            return try_to_load_json(jsonFile)
+            return try_to_load_jsons(jsonFile, candidateSidecarFile)
         except BadJSONError as exception:
             errorMessage = traceback.format_exc()
             raise serializers.ValidationError({'jsonFile': ["JSON is not valid: " + errorMessage]})
+        except BadSidecarError as exception:
+            errorMessage = traceback.format_exc()
+            raise serializers.ValidationError(
+                {'candidateSidecarFile': ["Sidecar JSON is not valid: " + errorMessage]})
         except Exception as exception:
             # Don't print full traceback here - we don't control this message as closely,
             # and it might (?) contain keys.
@@ -74,8 +85,9 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
     def check_for_superfluous_fields_before_modification(self, data):
         """ Raises a ValidationError if the data does not have superfluous fields. """
         allFields = self.fields
-        writeableFieldKeys = [key for key in allFields if not allFields[key]
-                              .read_only and key not in self.Meta.read_only_but_validate_fields]
+        writeableFieldKeys = [key for key in allFields if
+                              not allFields[key].read_only and
+                              key not in self.Meta.read_only_but_validate_fields]
         superfluousFields = set(data.keys()) - set(writeableFieldKeys)
 
         if not superfluousFields:
@@ -91,6 +103,40 @@ class JsonConfigSerializer(serializers.HyperlinkedModelSerializer):
         model['numRounds'] = len(graph.summarize().rounds)
         model['numCandidates'] = len(graph.summarize().candidates)
         return model
+
+
+class JsonOnlySerializer(BaseVisualizationSerializer):
+    """ A serializer for specifying just the JSON file """
+    class Meta(BaseVisualizationSerializer.Meta):
+        writeable_fields = ('jsonFile', 'owner')
+        fields = BaseVisualizationSerializer.Meta.fields + writeable_fields
+
+
+class BallotpediaSerializer(BaseVisualizationSerializer):
+    """ A serializer for specifying the Ballotpedia data """
+    class Meta(BaseVisualizationSerializer.Meta):
+        resultsSummaryFile = serializers.SerializerMethodField()
+        bp_fields = ('jsonFile',  # Note: should not be passed directly
+                     'candidateSidecarFile',
+                     'dataSourceURL',
+                     'areResultsCertified',
+                     'owner')
+        fields = BaseVisualizationSerializer.Meta.fields + bp_fields
+
+    def to_internal_value(self, data):
+        """
+        Instead of jsonFile, this endpoint uses the more-descriptive "resultsSummaryFile".
+        Rename resultsSummaryFile to jsonFile here.
+        """
+        if 'jsonFile' in data:
+            raise serializers.ValidationError({'jsonFile':
+                                               ["Pass resultsSummaryFile instead of jsonFile"]})
+
+        if 'resultsSummaryFile' in data:
+            data['jsonFile'] = data['resultsSummaryFile']
+            del data['resultsSummaryFile']
+
+        return super(BallotpediaSerializer, self).to_internal_value(data)
 
 
 class UserSerializer(serializers.ModelSerializer):

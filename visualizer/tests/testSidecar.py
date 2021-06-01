@@ -4,18 +4,14 @@ Because the ballotpedia page is looked at less frequently, but its
 standardization is highly important, this should be tested more thoroughly.
 """
 
-import tempfile
-import json
-
 from django.core.files import File
 from django.test import TestCase
 from django.urls import reverse
 
 from common.testUtils import TestHelpers
-from visualizer.models import JsonConfig
-from visualizer.sidecar.reader import BadSidecarError, SidecarReader
+from visualizer.sidecar.reader import BadSidecarError
 from visualizer.tests import filenames
-from visualizer.validators import try_to_load_json
+from visualizer.validators import try_to_load_jsons
 
 TestHelpers.silence_logging_spam()
 
@@ -31,26 +27,7 @@ class SidecarTests(TestCase):
         """ Opens the given file and creates a graph with it """
         jsonFilename = filenames.THREE_ROUND
         with open(jsonFilename, 'r+') as jsonFileObj:
-            graph = try_to_load_json(File(jsonFileObj))
-        reader = SidecarReader(sidecarFileObj)
-        reader.assert_valid(graph)
-
-    @classmethod
-    def _change_sidecar_with(cls, modifierFunc):
-        """
-        Given a modifierFunc which modifies the data in the sidecarFile,
-        updates the sidecar file and returns a Tempfile holding the new data
-        """
-        # Update the sidecar data
-        with open(filenames.THREE_ROUND_SIDECAR, 'r+') as sidecarFile:
-            data = json.load(sidecarFile)
-            modifierFunc(data)
-
-        # Write it to a tempfile
-        tf = tempfile.NamedTemporaryFile()
-        with open(tf.name, 'w') as tfObj:
-            json.dump(data, tfObj)
-        return tf
+            try_to_load_jsons(File(jsonFileObj), File(sidecarFileObj))
 
     def test_data_loads(self):
         """ Test the happy path: correct data loads """
@@ -59,38 +36,35 @@ class SidecarTests(TestCase):
 
     def test_error_on_version(self):
         """ Ensure the version number is checked """
-        tf = self._change_sidecar_with(lambda d:
-                                       d.update({'version': '0.0'})
-                                       )
+        tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
+                                          lambda d: d.update({'version': '0.0'}))
         with self.assertRaisesRegex(BadSidecarError, 'Version must be 1.0'):
             self._assert_sidecar_valid(tf)
 
     def test_error_on_candidate_order(self):
         """ All candidates must be in the order, and not more """
-        tf = self._change_sidecar_with(lambda d:
-                                       d['order'].remove('Banana')
-                                       )
+        tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
+                                          lambda d: d['order'].remove('Banana'))
         with self.assertRaisesRegex(BadSidecarError, 'order must include all'):
             self._assert_sidecar_valid(tf)
 
-        tf = self._change_sidecar_with(lambda d:
-                                       d['order'].append('Cherry')
-                                       )
+        tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
+                                          lambda d: d['order'].append('Cherry'))
         with self.assertRaisesRegex(BadSidecarError, 'order must include all'):
             self._assert_sidecar_valid(tf)
 
     def test_infos_must_be_actual_candidates(self):
         """ Make sure Info dosen't include any extra candidates """
-        tf = self._change_sidecar_with(lambda d:
-                                       d['info'].update({'Cherry': d['info']['Banana']})
-                                       )
+        tf = TestHelpers.modify_json_with(
+            filenames.THREE_ROUND_SIDECAR,
+            lambda d: d['info'].update({'Cherry': d['info']['Banana']}))
         with self.assertRaisesRegex(BadSidecarError, 'Cherry is missing from the actual'):
             self._assert_sidecar_valid(tf)
 
     def _upload_and_go_to_ballotpedia(self, uploadConfig):
         """ POSTS uploadConfig to /upload.html, goes to /vb/, then returns that response """
         redirectResponse = self.client.post('/upload.html', uploadConfig)
-        slug = JsonConfig.objects.latest('id').slug
+        slug = TestHelpers.get_latest_upload().slug
         vbUrl = reverse('visualizeBallotpedia', args=(slug,))
         assert vbUrl.endswith(slug)
         assert redirectResponse.url.endswith(slug)
@@ -167,9 +141,9 @@ class SidecarTests(TestCase):
                 })
 
         # Test the sidecar with no incumbents
-        tf = self._change_sidecar_with(lambda d:
-                                       d['info']['Blackberry'].update({'incumbent': False})
-                                       )
+        tf = TestHelpers.modify_json_with(
+            filenames.THREE_ROUND_SIDECAR,
+            lambda d: d['info']['Blackberry'].update({'incumbent': False}))
         with open(filenames.THREE_ROUND) as jsonFile:
             with open(tf.name) as sidecarFile:
                 self._test_ballotpedia_text_with_config({

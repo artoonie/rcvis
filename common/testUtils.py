@@ -110,3 +110,35 @@ class TestHelpers():
         logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
         logging.getLogger('selenium').setLevel(logging.CRITICAL)
         logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+
+    @classmethod
+    def modify_json_with(cls, jsonFilename, modifierFunc):
+        """
+        Given a modifierFunc which modifies the data in the given file,
+        updates the json file and returns a Tempfile holding the new data
+        """
+        # Update the sidecar data
+        with open(jsonFilename, 'r+') as sidecarFile:
+            data = json.load(sidecarFile)
+            modifierFunc(data)
+
+        # Write it to a tempfile
+        tf = tempfile.NamedTemporaryFile()
+        with open(tf.name, 'w') as tfObj:
+            json.dump(data, tfObj)
+        return tf
+
+    @classmethod
+    def get_latest_upload(cls):
+        """
+        Returns the last-uploaded json config
+        """
+        return JsonConfig.objects.all().order_by('-id')[0]  # pylint: disable=no-member
+
+    @classmethod
+    def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):
+        """ Does the FieldFile (django field) equal the file at fsFilePath?  """
+        with open(fsFilePath, 'r') as f:
+            realFileData = f.read()
+        fieldFileData = fieldFile.read()
+        return realFileData == fieldFileData

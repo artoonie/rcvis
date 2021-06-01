@@ -29,7 +29,7 @@ from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig
 from visualizer.permissions import IsOwnerOrReadOnly
-from visualizer.serializers import JsonConfigSerializer, UserSerializer
+from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 
@@ -63,8 +63,9 @@ class Upload(CreateView):
 
     def form_valid(self, form):
         try:
-            graph = validators.try_to_load_json(form.cleaned_data['jsonFile'])
-            validators.try_to_load_sidecar(graph, form.cleaned_data['candidateSidecarFile'])
+            graph = validators.try_to_load_jsons(
+                form.cleaned_data['jsonFile'],
+                form.cleaned_data['candidateSidecarFile'])
 
             self.model = form.save(commit=False)
             self.model.title = graph.title
@@ -229,10 +230,20 @@ class Oembed(View):
 # For django REST
 
 
-class JsonConfigViewSet(LoggingMixin, viewsets.ModelViewSet):
+class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
-    serializer_class = JsonConfigSerializer
+    serializer_class = JsonOnlySerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class BallotpediaViewSet(LoggingMixin, viewsets.ModelViewSet):
+    """ API endpoint with all ballotpedia fields """
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
+    serializer_class = BallotpediaSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):

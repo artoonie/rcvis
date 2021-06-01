@@ -23,10 +23,11 @@ def ensure_title_is_under_256_chars(graph):
                                           format(maxTitleSize, len(graph.title)))
 
 
-def try_to_load_json(jsonFileObj):
+def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
     """ Checks that the JSON can be loaded and is under 2mb.
         Raises:
-         - BadJSONError: JSON cannot be loaded
+         - BadJSONError: Summary JSON cannot be loaded
+         - BadSidecarError: Sidecar JSON cannot be loaded
          - ValidationError: 2mb limit is reached
          - Anything else: unknown error
         Returns:
@@ -34,6 +35,8 @@ def try_to_load_json(jsonFileObj):
     """
     # Check filesize before opening a massive file
     ensure_file_is_under_2_mb(jsonFileObj)
+    if sidecarJsonFileObj is not None:
+        ensure_file_is_under_2_mb(sidecarJsonFileObj)
 
     graph = make_graph_with_file(jsonFileObj, False)
     graph.summarize()
@@ -42,23 +45,9 @@ def try_to_load_json(jsonFileObj):
     # Check title length
     ensure_title_is_under_256_chars(graph)
 
+    # check sidecar file:
+    if sidecarJsonFileObj is not None:
+        reader = SidecarReader(sidecarJsonFileObj)
+        reader.assert_valid(graph)
+
     return graph
-
-
-def try_to_load_sidecar(graph, sidecarJsonFilepath):
-    """ Checks that the optional sidecar JSON has no errors
-        Raises:
-         - BadSidecarError: JSON cannot be loaded. Reason is in the exception message.
-         - ValidationError: 2mb limit is reached
-         - Anything else: unknown error
-        Returns:
-         - Nothing
-    """
-    if sidecarJsonFilepath is None:
-        return
-
-    # Check filesize before opening a massive file
-    ensure_file_is_under_2_mb(sidecarJsonFilepath)
-
-    reader = SidecarReader(sidecarJsonFilepath)
-    reader.assert_valid(graph)

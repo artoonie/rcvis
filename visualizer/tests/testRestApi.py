@@ -14,8 +14,9 @@ from rest_framework.test import APITestCase
 from rest_framework_tracking.models import APIRequestLog
 
 from common.testUtils import TestHelpers
-from visualizer.models import JsonConfig
 from visualizer.tests import filenames
+
+TestHelpers.silence_logging_spam()
 
 
 class RestAPITests(APITestCase):
@@ -234,7 +235,7 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Get the working data we just uploaded
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        oneRoundObject = TestHelpers.get_latest_upload()
         self.assertEqual(oneRoundObject.owner.username, 'notadmin')
         self.assertEqual(oneRoundObject.hideSankey, False)
 
@@ -335,6 +336,19 @@ class RestAPITests(APITestCase):
         self._authenticate_as('notadmin')
         response = self._upload_file_for_api(filenames.ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        oneRoundObject = JsonConfig.objects.all().order_by('id')[0]  # pylint: disable=no-member
+        oneRoundObject = TestHelpers.get_latest_upload()
         self.assertEqual(oneRoundObject.hideSankey, False)
         self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
+
+    def test_sidecar_not_allowed_on_simple_endpoint(self):
+        """ Ensure you can not include candidateSidecarFile on /visualizations/"""
+        self._authenticate_as('notadmin')
+
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'jsonFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile}
+                response = self.client.post('/api/visualizations/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errMsg = b'{"non_field_errors":["You included superfluous fields: candidateSidecarFile"]}'
+        assert errMsg in response.content

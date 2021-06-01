@@ -10,7 +10,8 @@ from visualizer import sitemaps
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'visualizations', views.JsonConfigViewSet)
+router.register(r'visualizations', views.JsonOnlyViewSet)
+router.register(r'bp', views.BallotpediaViewSet)
 router.register(r'users', views.UserViewSet)
 
 sitemaps = {
