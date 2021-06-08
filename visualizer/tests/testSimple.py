@@ -27,7 +27,11 @@ class SimpleTests(TestCase):
     """ Simple tests that do not require a live browser """
 
     def setUp(self):
+        TestHelpers.login(self.client)
         TestHelpers.setup_host_mocks(self)
+
+    def teardown(self):
+        TestHelpers.logout(self.client)
 
     @classmethod
     def _get_data_for_view(cls, fn):

@@ -6,6 +6,10 @@ import logging
 import json
 import tempfile
 from mock import patch
+import uuid
+
+from django.contrib.auth.models import User
+from django.urls import reverse
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -133,6 +137,7 @@ class TestHelpers():
         """
         Returns the last-uploaded json config
         """
+        # TODO replace with get_latest_json_config
         return JsonConfig.objects.all().order_by('-id')[0]  # pylint: disable=no-member
 
     @classmethod
@@ -142,3 +147,21 @@ class TestHelpers():
             realFileData = f.read()
         fieldFileData = fieldFile.read()
         return realFileData == fieldFileData
+
+    @classmethod
+    def login(cls, client):
+        users = User.objects.filter(username='testuser')
+        if not len(users):
+            # Since we're not controlling how this function is used as closely,
+            # let's be extra careful setting a password.
+            user = User.objects.create_user(username='testuser', email='test@example.com', password=uuid.uuid4())
+        else:
+            user = users[0]
+        client.force_login(user)
+
+    @classmethod
+    def logout(cls, client):
+        client.logout()
+
+# Silence logging spam for any test that includes this
+TestHelpers.silence_logging_spam()

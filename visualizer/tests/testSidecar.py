@@ -63,6 +63,7 @@ class SidecarTests(TestCase):
 
     def _upload_and_go_to_ballotpedia(self, uploadConfig):
         """ POSTS uploadConfig to /upload.html, goes to /vb/, then returns that response """
+        TestHelpers.login(self.client)
         redirectResponse = self.client.post('/upload.html', uploadConfig)
         slug = TestHelpers.get_latest_upload().slug
         vbUrl = reverse('visualizeBallotpedia', args=(slug,))
