@@ -1,0 +1,14 @@
+{% extends "django_registration/base.html" %}
+
+{% block regcontent %}
+<h2>
+{% block regtitle %}
+  Logged Out
+{% endblock %}
+</h2>
+
+<div class="container">
+  <a href="{% url 'login' %}">Log back in?</a>
+</div>
+
+{% endblock %}

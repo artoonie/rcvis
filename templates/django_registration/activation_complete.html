@@ -1,0 +1,11 @@
+{% extends "django_registration/base.html" %}
+
+{% block regcontent %}
+  <h2>
+  {% block regtitle %}
+    Account Activation Complete
+  {% endblock %}
+  </h2>
+
+  You may now upload files to RCVis. <a href="{% url 'upload' %}">Log in now</a> to create a visualization, or contact team@rcvis.com for help getting started.
+{% endblock %}

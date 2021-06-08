@@ -1,0 +1,23 @@
+{% extends "visualizer/base.html" %}
+
+{% block header %}
+  <title>RCVis: {% block regtitle %}{% endblock %}</title>
+<style>
+.helptext {
+  font-size: small;
+  color: #666;
+}
+.errorlist {
+  color: #d90000;
+  font-weight: bold;
+  font-size: large;
+}
+</style>
+{% endblock %}
+
+{% block maincontent %}
+<div class="container mt-3">
+  {% block regcontent %}
+  {% endblock %}
+</div>
+{% endblock %}

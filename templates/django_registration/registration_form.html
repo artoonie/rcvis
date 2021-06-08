@@ -1,0 +1,20 @@
+{% extends "django_registration/base.html" %}
+
+{% block regcontent %}
+
+<h2>
+{% block regtitle %}
+  Account Registration
+{% endblock %}
+</h2>
+
+{% include "registration/reg-optional-text.html" %}
+
+<form action="." method="post">
+  <table class="table">
+  {% csrf_token %}
+  {{ form.as_table }}
+  </table>
+  <input type="submit" value="Submit">
+</form>
+{% endblock %}

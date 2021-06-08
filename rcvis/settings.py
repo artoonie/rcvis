@@ -107,6 +107,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rcvis.wsgi.application'
+OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 
 # for django.sites (and thus, sitemap)
 SITE_ID = 1
@@ -119,6 +120,12 @@ DATABASES = {
     }
 }
 
+# django-registration (# days to click the link in email)
+ACCOUNT_ACTIVATION_DAYS = 1
+LOGIN_REDIRECT_URL = '/upload.html'
+if OFFLINE_MODE:
+    # Just print emails to the console in offline mode (and in tests)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -188,7 +195,6 @@ COMPRESS_OFFLINE = True
 
 
 # Uploaded media
-OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 if not OFFLINE_MODE:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']

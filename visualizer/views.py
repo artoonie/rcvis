@@ -5,6 +5,7 @@ import urllib.parse
 
 # Django helpers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -53,13 +54,16 @@ class Index(TemplateView):
 
 
 #pylint: disable=too-many-ancestors
-class Upload(CreateView):
+class Upload(LoginRequiredMixin, CreateView):
     """ The upload page """
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
     template_name = 'visualizer/uploadFile.html'
     success_url = 'v/{slug}'
     model = JsonConfig
     form_class = JsonConfigForm
     build_path = "upload.html"
+    include = JsonConfig.get_all_non_auto_fields()
 
     def form_valid(self, form):
         try:
@@ -68,6 +72,7 @@ class Upload(CreateView):
                 form.cleaned_data['candidateSidecarFile'])
 
             self.model = form.save(commit=False)
+            self.model.owner = self.request.user
             self.model.title = graph.title
             self.model.numRounds = len(graph.summarize().rounds)
             self.model.numCandidates = len(graph.summarize().candidates)
