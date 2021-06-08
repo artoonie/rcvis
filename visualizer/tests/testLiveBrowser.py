@@ -68,6 +68,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._screenshotCount = 0
 
         TestHelpers.login(self.client)
+        self._add_login_cookie_to_browser()
 
     def tearDown(self):
         """ Destroys the selenium browser """
@@ -79,6 +80,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
+
+    def _add_login_cookie_to_browser(self):
+        """ After logging in, the browser must also get the cookie """
+        cookie = self.client.cookies['sessionid']
+        self.browser.get(self.live_server_url)  # selenium will set cookie domain based on current page domain
+        self.browser.add_cookie({'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})
 
     def _has_test_failed(self):
         """ helper for tearDown to check if the test has failed """

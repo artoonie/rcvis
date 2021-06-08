@@ -63,6 +63,10 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         }
 
         TestHelpers.setup_host_mocks(self)
+        TestHelpers.login(self.client)
+
+    def tearDown(self):
+        TestHelpers.logout(self.client)
 
     @classmethod
     def _num_movies(cls):
@@ -125,6 +129,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
 
         # Create movie logged out, it should fail
+        TestHelpers.logout(self.client)
         response = self.client.get('/createMovie=macomb-multiwinner-surplus')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
