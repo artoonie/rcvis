@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from urllib.parse import urlparse
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail as test_mailbox
 from django.urls import reverse
@@ -84,8 +84,10 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def _add_login_cookie_to_browser(self):
         """ After logging in, the browser must also get the cookie """
         cookie = self.client.cookies['sessionid']
-        self.browser.get(self.live_server_url)  # selenium will set cookie domain based on current page domain
-        self.browser.add_cookie({'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})
+        # selenium will set cookie domain based on current page domain
+        self.browser.get(self.live_server_url)
+        self.browser.add_cookie(
+            {'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})
 
     def _has_test_failed(self):
         """ helper for tearDown to check if the test has failed """
@@ -833,8 +835,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Register - the user exists but is inactive
         register()
-        self.assertEqual(len(User.objects.filter(username=username)), 1)
-        self.assertFalse(User.objects.filter(username=username)[0].is_active)
+        self.assertEqual(len(get_user_model().objects.filter(username=username)), 1)
+        self.assertFalse(get_user_model().objects.filter(username=username)[0].is_active)
 
         # Try to login before activation: fails, and the username field is still there
         login_via_upload_redirect()

@@ -5,11 +5,10 @@ Helper functions for unit and integration tests
 import logging
 import json
 import tempfile
-from mock import patch
 import uuid
+from mock import patch
 
-from django.contrib.auth.models import User
-from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -150,18 +149,24 @@ class TestHelpers():
 
     @classmethod
     def login(cls, client):
-        users = User.objects.filter(username='testuser')
-        if not len(users):
+        """ Forces a login. Creates a user as needed. """
+        users = get_user_model().objects.filter(username='testuser')
+        if not users.count():
             # Since we're not controlling how this function is used as closely,
             # let's be extra careful setting a password.
-            user = User.objects.create_user(username='testuser', email='test@example.com', password=uuid.uuid4())
+            user = get_user_model().objects.create_user(
+                username='testuser',
+                email='test@example.com',
+                password=str(uuid.uuid4()))
         else:
             user = users[0]
         client.force_login(user)
 
     @classmethod
     def logout(cls, client):
+        """ Logs out (if logged in) """
         client.logout()
+
 
 # Silence logging spam for any test that includes this
 TestHelpers.silence_logging_spam()

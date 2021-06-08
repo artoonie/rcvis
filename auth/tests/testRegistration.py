@@ -4,13 +4,12 @@ Integration tests without a server
 
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
 
 from common.testUtils import TestHelpers
-from visualizer.tests import filenames
 
 
 class RegistrationTests(TestCase):
@@ -76,12 +75,12 @@ class RegistrationTests(TestCase):
 
     def test_succesful_auth(self):
         """ All fields provided """
-        self.assertEqual(len(User.objects.filter(username='testuser')), 0)
+        self.assertEqual(len(get_user_model().objects.filter(username='testuser')), 0)
         password = uuid.uuid4()
-        response = self.client.post(reverse('django_registration_register'), {
+        self.client.post(reverse('django_registration_register'), {
             'username': 'testuser',
             'password1': password,
             'password2': password,
             'email': 'test@example.com'
         })
-        self.assertEqual(len(User.objects.filter(username='testuser')), 1)
+        self.assertEqual(len(get_user_model().objects.filter(username='testuser')), 1)
