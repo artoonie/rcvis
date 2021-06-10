@@ -4,7 +4,7 @@ django-compressor==2.4
 django-node-assets==0.9.8
 django-social-share==2.0.0
 django-storages==1.9.1
-Django==3.1.10
+Django==3.1.12
 mock==4.0.2
 rcvformats==0.0.14
 selenium==3.141.0
