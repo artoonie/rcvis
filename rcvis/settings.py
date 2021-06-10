@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     'visualizer',
     'movie',
+    'accounts.apps.AccountsAppConfig',
     'storages',
     'compressor',
     'django_nose',

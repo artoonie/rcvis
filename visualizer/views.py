@@ -22,6 +22,7 @@ from rest_framework import permissions, viewsets
 from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
+from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
@@ -29,7 +30,6 @@ from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig
-from visualizer.permissions import IsOwnerOrReadOnly
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
@@ -239,7 +239,7 @@ class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonOnlySerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -249,7 +249,7 @@ class BallotpediaViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint with all ballotpedia fields """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = BallotpediaSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

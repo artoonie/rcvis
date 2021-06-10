@@ -1,5 +1,6 @@
 """
-Integration tests without a server
+Test registration flow - account creation and login.
+django-registration has more complete tests, so we only need test the basics here.
 """
 
 import uuid
@@ -20,13 +21,12 @@ class RegistrationTests(TestCase):
 
     def test_registration_pages(self):
         """ Ensures all required django-registration templates render successfully. """
+        # Each 0-argument view should return a 200 when viewed.
+        # This ensures our templates are named correctly and are without errors.
         views = ['django_registration_register',
                  'django_registration_complete',
                  'django_registration_activation_complete',
-                 'django_registration_disallowed'
-                 ]
-
-        # No-argument views
+                 'django_registration_disallowed']
         for viewName in views:
             response = self.client.get(reverse(viewName))
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -53,7 +53,10 @@ class RegistrationTests(TestCase):
         self.assertEqual(response.url, 'v/macomb-multiwinner-surplus')
 
     def test_invalid_username_and_pass(self):
-        """ Tests that you cannot register the same name (as testuser, creating in login) """
+        """
+        Tests that you cannot register the same name as testuser, created in login(),
+        and that a bad password causes an error.
+        """
         TestHelpers.login(self.client)
         response = self.client.post(reverse('django_registration_register'), {
             'username': 'testuser',
