@@ -7,12 +7,14 @@ from django.contrib.auth.admin import UserAdmin
 
 from accounts.models import UserProfile
 
+
 class UserProfileInline(admin.StackedInline):
     """ Inline User Profile when looking at the Admin model """
     model = UserProfile
     can_delete = False
     verbose_name_plural = 'Profile'
     fk_name = 'user'
+
 
 class CustomUserAdmin(UserAdmin):
     """ Custom user admin with the fields we care about """
@@ -25,9 +27,13 @@ class CustomUserAdmin(UserAdmin):
             return list()
         return super(CustomUserAdmin, self).get_inline_instances(request, obj)
 
-    def can_use_api(self, instance):
+    @classmethod
+    def can_use_api(cls, instance):
+        """ getter for this user's UserProfile.canUseApi """
         return instance.userprofile.canUseApi
+
     can_use_api.short_description = 'API access?'
+
 
 admin.site.unregister(get_user_model())
 admin.site.register(get_user_model(), CustomUserAdmin)

@@ -72,6 +72,9 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def tearDown(self):
         """ Destroys the selenium browser """
+        # Must have no errors at end of test
+        self._assert_log_len(0)
+
         if self.isUsingSauceLabs:
             sauceResult = "passed" if not self._has_test_failed() else "failed"
             self.browser.execute_script("sauce:job-result={}".format(sauceResult))
@@ -116,6 +119,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # For now, remove the fullpage.js messages
         log = [l for l in log if 'This website was made using fullPage.js' not in l['message']]
         log = [l for l in log if 'https://alvarotrigo' not in l['message']]
+        # And the message created by _add_login_cookie_to_browser
+        log = [l for l in log if 'Unrecognized feature: \'clipboard-write\'.' not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)

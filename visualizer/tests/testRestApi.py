@@ -31,14 +31,16 @@ class RestAPITests(APITestCase):
         admin.userprofile.save()
 
         # Create a regular user programmatically
-        notadmin = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
+        notadmin = get_user_model().objects.create_user(
+            'notadmin', 'notadmin@example.com', 'password')
         notadmin.is_staff = False
         notadmin.userprofile.canUseApi = True
         notadmin.save()
         notadmin.userprofile.save()
 
         # Create a user who cannot use the API
-        randouser = get_user_model().objects.create_user('noapiaccess', 'noapiaccess@example.com', 'password')
+        randouser = get_user_model().objects.create_user(
+            'noapiaccess', 'noapiaccess@example.com', 'password')
         randouser.is_staff = False
         randouser.save()
 

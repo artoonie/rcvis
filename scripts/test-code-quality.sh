@@ -3,7 +3,7 @@
 
 myExitCode=0
 
-modules="auth auth/tests common movie rcvis visualizer visualizer/descriptors visualizer/tests"
+modules="accounts accounts/tests common movie rcvis visualizer visualizer/descriptors visualizer/tests"
 
 # Require 100% lint-free code
 echo "Checking for pylint issues"

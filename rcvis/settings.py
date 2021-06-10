@@ -17,7 +17,6 @@ import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -34,6 +33,7 @@ if 'RCVIS_HOST_ALIAS' in os.environ:
 if 'HEROKU_APP_NAME' in os.environ:
     ALLOWED_HOSTS.append(os.environ['HEROKU_APP_NAME'] + '.heroku.com')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Application definition
 
