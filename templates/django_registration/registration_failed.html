@@ -1,9 +1,11 @@
-{% extends "visualizer/base.html" %}
+{% extends "django_registration/base.html" %}
 
-{% block header %}
-  <title>TODO</title>
-  <meta name="description" content="TODO">
-{% endblock %}
+{% block regcontent %}
+  <h2>
+  {% block regtitle %}
+    Registration Failed
+  {% endblock %}
+  </h2>
 
-{% block maincontent %}
+  Registration Failed. Email team@rcvis.com for help.
 {% endblock %}

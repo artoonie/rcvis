@@ -58,11 +58,6 @@ class TestHelpers():
         return response
 
     @classmethod
-    def get_latest_json_config(cls):
-        """ Return the JsonConfig of the last-uploaded file """
-        return JsonConfig.objects.latest('-id')
-
-    @classmethod
     def get_headless_browser(cls):
         """ Returns a headless browser """
         chromeOptions = webdriver.chrome.options.Options()
@@ -136,8 +131,7 @@ class TestHelpers():
         """
         Returns the last-uploaded json config
         """
-        # TODO replace with get_latest_json_config
-        return JsonConfig.objects.all().order_by('-id')[0]  # pylint: disable=no-member
+        return JsonConfig.objects.latest('-id')
 
     @classmethod
     def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):

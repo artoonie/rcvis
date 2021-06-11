@@ -88,7 +88,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         assert len(TextToSpeechCachedFile.objects.all()) == 0
 
         # Create the movie
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
@@ -99,7 +99,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # instead of the test database, so the pk doesn't align - why?
 
         # Ensure it's completed
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
         assert os.path.exists(jsonConfig.movieHorizontal.gifFile.path)
         assert os.path.exists(jsonConfig.movieHorizontal.titleImage.path)
@@ -137,13 +137,13 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         mockCreateMovie.assert_not_called()
 
         # Log in and try again
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.NOT_REQUESTED
         self.client.post('/admin/login/', {'username': 'admin', 'password': 'password'})
         response = self.client.get('/createMovie=macomb-multiwinner-surplus')
 
         # Make sure we see it requested - note, we mock out all future MovieGenerationStatuses
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.NOT_STARTED
 
         # Assert it redirects to a waiting page
@@ -211,7 +211,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Mock the audio generation to inspect captions
         mockSpawnAudio.side_effect = ORIG_FUNC_FOR_SPAWN_AUDIO
         TestHelpers.get_multiwinner_upload_response(self.client)
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
 
         # Mock the video generation to make it faster
         mockWriteVideoFile.return_value = None
@@ -235,10 +235,10 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         mockTraceback.return_value = None  # Don't care to see the traceback - we know it fails
 
         TestHelpers.get_multiwinner_upload_response(self.client)
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         create_movie_task(jsonConfig.pk, '/incorrect/url')
 
-        jsonConfig = TestHelpers.get_latest_json_config()
+        jsonConfig = TestHelpers.get_latest_upload()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.FAILED
 
 

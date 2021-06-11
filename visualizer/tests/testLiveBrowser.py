@@ -87,7 +87,6 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def _add_login_cookie_to_browser(self):
         """ After logging in, the browser must also get the cookie """
         cookie = self.client.cookies['sessionid']
-        # selenium will set cookie domain based on current page domain
         self.browser.get(self.live_server_url)
         self.browser.add_cookie(
             {'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})

@@ -24,7 +24,7 @@ class ModelDeletionTests(TransactionTestCase):
         # Upload
         with open(filenames.MULTIWINNER) as f:
             self.client.post('/upload.html', {'jsonFile': f})
-        uploadedObject = TestHelpers.get_latest_json_config()
+        uploadedObject = TestHelpers.get_latest_upload()
 
         # Ensure it exists
         path = uploadedObject.jsonFile.path
