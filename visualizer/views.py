@@ -5,6 +5,7 @@ import urllib.parse
 
 # Django helpers
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -21,6 +22,7 @@ from rest_framework import permissions, viewsets
 from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
+from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
@@ -28,7 +30,6 @@ from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig
-from visualizer.permissions import IsOwnerOrReadOnly
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
@@ -53,13 +54,16 @@ class Index(TemplateView):
 
 
 #pylint: disable=too-many-ancestors
-class Upload(CreateView):
+class Upload(LoginRequiredMixin, CreateView):
     """ The upload page """
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
     template_name = 'visualizer/uploadFile.html'
     success_url = 'v/{slug}'
     model = JsonConfig
     form_class = JsonConfigForm
     build_path = "upload.html"
+    include = JsonConfig.get_all_non_auto_fields()
 
     def form_valid(self, form):
         try:
@@ -68,6 +72,7 @@ class Upload(CreateView):
                 form.cleaned_data['candidateSidecarFile'])
 
             self.model = form.save(commit=False)
+            self.model.owner = self.request.user
             self.model.title = graph.title
             self.model.numRounds = len(graph.summarize().rounds)
             self.model.numCandidates = len(graph.summarize().candidates)
@@ -234,7 +239,7 @@ class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonOnlySerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -244,7 +249,7 @@ class BallotpediaViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint with all ballotpedia fields """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = BallotpediaSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
+    permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

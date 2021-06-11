@@ -1,0 +1,13 @@
+{% extends 'admin/base_site.html' %}
+
+{% load static %}
+
+{% block header %}
+{% include 'visualizer/common-header.html' %}
+{% endblock %}
+
+{% block branding %}
+    <div class="head">
+      <a href="{% url 'index' %}"><img src="{% static 'visualizer/logo-white.png' %}" width="120" alt="RCVis logo" id="logo" /></a>
+    </div>
+{% endblock %}

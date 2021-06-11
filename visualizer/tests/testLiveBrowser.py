@@ -6,10 +6,13 @@ import json
 import os
 import platform
 import time
+import uuid
 from datetime import datetime
 from urllib.parse import urlparse
 
+from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core import mail as test_mailbox
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
@@ -64,13 +67,29 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.implicitly_wait(10)
         self._screenshotCount = 0
 
+        TestHelpers.login(self.client)
+        self._add_login_cookie_to_browser()
+
     def tearDown(self):
         """ Destroys the selenium browser """
+        # Must have no errors at end of test
+        self._assert_log_len(0)
+
         if self.isUsingSauceLabs:
             sauceResult = "passed" if not self._has_test_failed() else "failed"
             self.browser.execute_script("sauce:job-result={}".format(sauceResult))
+
+        TestHelpers.logout(self.client)
+
         self.browser.quit()
         super(LiveBrowserTests, self).tearDown()
+
+    def _add_login_cookie_to_browser(self):
+        """ After logging in, the browser must also get the cookie """
+        cookie = self.client.cookies['sessionid']
+        self.browser.get(self.live_server_url)
+        self.browser.add_cookie(
+            {'name': 'sessionid', 'value': cookie.value, 'secure': False, 'path': '/'})
 
     def _has_test_failed(self):
         """ helper for tearDown to check if the test has failed """
@@ -99,6 +118,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         # For now, remove the fullpage.js messages
         log = [l for l in log if 'This website was made using fullPage.js' not in l['message']]
         log = [l for l in log if 'https://alvarotrigo' not in l['message']]
+        # And the message created by _add_login_cookie_to_browser
+        log = [l for l in log if 'Unrecognized feature: \'clipboard-write\'.' not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)
@@ -779,3 +800,62 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.assertEqual(elemsInOrder[1].get_attribute('innerHTML'), "Blackberry")
         self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Vanilla")
         self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Strawberry")
+
+    def test_auth_flow(self):
+        """
+        Auth flow: register, get activation link from email, login, upload.
+        Additional tests in the auth/ app.
+        This is a broad integration test.
+        """
+        username = 'livebrowseruser'
+        password = str(uuid.uuid4())
+
+        def register():
+            self.open(reverse('django_registration_register'))
+            self.browser.find_element_by_id("id_username").send_keys(username)
+            self.browser.find_element_by_id("id_password1").send_keys(password)
+            self.browser.find_element_by_id("id_password2").send_keys(password)
+            self.browser.find_element_by_id("id_email").send_keys("test@example.com")
+            self.browser.find_element_by_xpath("//input[@type='submit']").click()
+
+        def login_via_upload_redirect():
+            self.open(reverse('upload'))
+            self.browser.find_element_by_id("id_username").send_keys(username)
+            self.browser.find_element_by_id("id_password").send_keys(password)
+            self.browser.find_element_by_xpath("//input[@type='submit']").click()
+
+        def click_activation_link():
+            emailBodyLines = test_mailbox.outbox[0].body.split('\n')
+            emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
+            emailBodyRelativeLink = urlparse(emailBodyLink).path
+            self.open(emailBodyRelativeLink)
+
+        # First logout
+        TestHelpers.logout(self.client)
+
+        # Upload should redirect to a page with id_username
+        self.open(reverse('upload'))
+        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 1)
+
+        # Register - the user exists but is inactive
+        register()
+        self.assertEqual(len(get_user_model().objects.filter(username=username)), 1)
+        self.assertFalse(get_user_model().objects.filter(username=username)[0].is_active)
+
+        # Try to login before activation: fails, and the username field is still there
+        login_via_upload_redirect()
+        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 1)
+
+        # Assert an email was sent
+        self.assertEqual(len(test_mailbox.outbox), 1)
+        self.assertEqual(test_mailbox.outbox[0].subject, 'RCVis account registration')
+
+        # Now activate via email link
+        click_activation_link()
+
+        # Now login should succeed, and upload has no username field
+        login_via_upload_redirect()
+        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 0)
+
+        # And for good measure, upload a file
+        self._upload(filenames.ONE_ROUND)

@@ -17,13 +17,14 @@ class ModelDeletionTests(TransactionTestCase):
 
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
+        TestHelpers.login(self.client)
 
     def test_file_deletion_on_model_deletion(self):
         """ Verify that when a model is deleted, the associated file is too """
         # Upload
         with open(filenames.MULTIWINNER) as f:
             self.client.post('/upload.html', {'jsonFile': f})
-        uploadedObject = TestHelpers.get_latest_json_config()
+        uploadedObject = TestHelpers.get_latest_upload()
 
         # Ensure it exists
         path = uploadedObject.jsonFile.path

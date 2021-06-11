@@ -3,9 +3,24 @@
 {% block header %}
 <title>Upload election results to RCVIS</title>
 <meta name="description" content="Upload election results to RCVIS: Accepts JSONs from the Universal RCV Tabulator, Opavote, and CSVs from ElectionBuddy.">
+<style>
+.login-info {
+  color: white;
+  text-transform: none !important; /*unset uppercase*/
+}
+.login-info a {
+  color: white;
+  text-decoration: underline;
+}
+</style>
 {% endblock %}
 
 {% block navlinks %}
+<p class="login-info">
+  Logged in as <strong>{{ user.username }}</strong>.
+  <br/>
+  <a href="{% url 'logout' %}">Log out</a>?
+</p>
 {% endblock %}
 
 {% block beforeFullpage %}

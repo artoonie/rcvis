@@ -18,9 +18,14 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
     """ Tests for the Ballotpedia REST API """
 
     def setUp(self):
-        admin = get_user_model().objects.create_user('demouser', 'notadmin@example.com', 'password')
-        admin.is_staff = False
-        admin.save()
+        user = get_user_model().objects.create_user('demouser', 'notadmin@example.com', 'password')
+        user.is_staff = False
+        user.save()
+
+        # Note: while you may create an account yourself, you must ask team@rcvis.com to give you
+        # access to use the API.
+        user.userprofile.canUseApi = True
+        user.userprofile.save()
 
         TestHelpers.setup_host_mocks(self)
 

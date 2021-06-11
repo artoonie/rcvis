@@ -5,7 +5,10 @@ Helper functions for unit and integration tests
 import logging
 import json
 import tempfile
+import uuid
 from mock import patch
+
+from django.contrib.auth import get_user_model
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -53,11 +56,6 @@ class TestHelpers():
         with open(FILENAME_MULTIWINNER) as f:
             response = client.post('/upload.html', {'jsonFile': f})
         return response
-
-    @classmethod
-    def get_latest_json_config(cls):
-        """ Return the JsonConfig of the last-uploaded file """
-        return JsonConfig.objects.latest('-id')
 
     @classmethod
     def get_headless_browser(cls):
@@ -133,7 +131,7 @@ class TestHelpers():
         """
         Returns the last-uploaded json config
         """
-        return JsonConfig.objects.all().order_by('-id')[0]  # pylint: disable=no-member
+        return JsonConfig.objects.latest('id')
 
     @classmethod
     def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):
@@ -142,3 +140,27 @@ class TestHelpers():
             realFileData = f.read()
         fieldFileData = fieldFile.read()
         return realFileData == fieldFileData
+
+    @classmethod
+    def login(cls, client):
+        """ Forces a login. Creates a user as needed. """
+        users = get_user_model().objects.filter(username='testuser')
+        if not users.count():
+            # Since we're not controlling how this function is used as closely,
+            # let's be extra careful setting a password.
+            user = get_user_model().objects.create_user(
+                username='testuser',
+                email='test@example.com',
+                password=str(uuid.uuid4()))
+        else:
+            user = users[0]
+        client.force_login(user)
+
+    @classmethod
+    def logout(cls, client):
+        """ Logs out (if logged in) """
+        client.logout()
+
+
+# Silence logging spam for any test that includes this
+TestHelpers.silence_logging_spam()

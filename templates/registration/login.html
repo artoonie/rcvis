@@ -1,0 +1,30 @@
+{% extends "django_registration/base.html" %}
+{% load static %}
+{% load compress %}
+
+{% block regcontent %}
+<h2>
+{% block regtitle %}
+  Login to create visualizations
+{% endblock %}
+</h2>
+
+{% compress css file %}
+<link rel="stylesheet" type="text/css" href="{% static 'settings/settings.css' %}">
+{% endcompress %}
+
+{% include "settings/settings-help-filetype.html" %}
+
+{% include "registration/reg-optional-text.html" %}
+
+<form action="." method="post">
+  <table class="table">
+  {% csrf_token %}
+  {{ form.as_table }}
+  </table>
+  <input type="submit" value="Submit"> or <a href="{% url 'django_registration_register' %}">register</a>
+</form>
+
+<p class="mt-5"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+
+{% endblock %}

@@ -27,11 +27,22 @@ class RestAPITests(APITestCase):
         admin = get_user_model().objects.create_user('admin', 'admin@example.com', 'password')
         admin.is_staff = True
         admin.save()
+        admin.userprofile.canUseApi = True
+        admin.userprofile.save()
 
         # Create a regular user programmatically
-        admin = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
-        admin.is_staff = False
-        admin.save()
+        notadmin = get_user_model().objects.create_user(
+            'notadmin', 'notadmin@example.com', 'password')
+        notadmin.is_staff = False
+        notadmin.userprofile.canUseApi = True
+        notadmin.save()
+        notadmin.userprofile.save()
+
+        # Create a user who cannot use the API
+        randouser = get_user_model().objects.create_user(
+            'noapiaccess', 'noapiaccess@example.com', 'password')
+        randouser.is_staff = False
+        randouser.save()
 
         TestHelpers.setup_host_mocks(self)
 
@@ -363,3 +374,21 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         errMsg = b'{"non_field_errors":["You included superfluous fields: candidateSidecarFile"]}'
         assert errMsg in response.content
+
+    def test_create_token(self):
+        """ Ensure only api-enabled users can create a token """
+        # This user may create a token
+        response = self.client.post('/api/auth/get-token', format='json', data={
+            "username": "notadmin",
+            "password": "password"
+        })
+        token = response.json()['token']
+        self.assertEqual(len(token), 40)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # This one may not
+        response = self.client.post('/api/auth/get-token', format='json', data={
+            "username": "noapiaccess",
+            "password": "password"
+        })
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

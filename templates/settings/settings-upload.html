@@ -37,45 +37,7 @@ function sidecarFileSelected(files)
       <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv"  onchange="summaryFileSelected(this.files)"/>
     </div>
 
-    <div class="narrowbox">
-      <p class="masthead-subheading font-weight-light mt-3 narrowbox">
-       <button class="btn btn-link" data-toggle="collapse" data-target="#acceptedformats" aria-expanded="false" aria-controls="acceptedformats" type="button">
-         What formats are accepted?
-       </button>
-       |
-       <button class="btn btn-link" data-toggle="collapse" data-target="#exampledata" aria-expanded="false" aria-controls="exampledata" type="button">
-         Don't have any data to upload?
-       </button>
-      </p>
-      <div class="collapse" id="acceptedformats">
-        <div class="card card-body mb-3 d-block bg-light">
-          <h5 class="card-title">Accepted formats</h5>
-          <ol class="list-group">
-            <li class="list-group-item"><a href="https://www.rankedchoicevoting.org/universal_rcv_tabulator">Universal RCV Tabulator (JSON)</a></li>
-            <li class="list-group-item"><a href="https://www.opavote.com/methods/ranked-choice-voting">Opavote's Online Elections (JSON)</a></li>
-            <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">ElectionBuddy Preferential Voting (CSV)</a></li>
-          </ol>
-          <p class="mt-2 mb-0">
-            To use RCVis, you need to upload the results of an election or poll which has already occured.
-            RCVis does not host any RCV polls, it only visualizes the results of an election.
-          </p>
-        </div>
-      </div>
-      <div class="collapse" id="exampledata">
-        <div class="card card-body mb-3 d-block bg-light">
-          <h5 class="card-title">Other ways to try out RCVis</h5>
-          <ol class="list-group">
-            <li class="list-group-item"><a href="{% url 'index'  %}#examples">Check out some examples</a></li>
-            <li class="list-group-item"><a href="https://rankit.vote">Create a poll on rankit</a></li>
-            <li class="list-group-item"><a href="https://electionbuddy.com/features/voting-systems/preferential-voting">Host an election on ElectionBuddy</a></li>
-          </ol>
-          <p class="mt-2 mb-0">
-            If you're curious about using RCVis for an upcoming election, please get in touch at <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
-            If you're just poking around, you can <a href="{% url 'index'  %}#examples">explore previous elections</a> which used RCVis.
-          </p>
-        </div>
-      </div>
-    </div>
+    {% include "settings/settings-help-filetype.html" %}
   </div>
 
   <div class="mb-2 mt-2" id="options">

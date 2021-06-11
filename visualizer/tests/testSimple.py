@@ -23,11 +23,16 @@ from visualizer.tests import filenames
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 
+# pylint: disable=too-many-public-methods
 class SimpleTests(TestCase):
     """ Simple tests that do not require a live browser """
 
     def setUp(self):
+        TestHelpers.login(self.client)
         TestHelpers.setup_host_mocks(self)
+
+    def tearDown(self):
+        TestHelpers.logout(self.client)
 
     @classmethod
     def _get_data_for_view(cls, fn):

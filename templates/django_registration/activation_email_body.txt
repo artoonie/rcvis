@@ -1,0 +1,6 @@
+Your RCVis account will allow you to create new visualizations from existing data.
+
+Please click the following link to activate your account:
+{{ scheme }}://{{ site.domain }}{% url 'django_registration_activate' activation_key %}
+
+This link is valid for {{ expiration_days }} day.

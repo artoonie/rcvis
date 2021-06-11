@@ -3,10 +3,10 @@
 from django.contrib.sitemaps.views import sitemap
 from django.urls import include, path
 from rest_framework import routers
-from rest_framework.authtoken.views import obtain_auth_token
 
-from visualizer import views
+from accounts import permissions
 from visualizer import sitemaps
+from visualizer import views
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
@@ -32,7 +32,7 @@ urlpatterns = [
     path('api/', include(router.urls)),
     # This is used by the rest_framework to create a login button
     path('api/auth/', include('rest_framework.urls')),
-    path('api/auth/get-token', obtain_auth_token),
+    path('api/auth/get-token', permissions.ObtainAuthTokenIfEnabled.as_view()),
 
     # sitemap
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps},

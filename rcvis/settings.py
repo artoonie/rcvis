@@ -17,7 +17,6 @@ import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -34,6 +33,7 @@ if 'RCVIS_HOST_ALIAS' in os.environ:
 if 'HEROKU_APP_NAME' in os.environ:
     ALLOWED_HOSTS.append(os.environ['HEROKU_APP_NAME'] + '.heroku.com')
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Application definition
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
     'visualizer',
     'movie',
+    'accounts.apps.AccountsAppConfig',
     'storages',
     'compressor',
     'django_nose',
@@ -107,6 +108,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'rcvis.wsgi.application'
+OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 
 # for django.sites (and thus, sitemap)
 SITE_ID = 1
@@ -119,6 +121,20 @@ DATABASES = {
     }
 }
 
+# django-registration (# days to click the link in email)
+ACCOUNT_ACTIVATION_DAYS = 1
+LOGIN_REDIRECT_URL = '/upload.html'
+if OFFLINE_MODE:
+    # Just print emails to the console in offline mode (and in tests)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME')
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = 'team@rcvis.com'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -188,7 +204,6 @@ COMPRESS_OFFLINE = True
 
 
 # Uploaded media
-OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 if not OFFLINE_MODE:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']

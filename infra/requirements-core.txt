@@ -2,6 +2,7 @@ boto3==1.14.20
 csscompressor==0.9.5
 django-compressor==2.4
 django-node-assets==0.9.8
+django-registration==3.1.2
 django-social-share==2.0.0
 django-storages==1.9.1
 Django==3.2.4
@@ -20,7 +21,7 @@ pylint==2.5.3
 pylint-django==2.2.0
 
 # For django-rest
-djangorestframework==3.11.2
+djangorestframework==3.12.4
 drf-api-tracking==1.7.8
 markdown==3.2.2
 

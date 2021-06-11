@@ -34,7 +34,6 @@ class MovieGenerationStatuses(models.IntegerChoices):
 
 class JsonConfig(models.Model):
     """ A Json file representing a single election, and its configuration """
-
     detail_views = ('visualizer.views.Visualize',)
 
     jsonFile = models.FileField()
