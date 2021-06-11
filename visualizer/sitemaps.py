@@ -15,8 +15,8 @@ class StaticViewSitemap(sitemaps.Sitemap):
     def items(self):
         return ['index', 'upload']
 
-    def location(self, obj):
-        return reverse(obj)
+    def location(self, item):
+        return reverse(item)
 
 
 class VisualizationSitemap(sitemaps.Sitemap):
@@ -28,5 +28,5 @@ class VisualizationSitemap(sitemaps.Sitemap):
     def items(self):
         return JsonConfig.objects.all()
 
-    def location(self, obj):
-        return reverse('visualize', args=(obj.slug,))
+    def location(self, item):
+        return reverse('visualize', args=(item.slug,))
