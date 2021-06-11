@@ -127,6 +127,14 @@ LOGIN_REDIRECT_URL = '/upload.html'
 if OFFLINE_MODE:
     # Just print emails to the console in offline mode (and in tests)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.sendgrid.net'
+    EMAIL_HOST_USER = os.environ.get('SENDGRID_USERNAME')
+    EMAIL_HOST_PASSWORD = os.environ.get('SENDGRID_PASSWORD')
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    DEFAULT_FROM_EMAIL = 'team@rcvis.com'
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

@@ -131,7 +131,7 @@ class TestHelpers():
         """
         Returns the last-uploaded json config
         """
-        return JsonConfig.objects.latest('-id')
+        return JsonConfig.objects.latest('id')
 
     @classmethod
     def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):

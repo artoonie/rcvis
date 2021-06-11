@@ -42,6 +42,10 @@ export OFFLINE_MODE=True
 # export AWS_ACCESS_KEY_ID=''
 # export AWS_SECRET_ACCESS_KEY=''
 
+# To send registration emails when OFFLINE_MODE is False:
+# export SENDGRID_USERNAME=''
+# export SENDGRID_PASSWORD=''
+
 # To run the SauceLabs integration tests, you will need
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
@@ -96,8 +100,9 @@ Addition documentation is available at [rcvis.com/api/](https://www.rcvis.com/ap
 
 To get started with programmatic access to rcvis:
 
-1. Email team@rcvis.com to obtain an account.
-2. Submit a GET request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `http GET https://www.rcvis.com/api/auth/get-token username='username' password="password"`.
+1. Create an account on RCVis
+2. Email team@rcvis.com to enable API access
+3. Submit a GET request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `http GET https://www.rcvis.com/api/auth/get-token username='username' password="password"`.
 
 With your API key, you may access two endpoints:
 1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
