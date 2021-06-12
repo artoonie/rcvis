@@ -35,7 +35,50 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     return html
 
 
-# pylint: disable=too-many-locals
+def get_data_for_graph(graph, onlyShowWinnersTabular):
+    """
+    Helper function for get_data_for_view:
+    convert the graph to data to be passed on to JS
+    """
+    d3Bargraph = D3Bargraph(graph)
+    d3Sankey = D3Sankey(graph)
+    tabularByCandidate = TabulateByCandidate(graph, onlyShowWinnersTabular)
+    singleTableSummary = SingleTableSummary(graph)
+    tabularByRound = TabulateByRound(graph)
+    tabularByRoundInteractive = TabulateByRoundInteractive(graph)
+    graphData = {
+        'title': graph.title,
+        'date': graph.dateString,
+        'bargraphjs': d3Bargraph.js,
+        'sankeyjs': d3Sankey.js,
+        'tabularByCandidate': tabularByCandidate,
+        'singleTableSummary': singleTableSummary,
+        'tabularByRound': tabularByRound,
+        'tabularByRoundInteractive': tabularByRoundInteractive,
+        'graph': graph
+    }
+    roundDescriberData = get_data_for_round_describer(graph)
+    graphData.update(roundDescriberData)
+    return graphData
+
+
+def get_data_for_round_describer(graph):
+    """
+    Helper function for get_data_for_view:
+    convert the round describer to data to be passed on to JS
+    """
+    roundDescriber = Describer(graph, summarizeAsParagraph=False)
+    humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
+    humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
+    faqsPerRound = json.dumps(FAQGenerator(graph).describe_all_rounds())
+
+    return {
+        'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
+        'humanFriendlySummary': humanFriendlySummary,
+        'faqsPerRound': faqsPerRound
+    }
+
+
 def get_data_for_view(config):
     """ All data needed to pass on to the visualize or visualizeembedded view """
     graph = make_graph_with_file(config.jsonFile,
@@ -51,36 +94,17 @@ def get_data_for_view(config):
         candidateSidecarDataPyObj = None
     candidateSidecarData = json.dumps(candidateSidecarDataPyObj)
 
-    roundDescriber = Describer(graph, summarizeAsParagraph=False)
-    humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
-    humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
-    faqsPerRound = json.dumps(FAQGenerator(graph).describe_all_rounds())
-
-    d3Bargraph = D3Bargraph(graph)
-    d3Sankey = D3Sankey(graph)
-    tabularByCandidate = TabulateByCandidate(graph, config.onlyShowWinnersTabular)
-    singleTableSummary = SingleTableSummary(graph)
-    tabularByRound = TabulateByRound(graph)
-    tabularByRoundInteractive = TabulateByRoundInteractive(graph)
     offlineMode = OFFLINE_MODE
-    return {
-        'title': graph.title,
-        'date': graph.dateString,
+
+    graphData = get_data_for_graph(graph, config.onlyShowWinnersTabular)
+    additionalData = {
         'config': config,
-        'bargraphjs': d3Bargraph.js,
-        'sankeyjs': d3Sankey.js,
-        'tabularByCandidate': tabularByCandidate,
-        'singleTableSummary': singleTableSummary,
-        'tabularByRound': tabularByRound,
-        'tabularByRoundInteractive': tabularByRoundInteractive,
-        'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
-        'humanFriendlySummary': humanFriendlySummary,
-        'faqsPerRound': faqsPerRound,
         'offlineMode': offlineMode,
-        'graph': graph,
         'candidateSidecarDataPyObj': candidateSidecarDataPyObj,
         'candidateSidecarData': candidateSidecarData
     }
+    graphData.update(additionalData)
+    return graphData
 
 
 def get_script_to_disable_animations():

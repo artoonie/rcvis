@@ -2,9 +2,9 @@
 
 import rest_framework.serializers as serializers
 
+from common import viewUtils
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.sidecar.reader import SidecarReader
-from .sankey.graphToD3 import D3Sankey
 
 
 def ensure_file_is_under_2_mb(jsonFileObj):
@@ -38,9 +38,13 @@ def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
     if sidecarJsonFileObj is not None:
         ensure_file_is_under_2_mb(sidecarJsonFileObj)
 
+    # Try to make the graph
     graph = make_graph_with_file(jsonFileObj, False)
     graph.summarize()
-    D3Sankey(graph)  # sanity check the graph can be created
+
+    # Sanity check that the entire pipeline works
+    # (If not, this could be the source of 500 errors)
+    viewUtils.get_data_for_graph(graph, onlyShowWinnersTabular=False)
 
     # Check title length
     ensure_title_is_under_256_chars(graph)
