@@ -37,6 +37,9 @@ function percentToText(candidateName, numVotes, totalVotes)
   // Inactive ballots should not show %
   if (candidateName == inactiveBallotsString)
     return "with no choices left";
+  // Zero-vote (in-progress) elections should not show anything
+  if (totalVotes == 0)
+    return "";
 
   const percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
   return "(" + percentVotes + "%)";

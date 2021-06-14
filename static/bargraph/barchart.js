@@ -556,7 +556,6 @@ function makeBarGraph(args) {
   else {
       const candidateWrapper = svg.append("g")
           .attr("id", "candidateNamesWrapper")
-          .attr("class", "dataLabel")
           .call(candidatesAxis);
 
       if (candidateSidecarData != null)

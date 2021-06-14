@@ -66,6 +66,10 @@ class SimpleTests(TestCase):
         # Uses FixRankitMissingWinners
         self._get_data_for_view(filenames.BROKEN_RANKIT_2)
 
+    def test_zero_vote_election_loads(self):
+        """ Ensures no divisions by zero in zero-vote elections """
+        self._get_data_for_view(filenames.ZERO_VOTE_ELECTION)
+
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
         with self.assertRaises(BadJSONError):

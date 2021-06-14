@@ -23,6 +23,12 @@ def intify(notint):
     return "%0.2f" % notint
 
 
-def percentify(floatVal):
-    """ Turn a float into a percentage string """
+def percentify(numerator, denominator):
+    """
+    Turn a float into a percentage string.
+    Or, if the denominator is zero, returns an empty string
+    """
+    if denominator == 0:
+        return ""
+    floatVal = numerator / denominator
     return str(round(1000.0 * floatVal) / 10.0) + "%"
