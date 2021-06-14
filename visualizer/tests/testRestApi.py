@@ -5,6 +5,7 @@ Rest API Test Cases
 from enum import Enum
 import os
 import re
+from mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -392,3 +393,20 @@ class RestAPITests(APITestCase):
             "password": "password"
         })
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    @patch('common.cloudflare.CloudflareAPI.purge_vis_cache')
+    def test_update_clears_cloudflare_cache(self, purgeMock):
+        """ Test that cloudflare cache is cleared on API edits, but not on creation """
+        self._authenticate_as('notadmin')
+
+        # Upload, and ensure cloudflare is not purged on creation
+        self._upload_file_for_api(filenames.ONE_ROUND)
+        purgeMock.assert_not_called()
+
+        # Edit the data
+        uploadedId = TestHelpers.get_latest_upload().id
+        url = f'/api/visualizations/{uploadedId}/'
+        self.client.patch(url, format='json', data={})
+
+        # Ensure purge is called once edited
+        purgeMock.assert_called_once()
