@@ -10,6 +10,7 @@ from mock import Mock
 from common.testUtils import TestHelpers
 from visualizer.descriptors import faq
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.graph.graphSummary import RoundInfo
 from visualizer.tests import filenames
 
 
@@ -72,11 +73,22 @@ class SimpleTests(TestCase):
 
     def test_no_winners(self):
         """ Ensure the right thing is printed if there are no winners """
-        mockGraph = Mock()
-        summary = Mock()
-        summary.numWinners = 0
-        summary.numEliminated = 14
-        mockGraph.summarize = lambda: summary
+        def _make_mock_graph():
+            mockGraph = Mock()
+            summary = Mock()
+            summary.numWinners = 0
+            summary.numEliminated = 14
+
+            # mock the round info - make sure to have active votes, otherwise SingleWinner
+            # would not be shown because of it.
+            roundInfo = RoundInfo(0)
+            roundInfo.totalActiveVotes = 100
+            summary.rounds = [roundInfo]
+
+            mockGraph.summarize = lambda: summary
+            return mockGraph
+
+        mockGraph = _make_mock_graph()
 
         self.assertFalse(faq.WhatHappeningMultiWinner(mockGraph).is_active(0))
 
@@ -99,3 +111,14 @@ class SimpleTests(TestCase):
         with open(filenames.BATCH_ELIMINATION, 'r') as f:
             graph = make_graph_with_file(f, False)
         self.assertTrue(faq.WhyBatchEliminated(graph).is_active(1))
+
+    def test_zero_votes(self):
+        """ Test zero-vote elections work """
+        with open(filenames.ZERO_VOTE_ELECTION, 'r') as f:
+            graph = make_graph_with_file(f, False)
+
+        # The basic summary is confusing. Skip it.
+        self.assertFalse(faq.WhatHappeningSingleWinner(graph).is_active(0))
+
+        # Only the No Votes FAQ shows up.
+        self.assertTrue(faq.WhyNoVotes(graph).is_active(0))

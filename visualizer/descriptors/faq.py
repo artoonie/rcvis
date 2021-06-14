@@ -36,7 +36,7 @@ class WhatHappeningSingleWinner(FAQBase):
     """ Summary shown on all single-winner elections """
 
     def is_active(self, roundNum):
-        return self.summary.numWinners <= 1
+        return self.summary.numWinners <= 1 and self.summary.rounds[0].totalActiveVotes != 0
 
     def get_question(self, roundNum):
         return "What is happening?"
@@ -245,10 +245,26 @@ class WhatIsInactiveBallots(FAQBase):
         return base + rest
 
 
+class WhyNoVotes(FAQBase):
+    """ Summary shown on all single-winner elections """
+
+    def is_active(self, roundNum):
+        return self.summary.rounds[0].totalActiveVotes == 0
+
+    def get_question(self, roundNum):
+        return "What is happening?"
+
+    def get_answer(self, roundNum):
+        return "This is probably an upcoming Ranked-Choice Voting election. "\
+               "Perhaps the results are not in, or maybe the election hasn't even happened yet. "\
+               "This page may update once data becomes available."
+
+
 class FAQGenerator():
     """ Helper class to generate a full FAQ for this graph """
     generators = (WhatHappeningSingleWinner,
                   WhatHappeningMultiWinner,
+                  WhyNoVotes,
                   WhyEliminated,
                   WhyBatchEliminated,
                   WhySingleWinner,
