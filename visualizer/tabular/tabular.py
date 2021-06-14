@@ -5,7 +5,7 @@ from visualizer.common import intify, percentify
 
 def makePrimarySecondaryLabels(numVotes, allVotes, item):
     if item.isActive:
-        primaryLabel = percentify(numVotes / allVotes)
+        primaryLabel = percentify(numVotes, allVotes)
         secondaryLabel = votify(numVotes)
     else:
         primaryLabel = intify(numVotes)
@@ -135,7 +135,7 @@ class OneCandidateOneRound:
             myNumVotes, allVotes, item)
 
         self.numVotes = intify(myNumVotes)
-        self.pctVotes = percentify(myNumVotes / allVotes)
+        self.pctVotes = percentify(myNumVotes, allVotes)
 
         self.isWinner = item.name in thisRoundSummary.winnerNames
         self.isEliminated = item.name in thisRoundSummary.eliminatedNames

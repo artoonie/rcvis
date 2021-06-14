@@ -317,12 +317,25 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._go_to_tab("single-table-summary-tab")
         test_sane_resizing_of("single-table-summary-table", [800], 1300)
 
-    def test_oneround(self):
-        """ Tests we do something sane in a single-round election """
-        # Regression test
+    def test_oneround_zerovote(self):
+        """ Tests we do something sane in a single-round zero-vote election """
+        # Regression test: one round, with votes
         self.browser.set_window_size(800, 800)
         self._upload(filenames.ONE_ROUND)
         assert self._get_height("bargraph-interactive-body") < 800
+
+        # Regression test: one round, zero-votes (NaN-checking)
+        self._upload(filenames.ZERO_VOTE_ELECTION)
+        interactiveBargraph = self.browser.find_element_by_id("bargraph-interactive-body")
+        elemsInOrder = interactiveBargraph.find_elements_by_class_name("dataLabel")
+
+        # Be very sure there are no NaNs in the number of votes.
+        # The specific text here isn't important, just that it doesn't say "0 (NaN%)"
+        self.assertEqual(len(elemsInOrder), 4)
+        self.assertEqual(elemsInOrder[0].get_attribute('innerHTML'), "0  ")
+        self.assertEqual(elemsInOrder[1].get_attribute('innerHTML'), "0  ")
+        self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Somebody")
+        self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Another body")
 
     def test_settings_tab(self):
         """ Tests the functionality of the settings tab """
