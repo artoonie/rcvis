@@ -334,8 +334,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.assertEqual(len(elemsInOrder), 4)
         self.assertEqual(elemsInOrder[0].get_attribute('innerHTML'), "0  ")
         self.assertEqual(elemsInOrder[1].get_attribute('innerHTML'), "0  ")
-        self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Somebody")
-        self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Another body")
+        self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Another body")
+        self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Somebody")
 
     def test_settings_tab(self):
         """ Tests the functionality of the settings tab """

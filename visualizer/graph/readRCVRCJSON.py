@@ -372,8 +372,14 @@ class JSONReader:
         winners = reversed(winners)
 
         # Remaining items: survived til last round, neither eliminated nor elected
-        # sort by the number of votes they received
-        itemsRemaining = sorted(itemsRemaining, key=lambda x: self.graph.nodesPerRound[-1][x].count)
+        # Then sort by the number of votes they received first, and then alphabetically.
+        # This mitigates nondeterministic tests and ensures a consistent order between loads.
+        # We compute the names in reverse order so we can sort backwards-alphabetically
+        # because our goal is an alphabetical candidate list, which is the reverse of
+        # the elimination order
+        reverseOrder = sorted(itemsRemaining, key=lambda x:
+                              (-self.graph.nodesPerRound[-1][x].count, x.name))
+        itemsRemaining = reversed(reverseOrder)
         eliminationOrder.extend(itemsRemaining)
         eliminationOrder.extend(winners)
 
