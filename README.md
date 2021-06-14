@@ -46,6 +46,10 @@ export OFFLINE_MODE=True
 # export SENDGRID_USERNAME=''
 # export SENDGRID_PASSWORD=''
 
+# To clear cloudflare cache when models update:
+# export CLOUDFLARE_ZONE_ID=''
+# export CLOUDFLARE_AUTH_TOKEN=''
+
 # To run the SauceLabs integration tests, you will need
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''

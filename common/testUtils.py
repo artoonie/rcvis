@@ -161,6 +161,28 @@ class TestHelpers():
         """ Logs out (if logged in) """
         client.logout()
 
+    @classmethod
+    def create_request_mock(cls, data, statusCode):
+        """ Creates a mock function call for the requests library """
+
+        def mocked_request(*args, **kwargs):  # pylint: disable=unused-argument
+            """ The mocked function, which will return a MockResponse """
+
+            # pylint: disable=too-few-public-methods
+            class MockResponse():
+                """ Mocks some of the functions of Response - add more as needed """
+
+                def __init__(self):
+                    self.data = data
+                    self.status_code = statusCode  # pylint: disable=invalid-name
+
+                def json(self):
+                    """ Mocks the return """
+                    return self.data
+
+            return MockResponse()
+        return mocked_request
+
 
 # Silence logging spam for any test that includes this
 TestHelpers.silence_logging_spam()

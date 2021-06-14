@@ -14,6 +14,7 @@ from django.urls import reverse
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
+from common.cloudflare import CloudflareAPI
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.views import Oembed
@@ -294,3 +295,31 @@ class SimpleTests(TestCase):
         out = StringIO()
         with self.assertRaises(TypeError):
             call_command('checkLocalFiles', 'testData/', stdout=out)
+
+    @patch('requests.post')
+    def test_cloudflare_purge(self, requestPostResponse):
+        """
+        Ensure cloudflare purge calls the API with the expected data
+        NOTE: You shouldn't have to modify this test. If you do, manually test the
+        API connection with cloudflare to ensure you didn't break anything.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = TestHelpers.get_latest_upload().slug
+
+        requestPostResponse.side_effect = TestHelpers.create_request_mock({}, 200)
+
+        with self.settings(
+                CLOUDFLARE_AUTH_TOKEN='mytoken',
+                CLOUDFLARE_ZONE_ID='zoneid'):
+            CloudflareAPI.purge_vis_cache(slug)
+
+        expectedUrl = 'https://api.cloudflare.com/client/v4/zones/zoneid/purge_cache'
+        expectedHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer mytoken"
+        }
+        expectedData = {'files': ['https://example.com/v/macomb-multiwinner-surplus',
+                                  'https://example.com/ve/macomb-multiwinner-surplus',
+                                  'https://example.com/vb/macomb-multiwinner-surplus']}
+        requestPostResponse.assert_called_with(expectedUrl,
+                                               headers=expectedHeaders, data=expectedData)

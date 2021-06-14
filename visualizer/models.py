@@ -7,6 +7,8 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 
+from common.cloudflare import CloudflareAPI
+
 
 class ColorTheme(models.IntegerChoices):
     """ Describes the status of movie generation for this model """
@@ -133,13 +135,23 @@ class JsonConfig(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._get_unique_slug()
+        else:
+            # Model is being updated, not created. Clear the cache.
 
-        # Clear the cache. This is not useful in most cases, but is useful when:
-        # 1. The admin page changes something
-        # 2. In unit tests, where the db gets cleared for each test, and you don't want to see
-        #    the previous test's cached results
-        # TODO - this is overkill, how can we just clear the cache for this model?
-        cache.clear()
+            # A) Local mem cache clearing.
+            # This is not useful in most cases, but is useful when:
+            # 1. The admin page changes something
+            # 2. In unit tests, where the db gets cleared for each test, and you don't want to see
+            #    the previous test's cached results
+            # TODO - this is overkill, how can we just clear the cache for this model?
+            # 3. API updates
+            cache.clear()
+
+            # B) Cloudflare cache clearing
+            # Should only occur in production. Doesn't clear all possible cache keys
+            # (that would require an enterprise cloudflare connection), but hits the
+            # common URLs.
+            CloudflareAPI.purge_vis_cache(self.slug)
 
         super().save(*args, **kwargs)
 
