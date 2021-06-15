@@ -12,7 +12,7 @@
 </head>
 
 <body id="page-top">
-{% block beforeFullpage %}
+{% block beforeMaincontent %}
 {% endblock %}
 
   <!-- Navigation -->
@@ -24,11 +24,11 @@
     </div>
   </nav>
 
-<div id="fullpage">
+<div id="maincontent">
 {% block maincontent %}
 {% endblock %}
   <!-- Footer -->
- <div class="section fp-auto-height">
+ <div>
   <footer class="footer">
     <div class="container">
       <h5 class="mb-2">About RCVis</h5>
@@ -59,7 +59,7 @@
 </div>
 
 {% include "visualizer/common-nonblocking.html" %}
-{% block afterFullpage %}
+{% block afterMaincontent %}
 {% endblock %}
 
 </body>

@@ -115,10 +115,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
             # Always succeeds on localhost :(
             return
 
-        # For now, remove the fullpage.js messages
-        log = [l for l in log if 'This website was made using fullPage.js' not in l['message']]
-        log = [l for l in log if 'https://alvarotrigo' not in l['message']]
-        # And the message created by _add_login_cookie_to_browser
+        # Remove the message created by _add_login_cookie_to_browser
         log = [l for l in log if 'Unrecognized feature: \'clipboard-write\'.' not in l['message']]
 
         if len(log) != num:
@@ -214,14 +211,13 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _is_elem_visible(self, elem):
         """ Is the element visible? """
-        if not elem.is_displayed():
-            return False
-
-        # This is useful for fullpage.js slides, where everything returns is_displayed but
-        # some things are way over to the right
-        elemX = elem.location['x']
-        pageWidth = self.browser.execute_script('return $(window).width();')
-        return 0 <= elemX < pageWidth
+        return elem.is_displayed():
+        # Note: Previously, we needed the following code to handle fullpage.js slides,
+        # where everything returns is_displayed but some things are way over to the right.
+        # It is left here for posterity, since I suspect we will need it again someday.
+        # elemX = elem.location['x']
+        # pageWidth = self.browser.execute_script('return $(window).width();')
+        # return 0 <= elemX < pageWidth
 
     def _get_each_bargraph_tag(self):
         """ Returns a list of candidate's tags in the interactive bargraph """
