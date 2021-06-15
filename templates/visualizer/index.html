@@ -157,49 +157,17 @@
       </div>
 
       <div class="container">
-      <div class="row">
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">Utah County 2019 Elections</p>
-          <li><strong><a href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_1json' %}">2019 Payson City Council Seat 1</a> </strong>(3 rounds, 10 candidates)</li>
-          <li><strong><a href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_2json' %}">2019 Payson City Council Seat 2</a></strong></li>
-          <li><strong><a href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_3json' %}">2019 Payson City Council Seat 3</a></strong></li>
-          <li><strong><a href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_1json' %}">2019 Vineyard City Council Seat 1</a></strong></li>
-          <li><strong><a href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_2json' %}">2019 Vineyard City Council Seat 2</a></strong></li>
-        </div>
-
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">New York City</p>
-            <li><strong><a href="{% url 'visualize' 'macomb-multiwinner-surplus' %}">Multi-winner example</a></strong></li>
-            <li><strong><a href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a></strong></li>
-        </div>
-
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">New York City</p>
-            <li><strong><a href="{% url 'visualize' 'macomb-multiwinner-surplus' %}">Multi-winner example</a></strong></li>
-            <li><strong><a href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a></strong></li>
-        </div>
-
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">New York City</p>
-            <li><strong><a href="{% url 'visualize' 'macomb-multiwinner-surplus' %}">Multi-winner example</a></strong></li>
-            <li><strong><a href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a></strong></li>
-        </div>
-
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">New York City</p>
-            <li><strong><a href="{% url 'visualize' 'macomb-multiwinner-surplus' %}">Multi-winner example</a></strong></li>
-            <li><strong><a href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a></strong></li>
-        </div>
-
-        <div class="col visColumn">
-          <p class="mb-0 mt-0">Sample Data</p>
-          <ul>
-            <li><strong><a href="{% url 'visualize' 'macomb-multiwinner-surplus' %}">Multi-winner example</a></strong></li>
-            <li><strong><a href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a></strong></li>
-          </ul>
+        <div class="row">
+          {% for column in featuredElections %}
+            <div class="col visColumn">
+              <p class="mb-0 mt-0">{{ column.title }}</p>
+              {% for model in column.links %}
+                <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates, {{ model.numRounds }} rounds)</li>
+              {% endfor %}
+            </div>
+          {% endfor %}
         </div>
       </div>
-    </div>
     </div>
   </div>
 

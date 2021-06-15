@@ -1,5 +1,4 @@
-"""
-Integration tests without a server
+""" Integration tests without a server
 """
 
 from io import StringIO
@@ -18,7 +17,7 @@ from common.cloudflare import CloudflareAPI
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.views import Oembed
-from visualizer.models import JsonConfig
+from visualizer.models import JsonConfig, HomepageFeaturedElection, HomepageFeaturedElectionColumn
 from visualizer.forms import JsonConfigForm
 from visualizer.tests import filenames
 from visualizer.wikipedia.wikipedia import WikipediaExport
@@ -329,3 +328,37 @@ class SimpleTests(TestCase):
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData))
+
+    def test_homepage_real_world_examples(self):
+        """
+        Tests the "real-world examples" section on the homepage.
+        This emulates creating the objects as we'll do via the admin site.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+
+        columnTitle = b"This column title should appear"
+        linkTitle = b"This link title should appear"
+
+        column = HomepageFeaturedElectionColumn(title=str(columnTitle), order=0)
+        column.save()
+
+        link = HomepageFeaturedElection(
+            title=str(linkTitle),
+            order=0,
+            column=column,
+            jsonConfig=TestHelpers.get_latest_upload())
+        link.save()
+
+        indexResponse = self.client.get(reverse('index'))
+        self.assertIn(columnTitle, indexResponse.content)
+        self.assertIn(linkTitle, indexResponse.content)
+
+    def test_homepage_recent_uploads(self):
+        """
+        Tests the "most recent uploads" section on the homepage.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        latestTitle = TestHelpers.get_latest_upload().title
+
+        indexResponse = self.client.get(reverse('index'))
+        self.assertIn(latestTitle, str(indexResponse.content))
