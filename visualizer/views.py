@@ -29,7 +29,7 @@ from visualizer.common import make_complete_url, intify
 from visualizer.forms import JsonConfigForm
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
-from visualizer.models import JsonConfig
+from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
@@ -49,6 +49,20 @@ class Index(TemplateView):
                                   'numRounds': model.numRounds,
                                   'numCandidates': model.numCandidates}
                                  for model in models]
+
+        # featured elections
+        columns = HomepageFeaturedElectionColumn.objects.all()
+        featuredElections = []
+        for column in columns:
+            featuredElections.append({
+                'title': column.title,
+                'links': [{'slug': link.jsonConfig.slug,
+                           'title': link.title,  # gets title from link, not model
+                           'numRounds': link.jsonConfig.numRounds,
+                           'numCandidates': link.jsonConfig.numCandidates}
+                          for link in column.links_in_column.all()]
+            })
+        context['featuredElections'] = featuredElections
 
         return context
 

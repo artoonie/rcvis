@@ -3,14 +3,6 @@
 {% load compress %}
 
 {% block header %}
-  {% if offlineMode %}
-    <link rel="stylesheet" type="text/css" href="{% static 'localdeps/fullpage.css' %}" />
-    <script type="text/javascript" src="{% static 'localdeps/fullpage.js' %}"></script>
-  {% else %}
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.css" /> 
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.0.9/fullpage.min.js"></script>
-  {% endif %}
-
   {% compress css file %}
     <link rel="stylesheet" href="{% static "visualizer/index.css" %}">
   {% endcompress %}
@@ -27,10 +19,10 @@
 <div class="collapse navbar-collapse" id="navbarResponsive">
   <ul class="navbar-nav ml-auto">
     <li class="nav-item mx-0 mx-lg-1">
-      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Example Elections</a>
+      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">DataViz Types</a>
     </li>
     <li class="nav-item mx-0 mx-lg-1">
-      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">DataViz Types</a>
+      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Real-World Examples</a>
     </li>
     <li class="nav-item mx-0 mx-lg-1">
       <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Create A Visualization</a>
@@ -41,7 +33,7 @@
 
 {% block maincontent %}
   <!-- Masthead -->
-  <div class="section homedescriptor" id="id-intro">
+  <div class="homedescriptor" id="intro">
       <p><h1 class="page-section-heading text-center text-uppercase text-secondary mb-0">Ranked Choice Voting ballots are <a href="https://www.fairvote.org/ranking_is_easy_a_response_to_misleading_claims_about_voter_errors">easy to fill out</a>.</h1></p>
       <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVis makes the results easy to understand, too.</h2></p>
 
@@ -65,7 +57,7 @@
       </p>
   </div>
 
-  <div class="section homedescriptor" id="id-whatis">
+  <div class="homedescriptor" id="whatis">
       <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked Choice Voting?</h2>
 
       <!-- Icon Divider -->
@@ -84,77 +76,9 @@
       <div class="video-container"><iframe id="youtube-iframe" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy" allowfullscreen></iframe></div>
   </div>
 
-  <div class="section homedescriptor" id="id-types">
-    <div class="slider-header">
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Types of Visualizations</h2>
-
-      <div class="divider-custom">
-        <div class="divider-custom-line"></div>
-        <div class="divider-custom-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="divider-custom-line"></div>
-      </div>
-    </div>
-
-      <div class="slide fp-noscroll text-center">
-        <h5>Bar Charts</h5>
-        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>The interactive bar chart shows how each round of the election progresses. The number of votes each candidate receives is represented by the size of the bar. As you progress between rounds, the bars grow and shrink to show the change in number of votes that each candidate is receiving.</p>
-
-              <p>The colors represent how many votes were gained in each round: for example, the yellow part of the bar shows the votes that were received in the first round.</p>
-
-              <p>The colors are perceptually linear, making them colorblind-friendly for all forms of colorblindness, including monochromacy (completely colorblind).</p>
-            </small>
-          </div>
-        </div>
-      </div>
-      <div class="slide fp-noscroll text-center">
-        <h5>Sankey Diagrams</h5>
-        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_sankey.jpg' %}" alt="Demo of sankey diagram" loading="lazy">
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>The sankey diagram shows how the votes flow from one candidate to another as each round progresses. This visualization is best for displaying how the eventual winner received their votes. By exploring where the votes flowed from, you can see candidates who were similar and those who were not.</p>
-              <p>In this example, you can see that Strawberry and Blackberry were most similar, and when Strawberry was eliminated, most of its votes went to Blackberry. That makes sense, given they are both berries. A real-world example might have a certain political party in place of berries.</p>
-            </small>
-          </div>
-        </div>
-      </div>
-      <div class="slide fp-noscroll text-center">
-        <h5>Round-by-Round</h5>
-        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>There are several tabular formats, allowing you to inspect precisely what happened based on what you care about. The tabular-by-round format allows you to inspect the state of votes on a specific round. The tabular-by-candidate format (not shown here) allows you to dive into the number of votes a certain candidate had on each round.</p>
-            </small>
-          </div>
-        </div>
-      </div>
-      <div class="slide fp-noscroll text-center">
-        <h5>Single Table Summary</h5>
-        <img class="img-fluid img-slider" data-src="{% static 'visualizer/icon_singletable.png' %}" alt="Demo of single table summary" loading="lazy">
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>The single table summary is a quick, noninteractive view that combines both the tabular-by-round and the tabular-by-candidate views. It gives a quick, at-a-glance summary of each round.</p>
-              <p>This table can also be exported to Wikipedia with several Wikicode features, including sorting each round by who had the most votes in that round, and including both percentage of votes and number of votes.</p>
-              <p>While all interactive formats have a noninteractive, print-friendly version, this single table summary is particularly well-suited for print where graphics may be expensive.</p>
-            </small>
-          </div>
-        </div>
-      </div>
-  </div>
-
-  <div class="section homedescriptor" id="id-examples">
+  <div class="homedescriptor" id="types">
     <div class="container">
-
-      <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase">Examples in Government</h2>
+      <h2 class="page-section-heading text-center text-uppercase">Types of Visualizations</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -165,36 +89,92 @@
         <div class="divider-custom-line"></div>
       </div>
 
-      <!-- Portfolio Grid Items -->
-      <div class="row">
-        <div class="col-md-6 text-center">
-          <p class="lead mb-0 mt-0">Utah County 2019 Elections</p>
-          <p class="subheader">Used during the election cycle by <a class="btn-outline-dark" href="http://www.utahcounty.gov/Dept/ClerkAud/Elections/ElectResults.html">utahcounty.gov</a></p>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_1json' %}">2019 Payson City Council Seat 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_2json' %}">2019 Payson City Council Seat 2</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'payson-2019-11-12_13-46-26_summary_3json' %}">2019 Payson City Council Seat 3</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_1json' %}">2019 Vineyard City Council Seat 1</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'vineyard-2019-11-12_13-49-22_summary_2json' %}">2019 Vineyard City Council Seat 2</a>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col resourceCell">
+            <h5>Bar Charts</h5>
+            <img class="resourceCellImage" data-src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
+            <div class="row justify-content-center">
+              <div class="descriptors">
+                The interactive bar chart shows how each round of the election progresses. The number of votes each candidate receives is represented by the size of the bar. As you progress between rounds, the bars grow and shrink to show the change in number of votes that each candidate is receiving.
+
+                The colors represent how many votes were gained in each round: for example, the yellow part of the bar shows the votes that were received in the first round.
+
+                The colors are perceptually linear, making them colorblind-friendly for all forms of colorblindness, including monochromacy (completely colorblind).
+              </div>
+            </div>
+          </div>
+          <div class="col resourceCell">
+            <h5>Sankey Diagrams</h5>
+            <img class="resourceCellImage" data-src="{% static 'visualizer/icon_sankey.jpg' %}" alt="Demo of sankey diagram" loading="lazy">
+            <div class="row justify-content-center">
+              <div class="descriptors">
+                The sankey diagram shows how the votes flow from one candidate to another as each round progresses. This visualization is best for displaying how the eventual winner received their votes. By exploring where the votes flowed from, you can see candidates who were similar and those who were not.
+                In this example, you can see that Strawberry and Blackberry were most similar, and when Strawberry was eliminated, most of its votes went to Blackberry. That makes sense, given they are both berries. A real-world example might have a certain political party in place of berries.
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-md-6 text-center">
-          <p class="lead mb-0 mt-0">Sample Elections</p>
-          <p class="subheader">Using sample data for demonstration purposes</p>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' '2015_portland_mayorjson' %}">2019 City of Eastpointe (multi-winner)</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' 'opavote2json' %}">2019 FairVote Primary Poll</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' '2018_maine_gov_primary_demjson' %}">2018 Maine Gubernatorial Primary</a>
-          <br/><a class="btn btn-m btn-outline-dark mb-3" href="{% url 'visualize' '2015_portland_mayorjson' %}">2015 Portland Mayoral Race</a>
-          <br/>
+        <div class="row">
+          <div class="col resourceCell">
+            <h5>Round-by-Round</h5>
+            <img class="resourceCellImage" data-src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
+            <div class="row justify-content-center">
+              <div class="descriptors">
+                There are several tabular formats, allowing you to inspect precisely what happened based on what you care about. The tabular-by-round format allows you to inspect the state of votes on a specific round. The tabular-by-candidate format (not shown here) allows you to dive into the number of votes a certain candidate had on each round.
+              </div>
+            </div>
+          </div>
+          <div class="col resourceCell">
+            <h5>Single Table Summary</h5>
+            <img class="resourceCellImage" data-src="{% static 'visualizer/icon_singletable.png' %}" alt="Demo of single table summary" loading="lazy">
+            <div class="row justify-content-center">
+              <div class="descriptors">
+                The single table summary is a quick, noninteractive view that combines both the tabular-by-round and the tabular-by-candidate views. It gives a quick, at-a-glance summary of each round.
+                This table can also be exported to Wikipedia with several Wikicode features, including sorting each round by who had the most votes in that round, and including both percentage of votes and number of votes.
+                While all interactive formats have a noninteractive, print-friendly version, this single table summary is particularly well-suited for print where graphics may be expensive.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="homedescriptor" id="examples">
+    <div class="container">
+
+      <!-- Portfolio Section Heading -->
+      <h2 class="page-section-heading text-center text-uppercase">Real-World Visualizations</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+          {% for column in featuredElections %}
+            <div class="col visColumn">
+              <p class="mb-0 mt-0">{{ column.title }}</p>
+              {% for model in column.links %}
+                <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates, {{ model.numRounds }} rounds)</li>
+              {% endfor %}
+            </div>
+          {% endfor %}
         </div>
       </div>
     </div>
   </div>
 
 
-  <div class="section homedescriptor" id="id-latest">
+  <div class="homedescriptor" id="latest">
     <div class="container">
-
-      <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase">Most Recent Uploads</h2>
+      <h2 class="page-section-heading text-center text-uppercase">Newest Visualizations</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -208,10 +188,10 @@
       <!-- Portfolio Grid Items -->
       <div class="row justify-content-center">
         <div class="ml-auto mr-auto">
-          <p class="mb-0 mt-0">Latest uploaded results by our users</p>
+          <p class="mb-0 mt-0">Most recent visualizations created by our users</p>
           <ul>
           {% for model in mostRecent %}
-            <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates and {{ model.numRounds }} rounds)</li>
+            <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates, {{ model.numRounds }} rounds)</li>
           {% endfor %}
           </ul>
         </div>
@@ -219,10 +199,9 @@
     </div>
   </div>
 
-  <div class="section homedescriptor" id="id-external">
-    <div class="slider-header">
-      <!-- About Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">More Resources</h2>
+  <div class="homedescriptor" id="external">
+    <div class="container">
+      <h2 class="page-section-heading text-center text-uppercase">More Resources</h2>
 
       <!-- Icon Divider -->
       <div class="divider-custom">
@@ -232,72 +211,62 @@
         </div>
         <div class="divider-custom-line"></div>
       </div>
-    </div>
 
-      <div class="slide text-center">
-        <h5>Create an RCV poll or election</h5>
-        <a href="https://www.rankit.vote">
-          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" loading="lazy" alt="Rankit.vote icon">
-          <br/>
-          rankit.vote
-        </a>
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>Rankit allows you to create an RCV election. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.</p>
-            </small>
+      <div class="container text-center">
+        <div class="row">
+          <div class="col resourceCell">
+            <h5>Create an RCV poll or election</h5>
+            <a href="https://www.rankit.vote">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" alt="Rankit.vote icon" loading="lazy">
+              <br/>
+              rankit.vote
+            </a>
+            <div class="descriptors">
+              Rankit allows you to create an RCV election. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.
+            </div>
+          </div>
+          <div class="col resourceCell">
+            <h5>Advocate for RCV</h5>
+            <a href="https://www.fairvote.org">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_fairvote.png' %}" width="300px" alt="Fairvote icon" loading="lazy">
+              <br/>
+              fairvote.org
+            </a>
+            <div class="descriptors">
+              FairVote is a champion of electoral reform. One of their main platforms is advocating for ranked choice voting, but they also advocate for multi-winner districts and other reforms to create a more proportional, representative, and fair democracy.
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col resourceCell">
+            <h5>Tabulate the results of an RCV election</h5>
+            <a href="https://www.rcvresources.org/rcv-universal-tabulator">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" alt="Universal RCV Tabulator icon" loading="lazy">
+              <br/>
+              rcvresources.org/rcv-universal-tabulator
+            </a>
+            <div class="descriptors">
+              The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVis can ingest and visualize.
+            </div>
+          </div>
+          <div class="col resourceCell">
+            <h5>Implement RCV in your jurisdiction</h5>
+            <a href="https://www.rcvresources.org/">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" alt="RCV Resource Center icon" loading="lazy">
+              <br/>
+              rcvresources.org
+            </a>
+            <div class="descriptors">
+              The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVis.
+            </div>
           </div>
         </div>
       </div>
-      <div class="slide text-center">
-        <h5>Advocate for RCV</h5>
-        <a href="https://www.fairvote.org">
-          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_fairvote.png' %}" width="300px" loading="lazy" alt="Fairvote icon">
-          <br/>
-          fairvote.org
-        </a>
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>FairVote is a champion of electoral reform. One of their main platforms is advocating for ranked choice voting, but they also advocate for multi-winner districts and other reforms to create a more proportional, representative, and fair democracy.</p>
-            </small>
-          </div>
-        </div>
-      </div>
-      <div class="slide text-center">
-        <h5>Tabulate the results of an RCV election</h5>
-        <a href="https://www.rcvresources.org/rcv-universal-tabulator">
-          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" loading="lazy" alt="Universal RCV Tabulator icon">
-          <br/>
-          rcvresources.org/rcv-universal-tabulator
-        </a>
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVis can ingest and visualize.</p>
-            </small>
-          </div>
-        </div>
-      </div>
-      <div class="slide text-center">
-        <h5>Implement RCV in your jurisdiction</h5>
-        <a href="https://www.rcvresources.org/">
-          <img class="img-fluid img-slider" data-src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" loading="lazy" alt="RCV Resource Center icon">
-          <br/>
-          rcvresources.org
-        </a>
-        <div class="row justify-content-center">
-          <div class="descriptors">
-            <small>
-              <p>The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVis.</p>
-            </small>
-          </div>
-        </div>
-      </div>
+    </div>
   </div>
 {% endblock %}
 
-{% block afterFullpage %}
+{% block afterMaincontent %}
     <script type="text/javascript">
       // Load youtube after page finishes loading
       function loadYoutubeDeferred() {
@@ -306,23 +275,18 @@
           youtubeVideo.setAttribute('src', 'https://www.youtube.com/embed/gq7N2hmX9FI');
         }
       }
-
-      let fullpageOptions = {
-        licenseKey: '2UdvWJL?b5',
-        navigation: true,
-        verticalCentered: true,
-        slidesNavigation: true,
-        sectionsColor: ['#f8fdff', '#fcfefa', '#fff', '#f8fdff', '#fcfefa', '#fff'],
-        anchors: ['intro', 'whatis', 'types', 'examples', 'latest', 'external', 'bottom-of-page'],
-        recordHistory: false,
-        paddingTop: document.getElementById('mainNav').offsetHeight + "px",
-        afterLoad: function(origin, destination, direction) {
-          if(destination.anchor == 'whatis'){
-            loadYoutubeDeferred();
+      // Load images after page finished loading
+      function loadImagesDeferred() {
+        const images = document.getElementsByClassName('resourceCellImage');
+        for (var i = 0; i < images.length; ++i) {
+          const dataSrc = images[i].getAttribute('data-src');
+          if (dataSrc) {
+            images[i].setAttribute('src', dataSrc);
           }
         }
-      };
+      }
 
-      new fullpage('#fullpage', fullpageOptions);
+    $(document).ready(loadYoutubeDeferred)
+    $(document).ready(loadImagesDeferred)
     </script>
 {% endblock %}

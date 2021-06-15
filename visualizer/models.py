@@ -1,7 +1,6 @@
 """ The django object models """
 
 from django.conf import settings
-from django.contrib import admin
 from django.core.cache import cache
 from django.db import models
 from django.utils.text import slugify
@@ -131,6 +130,9 @@ class JsonConfig(models.Model):
 
         return uniqueSlug
 
+    def __str__(self):
+        return '%s: %s' % (self.slug, self.title)
+
     #pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -156,14 +158,44 @@ class JsonConfig(models.Model):
         super().save(*args, **kwargs)
 
 
-@admin.register(JsonConfig)
-class JsonAdmin(admin.ModelAdmin):
-    """ The admin page to modify JsonConfig """
-    list_display = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt')
-    readonly_fields = (
-        'slug',
-        'title',
-        'numRounds',
-        'numCandidates',
-        'uploadedAt',
-        'movieGenerationStatus')
+class HomepageFeaturedElectionColumn(models.Model):
+    """ Represents a column of links on the homepage. """
+    title = models.CharField(max_length=128)
+
+    # The order of this column - must be unique among all columns
+    order = models.IntegerField(unique=True)
+
+    class Meta:
+        """ Meta-controls: the default ordering """
+        ordering = ["order"]
+
+    def __str__(self):
+        return str(self.title)
+
+
+class HomepageFeaturedElection(models.Model):
+    """ Represents a single link on the homepage list of featured elections. """
+    # Election title overrides the actual title, since we may want to
+    # advertise it differently or simplify on the homepage
+    title = models.CharField(max_length=128)
+
+    # The order of the link within this column
+    order = models.IntegerField(unique=True)
+
+    # Which column does this go in? This allows each election to be in
+    # multiple columns, if needed.
+    column = models.ForeignKey(HomepageFeaturedElectionColumn,
+                               related_name='links_in_column',
+                               on_delete=models.CASCADE)
+
+    # The election this corresponds to
+    jsonConfig = models.ForeignKey(JsonConfig,
+                                   related_name='+',  # disable related_name from jsonConfigs
+                                   on_delete=models.CASCADE)
+
+    class Meta:
+        """ Meta-controls: the default ordering """
+        ordering = ["order"]
+
+    def __str__(self):
+        return str(self.title)
