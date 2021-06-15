@@ -1,6 +1,7 @@
 """ Cloudflare API connection, used to clear cloudflare cache when a model updates """
 
 import logging
+import json
 import requests
 
 from django.conf import settings
@@ -50,7 +51,7 @@ class CloudflareAPI():
         data = {'files': rcvisUrls}
 
         # Send it off
-        response = requests.post(apiUrl, headers=cls._get_auth_headers(), data=data)
+        response = requests.post(apiUrl, headers=cls._get_auth_headers(), data=json.dumps(data))
 
         if response.status_code == 200:
             logger.info("Cleared cloudflare cache for %s: %s", slug, response.json())

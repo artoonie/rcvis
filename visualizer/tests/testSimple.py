@@ -322,4 +322,5 @@ class SimpleTests(TestCase):
                                   'https://example.com/ve/macomb-multiwinner-surplus',
                                   'https://example.com/vb/macomb-multiwinner-surplus']}
         requestPostResponse.assert_called_with(expectedUrl,
-                                               headers=expectedHeaders, data=expectedData)
+                                               headers=expectedHeaders,
+                                               data=json.dumps(expectedData))
