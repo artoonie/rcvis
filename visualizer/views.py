@@ -57,9 +57,7 @@ class Index(TemplateView):
             featuredElections.append({
                 'title': column.title,
                 'links': [{'slug': link.jsonConfig.slug,
-                           'title': link.title,  # gets title from link, not model
-                           'numRounds': link.jsonConfig.numRounds,
-                           'numCandidates': link.jsonConfig.numCandidates}
+                           'title': link.title}
                           for link in column.links_in_column.all()]
             })
         context['featuredElections'] = featuredElections

@@ -162,7 +162,7 @@
             <div class="col visColumn">
               <p class="mb-0 mt-0">{{ column.title }}</p>
               {% for model in column.links %}
-                <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong> ({{ model.numCandidates}} candidates, {{ model.numRounds }} rounds)</li>
+                <li><strong><a href="{% url 'visualize' model.slug %}">{{ model.title }}</a></strong></li>
               {% endfor %}
             </div>
           {% endfor %}
