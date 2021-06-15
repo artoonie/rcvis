@@ -4,17 +4,6 @@
   padding-bottom: 30px;
   padding-top: 200px;
 }
-.fp-slidesNav {
-  text-align: center;
-}
-.fp-prev {
-  border-right-color: #e6e6e6 !important;
-}
-.fp-next {
-  border-left-color: #e6e6e6 !important;
-  right: 45px !important;
-}
-
 .video-container {
   text-align: center;
 }
@@ -75,14 +64,6 @@
   .lead {
     font-size: 1.0em;
   }
-  .fp-prev {
-    left: 5px !important;
-    border-width: 20px 15px 20px 0 !important;
-  }
-  .fp-next {
-    right: 5px !important;
-    border-width: 20px 0 20px 20px !important;
-  }
   .homedescriptor {
     padding-top: 5px;
     padding-bottom: 5px;
@@ -116,8 +97,5 @@
   .homedescriptor {
     padding-left: 20px;
     padding-right: 20px;
-  }
-  #fp-nav {
-   right: 5px !important;
   }
 }

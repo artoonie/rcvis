@@ -160,14 +160,14 @@ class JsonConfig(models.Model):
 
 class HomepageFeaturedElectionColumn(models.Model):
     """ Represents a column of links on the homepage. """
-    class Meta:
-        """ Meta-controls: the default ordering """
-        ordering = ["order"]
-
     title = models.CharField(max_length=128)
 
     # The order of this column - must be unique among all columns
     order = models.IntegerField(unique=True)
+
+    class Meta:
+        """ Meta-controls: the default ordering """
+        ordering = ["order"]
 
     def __str__(self):
         return str(self.title)
@@ -175,10 +175,6 @@ class HomepageFeaturedElectionColumn(models.Model):
 
 class HomepageFeaturedElection(models.Model):
     """ Represents a single link on the homepage list of featured elections. """
-    class Meta:
-        """ Meta-controls: the default ordering """
-        ordering = ["order"]
-
     # Election title overrides the actual title, since we may want to
     # advertise it differently or simplify on the homepage
     title = models.CharField(max_length=128)
@@ -196,6 +192,10 @@ class HomepageFeaturedElection(models.Model):
     jsonConfig = models.ForeignKey(JsonConfig,
                                    related_name='+',  # disable related_name from jsonConfigs
                                    on_delete=models.CASCADE)
+
+    class Meta:
+        """ Meta-controls: the default ordering """
+        ordering = ["order"]
 
     def __str__(self):
         return str(self.title)
