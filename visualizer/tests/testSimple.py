@@ -302,16 +302,21 @@ class SimpleTests(TestCase):
         Ensure cloudflare purge calls the API with the expected data
         NOTE: You shouldn't have to modify this test. If you do, manually test the
         API connection with cloudflare to ensure you didn't break anything.
+        Also ensures the logging output is what we expect, so it shows up in heroku logs.
         """
         TestHelpers.get_multiwinner_upload_response(self.client)
         slug = TestHelpers.get_latest_upload().slug
 
-        requestPostResponse.side_effect = TestHelpers.create_request_mock({}, 200)
+        requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
+        expectedLogString = "INFO:common.cloudflare:"\
+                            "Cleared cloudflare cache for macomb-multiwinner-surplus: {'a': 0}"
 
         with self.settings(
                 CLOUDFLARE_AUTH_TOKEN='mytoken',
                 CLOUDFLARE_ZONE_ID='zoneid'):
-            CloudflareAPI.purge_vis_cache(slug)
+            with self.assertLogs("common.cloudflare") as logger:
+                CloudflareAPI.purge_vis_cache(slug)
+                self.assertListEqual(logger.output, [expectedLogString])
 
         expectedUrl = 'https://api.cloudflare.com/client/v4/zones/zoneid/purge_cache'
         expectedHeaders = {
