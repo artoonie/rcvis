@@ -202,6 +202,20 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 
+# Logging: include INFO logs
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
 # Uploaded media
 if not OFFLINE_MODE:
