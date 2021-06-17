@@ -70,6 +70,10 @@ class SimpleTests(TestCase):
         """ Ensures no divisions by zero in zero-vote elections """
         self._get_data_for_view(filenames.ZERO_VOTE_ELECTION)
 
+    def test_no_threshold_loads(self):
+        """ Ensures thresholds are optional in the RCTab format """
+        self._get_data_for_view(filenames.NO_THRESHOLD)
+
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
         with self.assertRaises(BadJSONError):

@@ -141,6 +141,9 @@ class WhyMultiWinner(FAQBase):
     """ Whenever someone is elected in STV """
 
     def is_active(self, roundNum):
+        if self.graph.threshold is None:
+            return False
+
         allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
@@ -166,6 +169,9 @@ class WhyThreshold(FAQBase):
     """ How the threshold is chosen in STV """
 
     def is_active(self, roundNum):
+        if self.graph.threshold is None:
+            return False
+
         allWinners = self.summary.winnerNames
         thisRoundWinners = self.summary.rounds[roundNum].winnerNames
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
@@ -192,6 +198,9 @@ class WhySurplusTransfer(FAQBase):
         self._surplusCache = {}
 
     def is_active(self, roundNum):
+        if self.graph.threshold is None:
+            return False
+
         redistributionData = common.get_redistribution_data(self.graph, roundNum)
         self._surplusCache[roundNum] = redistributionData
 

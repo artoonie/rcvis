@@ -1,0 +1,34 @@
+{
+  "config" : {
+    "contest" : "No threshold example, with multiple winners (to complicate the FAQs)"
+  },
+  "results" : [ {
+    "round" : 1,
+    "tally" : {
+      "Vanilla" : "500",
+      "Blackberry" : "350",
+      "Banana" : "100",
+      "Strawberry" : "250"
+    },
+    "tallyResults" : [ {
+      "eliminated" : "Banana",
+      "transfers" : {
+        "Vanilla" : "50",
+        "Blackberry" : "25",
+        "Strawberry" : "25"
+      }
+    } ]
+  },
+  {
+    "round" : 2,
+    "tally" : {
+      "Vanilla" : "550",
+      "Blackberry" : "375",
+      "Strawberry" : "275"
+    },
+    "tallyResults" : [
+    { "elected" : "Vanilla" },
+    { "elected" : "Blackberry" } ]
+  }
+  ]
+}

@@ -5,8 +5,9 @@
 
 import datetime
 
-from . import rcvResult
-from .graphSummary import GraphSummary
+from visualizer.common import intify
+from visualizer.graph import rcvResult
+from visualizer.graph.graphSummary import GraphSummary
 
 
 #pylint: disable=too-few-public-methods
@@ -44,12 +45,14 @@ class NodeData:
 class Graph:
     """ Data about the entire graph, including nodes and links between thhem """
 
-    def __init__(self, title, threshold):
+    def __init__(self, title):
         self.title = title.strip()
-        self.threshold = threshold
         self.nodes = []
         self.links = []
+
+        # optional
         self.dateString = ""
+        self.threshold = None
 
         # This must be set manually by calling set_elimination_order
         self.eliminationOrder = None
@@ -95,6 +98,13 @@ class Graph:
         """ Sets the date of this election """
         assert isinstance(date, datetime.datetime)
         self.dateString = datetime.date.strftime(date, format='%A, %B %-d, %Y')
+
+    def set_threshold(self, threshold):
+        """ Sets the threshold for this election """
+        if isinstance(threshold, str):
+            threshold = float(threshold)
+
+        self.threshold = intify(threshold)
 
     def _add_connection(self, sourceNode, targetNode, value):
         """ Adds a Link between the source and target.
