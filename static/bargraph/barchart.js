@@ -9,7 +9,6 @@ function makeBarGraph(args) {
   const colors = args.colors; // List of colors, one per round
   const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
   const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
-  const doHideInactiveBallotsAndResidualSurplus = args.doHideInactiveBallotsAndResidualSurplus; // To only show candidates, not "extra" stuff
   const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
@@ -22,10 +21,8 @@ function makeBarGraph(args) {
                                                         // where the <rounddescription> is a
                                                         // the humanFriendlyRoundName for that round
 
-  // Before doing anything else, remove non-candidate names from the struct
-  if (doHideInactiveBallotsAndResidualSurplus) {
-      hideResidualSurplusAndInactiveBallots(candidateVoteCounts);
-  }
+  // Before doing anything else, remove residual surplus from the struct
+  hideResidualSurplus(candidateVoteCounts);
 
   // Transpose the data into d3 layers
   const mappedData = humanFriendlyRoundNames.map(function(roundInfo) {
@@ -207,6 +204,10 @@ function makeBarGraph(args) {
       else if(isSurplusFn(d))
       {
           return "url(#"+surplusPatternId+")";
+      }
+      else if (d.data.candidate == inactiveBallotsString)
+      {
+          return "#FFFFFF";
       }
       else
       {
@@ -459,16 +460,13 @@ function makeBarGraph(args) {
           stackSeries[round_i] = d;
       }
   }
-  function hideResidualSurplusAndInactiveBallots(candidateVoteCounts) {
-      let indicesToRemove = [];
+  function hideResidualSurplus(candidateVoteCounts) {
       for (let i = 0; i < candidateVoteCounts.length; ++i) {
           const candidateName = candidateVoteCounts[i].candidate;
-          if (candidateName == inactiveBallotsString || candidateName == residualSurplusString) {
-              indicesToRemove.push(i);
+          if (candidateName == residualSurplusString) {
+              candidateVoteCounts.splice(i, 1);
+              return;
           }
-      }
-      for (let i = indicesToRemove.length - 1; i >= 0; --i) {
-          candidateVoteCounts.splice(indicesToRemove[i], 1);
       }
   }
   function replaceTextWithSidecarData(d3TextElem) {

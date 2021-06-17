@@ -385,26 +385,6 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         self._assert_log_len(0)
 
-    def test_setting_hide_surplus_and_inactive(self):
-        """ Test config option doHideInactiveBallotsAndResidualSurplus """
-        def _toggle_option():
-            self._go_to_tab("settings-tab")
-            self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
-            self.browser.find_elements_by_name("doHideInactiveBallotsAndResidualSurplus")[1].click()
-            self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-
-        # 5 candidates + residual surplus + inactive ballots visible
-        self._upload(filenames.MULTIWINNER)
-        self.assertEqual(len(self._get_each_bargraph_tag()), 7)
-        _toggle_option()
-        self.assertEqual(len(self._get_each_bargraph_tag()), 5)
-
-        # 5 candidates, but nothing changes when toggled
-        self._upload(filenames.ONE_ROUND)
-        self.assertEqual(len(self._get_each_bargraph_tag()), 2)
-        _toggle_option()
-        self.assertEqual(len(self._get_each_bargraph_tag()), 2)
-
     def test_setting_eliminated_colors(self):
         """ Ensure eliminated color setting can be changed """
         def _get_eliminated_color():
@@ -435,6 +415,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         notgray = "rgb(238, 237, 241)"
         self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), notgray))
+
+    def test_surplus_hidden(self):
+        """ Ensure residual surplus is hidden """
+        # 5 candidates: residual surplus hidden, inactive ballots visible
+        self._upload(filenames.MULTIWINNER)
+        self.assertEqual(len(self._get_each_bargraph_tag()), 6)
 
     def test_oembed(self):
         """ Tests the functionality of the oembed feature"""
