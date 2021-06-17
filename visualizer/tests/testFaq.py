@@ -9,6 +9,7 @@ from mock import Mock
 
 from common.testUtils import TestHelpers
 from visualizer.descriptors import faq
+from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.graph.graphSummary import RoundInfo
 from visualizer.tests import filenames
@@ -131,8 +132,25 @@ class FAQTests(TestCase):
         with open(filenames.NO_THRESHOLD, 'r') as f:
             graph = make_graph_with_file(f, False)
 
-        allRounds = faq.FAQGenerator(graph).describe_all_rounds()
-        for roundList in allRounds:
+        allRoundsQA = faq.FAQGenerator(graph).describe_all_rounds()
+        for roundList in allRoundsQA:
             for desc in roundList:
                 self.assertNotIn('None', desc['question'])
                 self.assertNotIn('None', desc['answer'])
+
+        describer = Describer(graph, False)
+
+        # check initial summary 
+        initialSummary = describer.describe_initial_summary(False)
+        self.assertNotIn('None', initialSummary)
+
+        # check each round
+        allRoundsDesc = describer.describe_all_rounds()
+        for descList in allRoundsDesc:
+            for desc in descList:
+                assert isinstance(desc['description'], str)
+                self.assertNotIn('None', desc['description'])
+
+        # explicitly validate last round description
+        self.assertEqual(allRoundsDesc[-1][2]['description'], "Vanilla was elected. ")
+        self.assertEqual(allRoundsDesc[-1][3]['description'], "Blackberry was elected. ")
