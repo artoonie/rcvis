@@ -145,7 +145,7 @@ class Describer:
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
         winners = rounds[roundNum].winnerNames
-        if self.graph.threshold != None:
+        if self.graph.threshold is not None:
             whatHappened = "{name} reached the threshold of "\
                 f"{self.graph.threshold} votes and was elected. "
         else:

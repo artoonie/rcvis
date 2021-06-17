@@ -140,7 +140,7 @@ class FAQTests(TestCase):
 
         describer = Describer(graph, False)
 
-        # check initial summary 
+        # check initial summary
         initialSummary = describer.describe_initial_summary(False)
         self.assertNotIn('None', initialSummary)
 
