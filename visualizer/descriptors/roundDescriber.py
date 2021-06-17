@@ -145,8 +145,11 @@ class Describer:
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
         winners = rounds[roundNum].winnerNames
-        whatHappened = "{name} reached the threshold of "\
-            f"{self.graph.threshold} votes and was elected. "
+        if self.graph.threshold is not None:
+            whatHappened = "{name} reached the threshold of "\
+                f"{self.graph.threshold} votes and was elected. "
+        else:
+            whatHappened = "{name} was elected. "
         return self._describe_list_of_names(winners, " won", whatHappened)
 
     @classmethod
