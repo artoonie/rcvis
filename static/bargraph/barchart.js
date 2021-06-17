@@ -10,7 +10,7 @@ function makeBarGraph(args) {
   const longestLabelApxWidth = args.longestLabelApxWidth; // How many pixels wide is the longest candidate name?
   const isInteractive = args.isInteractive; // toggles between print-friendly and interactive mode
   const doHideInactiveBallotsAndResidualSurplus = args.doHideInactiveBallotsAndResidualSurplus; // To only show candidates, not "extra" stuff
-  const threshold = args.threshold; // The threshold single value (cannot change over time currently)
+  const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
@@ -104,7 +104,9 @@ function makeBarGraph(args) {
 
   // Set x, y and colors
   let maxVotesToShow = d3.max(stackSeries, d => d3.max(d, d => d[1]));
-  maxVotesToShow = Math.max(maxVotesToShow, threshold);
+  if (threshold !== null) {
+      maxVotesToShow = Math.max(maxVotesToShow, threshold);
+  }
   const candidatesDomain = d3.scaleBand()
         .domain(candidateNames)
   const votesDomain = d3.scaleLinear()
@@ -224,13 +226,21 @@ function makeBarGraph(args) {
   function barVotesMainDataLabelPosFn(d) {
       // I hate this function. We need to do some magic because in vertical mode,
       // "up" is negative, whereas in horizontal, "right" is positive.
+      // NOTE: Manually test this functionality using macomb-multiwinner-surplus.json
+      //
       if (!isVertical) {
+        const defaultDataLabelPos = width - 20;
+
+        if (threshold === null) {
+          return defaultDataLabelPos;
+        }
+
         const thresholdPosition = barVotesPosFn([threshold, threshold]);
         const expectedMaxWidthOfLabel = 100;
+
         // If the threshold isn't right up against the edge, use it
         if ((width - thresholdPosition) > expectedMaxWidthOfLabel) {
-          // NOTE: Manually test this functionality using macomb-multiwinner-surplus.json
-          return width - 20;
+          return defaultDataLabelPos;
         }
 
         // Otherwise, go a little back from the threshold and anchor there
@@ -632,24 +642,28 @@ function makeBarGraph(args) {
   }
 
   // Draw the threshold dashed line
-  const thresh_x1 = isVertical ? margin.left : margin.top;
-  const thresh_y1 = barVotesPosFn([threshold, threshold]);
-  svg.append("line")
-      .attr(candidatePosStr + "1", thresh_x1)
-      .attr(votesPosStr     + "1", thresh_y1)
-      .attr(candidatePosStr + "2", thresh_x1 + (isVertical ? width : height))
-      .attr(votesPosStr     + "2", thresh_y1 + 0.5)
-       .style("stroke", "#AAA")
-       .style("stroke-dasharray", ("5, 5"))
-  const mouseOverBorder = 10
-  svg.append("rect")
-      .attr(candidatePosStr, isVertical ? margin.left : margin.top)
-      .attr(votesPosStr, barVotesPosFn([threshold, threshold]) - mouseOverBorder/2.0)
-      .attr(candidateSizeStr, isVertical ? width : height)
-      .attr(votesSizeStr, mouseOverBorder)
-      .attr("opacity", "0")
-      .attr("data-toggle", "tooltip")
-      .attr("title", function(d) { return "Threshold to win: " + threshold; });
+  if (threshold !== null) {
+      const thresh_x1 = isVertical ? margin.left : margin.top;
+      const thresh_y1 = barVotesPosFn([threshold, threshold]);
+      svg.append("line")
+          .attr("id", 'threshold'+idOfContainer)
+          .attr(candidatePosStr + "1", thresh_x1)
+          .attr(votesPosStr     + "1", thresh_y1)
+          .attr(candidatePosStr + "2", thresh_x1 + (isVertical ? width : height))
+          .attr(votesPosStr     + "2", thresh_y1 + 0.5)
+           .style("stroke", "#AAA")
+           .style("stroke-dasharray", ("5, 5"))
+      const mouseOverBorder = 10
+      svg.append("rect")
+          .attr("id", 'threshold-hover'+idOfContainer)
+          .attr(candidatePosStr, isVertical ? margin.left : margin.top)
+          .attr(votesPosStr, barVotesPosFn([threshold, threshold]) - mouseOverBorder/2.0)
+          .attr(candidateSizeStr, isVertical ? width : height)
+          .attr(votesSizeStr, mouseOverBorder)
+          .attr("opacity", "0")
+          .attr("data-toggle", "tooltip")
+          .attr("title", function(d) { return "Threshold to win: " + threshold; });
+  }
 
   function moveBarsToAnimationStartPoint() {
     // Where is the transfer coming from?

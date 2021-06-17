@@ -285,14 +285,19 @@ class JSONReader:
             return datetime.datetime(year, month, day)
 
         def load_graph(data):
+            # required
             title = data['config']['contest']
-            date = parse_date(data['config'].get('date'))
-            threshold = data['config']['threshold']
 
-            graph = Graph(title, threshold)
+            # optional
+            date = parse_date(data['config'].get('date'))
+            threshold = data['config'].get('threshold')
+
+            graph = Graph(title)
 
             if date is not None:
                 graph.set_date(date)
+            if threshold is not None:
+                graph.set_threshold(threshold)
 
             return graph
 

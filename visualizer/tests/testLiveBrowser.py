@@ -318,7 +318,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def test_oneround_zerovote(self):
         """ Tests we do something sane in a single-round zero-vote election """
-        # Regression test: one round, with votes
+        # Regression test: size of graph with one round, with votes
         self.browser.set_window_size(800, 800)
         self._upload(filenames.ONE_ROUND)
         assert self._get_height("bargraph-interactive-body") < 800
@@ -335,6 +335,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.assertEqual(elemsInOrder[1].get_attribute('innerHTML'), "0  ")
         self.assertEqual(elemsInOrder[2].get_attribute('innerHTML'), "Another body")
         self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Somebody")
+
+    def test_no_threshold_draws_no_line(self):
+        """ Tests that no threshold line is drawn if the threshold is not provided """
+        xpathsOfLines = ['//*[@id="threshold#bargraph-interactive-body"]',
+                         '//*[@id="threshold-hover#bargraph-interactive-body"]']
+
+        # Make sure it does exist when there is a threshold
+        self._upload(filenames.ONE_ROUND)
+        for xpath in xpathsOfLines:
+            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 1)
+
+        # Make sure it does exist when there is a threshold
+        self._upload(filenames.NO_THRESHOLD)
+        for xpath in xpathsOfLines:
+            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 0)
 
     def test_settings_tab(self):
         """ Tests the functionality of the settings tab """

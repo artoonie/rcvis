@@ -13,5 +13,6 @@ ELECTIONBUDDY = 'testData/electionbuddy.csv'
 ELECTIONBUDDY_NOABSTENTION = 'testData/electionbuddy-without-abstentions.csv'
 ELECTIONBUDDY_REGRESSION = 'testData/electionbuddy-regression.csv'
 ZERO_VOTE_ELECTION = 'testData/zero-vote-election.json'
+NO_THRESHOLD = 'testData/no-threshold.json'
 
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'

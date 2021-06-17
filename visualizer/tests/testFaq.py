@@ -14,7 +14,7 @@ from visualizer.graph.graphSummary import RoundInfo
 from visualizer.tests import filenames
 
 
-class SimpleTests(TestCase):
+class FAQTests(TestCase):
     """ Tests faq.py """
 
     def setUp(self):
@@ -122,3 +122,17 @@ class SimpleTests(TestCase):
 
         # Only the No Votes FAQ shows up.
         self.assertTrue(faq.WhyNoVotes(graph).is_active(0))
+
+    def test_no_threshold(self):
+        """
+        Ensure that no-threshold elections never print anything related to thresholds.
+        This is quite aggressive - ensure "None" never appears in any text.
+        """
+        with open(filenames.NO_THRESHOLD, 'r') as f:
+            graph = make_graph_with_file(f, False)
+
+        allRounds = faq.FAQGenerator(graph).describe_all_rounds()
+        for roundList in allRounds:
+            for desc in roundList:
+                self.assertNotIn('None', desc['question'])
+                self.assertNotIn('None', desc['answer'])

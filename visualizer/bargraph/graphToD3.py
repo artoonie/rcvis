@@ -1,3 +1,5 @@
+import json
+
 from visualizer.jsUtils import approx_length
 
 
@@ -38,11 +40,11 @@ class D3Bargraph:
                                     for n in graph.nodesPerRound[0].values()])
 
         js = f'var candidateVoteCounts = {candidatesJs};'
-        js += f'\nvar humanFriendlyRoundNames = {list(roundLabels)};'
-        js += f'\nvar threshold = {float(graph.threshold)};'
-        js += f'\nvar longestLabelApxWidth = {longestLabelApxWidth};'
-        js += f'\nvar totalVotesPerRound = {totalVotesPerRound};'
-        js += f'\nvar numRoundsTilWin = {numRoundsTilWin};'
+        js += f'\nvar humanFriendlyRoundNames = {json.dumps(list(roundLabels))};'
+        js += f'\nvar threshold = {json.dumps(graph.threshold)};'
+        js += f'\nvar longestLabelApxWidth = {json.dumps(longestLabelApxWidth)};'
+        js += f'\nvar totalVotesPerRound = {json.dumps(totalVotesPerRound)};'
+        js += f'\nvar numRoundsTilWin = {json.dumps(numRoundsTilWin)};'
         self.js = js
 
 
