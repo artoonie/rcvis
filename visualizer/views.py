@@ -1,5 +1,6 @@
 """ The django views file """
 
+import logging
 import traceback
 import urllib.parse
 
@@ -32,6 +33,8 @@ from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
+
+logger = logging.getLogger(__name__)
 
 
 class Index(TemplateView):
@@ -92,13 +95,15 @@ class Upload(LoginRequiredMixin, CreateView):
 
         except BadJSONError:
             form.add_error('jsonFile', traceback.format_exc(limit=1))
+            logger.error(str(traceback.format_exc()))
             return self.form_invalid(form)
         except BadSidecarError as exception:
             form.add_error('candidateSidecarFile', str(exception))
+            logger.error(str(exception))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
-            print(exceptionString)
+            logger.error(exceptionString)
 
             # Not sure how dangerous this traceback can be...
             # Limit it to admins only
