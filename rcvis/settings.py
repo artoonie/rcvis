@@ -281,4 +281,5 @@ MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
 
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
-    django_heroku.settings(locals(), staticfiles=False, secret_key=False)
+    # Also ensure logging is output on remote
+    django_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
