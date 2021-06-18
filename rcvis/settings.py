@@ -202,19 +202,47 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 
-# Logging: include INFO logs
+# Logging: include INFO logs, and combine with django_heroku
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'formatters': {
+        'verbose': {
+            'format': ('%(asctime)s [%(process)d] [%(levelname)s] ' +
+                       'lineno=%(lineno)s ' +
+                       'funcname=%(funcName)s %(message)s'),
+            'datefmt': '%Y-%m-%d %H:%M:%S'
         },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        }
+    },
+    'handlers': {
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'roothandler': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        }
+    },
+    'loggers': {
+        'testlogger': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        }
     },
     'root': {
-        'handlers': ['console'],
+        'handlers': ['roothandler'],
         'level': 'INFO',
-    },
+    }
 }
 
 # Uploaded media
@@ -281,4 +309,5 @@ MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
 
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
-    django_heroku.settings(locals(), staticfiles=False, secret_key=False)
+    # Also ensure logging is output on remote
+    django_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
