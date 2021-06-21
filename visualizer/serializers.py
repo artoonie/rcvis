@@ -53,14 +53,28 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         # Sanity check: no superfluous fields
         self.check_for_superfluous_fields_before_modification(data)
 
-        # Validate data - again, checking for errors but not raising.
-        # Note that patch doesn't include jsonFile, just the object ID
-        if 'jsonFile' in data:
-            graph = self.load_graph_or_errors(
-                data['jsonFile'], data.get(
-                    'candidateSidecarFile', None))
+        # Validate data, checking for errors but not raising exceptions.
+        if self.instance:
+            # Updating: if the field is not provided, grab it from self.instance.
+            jsonFile = data.get('jsonFile', self.instance.jsonFile)
 
-            # Update data
+            # Annoyingly, django sets an empty empty FileField to empty string
+            # instead of None, so we can't just use
+            # $ data.get('candidateSidecarFile', self.instead.candidateSidecarFile)
+            if 'candidateSidecarFile' in data:
+                candidateSidecarFile = data['candidateSidecarFile']
+            elif self.instance.candidateSidecarFile:
+                candidateSidecarFile = self.instance.candidateSidecarFile
+            else:
+                candidateSidecarFile = None
+        else:
+            # Creating: if the field is not provided, it does not exist. Treat it as None.
+            jsonFile = data.get('jsonFile')
+            candidateSidecarFile = data.get('candidateSidecarFile')
+        graph = self.load_graph_or_errors(jsonFile, candidateSidecarFile)
+
+        if 'jsonFile' in data:
+            # Only update these fields if the jsonFile changed
             self.populate_model_with_json_data(data, graph)
 
         # Now run all other validations
