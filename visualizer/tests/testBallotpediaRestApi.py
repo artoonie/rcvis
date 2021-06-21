@@ -187,3 +187,29 @@ class BallotpediaRestAPITests(APITestCase):
         response = self.client.patch(f'/api/bp/{obj.id}/', data={})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(TestHelpers.get_latest_upload().areResultsCertified)
+
+    def test_patch_json_invalidates_sidecar(self):
+        """
+        When using PATCH, it is possible to update the summary JSON without
+        updating the sidecar file. This is a regression test which ensures that
+        the sidecar file is checked for consistency with the summary file every time
+        either file changes.
+
+        Without this, it would be possible to create invalid visualizations by creating
+        a valid vis, then updating one file to be incompatible with the other.
+        """
+        # Upload initial
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'resultsSummaryFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile,
+                        'areResultsCertified': True}
+                response = self.client.post('/api/bp/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Change just the jsonfile, leaving the sidecar invalid
+        obj = TestHelpers.get_latest_upload()
+        with open(filenames.ONE_ROUND) as jsonFile:
+            data = {'resultsSummaryFile': jsonFile}
+            response = self.client.patch(f'/api/bp/{obj.id}/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
