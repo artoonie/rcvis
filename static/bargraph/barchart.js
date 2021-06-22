@@ -485,6 +485,7 @@ function makeBarGraph(args) {
         const link = textElem.text(null)
           .append("a")
           .attr("href", href)
+          .attr("target", "_blank")
           .attr("dy", ".32em")
           .style("fill", "#1c5f99")
           .text(name);
