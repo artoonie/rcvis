@@ -292,7 +292,7 @@ function makeBarGraph(args) {
       }
       d.doesCandidateGetAnyMoreVotes = false;
       return false;
-  }
+  };
   /*
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
@@ -426,6 +426,7 @@ function makeBarGraph(args) {
   };
 
   function addMetadataToEachBar() {
+      console.assert(stackSeries.length == numRounds);
       for (let round_i = 0; round_i < stackSeries.length; ++round_i) {
           const d = stackSeries[round_i];
           const numCandidates = d.length;
@@ -434,12 +435,13 @@ function makeBarGraph(args) {
           for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i)
           {
             // We're doing a naughty thing and assuming that the number of keys minus one is the
-            // number of rounds this candidate survivided (the keys are each round + one for "candidate").
+            // number of rounds this candidate survived (the keys are each round + one for "candidate").
             // We verify that assumption by looking at the max number of rounds after this loop.
             // Note: we ensure 0-indexing for consistency with d.rounds
-            let numRoundsTilEliminated = Object.keys(d[candidate_i].data).length - 2;
+            const numSegmentsInThisBar = Object.keys(d[candidate_i].data).length - 1;
+            let numRoundsTilEliminated = numSegmentsInThisBar - 1;  // -1 to 0-index it
 
-            let candidateName = d[candidate_i].data["candidate"]
+            const candidateName = d[candidate_i].data["candidate"]
             d[candidate_i].round = round_i;
             d[candidate_i].numRoundsTilWin = numRoundsTilWin[candidateName]
             d[candidate_i].isWinner = numRoundsTilWin[candidateName] <= round_i
@@ -686,19 +688,25 @@ function makeBarGraph(args) {
       const elimNode = transferFrom.nodes()[0];
       const elimData = elimNode.__data__;
       const elimSize = getBBoxFor(elimData);
-      let xShift = 0;
+      let xShift = 0;  // which ensures bars are next to each other, not on top of each other
       eachBar.enter()
           .filter(isLatestRoundFor)
-          .selectAll("path.eachBar")
-          .attr("fill", barColorFn)
-          .attr("opacity", 0.3)
+          .selectAll('path.eachBar')
+          .attr("fill", d =>
+            // transitions begin as darkred (transfer) or darkgreen (surplus)
+            elimData.xferType == 'elimination' ? "darkred" : "darkgreen"
+          )
+          .attr("opacity", d =>
+            // darker on elimination
+            elimData.xferType == 'elimination' ? 0.8 : 0.5
+          )
           .attr("transform", function(d, i) {
             // Set initial x shift
             // Note, this is called twice: https://stackoverflow.com/a/27578308/1057105
             // So we need to reset on the second time around
             if (i == 0) {
               if (elimData.xferType == 'elimination') {
-                // Elimination transfer
+                // Elimination transfer. Keep adding to xShift.
                 xShift = elimSize.x;
               } else {
                 // Surplus transfer needs to start the movement from the
@@ -733,8 +741,14 @@ function makeBarGraph(args) {
     // hashes should show immediately
     eachBar.enter().selectAll("path.eachBar")
         .transition()
-        .duration(300)
-        .delay(50)
+        .duration(200) // Note: sync animation time with timeBetweenStepsMs
+        .delay(500)
+        .attr("opacity", 1)
+        .attr("transform", "translate(0,0)")
+        .attr("fill", barColorFn);
+  };
+  function completeAllExistingAnimations() {
+    eachBar.enter().selectAll("path.eachBar")
         .attr("opacity", 1)
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
@@ -746,6 +760,7 @@ function makeBarGraph(args) {
         .attr("display", dataLabelDisplayFor)
   };
   function transitions(round) {
+    completeAllExistingAnimations();
     prevRound = currRound;
     currRound = round;
     transitionEachBarForRound();
