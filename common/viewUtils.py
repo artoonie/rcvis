@@ -9,11 +9,24 @@ from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.descriptors.faq import FAQGenerator
 from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.models import TextForWinner
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
     TabulateByCandidate,\
     SingleTableSummary
+
+
+class DefaultConfig():  # pylint: disable=too-few-public-methods
+    """
+    A simplified JsonConfig with just the default values.
+    Use this to pass to functions that require a config if you do not have
+    or need a config (e.g. in validators).
+    """
+
+    def __init__(self):
+        self.onlyShowWinnersTabular = False
+        self.textForWinner = TextForWinner.ELECTED
 
 
 def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
@@ -35,17 +48,17 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     return html
 
 
-def get_data_for_graph(graph, onlyShowWinnersTabular):
+def get_data_for_graph(graph, config):
     """
     Helper function for get_data_for_view:
-    convert the graph to data to be passed on to JS
+    convert the graph to data to be passed on to JS.
     """
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
-    tabularByCandidate = TabulateByCandidate(graph, onlyShowWinnersTabular)
+    tabularByCandidate = TabulateByCandidate(graph, config)
     singleTableSummary = SingleTableSummary(graph)
     tabularByRound = TabulateByRound(graph)
-    tabularByRoundInteractive = TabulateByRoundInteractive(graph)
+    tabularByRoundInteractive = TabulateByRoundInteractive(graph, config)
     graphData = {
         'title': graph.title,
         'date': graph.dateString,
@@ -57,20 +70,20 @@ def get_data_for_graph(graph, onlyShowWinnersTabular):
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'graph': graph
     }
-    roundDescriberData = get_data_for_round_describer(graph)
+    roundDescriberData = get_data_for_round_describer(graph, config)
     graphData.update(roundDescriberData)
     return graphData
 
 
-def get_data_for_round_describer(graph):
+def get_data_for_round_describer(graph, config):
     """
     Helper function for get_data_for_view:
     convert the round describer to data to be passed on to JS
     """
-    roundDescriber = Describer(graph, summarizeAsParagraph=False)
+    roundDescriber = Describer(graph, config, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
     humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
-    faqsPerRound = json.dumps(FAQGenerator(graph).describe_all_rounds())
+    faqsPerRound = json.dumps(FAQGenerator(graph, config).describe_all_rounds())
 
     return {
         'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
@@ -96,7 +109,7 @@ def get_data_for_view(config):
 
     offlineMode = OFFLINE_MODE
 
-    graphData = get_data_for_graph(graph, config.onlyShowWinnersTabular)
+    graphData = get_data_for_graph(graph, config)
     additionalData = {
         'config': config,
         'offlineMode': offlineMode,

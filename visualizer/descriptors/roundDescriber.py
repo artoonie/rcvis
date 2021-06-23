@@ -3,13 +3,14 @@ Describes what happened in each round of an RCV Election in plain English.
 """
 
 from visualizer.descriptors import common
+from visualizer.descriptors import textForWinnerUtils
 
 
 class Describer:
     """ Describes a graph in plain English.
         Iteratively call describe_round() on each round for the given graph. """
 
-    def __init__(self, graph, summarizeAsParagraph):
+    def __init__(self, graph, config, summarizeAsParagraph):
         """
         Initializes the Describer
 
@@ -18,6 +19,7 @@ class Describer:
             If false, the summary is a list of events for each round.
         """
         self.graph = graph
+        self.config = config
         self.summarizeAsParagraph = summarizeAsParagraph
 
         self.textOnlyDescribers = [
@@ -141,15 +143,21 @@ class Describer:
             redistributedNames, " redistributed votes", whatHappened)
 
     def _describe_winners_this_round(self, roundNum):
-        """ e.g. "Foo had the most votes and was elected. "
+        """ e.g. "Foo reached the threshold of X and was elected. "
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
         winners = rounds[roundNum].winnerNames
+
+        # Note: each event shows just one winner. If there are multiple winners,
+        # there will be multiple sentences in the main vis. (Not true in the video...)
+        # So, set numWinners to 1, not len(winners)
+        event = textForWinnerUtils.as_event(self.config, 1)
+
         if self.graph.threshold is not None:
             whatHappened = "{name} reached the threshold of "\
-                f"{self.graph.threshold} votes and was elected. "
+                f"{self.graph.threshold} votes and {event}. "
         else:
-            whatHappened = "{name} was elected. "
+            whatHappened = "{name} " + event + ". "
         return self._describe_list_of_names(winners, " won", whatHappened)
 
     @classmethod
@@ -184,13 +192,12 @@ class Describer:
         if len(winners) == 0:
             return "This election does not have any winners. "
 
-        wereOrWas = "was" if len(winners) == 1 else "were"
         # Initial summary is always just text
         try:
             originalSummarizeAsParagraph = self.summarizeAsParagraph
             self.summarizeAsParagraph = True
-            winnerText = self._describe_list_of_names(winners, None, "{name} "
-                                                      f"{wereOrWas} elected")
+            event = textForWinnerUtils.as_event(self.config, len(winners))
+            winnerText = self._describe_list_of_names(winners, None, "{name} " + event)
         finally:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 

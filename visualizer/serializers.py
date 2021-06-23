@@ -8,6 +8,7 @@ from rest_framework import serializers
 from rest_framework.settings import api_settings
 
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.models import TextForWinner
 from visualizer.sidecar.reader import BadSidecarError
 from .models import JsonConfig
 from .validators import try_to_load_jsons
@@ -137,13 +138,18 @@ class JsonOnlySerializer(BaseVisualizationSerializer):
 class BallotpediaSerializer(BaseVisualizationSerializer):
     """
     A serializer for specifying the Ballotpedia data.
+
     Instead of specifying jsonFile (which is confusing because the sidecar is also JSON),
     this serializer uses "resultsSummaryFile" and "candidateSidecarFile", along with
-    the other two options bp wants: dataSourceURL and areResultsCertified.
+    the other options bp wants:
+    1. dataSourceURL (URL)
+    2. areResultsCertified (bool)
+    3. isPrimary (bool)
     """
     class Meta(BaseVisualizationSerializer.Meta):
         resultsSummaryFile = serializers.SerializerMethodField()
-        bp_fields = ('jsonFile',  # Note: should not be passed directly
+        bp_fields = ('jsonFile',  # Note: use resultsSummaryFile instead of this
+                     'textForWinner',  # Note: use isPrimary boolean instead of this
                      'candidateSidecarFile',
                      'dataSourceURL',
                      'areResultsCertified',
@@ -158,10 +164,20 @@ class BallotpediaSerializer(BaseVisualizationSerializer):
         if 'jsonFile' in data:
             raise serializers.ValidationError({'jsonFile':
                                                ["Pass resultsSummaryFile instead of jsonFile"]})
+        if 'textForWinner' in data:
+            raise serializers.ValidationError({'textForWinner':
+                                               ["Pass isPrimary instead of textForWinner"]})
 
         if 'resultsSummaryFile' in data:
             data['jsonFile'] = data['resultsSummaryFile']
             del data['resultsSummaryFile']
+
+        if 'isPrimary' in data:
+            if data['isPrimary']:
+                data['textForWinner'] = TextForWinner.PRIMARY
+            else:
+                data['textForWinner'] = TextForWinner.ELECTED
+            del data['isPrimary']
 
         return super(BallotpediaSerializer, self).to_internal_value(data)
 

@@ -366,3 +366,21 @@ class SimpleTests(TestCase):
 
         indexResponse = self.client.get(reverse('index'))
         self.assertIn(latestTitle, str(indexResponse.content))
+
+    def test_text_for_winner(self):
+        """ Integration test: is basic test for TextForWinner shown? """
+        def get_response_content_for_enum(textForWinnerVal):
+            with open(filenames.MULTIWINNER) as f:
+                data = {'jsonFile': f, 'textForWinner': textForWinnerVal}
+                response = self.client.post('/upload.html', data)
+            response = self.client.get('/' + response['location'])
+            return response.content
+
+        content = get_response_content_for_enum(0)
+        self.assertIn(b'Harvey Curley and Larry Edwards were elected', content)
+
+        content = get_response_content_for_enum(1)
+        self.assertIn(b'Harvey Curley and Larry Edwards won', content)
+
+        content = get_response_content_for_enum(2)
+        self.assertIn(b'Harvey Curley and Larry Edwards advanced to the general', content)

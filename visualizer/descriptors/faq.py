@@ -6,6 +6,7 @@ import abc
 
 from visualizer.common import INACTIVE_TEXT
 from visualizer.descriptors import common
+from visualizer.descriptors import textForWinnerUtils
 
 
 class FAQBase():
@@ -15,8 +16,9 @@ class FAQBase():
     and if it is relevant, what question/answer to show.
     """
 
-    def __init__(self, graph):
+    def __init__(self, graph, config):
         self.graph = graph
+        self.config = config
         self.summary = graph.summarize()
 
     @abc.abstractmethod
@@ -67,13 +69,14 @@ class WhatHappeningMultiWinner(FAQBase):
 
     def get_answer(self, roundNum):
         numWinners = self.summary.numWinners
+        presentPerfectAction = textForWinnerUtils.as_present_perfect_tense(self.config, numWinners)
         return "This is a proportional Ranked Choice Voting election "\
             "which elects multiple winners. "\
             f"There were {numWinners} seats to be filled. "\
             "Voters have ranked their candidates in order of preference. "\
             "Each voter still only had one vote. "\
             "The lowest-performing candidates were eliminated until "\
-            f"{numWinners} candidates have been elected."
+            f"{numWinners} candidates {presentPerfectAction}."
 
 
 class WhyEliminated(FAQBase):
@@ -129,12 +132,12 @@ class WhySingleWinner(FAQBase):
         return len(allWinners) == 1 and len(thisRoundWinners) == 1
 
     def get_question(self, roundNum):
-        winner = self.summary.rounds[roundNum].winnerNames[0]
-        return f"Why was {winner} elected?"
+        return textForWinnerUtils.as_question(
+            self.config, self.summary.rounds[roundNum].winnerNames)
 
     def get_answer(self, roundNum):
         winner = self.summary.rounds[roundNum].winnerNames[0]
-        return f"Because {winner} received more than 50% of the votes, they were elected."
+        return f"Because {winner} received more than 50% of the votes."
 
 
 class WhyMultiWinner(FAQBase):
@@ -149,17 +152,15 @@ class WhyMultiWinner(FAQBase):
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
 
     def get_question(self, roundNum):
-        winners = self.summary.rounds[roundNum].winnerNames
-        wereOrWas = "was" if len(winners) == 1 else "were"
-        nameText = common.comma_separated_names_with_and(winners)
-        return f"Why {wereOrWas} {nameText} elected?"
+        return textForWinnerUtils.as_question(
+            self.config, self.summary.rounds[roundNum].winnerNames)
 
     def get_answer(self, roundNum):
         winners = self.summary.rounds[roundNum].winnerNames
         winnerText = common.comma_separated_names_with_and(winners)
         threshold = self.graph.threshold
         supportCount = len(self.summary.winnerNames) + 1
-        return f"Because {winnerText} received {threshold} votes, they were elected. "\
+        return f"Because {winnerText} received {threshold} votes. "\
                f"The threshold of {threshold} votes was chosen to achieve proportional "\
                f"representation, equal to at least one out of every {supportCount} voters "\
             "supporting this candidate."
@@ -193,8 +194,8 @@ class WhyThreshold(FAQBase):
 class WhySurplusTransfer(FAQBase):
     """ Why surplus transfers happen """
 
-    def __init__(self, graph):
-        super(WhySurplusTransfer, self).__init__(graph)
+    def __init__(self, graph, config):
+        super(WhySurplusTransfer, self).__init__(graph, config)
         self._surplusCache = {}
 
     def is_active(self, roundNum):
@@ -230,8 +231,8 @@ class WhySurplusTransfer(FAQBase):
 class WhatIsInactiveBallots(FAQBase):
     """ What does inactive ballots mean? """
 
-    def __init__(self, graph):
-        super(WhatIsInactiveBallots, self).__init__(graph)
+    def __init__(self, graph, config):
+        super(WhatIsInactiveBallots, self).__init__(graph, config)
         inactive = [c for c in self.summary.candidates.values() if c.name == INACTIVE_TEXT]
         self._inactiveCandidateInfoList = inactive
 
@@ -282,9 +283,10 @@ class FAQGenerator():
                   WhySurplusTransfer,
                   WhatIsInactiveBallots)
 
-    def __init__(self, graph):
+    def __init__(self, graph, config):
         self.graph = graph
-        self.generatorObjects = [g(self.graph) for g in self.generators]
+        self.config = config
+        self.generatorObjects = [g(graph, config) for g in self.generators]
 
     def describe_all_rounds(self):
         """ Helper function around describe_round """

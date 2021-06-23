@@ -7,6 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from common.testUtils import TestHelpers
+from visualizer.models import TextForWinner
 from visualizer.tests import filenames
 
 TestHelpers.silence_logging_spam()
@@ -213,3 +214,59 @@ class BallotpediaRestAPITests(APITestCase):
             data = {'resultsSummaryFile': jsonFile}
             response = self.client.patch(f'/api/bp/{obj.id}/', data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_is_primary_optional_post_and_patch(self):
+        """
+        Ensure that isPrimary is always optional, and that PATCHs that don't specify it
+        will not reset the data.
+        """
+        # Upload initial
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'resultsSummaryFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile,
+                        'areResultsCertified': True,
+                        'isPrimary': True}
+                response = self.client.post('/api/bp/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        objId = TestHelpers.get_latest_upload().id
+
+        # Uploaded file sets PRIMARY correctly
+        self.assertEqual(TestHelpers.get_latest_upload().textForWinner, TextForWinner.PRIMARY)
+
+        # PATCH the data. Should not change textForWinner
+        response = self.client.patch(f'/api/bp/{objId}/', data={})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(TestHelpers.get_latest_upload().textForWinner, TextForWinner.PRIMARY)
+
+        # Now change it. Note: format=json is required.
+        response = self.client.patch(f'/api/bp/{objId}/', data={'isPrimary': False}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(TestHelpers.get_latest_upload().textForWinner, TextForWinner.ELECTED)
+
+    def test_is_primary_optional_put(self):
+        """
+        Ensure that isPrimary is always optional, and that PUTs that don't specify it
+        will not reset the data.
+        """
+        # Upload initial
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'resultsSummaryFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile,
+                        'isPrimary': True}
+                response = self.client.post('/api/bp/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        objId = TestHelpers.get_latest_upload().id
+
+        # Put, without isPrimary
+        with open(filenames.THREE_ROUND) as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+                data = {'resultsSummaryFile': jsonFile,
+                        'candidateSidecarFile': sidecarFile}
+                response = self.client.put(f'/api/bp/{objId}/', data=data)
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+                # Ensure that isPrimary did not reset to the default
+                obj = TestHelpers.get_latest_upload()
+                self.assertEqual(obj.textForWinner, TextForWinner.PRIMARY)

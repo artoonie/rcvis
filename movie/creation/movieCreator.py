@@ -38,7 +38,7 @@ class SingleMovieCreator():
         self.textToSpeechFactory = textToSpeechFactory
         self.graph = make_graph_with_file(jsonconfig.jsonFile,
                                           jsonconfig.excludeFinalWinnerAndEliminatedCandidate)
-        self.slug = jsonconfig.slug
+        self.config = jsonconfig
         self.size = size
 
         self.fontName = MOVIE_FONT_NAME
@@ -96,7 +96,7 @@ class SingleMovieCreator():
         backgroundImageFn = "static/movie/bg-horizontal.png"
         primary = self._text_on_background(writtenText, spokenText, backgroundImageFn)
 
-        url = f"rcvis.com/v/{self.slug}\n\n\n"
+        url = f"rcvis.com/v/{self.config.slug}\n\n\n"
         urlText0 = TextClip(url,
                             font=self.fontName,
                             fontsize=35,
@@ -215,7 +215,7 @@ class SingleMovieCreator():
 
     def make_movie(self, mp4Filename):
         """ Create a movie at a specific resolution """
-        roundDescriber = Describer(self.graph, summarizeAsParagraph=True)
+        roundDescriber = Describer(self.graph, self.config, summarizeAsParagraph=True)
 
         imageClips = []
 

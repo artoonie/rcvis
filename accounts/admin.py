@@ -21,6 +21,7 @@ class CustomUserAdmin(UserAdmin):
     inlines = (UserProfileInline, )
     list_display = ('username', 'email', 'is_staff', 'can_use_api')
     list_select_related = ('userprofile', )
+    ordering = ('date_joined', )
 
     def get_inline_instances(self, request, obj=None):
         if not obj:

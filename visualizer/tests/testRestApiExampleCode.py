@@ -125,7 +125,8 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         # This endpoint accepts non-file options.
         # While they are optional, we recommend you always supply them.
         data = {'dataSourceURL': 'https://www.example.com/data-source',
-                'areResultsCertified': False}
+                'areResultsCertified': False,
+                'isPrimary': False}
 
         # Create the data by opening the results summary JSON file.
         with open(filenames.THREE_ROUND, 'rb') as summaryFile:

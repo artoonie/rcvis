@@ -56,6 +56,16 @@ function sidecarFileSelected(files)
           <input type="url" id="dataSourceURL" name="dataSourceURL"/>
         </div>
         <div class="container mt-3">
+            <p class="mt-3">
+              <label for="textForWinner">How to refer to the winner?</label>
+              <select id="textForWinner" name="textForWinner">
+                <option value="0" selected>"Candidate was elected"</option>
+                <option value="1">"Candidate won"</option>
+                <option value="2">"Candidate advanced to the general"</option>
+              </select>
+            </p>
+        </div>
+        <div class="container mt-3">
           <input type="hidden" name="areResultsCertified"/><!-- To be sent in GET/POST if unchecked -->
           <label>
               <input type="checkbox" name="areResultsCertified"/> Are these results certified?

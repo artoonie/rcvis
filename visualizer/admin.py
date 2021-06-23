@@ -10,7 +10,7 @@ admin.site.register(Permission)
 @admin.register(models.JsonConfig)
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """
-    list_display = ('slug', 'title', 'numRounds', 'numCandidates', 'uploadedAt')
+    list_display = ('slug', 'title', 'owner', 'numRounds', 'numCandidates', 'uploadedAt')
     readonly_fields = (
         'slug',
         'title',
