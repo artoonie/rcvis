@@ -741,14 +741,14 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)");
 
     // Each bar should take up 70% of the timestep:
-    // 20% with it static, as a new color,
-    // 50% moving,
+    // 15% with it static, as a new color,
+    // 55% moving,
     // then the remaining 30% is a breather
     const timestepMs = getTimeBetweenAnimationStepsMs();
     eachBar.enter().selectAll("path.eachBar")
         .transition()
-        .duration(timestepMs * 0.2)
-        .delay(timestepMs * 0.5)
+        .duration(timestepMs * 0.15)
+        .delay(timestepMs * 0.55)
         .attr("opacity", 1)
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
@@ -760,10 +760,25 @@ function makeBarGraph(args) {
         .attr("fill", barColorFn);
   };
   function transitionDataLabelsForRound() {
-    eachBar.enter().selectAll("text.dataLabel").transition()
-        .duration(50)
+    // Set all labels to correct display
+    svg.selectAll("text.dataLabel")
+        .attr("display", dataLabelDisplayFor);
+
+    // Create starting position and color for the just-eliminated candidate
+    const eliminatedLabel = svg.selectAll("text.dataLabel")
+      .filter(isLatestRoundFor)
+      .filter(d => d.numRoundsTilEliminated == currRound-1);
+
+    eliminatedLabel
+      .attr("opacity", 0.2)
+      .attr("transform", `translate(-${width}, 0)`);
+
+    // Transition to the correct final position
+    eliminatedLabel.transition()
         .delay(0)
-        .attr("display", dataLabelDisplayFor)
+        .duration(getTimeBetweenAnimationStepsMs() * 0.15)
+        .attr("opacity", 1.0)
+        .attr("transform", "translate(0, 0)");
   };
   function transitions(round) {
     completeAllExistingAnimations();
