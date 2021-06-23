@@ -80,7 +80,7 @@ def get_data_for_round_describer(graph, config):
     Helper function for get_data_for_view:
     convert the round describer to data to be passed on to JS
     """
-    roundDescriber = Describer(graph, summarizeAsParagraph=False)
+    roundDescriber = Describer(graph, config, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
     humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
     faqsPerRound = json.dumps(FAQGenerator(graph, config).describe_all_rounds())

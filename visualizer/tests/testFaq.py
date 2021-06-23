@@ -144,7 +144,7 @@ class FAQTests(TestCase):
                 self.assertNotIn('None', desc['question'])
                 self.assertNotIn('None', desc['answer'])
 
-        describer = Describer(graph, False)
+        describer = Describer(graph, self.config, False)
 
         # check initial summary
         initialSummary = describer.describe_initial_summary(False)
@@ -207,3 +207,26 @@ class FAQTests(TestCase):
         self.config.textForWinner = TextForWinner.PRIMARY
         answer = faq.WhatHappeningMultiWinner(graph, self.config).get_answer(0)
         self.assertIn("2 candidates have advanced to the general", answer)
+
+    def test_text_for_winner_in_summaries(self):
+        """
+        Check TextForWinner in the round summaries and overall summary
+        """
+        with open(filenames.NO_THRESHOLD, 'r') as f:
+            graph = make_graph_with_file(f, False)
+
+        self.config.textForWinner = TextForWinner.WON
+        describer = Describer(graph, self.config, False)
+
+        searchFor = 'lected'  # match both elected and Elected
+
+        # check initial summary
+        initialSummary = describer.describe_initial_summary(False)
+        self.assertNotIn(searchFor, initialSummary)
+
+        # check each round
+        allRoundsDesc = describer.describe_all_rounds()
+        for descList in allRoundsDesc:
+            for desc in descList:
+                assert isinstance(desc['description'], str)
+                self.assertNotIn(searchFor, desc['description'])

@@ -24,19 +24,17 @@ def as_caption(config):
     raise RuntimeError("Unsupported TextForWinner.")
 
 
-def as_sentence(config, names):
+def as_event(config, numWinners):
     """
-    Describes the winner or list of winners, respecting the config option for
-    how to refer to winners
+    e.g. "were elected" or "won"
     """
-    nameText = comma_separated_names_with_and(names)
     if config.textForWinner == TextForWinner.ELECTED:
-        wereOrWas = "was" if len(names) == 1 else "were"
-        return f"{nameText} {wereOrWas} elected"
+        wereOrWas = "was" if numWinners == 1 else "were"
+        return f"{wereOrWas} elected"
     if config.textForWinner == TextForWinner.WON:
-        return f"{nameText} won"
+        return "won"
     if config.textForWinner == TextForWinner.PRIMARY:
-        return f"{nameText} advanced to the general"
+        return "advanced to the general"
 
     raise RuntimeError("Unsupported TextForWinner.")
 
