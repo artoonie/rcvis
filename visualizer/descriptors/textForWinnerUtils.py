@@ -1,3 +1,10 @@
+"""
+Helper functions for dealing with JsonConfig.textForWinner
+No if/else switches for these should be placed anywhere else
+in the codebase: when we add more, we'd like one central place for
+all of them.
+"""
+
 from visualizer.models import TextForWinner
 from visualizer.descriptors.common import comma_separated_names_with_and
 

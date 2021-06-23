@@ -110,7 +110,7 @@ To get started with programmatic access to rcvis:
 
 With your API key, you may access two endpoints:
 1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
-2. [https://www.rcvis.com/api/bp/](https://www.rcvis.com/api/bp/) requires field `resultsSummaryFile` with the body of a valid summary JSON and allows three optional fields: `candidateSidecarFile`, `dataSourceURL` (string), and `areResultsCertified` (boolean).
+2. [https://www.rcvis.com/api/bp/](https://www.rcvis.com/api/bp/) requires field `resultsSummaryFile` with the body of a valid summary JSON and allows four optional fields: `candidateSidecarFile`, `dataSourceURL` (string), `areResultsCertified` (boolean), and `isPrimary` (boolean).
 
 For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 

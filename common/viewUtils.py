@@ -17,7 +17,7 @@ from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     SingleTableSummary
 
 
-class DefaultConfig():
+class DefaultConfig():  # pylint: disable=too-few-public-methods
     """
     A simplified JsonConfig with just the default values.
     Use this to pass to functions that require a config if you do not have
