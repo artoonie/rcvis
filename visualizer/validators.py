@@ -44,7 +44,7 @@ def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
 
     # Sanity check that the entire pipeline works
     # (If not, this could be the source of 500 errors)
-    viewUtils.get_data_for_graph(graph, onlyShowWinnersTabular=False)
+    viewUtils.get_data_for_graph(graph, config=viewUtils.DefaultConfig())
 
     # Check title length
     ensure_title_is_under_256_chars(graph)

@@ -23,6 +23,13 @@ class EliminationBarColor(models.IntegerChoices):
     LAST_ROUND_COLOR = 2, _('Same color of transfer')
 
 
+class TextForWinner(models.IntegerChoices):
+    """ Describes the status of movie generation for this model """
+    ELECTED = 0, _('Candidate was elected')
+    WON = 1, _('Candidate won')
+    PRIMARY = 2, _('Candidate advanced to the general')
+
+
 class MovieGenerationStatuses(models.IntegerChoices):
     """ Describes the status of movie generation for this model """
     NOT_REQUESTED = 0, _('No movie generation has been requested')
@@ -54,6 +61,7 @@ class JsonConfig(models.Model):
 
     dataSourceURL = models.URLField(max_length=512, null=True, blank=True)
     areResultsCertified = models.BooleanField(default=False)
+    textForWinner = models.IntegerField(choices=TextForWinner.choices, default=0)
 
     # Movie
     movieGenerationStatus = models.IntegerField(
@@ -108,7 +116,8 @@ class JsonConfig(models.Model):
                 'colorTheme',
                 'eliminationBarColor',
                 'dataSourceURL',
-                'areResultsCertified']
+                'areResultsCertified',
+                'textForWinner']
 
     def _get_unique_slug(self):
         # loop until the name is unique

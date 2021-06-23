@@ -1,6 +1,7 @@
 """ Various classes for creating tables """
 
 from visualizer.common import intify, percentify
+from visualizer.descriptors import textForWinnerUtils as TextForWinner
 
 
 def makePrimarySecondaryLabels(numVotes, allVotes, item):
@@ -16,7 +17,7 @@ def makePrimarySecondaryLabels(numVotes, allVotes, item):
 class TabulateByRoundInteractive:
     tabulation: list  # A thin wrapper around graph.Summary
 
-    def __init__(self, graph):
+    def __init__(self, graph, config):
         summary = graph.summarize()
         self.rounds = []
         lastRoundEliminated = []  # eliminated only show one round later
@@ -43,9 +44,12 @@ class TabulateByRoundInteractive:
                         num = intify(votesAddedThisRound)
                         d['change'] = f"{num} votes in the first round"
                     elif isElectedThisRound:
-                        d['change'] = "Elected: " + changify(votesAddedThisRound)
+                        caption = TextForWinner.as_caption(config) + ": "
+                        d['change'] = caption + changify(votesAddedThisRound)
                     elif isElectedPrevRound:
-                        d['change'] = f"No change (elected in Round {alreadyWonInRound[cinfo.name]})"
+                        caption = TextForWinner.as_caption(config)
+                        roundWon = alreadyWonInRound[cinfo.name]
+                        d['change'] = f"No change ({caption} in Round {roundWon})"
                     else:
                         d['change'] = changify(votesAddedThisRound)
 
@@ -145,25 +149,23 @@ class TabulateByCandidate:
     tabulation: list  # A list of CandidateTabulation
     rounds: int
 
-    def __init__(self, graph, onlyShowWinners):
+    def __init__(self, graph, config):
         summary = graph.summarize()
         self.tabulation = []
         candidates = summary.candidates
-        if onlyShowWinners:
+        if config.onlyShowWinnersTabular:
             candidates = [c for c in candidates if c in graph.winnersSoFar]
         for item in candidates:
-            self.tabulation.append(CandidateTabulation(graph, item))
+            self.tabulation.append(CandidateTabulation(graph, config, item))
         self.rounds = range(len(summary.rounds))
 
 
-""" A summary of one candidate, prepared for tabulation """
-
-
 class CandidateTabulation:
+    """ A summary of one candidate, prepared for tabulation """
     name: str
     rounds: list
 
-    def __init__(self, graph, item):
+    def __init__(self, graph, config, item):
         self.name = item.name
         summary = graph.summarize()
         candidateInfo = summary.candidates[item]
@@ -181,30 +183,18 @@ class CandidateTabulation:
 
             totalActiveVotes = intify(node.count)
             self.rounds.append(
-                RoundTabulation(
-                    totalActiveVotes,
-                    i,
-                    item,
-                    summary.rounds[i],
-                    linksForThisNode))
-
-
-""" A summary of each round for one candidate """
+                RoundTabulation(config, totalActiveVotes, i,
+                                item, summary.rounds[i], linksForThisNode))
 
 
 class RoundTabulation:
+    """ A summary of each round for one candidate """
     # summary:str
     # primaryLabel:str
     # secondaryLabel:str
     # round_i:int
 
-    def __init__(
-            self,
-            totalActiveVotes,
-            round_i,
-            item,
-            thisRoundInfo,
-            linksForThisNode):
+    def __init__(self, config, totalActiveVotes, round_i, item, thisRoundInfo, linksForThisNode):
         self.round_i = round_i + 1
 
         allVotes = thisRoundInfo.totalActiveVotes
@@ -228,8 +218,9 @@ class RoundTabulation:
         transferText = andify("Gained ", transfers, "")
 
         # Only show info relevant to this candidate
-        winnerText = "Elected " if item.name in thisRoundInfo.winnerNames else ""
-        eliminatedText = "Eliminated " if item.name in thisRoundInfo.eliminatedNames else ""
+        winCaption = TextForWinner.as_caption(config)
+        winnerText = winCaption if item.name in thisRoundInfo.winnerNames else ""
+        eliminatedText = "Eliminated: " if item.name in thisRoundInfo.eliminatedNames else ""
         self.summary = winnerText + eliminatedText + transferText
 
 
