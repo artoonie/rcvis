@@ -765,16 +765,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Test the FAQ button works """
         self._upload(filenames.MULTIWINNER)
 
-        # Starts at 60px
+        # Move the slider to complete the animation
+        self._disable_all_animations()
+        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 5)")
+
+        # Starts at 65px
         div = self.browser.find_element_by_id('round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
         # Expands to fit the FAQs
         whyButton = self.browser.find_element_by_id('bargraph-interactive-why-button')
+        self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
         whyButton.click()
         self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
 
-        # Now move the slider
+        # Move the slider again
         self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 1)")
 
         # Restores size on new round

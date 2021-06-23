@@ -188,3 +188,8 @@ function doHideActiveTickText(numRounds) {
   // The magic number swapping from "Rounds" mode to >> mode
   return numRounds > 7;
 }
+
+function getTimeBetweenAnimationStepsMs() {
+  // Created for easy mocking
+  return 1200;
+}

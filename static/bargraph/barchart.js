@@ -734,15 +734,21 @@ function makeBarGraph(args) {
       moveBarsToAnimationStartPoint()
     }
 
+    // hashes should show immediately
     // don't animate hashes moving around - override the transform
     eachBar.enter().selectAll("path.eachBar")
         .filter(d => isSurplusFn(d))
         .attr("transform", "translate(0,0)");
-    // hashes should show immediately
+
+    // Each bar should take up 70% of the timestep:
+    // 20% with it static, as a new color,
+    // 50% moving,
+    // then the remaining 30% is a breather
+    const timestepMs = getTimeBetweenAnimationStepsMs();
     eachBar.enter().selectAll("path.eachBar")
         .transition()
-        .duration(200) // Note: sync animation time with timeBetweenStepsMs
-        .delay(500)
+        .duration(timestepMs * 0.2)
+        .delay(timestepMs * 0.5)
         .attr("opacity", 1)
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
