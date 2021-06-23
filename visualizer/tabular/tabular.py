@@ -184,7 +184,7 @@ class CandidateTabulation:
             totalActiveVotes = intify(node.count)
             self.rounds.append(
                 RoundTabulation(config, totalActiveVotes, i,
-                                item, summary.rounds[i], linksForThisNode))
+                                item, summary.rounds, linksForThisNode))
 
 
 class RoundTabulation:
@@ -192,18 +192,25 @@ class RoundTabulation:
     # summary:str
     # primaryLabel:str
     # secondaryLabel:str
-    # round_i:int
+    # round_i:int, 1-indexed
 
-    def __init__(self, config, totalActiveVotes, round_i, item, thisRoundInfo, linksForThisNode):
+    def __init__(self, config, totalActiveVotes, round_i, item, roundInfos, linksForThisNode):
         self.round_i = round_i + 1
 
-        allVotes = thisRoundInfo.totalActiveVotes
+        allVotes = roundInfos[round_i].totalActiveVotes
         myNumVotes = float(totalActiveVotes)
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
             myNumVotes, allVotes, item)
 
+        thisRoundWinners = roundInfos[round_i].winnerNames
+        if round_i < len(roundInfos) - 1:
+            thisRoundEliminations = roundInfos[round_i + 1].eliminatedNames
+        else:
+            thisRoundEliminations = []
+        eliminatedText = "Eliminated. " if item.name in thisRoundEliminations else ""
+
         if round_i == 0:
-            self.summary = f"{totalActiveVotes} first-round votes"
+            self.summary = f"{totalActiveVotes} first-round votes. " + eliminatedText
             return
 
         transfers = []
@@ -213,15 +220,14 @@ class RoundTabulation:
                 continue
             voteTxt = pluralize('vote', link.value)
             transfers.append(
-                f"{link.value} {voteTxt} from {link.source.item.name}")
+                f"{link.value} {voteTxt} from {link.source.item.name}. ")
 
         transferText = andify("Gained ", transfers, "")
 
         # Only show info relevant to this candidate
-        winCaption = TextForWinner.as_caption(config)
-        winnerText = winCaption if item.name in thisRoundInfo.winnerNames else ""
-        eliminatedText = "Eliminated: " if item.name in thisRoundInfo.eliminatedNames else ""
-        self.summary = winnerText + eliminatedText + transferText
+        winCaption = TextForWinner.as_caption(config) + ". "
+        winnerText = winCaption if item.name in thisRoundWinners else ""
+        self.summary = winnerText + transferText + eliminatedText
 
 
 """ Make into a comma-separated list, with the oxford comma, prefixed/suffixed if non-empty """
