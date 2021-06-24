@@ -33,3 +33,4 @@ moviepy==1.0.3
 # For Heroku
 gunicorn==20.0.4
 django-heroku==0.3.1
+appdynamics==21.6.0.3778

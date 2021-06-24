@@ -1,0 +1,11 @@
+[agent]
+app = RCVis
+node = node ddb5
+
+[controller]
+port = 443
+ssl = on
+
+[log]
+level = warning
+debugging = off

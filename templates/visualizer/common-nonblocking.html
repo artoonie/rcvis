@@ -3,9 +3,13 @@
 {% load static %}
 
 {% if offlineMode %}
+{% compress css file %}
     <link href="{% static 'visualizer/fontawesome/css/all.min.css' %}" rel="stylesheet">
+{% endcompress %}
+{% compress js file %}
     <script src="{% static 'localdeps/jquery-3.5.1.slim.min.js' %}"></script>
     <script src="{% static 'localdeps/bootstrap.bundle.min.js' %}"></script>
+{% endcompress %}
 {% else %}
     <!-- Custom fonts for this theme -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
