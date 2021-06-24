@@ -140,6 +140,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Disables transitions on the current page """
         self.browser.execute_script(get_script_to_disable_animations())
 
+    def _disable_bargraph_slider_timer(self):
+        """
+        Changes the timeBetweenStepsMs to 1ms.
+        Note that this does not change the barchart's time between each step,
+        just the timeline. You still need to cancel the animation using trs_moveSliderTo.
+        """
+        key = "_sliderDiv_bargraph-slider-container"
+
+        # Ensure we're touching the right thing: 1200ms
+        oldTime = self.browser.execute_script(f"return sliders['{key}']['timeBetweenStepsMs'];")
+        self.assertEqual(oldTime, 1200)
+
+        # Change
+        self.browser.execute_script(f"sliders['{key}']['timeBetweenStepsMs'] = 1;")
+
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
         """ Waits up to waitTimeSeconds for the assertion to be true """
@@ -636,8 +651,12 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._ensure_eventually_asserts(
             lambda: self.assertIn('what happened in each round', desc.text))
 
+        # Now disable animations to speed them up
+        self._disable_all_animations()
+        self._disable_bargraph_slider_timer()
+
         # Wait for animation to complete
-        WebDriverWait(self.browser, timeout=1.5, poll_frequency=0.1).until(
+        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
             lambda d: self.browser.execute_script("return !isBargraphAnimationInProgress;"))
 
         # Check that the text hasn't changed
@@ -765,16 +784,23 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         """ Test the FAQ button works """
         self._upload(filenames.MULTIWINNER)
 
-        # Starts at 60px
+        # Move the slider and complete all other animations
+        self._disable_all_animations()
+        self._disable_bargraph_slider_timer()
+        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 3);")
+        self.browser.execute_script("showFaqButtonNow();")
+
+        # Starts at 65px
         div = self.browser.find_element_by_id('round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
         # Expands to fit the FAQs
         whyButton = self.browser.find_element_by_id('bargraph-interactive-why-button')
+        self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
         whyButton.click()
         self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
 
-        # Now move the slider
+        # Move the slider again
         self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 1)")
 
         # Restores size on new round

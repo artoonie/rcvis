@@ -135,7 +135,7 @@ function makeInteractiveGraph() {
     sliderValueChanged: sliderValueChangedCallback,
     timelineData: generateTimelineData(humanFriendlyEventsPerRound),
     timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-    timeBetweenStepsMs: 350
+    timeBetweenStepsMs: getTimeBetweenAnimationStepsMs()
   });
 }
 
@@ -145,6 +145,13 @@ function showFaqButton() {
   .transition()
     .delay(300)
     .duration(300)
+    .style("opacity", "100%");
+}
+
+function showFaqButtonNow() {
+  // Just used for integration testing
+  const idOfWhyButton = "#bargraph-interactive-why-button";
+  d3.select(idOfWhyButton)
     .style("opacity", "100%");
 }
 

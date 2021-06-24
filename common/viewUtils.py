@@ -125,4 +125,7 @@ def get_script_to_disable_animations():
     return "var animDisabler = document.createElement('style');\
             animDisabler.textContent = '*{ transition: none !important;\
                                       transition-property: none !important; }';\
-            document.head.appendChild(animDisabler);"
+            document.head.appendChild(animDisabler);\
+            \
+            let fakeTime = 0;\
+            window.requestAnimationFrame = function(f) { fakeTime += 300; f(fakeTime); }"
