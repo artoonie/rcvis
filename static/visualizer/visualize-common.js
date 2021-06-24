@@ -189,7 +189,11 @@ function doHideActiveTickText(numRounds) {
   return numRounds > 7;
 }
 
-function getTimeBetweenAnimationStepsMs() {
-  // Created for easy mocking
-  return 1200;
+function getTimeBetweenAnimationStepsMs(numRounds) {
+  // Tries to give the ideal time of 1200ms, but it gets boring after a while,
+  // so starts to slow down and approach 500ms over time.
+  // See plot:
+  // wolframalpha.com/input/?i=plot+500%2B700%2F%28max%28x-6%2C1%29%29+from+x%3D1+to+x%3D20
+  const alpha = Math.max(numRounds-6, 1)
+  return 500 + 700/alpha;
 }
