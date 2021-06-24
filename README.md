@@ -46,6 +46,12 @@ export OFFLINE_MODE=True
 # export SENDGRID_USERNAME=''
 # export SENDGRID_PASSWORD=''
 
+# To connect to appdynamics, see .appdynamics and use:
+# export APPDYNAMICS_CONTROLLER_HOST_NAME=''
+# export APPDYNAMICS_AGENT_TIER_NAME=''
+# export APPDYNAMICS_AGENT_ACCOUNT_NAME=''
+# export APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY=''
+
 # To clear cloudflare cache when models update:
 # export CLOUDFLARE_ZONE_ID=''
 # export CLOUDFLARE_AUTH_TOKEN=''

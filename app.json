@@ -45,6 +45,41 @@
     "HEROKU_WORKER_DYNO_TYPE": {
       "description": "Which dyno type to use for movie gen?",
       "required": true
+    },
+
+    "APPDYNAMICS_CONTROLLER_HOST_NAME": {
+      "description": "Appdynamics host name - required in prod for appdynamics",
+      "required": false
+    },
+    "APPDYNAMICS_AGENT_TIER_NAME": {
+      "description": "Appdynamics tier name - required in prod for appdynamics",
+      "required": false
+    },
+    "APPDYNAMICS_AGENT_ACCOUNT_NAME": {
+      "description": "Appdynamics account name - required in prod for appdynamics",
+      "required": false
+    },
+    "APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY": {
+      "description": "Appdynamics access key - required in prod for appdynamics",
+      "required": false
+    },
+
+    "CLOUDFLARE_ZONE_ID": {
+      "description": "Cloudflare zone ID - required in prod to clear cloudflare cache",
+      "required": false
+    },
+    "CLOUDFLARE_AUTH_TOKEN": {
+      "description": "Cloudflare auth token - required in prod to clear cloudflare cache",
+      "required": false
+    },
+
+    "SENDGRID_USERNAME": {
+      "description": "sendgrid username - required in prod to send user registration emails",
+      "required": false
+    },
+    "SENDGRID_PASSWORD": {
+      "description": "sendgrid password - required in prod to send user registration emails",
+      "required": false
     }
   },
   "buildpacks": [
@@ -52,7 +87,7 @@
     { "url": "heroku/google-chrome" },
     { "url": "heroku/nodejs" },
     { "url": "heroku/python" },
-    { "url": "https://github.com/artoonie/heroku-buildpack-ffmpeg-latest" },
+    { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
     { "url": "https://github.com/epicatization/heroku-buildpack-imagemagick-heif" },
     { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
   ],
