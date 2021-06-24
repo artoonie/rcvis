@@ -148,5 +148,12 @@ function showFaqButton() {
     .style("opacity", "100%");
 }
 
+function showFaqButtonNow() {
+  // Just used for integration testing
+  const idOfWhyButton = "#bargraph-interactive-why-button";
+  d3.select(idOfWhyButton)
+    .style("opacity", "100%");
+}
+
 makeInteractiveGraph();
 </script>

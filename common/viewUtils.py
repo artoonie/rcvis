@@ -127,9 +127,5 @@ def get_script_to_disable_animations():
                                       transition-property: none !important; }';\
             document.head.appendChild(animDisabler);\
             \
-            // add a duration function to the selection prototype\
-            d3.selection.prototype.duration   = function(){ return this }\
-            // hack the transition function of d3's select API\
-            d3.selection.prototype.transition = function(){ return this }\
-            \
-            function getTimeBetweenAnimationStepsMs() { return 0; }"
+            let fakeTime = 0;\
+            window.requestAnimationFrame = function(f) { fakeTime += 300; f(fakeTime); }"
