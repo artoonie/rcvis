@@ -9,48 +9,47 @@
 </head>
 
 <body id="embedded-body">
-{% if vistype == "sankey" %}
-    {% include "sankey/sankey.html" %}
-{% elif vistype == "barchart-fixed" %}
-    {% include "bargraph/barchart-fixed.html" %}
-{% elif vistype == "barchart-interactive" %}
-    {% include "bargraph/barchart-interactive.html" %}
-{% elif vistype == "tabular-by-candidate" %}
-    {% include "tabular/tabular-by-candidate.html" %}
-{% elif vistype == "tabular-by-round" %}
-    {% include "tabular/tabular-by-round.html" %}
-{% elif vistype == "tabular-by-round-interactive" %}
-    {% include "tabular/tabular-by-round-interactive.html" %}
-{% elif vistype == "tabular-candidate-by-round" %}
-    {% include "tabular/tabular-candidate-by-round.html" %}
-{% else %}
-<p id="no-such-vistype-message">Invalid visualization type requested. Don't expect this error? Contact team@rcvis.com for help.</p>
-{% endif %}
-
-  <!-- Footer -->
-  <section class="embedded-footer text-center text-white">
-    <div class="container">
-        <small><a href="{% url 'visualize' config.slug %}" target="_blank">Additional visualizations at rcvis.com</a></small>
+  <div id="embedded-wrapper">
+    <div id="embedded-content">
+      {% if vistype == "sankey" %}
+          {% include "sankey/sankey.html" %}
+      {% elif vistype == "barchart-fixed" %}
+          {% include "bargraph/barchart-fixed.html" %}
+      {% elif vistype == "barchart-interactive" %}
+          {% include "bargraph/barchart-interactive.html" %}
+      {% elif vistype == "tabular-by-candidate" %}
+          {% include "tabular/tabular-by-candidate.html" %}
+      {% elif vistype == "tabular-by-round" %}
+          {% include "tabular/tabular-by-round.html" %}
+      {% elif vistype == "tabular-by-round-interactive" %}
+          {% include "tabular/tabular-by-round-interactive.html" %}
+      {% elif vistype == "tabular-candidate-by-round" %}
+          {% include "tabular/tabular-candidate-by-round.html" %}
+      {% else %}
+      <p id="no-such-vistype-message">Invalid visualization type requested. Don't expect this error? Contact team@rcvis.com for help.</p>
+      {% endif %}
     </div>
-  </section>
+    <div id="embedded-footer">
+      <a href="{% url 'visualize' config.slug %}" target="_blank">
+        <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
+      </a>
+    </div>
+  </div>
 
-
-{% include "visualizer/common-visualizer-nonblocking.html" %}
-{% if vistype == "sankey" %}
-    {% include "sankey/sankey-nonblocking.html" %}
-{% elif vistype == "barchart-fixed" %}
-    {% include "bargraph/barchart-common-nonblocking.html" %}
-    {% include "bargraph/barchart-fixed-nonblocking.html" %}
-{% elif vistype == "barchart-interactive" %}
-    {% include "bargraph/barchart-common-nonblocking.html" %}
-    {% include "bargraph/barchart-interactive-nonblocking.html" %}
-{% elif vistype == "tabular-by-candidate" %}
-{% elif vistype == "tabular-by-round" %}
-{% elif vistype == "tabular-by-round-interactive" %}
-    {% include "tabular/tabular-by-round-interactive-nonblocking.html" %}
-{% elif vistype == "tabular-candidate-by-round" %}
-{% endif %}
-
+  {% include "visualizer/common-visualizer-nonblocking.html" %}
+  {% if vistype == "sankey" %}
+      {% include "sankey/sankey-nonblocking.html" %}
+  {% elif vistype == "barchart-fixed" %}
+      {% include "bargraph/barchart-common-nonblocking.html" %}
+      {% include "bargraph/barchart-fixed-nonblocking.html" %}
+  {% elif vistype == "barchart-interactive" %}
+      {% include "bargraph/barchart-common-nonblocking.html" %}
+      {% include "bargraph/barchart-interactive-nonblocking.html" %}
+  {% elif vistype == "tabular-by-candidate" %}
+  {% elif vistype == "tabular-by-round" %}
+  {% elif vistype == "tabular-by-round-interactive" %}
+      {% include "tabular/tabular-by-round-interactive-nonblocking.html" %}
+  {% elif vistype == "tabular-candidate-by-round" %}
+  {% endif %}
 </body>
-
 </html>
