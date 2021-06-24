@@ -150,7 +150,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # Ensure we're touching the right thing: 1200ms
         oldTime = self.browser.execute_script(f"return sliders['{key}']['timeBetweenStepsMs'];")
-        self.assertEqual(oldTime, 1200)
+        self.assertEqual(oldTime, 1200)  # note: 1200 is only true if <= 7 rounds
 
         # Change
         self.browser.execute_script(f"sliders['{key}']['timeBetweenStepsMs'] = 1;")

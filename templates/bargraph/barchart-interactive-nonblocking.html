@@ -135,7 +135,7 @@ function makeInteractiveGraph() {
     sliderValueChanged: sliderValueChangedCallback,
     timelineData: generateTimelineData(humanFriendlyEventsPerRound),
     timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-    timeBetweenStepsMs: getTimeBetweenAnimationStepsMs()
+    timeBetweenStepsMs: getTimeBetweenAnimationStepsMs(numRounds)
   });
 }
 

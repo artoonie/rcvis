@@ -744,7 +744,7 @@ function makeBarGraph(args) {
     // 15% with it static, as a new color,
     // 55% moving,
     // then the remaining 30% is a breather
-    const timestepMs = getTimeBetweenAnimationStepsMs();
+    const timestepMs = getTimeBetweenAnimationStepsMs(numRounds);
     eachBar.enter().selectAll("path.eachBar")
         .transition()
         .duration(timestepMs * 0.15)
@@ -776,7 +776,7 @@ function makeBarGraph(args) {
     // Transition to the correct final position
     eliminatedLabel.transition()
         .delay(0)
-        .duration(getTimeBetweenAnimationStepsMs() * 0.15)
+        .duration(getTimeBetweenAnimationStepsMs(numRounds) * 0.15)
         .attr("opacity", 1.0)
         .attr("transform", "translate(0, 0)");
   };
