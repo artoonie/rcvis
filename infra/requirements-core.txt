@@ -1,35 +1,35 @@
-boto3==1.14.20
+boto3==1.17.100
 csscompressor==0.9.5
-django-compressor==2.4
-django-node-assets==0.9.8
-django-registration==3.1.2
-django-social-share==2.0.0
-django-storages==1.9.1
+django-compressor==2.4.1
+django-node-assets==0.9.9
+django-registration==3.2
+django-social-share==2.2.1
+django-storages==1.11.1
 Django==3.2.4
-mock==4.0.2
-rcvformats==0.0.17
+mock==4.0.3
+rcvformats==0.0.19
 selenium==3.141.0
-psycopg2-binary==2.8.5
-pytz==2020.1
+psycopg2-binary==2.9.1
+pytz==2021.1
 whitenoise==5.2.0
 
 # For coverage
-autopep8==1.5.3
-coverage==5.2
-django-nose==1.4.6
+autopep8==1.5.7
+coverage==5.5
+django-nose==1.4.7
 pylint==2.8.3
 pylint-django==2.4.4
 
 # For django-rest
 djangorestframework==3.12.4
-drf-api-tracking==1.7.8
-markdown==3.2.2
+drf-api-tracking==1.8.0
+markdown==3.3.4
 
 # For movie creation
-celery==4.4.6
-django-cleanup==5.0.0
+celery==5.1.1
+django-cleanup==5.2.0
 moviepy==1.0.3
 
 # For Heroku
-gunicorn==20.0.4
+gunicorn==20.1.0
 django-heroku==0.3.1

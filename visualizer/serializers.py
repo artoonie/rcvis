@@ -179,8 +179,8 @@ class BallotpediaSerializer(BaseVisualizationSerializer):
                 else:
                     data['textForWinner'] = TextForWinner.ELECTED
             except AttributeError as exc:
-                raise serializers.ValidationError(
-                    {'isPrimary': ["Content-type must be application/json to set isPrimary"]}) from exc
+                data = {'isPrimary': ["Content-type must be application/json to set isPrimary"]}
+                raise serializers.ValidationError(data) from exc
 
             del data['isPrimary']
 
