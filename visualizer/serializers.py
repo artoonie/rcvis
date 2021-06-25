@@ -173,10 +173,15 @@ class BallotpediaSerializer(BaseVisualizationSerializer):
             del data['resultsSummaryFile']
 
         if 'isPrimary' in data:
-            if data['isPrimary']:
-                data['textForWinner'] = TextForWinner.PRIMARY
-            else:
-                data['textForWinner'] = TextForWinner.ELECTED
+            try:
+                if data['isPrimary']:
+                    data['textForWinner'] = TextForWinner.PRIMARY
+                else:
+                    data['textForWinner'] = TextForWinner.ELECTED
+            except AttributeError:
+                raise serializers.ValidationError(
+                    {'isPrimary': ["Content-type must be application/json to set isPrimary"]})
+
             del data['isPrimary']
 
         return super(BallotpediaSerializer, self).to_internal_value(data)
