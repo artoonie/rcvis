@@ -694,7 +694,7 @@ function makeBarGraph(args) {
           .selectAll('path.eachBar')
           .attr("fill", d =>
             // transitions begin as darkred (transfer) or darkgreen (surplus)
-            elimData.xferType == 'elimination' ? "darkred" : "darkgreen"
+            elimData.xferType == 'elimination' ? "lightcoral" : "lightgreen"
           )
           .attr("opacity", d =>
             // darker on elimination
@@ -747,8 +747,8 @@ function makeBarGraph(args) {
     const timestepMs = getTimeBetweenAnimationStepsMs(numRounds);
     eachBar.enter().selectAll("path.eachBar")
         .transition()
-        .duration(timestepMs * 0.15)
-        .delay(timestepMs * 0.55)
+        .delay(timestepMs * 0.15)
+        .duration(timestepMs * 0.55)
         .attr("opacity", 1)
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
