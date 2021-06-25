@@ -25,4 +25,5 @@ comment:
   require_changes: no
 
 ignore:
-    - "visualizer/models.py"  # codecov needlessly complains here
+    - "visualizer/models.py"  # codecov needlessly complains on models
+    - "movie/models.py"  # codecov needlessly complains on models

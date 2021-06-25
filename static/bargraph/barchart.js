@@ -656,7 +656,7 @@ function makeBarGraph(args) {
           .attr(votesPosStr     + "2", thresh_y1 + 0.5)
            .style("stroke", "#AAA")
            .style("stroke-dasharray", ("5, 5"));
-      const mouseOverBorder = 10
+      const mouseOverBorder = 10;
       svg.append("rect")
           .attr("id", 'threshold-hover'+idOfContainer)
           .attr(candidatePosStr, isVertical ? margin.left : margin.top)
