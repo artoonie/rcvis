@@ -79,9 +79,6 @@ svg {
 }
 
 #embedded-body {
-  margin-left: 10px;
-  margin-right: 10px;
-
   height: 100vh;
   margin: 0;
 }
@@ -91,6 +88,10 @@ svg {
   flex-direction: column;
 }
 #embedded-content {
+  /* leave room for shadow */
+  padding-left: 10px;
+  padding-right: 10px;
+
   flex: 1;
   overflow: auto;
 }
