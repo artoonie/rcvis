@@ -124,6 +124,8 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
 
         # This endpoint accepts non-file options.
         # While they are optional, we recommend you always supply them.
+        # Note: make sure content-type=application/json - this may not always be the default.
+        # It is particularly required when using isPrimary, for reasons unbeknownst to most.
         data = {'dataSourceURL': 'https://www.example.com/data-source',
                 'areResultsCertified': False,
                 'isPrimary': False}

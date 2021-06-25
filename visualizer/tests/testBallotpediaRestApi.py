@@ -244,6 +244,12 @@ class BallotpediaRestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(TestHelpers.get_latest_upload().textForWinner, TextForWinner.ELECTED)
 
+        # Verify that without format=json, a sane error message is returned
+        response = self.client.patch(f'/api/bp/{objId}/', data={'isPrimary': True})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        expectedJson = {'isPrimary': ['Content-type must be application/json to set isPrimary']}
+        self.assertEqual(response.json(), expectedJson)
+
     def test_is_primary_optional_put(self):
         """
         Ensure that isPrimary is always optional, and that PUTs that don't specify it
