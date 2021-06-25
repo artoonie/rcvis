@@ -56,7 +56,7 @@ function makeBarGraph(args) {
   // Setting this precisely prevents scrolling in iframes and mobile
   // We have to manually test this guy...for now :( :(
   const estSizeOfHeaderAndFooter = 250;
-  const aspectRatio = (window.innerHeight-estSizeOfHeaderAndFooter) / window.innerWidth
+  const aspectRatio = (window.innerHeight-estSizeOfHeaderAndFooter) / window.innerWidth;
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
       // Limit the horizontal bar size to [20, 70]
@@ -107,7 +107,7 @@ function makeBarGraph(args) {
       maxVotesToShow = Math.max(maxVotesToShow, threshold);
   }
   const candidatesDomain = d3.scaleBand()
-        .domain(candidateNames)
+        .domain(candidateNames);
   const votesDomain = d3.scaleLinear()
         .domain([0, maxVotesToShow]);
 
@@ -120,7 +120,7 @@ function makeBarGraph(args) {
             .padding(0.01);
   } else {
       votesRange = votesDomain
-            .rangeRound([margin.left, width - margin.right])
+            .rangeRound([margin.left, width - margin.right]);
       candidatesRange = candidatesDomain
             .range([margin.top, height])
             .padding(0.01);
@@ -133,14 +133,14 @@ function makeBarGraph(args) {
     candidatesAxis = g => g
           .attr("transform", `translate(0,${height - margin.bottom})`)
           .call(d3.axisBottom(candidatesRange).tickSizeOuter(0))
-          .call(g => g.selectAll(".domain").remove())
+          .call(g => g.selectAll(".domain").remove());
   }
   else
   {
     candidatesAxis = g => g
           .attr("transform", `translate(20,0)`)
           .call(d3.axisLeft(candidatesRange).tickSize(0))
-          .call(g => g.selectAll(".domain").remove())
+          .call(g => g.selectAll(".domain").remove());
   }
   
   // Define legend
@@ -162,7 +162,7 @@ function makeBarGraph(args) {
           .style("margin-top", "4px")
           .style("font-size", "0.8em")
             .text(d => d);
-  }
+  };
 
   let currRound = numRounds - 1;
   let prevRound = currRound;
@@ -655,7 +655,7 @@ function makeBarGraph(args) {
           .attr(candidatePosStr + "2", thresh_x1 + (isVertical ? width : height))
           .attr(votesPosStr     + "2", thresh_y1 + 0.5)
            .style("stroke", "#AAA")
-           .style("stroke-dasharray", ("5, 5"))
+           .style("stroke-dasharray", ("5, 5"));
       const mouseOverBorder = 10
       svg.append("rect")
           .attr("id", 'threshold-hover'+idOfContainer)
