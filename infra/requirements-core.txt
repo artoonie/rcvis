@@ -17,8 +17,8 @@ whitenoise==5.2.0
 autopep8==1.5.3
 coverage==5.2
 django-nose==1.4.6
-pylint==2.5.3
-pylint-django==2.2.0
+pylint==2.8.3
+pylint-django==2.4.4
 
 # For django-rest
 djangorestframework==3.12.4

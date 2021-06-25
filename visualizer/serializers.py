@@ -36,7 +36,7 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         fields = read_only_fields + read_only_but_validate_fields
 
     def to_representation(self, instance):
-        data = super(BaseVisualizationSerializer, self).to_representation(instance)
+        data = super().to_representation(instance)
         request = self.context['request']
 
         visRelativeUrl = reverse('visualize', args=(instance.slug,))
@@ -79,7 +79,7 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
             self.populate_model_with_json_data(data, graph)
 
         # Now run all other validations
-        data = super(BaseVisualizationSerializer, self).to_internal_value(data)
+        data = super().to_internal_value(data)
 
         return data
 
@@ -178,13 +178,13 @@ class BallotpediaSerializer(BaseVisualizationSerializer):
                     data['textForWinner'] = TextForWinner.PRIMARY
                 else:
                     data['textForWinner'] = TextForWinner.ELECTED
-            except AttributeError:
+            except AttributeError as exc:
                 raise serializers.ValidationError(
-                    {'isPrimary': ["Content-type must be application/json to set isPrimary"]})
+                    {'isPrimary': ["Content-type must be application/json to set isPrimary"]}) from exc
 
             del data['isPrimary']
 
-        return super(BallotpediaSerializer, self).to_internal_value(data)
+        return super().to_internal_value(data)
 
 
 class UserSerializer(serializers.ModelSerializer):

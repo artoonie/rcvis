@@ -14,11 +14,11 @@ class SpeechSynthStorage(get_storage_class()):
     def __init__(self, *args, **kwargs):
         kwargs['bucket'] = settings.AWS_POLLY_STORAGE_BUCKET_NAME
         try:
-            super(SpeechSynthStorage, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
         except TypeError:
             assert settings.OFFLINE_MODE
             del kwargs['bucket']
-            super(SpeechSynthStorage, self).__init__(*args, **kwargs)
+            super().__init__(*args, **kwargs)
 
 
 class Movie(models.Model):
