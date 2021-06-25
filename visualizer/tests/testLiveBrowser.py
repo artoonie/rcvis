@@ -31,6 +31,7 @@ CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 TestHelpers.silence_logging_spam()
 
 
+# pylint: disable=too-many-public-methods
 class LiveBrowserTests(StaticLiveServerTestCase):
     """ Tests that launch a selenium browser """
 
@@ -898,3 +899,41 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
         # And for good measure, upload a file
         self._upload(filenames.ONE_ROUND)
+
+    def test_embedded_scrollbars(self):
+        """
+        Ensure that on /vb/ and /ve/, there are no page scrollbars,
+        only scrollbars in the main content. the header and footer are pinned.
+        """
+        def ensure_correct_sizes_of_body_and_content(width, height, heightOfHeaderAndFooter):
+            # Resize. Note, we are resizing the broswer, not the viewport,
+            # so on non-headless browsers (ie saucelabs) setting height to 800
+            # will create a viewport / pageHeight / contentHeight of 712
+            self.browser.set_window_size(width, height)
+
+            # Get heights
+            contentHeight = self.browser.execute_script('return document.body.scrollHeight')
+            pageHeight = self.browser.execute_script('return document.body.clientHeight')
+
+            # Ensure the page height fills the viewport
+            self.assertEqual(contentHeight, pageHeight)
+
+            # Ensure div is precisely the right size
+            self.assertEqual(
+                self._get_height('embedded-content'),
+                pageHeight - heightOfHeaderAndFooter)
+
+        self._upload_something_if_needed()
+
+        headerHeight = 34
+        footerHeight = 34
+
+        # Check /vb/, which has a header and footer
+        self.open(reverse('visualizeBallotpedia', args=(TestHelpers.get_latest_upload().slug,)))
+        ensure_correct_sizes_of_body_and_content(600, 800, headerHeight + footerHeight)
+        ensure_correct_sizes_of_body_and_content(600, 200, headerHeight + footerHeight)
+
+        # Check /ve/, which only has a footer
+        self.open(reverse('visualizeEmbedded', args=(TestHelpers.get_latest_upload().slug,)))
+        ensure_correct_sizes_of_body_and_content(600, 800, footerHeight)
+        ensure_correct_sizes_of_body_and_content(600, 200, footerHeight)

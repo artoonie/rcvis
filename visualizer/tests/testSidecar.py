@@ -75,7 +75,7 @@ class SidecarTests(TestCase):
     def _get_bp_body(self, visResponse):
         """ Get the main body of /vb/, just to make the search string a little smaller """
         bodyStart = visResponse.content.find(b'<body')
-        bodyEnd = visResponse.content.find(b'<section id="bp-footer">')
+        bodyEnd = visResponse.content.find(b'<div id="embedded-footer">')
         self.assertNotEqual(bodyStart, -1)
         self.assertNotEqual(bodyEnd, -1)
         staticHtml = visResponse.content[bodyStart:bodyEnd]

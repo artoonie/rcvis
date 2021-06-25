@@ -14,41 +14,37 @@
 </head>
 
 <body id="embedded-body">
-<div id="bp-header">{{title}}</div>
-{% include "bargraph/barchart-interactive.html" %}
-<div id="bp-info" class="container">
-  <div id="bp-infobox-left">
-    {% if hasIncumbents %}
-      Incumbents are <span class="dataLabelIncumbent">bolded and underlined</span>.
-    {% else %}
-      There were no incumbents in this race.
-    {% endif %}
-    {% if config.areResultsCertified %}
-      The results have been certified.
-    {% endif %}
-
-    {% if config.dataSourceURL %}
-        <a href="{{ config.dataSourceURL }}">Source</a>
-    {% endif %}
+  <div id="embedded-wrapper">
+    <div id="bp-header">{{title}}</div>
+    <div id="embedded-content">
+      {% include "bargraph/barchart-interactive.html" %}
+      <div id="bp-info" class="container">
+        <div id="bp-infobox-left">
+          {% if hasIncumbents %}
+            Incumbents are <span class="dataLabelIncumbent">bolded and underlined</span>.
+          {% else %}
+            There were no incumbents in this race.
+          {% endif %}
+          {% if config.areResultsCertified %}
+            The results have been certified.
+          {% endif %}
+    
+          {% if config.dataSourceURL %}
+              <a href="{{ config.dataSourceURL }}">Source</a>
+          {% endif %}
+        </div>
+        <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
+      </div>
+    </div> 
+    <div id="embedded-footer">
+      <a href="{% url 'visualize' config.slug %}" target="_blank">
+        <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
+      </a>
+    </div>
   </div>
-  <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
-</div>
   
-
-<!-- Footer -->
-<section id="bp-footer">
-  
-  <a href="{% url 'visualize' config.slug %}" target="_blank">
-    <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
-  </a>
-</section>
-
-
-{% include "visualizer/common-visualizer-nonblocking.html" %}
-{% include "bargraph/barchart-common-nonblocking.html" %}
-{% include "bargraph/barchart-interactive-nonblocking.html" %}
-
+  {% include "visualizer/common-visualizer-nonblocking.html" %}
+  {% include "bargraph/barchart-common-nonblocking.html" %}
+  {% include "bargraph/barchart-interactive-nonblocking.html" %}
 </body>
-
 </html>
-
