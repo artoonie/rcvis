@@ -55,7 +55,7 @@ function makeBarGraph(args) {
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   // Setting this precisely prevents scrolling in iframes and mobile
   // We have to manually test this guy...for now :( :(
-  const estSizeOfHeaderAndFooter = 250;
+  const estSizeOfHeaderAndFooter = 180;
   const aspectRatio = (window.innerHeight-estSizeOfHeaderAndFooter) / window.innerWidth;
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
