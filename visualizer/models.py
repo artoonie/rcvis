@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
 
@@ -139,6 +140,10 @@ class JsonConfig(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.slug, self.title)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('visualize', args=(self.slug,))
 
     #pylint: disable=signature-differs
     def save(self, *args, **kwargs):

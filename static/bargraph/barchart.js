@@ -35,16 +35,16 @@ function makeBarGraph(args) {
   const stackSeries = d3.stack().keys(humanFriendlyRoundNames)(candidateVoteCounts);
 
   // Now do some magic to figure out the right size
-  const margin = {top: 10, right: 10, bottom: 35, left: 20};
+  const margin = {top: 10, right: 10, bottom: 0, left: 20};
   if(isVertical) {
       const labelWidthCorrected = longestLabelApxWidth * 1.2; // TODO hacky
       margin.left += labelWidthCorrected * .707; // Room for candidate name on left
       margin.bottom += labelWidthCorrected; // Room for candidate name at bottom
       margin.top += 20; // Room for data label
+      margin.bottom = 35; // Room for candidate name diagonally down
   }
   else {
       margin.left = 5; // Candidate name overlaps bars
-      margin.bottom += 20; // Room for candidate name diagonally down
   }
 
   const numCandidates = candidateVoteCounts.length;
@@ -53,8 +53,10 @@ function makeBarGraph(args) {
                         // NOTE: sync this 500 with barchart-common.js
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
-  const roomForStuffAboveUs = 150;
-  const aspectRatio = (window.innerHeight-roomForStuffAboveUs) / window.innerWidth
+  // Setting this precisely prevents scrolling in iframes and mobile
+  // We have to manually test this guy...for now :( :(
+  const estSizeOfHeaderAndFooter = 250;
+  const aspectRatio = (window.innerHeight-estSizeOfHeaderAndFooter) / window.innerWidth
   let maxHeight = Math.max(maxWidth * aspectRatio, 350);
   if (!isVertical) {
       // Limit the horizontal bar size to [20, 70]
@@ -694,7 +696,7 @@ function makeBarGraph(args) {
           .selectAll('path.eachBar')
           .attr("fill", d =>
             // transitions begin as darkred (transfer) or darkgreen (surplus)
-            elimData.xferType == 'elimination' ? "darkred" : "darkgreen"
+            elimData.xferType == 'elimination' ? "lightcoral" : "lightgreen"
           )
           .attr("opacity", d =>
             // darker on elimination
@@ -747,8 +749,8 @@ function makeBarGraph(args) {
     const timestepMs = getTimeBetweenAnimationStepsMs(numRounds);
     eachBar.enter().selectAll("path.eachBar")
         .transition()
-        .duration(timestepMs * 0.15)
-        .delay(timestepMs * 0.55)
+        .delay(timestepMs * 0.15)
+        .duration(timestepMs * 0.55)
         .attr("opacity", 1)
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);

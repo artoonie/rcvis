@@ -24,12 +24,17 @@ function simplifyNumber(num)
 
 function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
 {
-  let roundedVotes;
-  if (doSimplifyNumber && numVotes >= 1000)
-      roundedVotes = simplifyNumber(numVotes);
-  else
-      roundedVotes = Math.round(numVotes*1000/10.0) / 100;
-  return roundedVotes + " " + (includeWordVotes ? "votes" : "");
+  // Only care about 2 decimal places
+  numVotes = Math.round(numVotes*1000/10.0) / 100;
+
+  let fmt;
+  if (doSimplifyNumber && numVotes >= 1000) {
+      fmt = d3.format(".2s");
+  } else {
+      fmt = d3.format(",");
+  }
+
+  return fmt(numVotes) + " " + (includeWordVotes ? "votes" : "");
 }
 
 function percentToText(candidateName, numVotes, totalVotes)

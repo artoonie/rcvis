@@ -31,3 +31,7 @@ h3 {
   padding-left: 1em;
   padding-right: 1em;
 }
+
+#single-table-summary-table {
+  margin-bottom: 0;
+}

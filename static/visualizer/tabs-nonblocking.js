@@ -2,7 +2,11 @@
 $('a[data-toggle="changeviz"]').on('click', function (e) {
   e.preventDefault()
   const tab = this.id;
-  goToTab(tab.substring(0, tab.length - 4)); // remove "-tab" to get the data-anchor
+  const tabName = tab.substring(0, tab.length - 4) // remove "-tab" to get the data-anchor
+  goToTab(tabName);
+
+  // Only update history on clicks, not back/foreward nav or initial load
+  history.pushState(null,null,'#' + tabName);
 })
 
 let currentTabName = null;
@@ -32,9 +36,6 @@ function goToTab(newTabName) {
   // Update whether interactive/static toggle is there
   const canBeDynamic = newTabName == 'barchart' || newTabName == 'round-by-round';
   document.getElementById('toggle-dynamic').style.display = canBeDynamic ? 'block' : 'none';
-
-  // Update history
-  history.pushState(null,null,'#' + newTabName);
 
   animateIfNeeded(newTabName);
 
@@ -94,3 +95,4 @@ document.getElementById("make-interactive").addEventListener("click", function(e
 
 loadTabFromTag();
 hideTabsBasedOnConfig()
+window.addEventListener("hashchange", loadTabFromTag, false);
