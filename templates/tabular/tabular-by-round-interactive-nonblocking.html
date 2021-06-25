@@ -22,7 +22,8 @@ trs_createSliderAndTimeline({
   hideActiveTickText: doHideActiveTickText(numRounds),
   sliderValueChanged: showRound,
   timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline
+  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
+  timeBetweenStepsMs: getTimeBetweenAnimationStepsMs(numRounds) / 2 // hack: make this twice as fast as barchart
 });
 
 </script>
