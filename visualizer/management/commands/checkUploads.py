@@ -32,6 +32,6 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(
                     f"{index}: Successfully loaded {jsonConfig.slug}"))
             except Exception as exc:  # pylint: disable=broad-except
-                raise CommandError(f'Could not load {jsonConfig.slug}: ' + str(exc))
+                raise CommandError(f'Could not load {jsonConfig.slug}: ' + str(exc)) from exc
 
         self.stdout.write(self.style.SUCCESS("Successfully loaded configs"))

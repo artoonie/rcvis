@@ -29,7 +29,7 @@ class SidecarReader:
         try:
             self._assert_valid(graph)
         except AssertionError as exception:
-            raise BadSidecarError(exception)
+            raise BadSidecarError(exception) from exception
 
     def _assert_valid(self, graph):
         self._expect_in(self.data, 'top-level data', 'version')

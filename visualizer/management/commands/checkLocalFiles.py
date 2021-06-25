@@ -36,7 +36,7 @@ class Command(BaseCommand):
                         make_graph_with_file(f, False)
                 except Exception as exc2:  # pylint: disable=broad-except
                     # Neither codec worked, quit and print error
-                    raise CommandError(f'Could not load {filepath}: ' + exc1 + exc2)
+                    raise CommandError(f'Could not load {filepath}: ' + exc1 + exc2) from None
             self.stdout.write(self.style.SUCCESS(f"Successfully loaded {filepath}"))
 
         self.stdout.write(self.style.SUCCESS("Successfully loaded JSONs and CSVs"))

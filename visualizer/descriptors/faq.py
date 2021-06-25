@@ -195,7 +195,7 @@ class WhySurplusTransfer(FAQBase):
     """ Why surplus transfers happen """
 
     def __init__(self, graph, config):
-        super(WhySurplusTransfer, self).__init__(graph, config)
+        super().__init__(graph, config)
         self._surplusCache = {}
 
     def is_active(self, roundNum):
@@ -232,7 +232,7 @@ class WhatIsInactiveBallots(FAQBase):
     """ What does inactive ballots mean? """
 
     def __init__(self, graph, config):
-        super(WhatIsInactiveBallots, self).__init__(graph, config)
+        super().__init__(graph, config)
         inactive = [c for c in self.summary.candidates.values() if c.name == INACTIVE_TEXT]
         self._inactiveCandidateInfoList = inactive
 

@@ -37,7 +37,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def setUp(self):
         """ Creates the selenium browser. If on CI, connects to SauceLabs """
-        super(LiveBrowserTests, self).setUp()
+        super().setUp()
         self.isUsingSauceLabs = "HEROKU_TEST_RUN_BRANCH" in os.environ
         if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
@@ -83,7 +83,7 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         TestHelpers.logout(self.client)
 
         self.browser.quit()
-        super(LiveBrowserTests, self).tearDown()
+        super().tearDown()
 
     def _add_login_cookie_to_browser(self):
         """ After logging in, the browser must also get the cookie """

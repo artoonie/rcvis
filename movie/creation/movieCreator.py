@@ -131,7 +131,7 @@ class SingleMovieCreator():
             errorText += str(exception)
             errorText += "\n\nCurrent browser context:\n"
             errorText += self.browser.page_source
-            raise ProbablyFailedToLaunchBrowser(errorText)
+            raise ProbablyFailedToLaunchBrowser(errorText) from exception
         time.sleep(0.3)  # flushAllD3Transitions doesn't seem to work...
         self.browser.execute_script("flushAllD3Transitions();")
 
