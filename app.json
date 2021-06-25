@@ -47,23 +47,6 @@
       "required": true
     },
 
-    "APPDYNAMICS_CONTROLLER_HOST_NAME": {
-      "description": "Appdynamics host name - required in prod for appdynamics",
-      "required": false
-    },
-    "APPDYNAMICS_AGENT_TIER_NAME": {
-      "description": "Appdynamics tier name - required in prod for appdynamics",
-      "required": false
-    },
-    "APPDYNAMICS_AGENT_ACCOUNT_NAME": {
-      "description": "Appdynamics account name - required in prod for appdynamics",
-      "required": false
-    },
-    "APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY": {
-      "description": "Appdynamics access key - required in prod for appdynamics",
-      "required": false
-    },
-
     "CLOUDFLARE_ZONE_ID": {
       "description": "Cloudflare zone ID - required in prod to clear cloudflare cache",
       "required": false
