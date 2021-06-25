@@ -27,6 +27,7 @@ function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
   // Only care about 2 decimal places
   numVotes = Math.round(numVotes*1000/10.0) / 100;
 
+  let fmt;
   if (doSimplifyNumber && numVotes >= 1000) {
       fmt = d3.format(".2s");
   } else {

@@ -142,6 +142,7 @@ class JsonConfig(models.Model):
         return '%s: %s' % (self.slug, self.title)
 
     def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
         return reverse('visualize', args=(self.slug,))
 
     #pylint: disable=signature-differs
