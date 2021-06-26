@@ -12,12 +12,12 @@ class SpeechSynthStorage(get_storage_class()):
     """ Speech synth is stored in a separate bucket. No-op when using offline mode."""
 
     def __init__(self, *args, **kwargs):
-        kwargs['bucket'] = settings.AWS_POLLY_STORAGE_BUCKET_NAME
+        kwargs['bucket_name'] = settings.AWS_POLLY_STORAGE_BUCKET_NAME
         try:
             super().__init__(*args, **kwargs)
         except TypeError:
             assert settings.OFFLINE_MODE
-            del kwargs['bucket']
+            del kwargs['bucket_name']
             super().__init__(*args, **kwargs)
 
 
