@@ -6,19 +6,25 @@ function animationForBarchartCompleted() {
 }
 
 function animateIfNeeded(newTabName) {
-  // TODO only run animation on interactive visualizations
   if (hasAnimatedSlider) {
     return;
   }
 
+  animateNow(newTabName);
+}
+
+function animateNow(newTabName) {
+  // TODO only run animation on interactive visualizations
   if (newTabName == 'barchart') {
-    showTextOnRoundDescriber(humanFriendlySummary, true)
+    hideFaqs();
+
+    showTextOnRoundDescriber(humanFriendlySummary, true);
     isBargraphAnimationInProgress = true;
 
-    trs_animate('bargraph-slider-container', animationForBarchartCompleted)
+    trs_animate('bargraph-slider-container', animationForBarchartCompleted);
     hasAnimatedSlider = true;
   } else if (newTabName == 'round-by-round') {
-    trs_animate('tabular-by-round-slider-container')
+    trs_animate('tabular-by-round-slider-container');
     hasAnimatedSlider = true;
   }
 }
@@ -32,8 +38,8 @@ function chooseBetweenTimelineAndDescription() {
   var style = document.createElement('style');
   document.head.appendChild(style);
   var styleSheet = style.sheet;
-  styleSheet.insertRule('.expand-collapse-button { display: none !important}')
-  styleSheet.insertRule('.round-description-wrapper { display: block !important}')
+  styleSheet.insertRule('.expand-collapse-button { display: none !important}');
+  styleSheet.insertRule('.round-description-wrapper { display: block !important}');
 }
 
-chooseBetweenTimelineAndDescription()
+chooseBetweenTimelineAndDescription();

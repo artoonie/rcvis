@@ -256,6 +256,21 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.save_screenshot(filename)
         self._screenshotCount += 1
 
+    def _go_to_round_by_clicking(self, round_i):
+        """
+        trs_moveSliderTo does not cancel the animation, so this can be used if
+        you need to trigger the cancel-animation behavior.
+        """
+        # Cancel animation by clicking on round_i'th element element
+        container = self.browser.find_element_by_id('bargraph-slider-container')
+        tick = container.find_elements_by_class_name('slider-item')[round_i]
+
+        # Note - need an action chain because the first tick isn't actually receiving the click,
+        # the slider itself handles it, and selenium throws ElementClickInterceptedException
+        ActionChains(self.browser).move_to_element(tick)\
+            .click(tick)\
+            .perform()
+
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
         def fits_inside(elementWidth, pageWidth):
@@ -686,15 +701,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._ensure_eventually_asserts(
             lambda: self.assertEqual(self._is_elem_visible(desc), True))
 
-        # Cancel animation by clicking on first element
-        # Note: trs_moveSliderTo does not cancel animation, only clicking does
-        container = self.browser.find_element_by_id('bargraph-slider-container')
-        firstTick = container.find_elements_by_class_name('slider-item')[0]
-        # Note - need an action chain because the first tick isn't actually receiving the click,
-        # the slider itself handles it, and selenium throws ElementClickInterceptedException
-        ActionChains(self.browser).move_to_element(firstTick)\
-            .click(firstTick)\
-            .perform()
+        # Cancel animation
+        self._go_to_round_by_clicking(0)
 
         # Move animation to end
         self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
@@ -796,7 +804,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
         # Expands to fit the FAQs
-        whyButton = self.browser.find_element_by_id('bargraph-interactive-why-button')
+        hackyXpathForWhyButton = '//*[@id="bargraph-interactive-why-button"]/a[1]'
+        whyButton = self.browser.find_element_by_xpath(hackyXpathForWhyButton)
         self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
         whyButton.click()
         self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
@@ -937,3 +946,35 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.open(reverse('visualizeEmbedded', args=(TestHelpers.get_latest_upload().slug,)))
         ensure_correct_sizes_of_body_and_content(600, 800, footerHeight)
         ensure_correct_sizes_of_body_and_content(600, 200, footerHeight)
+
+    def test_embedded_animation_and_initial_text(self):
+        """
+        Ensure that on /vb/ and /ve/, initial text is the summary and there is no animation,
+        but the "Play animation" button works.
+        """
+        self._upload_something_if_needed()
+        self.open(reverse('visualizeBallotpedia', args=(TestHelpers.get_latest_upload().slug,)))
+
+        # Look at the description, ensure it shows the summary
+        span = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('Move the slider to see', span.get_attribute('innerHTML')))
+
+        # Ensure animation has not begun
+        self.assertFalse(self.browser.execute_script("return hasAnimatedSlider;"))
+
+        # Hit play button
+        hackyXpathForPlayButton = '//*[@id="bargraph-interactive-why-button"]/a[2]'
+        playbutton = self.browser.find_element_by_xpath(hackyXpathForPlayButton)
+        playbutton.click()
+
+        # Ensure animation has begun
+        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
+            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+
+        # Ensure animation stops and new text appears, and that new text starts with
+        # the round number. Click twice in case we were already on the first round.
+        self._go_to_round_by_clicking(4)
+        self._go_to_round_by_clicking(2)
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('Round 3', span.get_attribute('innerHTML')))

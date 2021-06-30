@@ -4,7 +4,7 @@
 
 var isBargraphAnimationInProgress = false;
 
-function showTextOnRoundDescriber(description, isInitialSummary) {
+function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
   if (isBargraphAnimationInProgress) {
     return;
   }
@@ -28,7 +28,8 @@ function showTextOnRoundDescriber(description, isInitialSummary) {
     .delay(350)
     .style("opacity", "1")
     .text(description);
-  if (!isInitialSummary) {
+
+  if (!keepFAQButtonHidden) {
     d3.select(idOfWhyButton)
     .transition()
       .delay(350)
@@ -46,13 +47,14 @@ function descriptionOfCurrRound(round) {
     return totalString + "\n" + currText;
   }, "");
 
-  return roundText;
+  const roundIdentifier = `Round ${round + 1}. `;
+  return roundIdentifier + roundText;
 }
 
 function updateFaqText(round) {
   const faqsPerRound = {{ faqsPerRound|safe }};
   const idOfFaqTextDiv = "faq-text";
-  let text = faqsPerRound[round]
+  const text = faqsPerRound[round]
               .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
                         "<p class='faq-a'>" + d['answer'] + "</p>")
               .reduce((accum, val) => accum + val);
@@ -66,11 +68,6 @@ function showFaqs() {
 
   const idOfFaqTextDiv = "faq-text";
   document.getElementById(idOfFaqTextDiv).style.display = "block"
-
-  // Hide the button used to get here
-  const idOfWhyButton = "#bargraph-interactive-why-button";
-  d3.select(idOfWhyButton)
-    .style("opacity", "0%");
 }
 
 function hideFaqs() {
@@ -137,6 +134,10 @@ function makeInteractiveGraph() {
     timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
     timeBetweenStepsMs: getTimeBetweenAnimationStepsMs(numRounds)
   });
+
+  // After creating the slider, make the default text the summary
+  // round summary, with the FAQ button showing.
+  showTextOnRoundDescriber(humanFriendlySummary, false);
 }
 
 function showFaqButton() {
@@ -156,4 +157,5 @@ function showFaqButtonNow() {
 }
 
 makeInteractiveGraph();
+
 </script>
