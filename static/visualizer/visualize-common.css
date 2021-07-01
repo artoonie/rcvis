@@ -111,7 +111,14 @@ svg {
 }
 
 .btn {
-    font-size: 0.8rem;
+  font-size: 0.8rem;
+}
+.sendfeedback {
+  position: fixed;
+  right: 5px;
+  font-size: .75em;
+  vertical-align: middle;
+  bottom: 5px;
 }
 
 @media only screen and (max-width: 1200px) {
