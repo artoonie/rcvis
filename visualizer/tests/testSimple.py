@@ -10,6 +10,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
@@ -73,6 +74,14 @@ class SimpleTests(TestCase):
     def test_no_threshold_loads(self):
         """ Ensures thresholds are optional in the RCTab format """
         self._get_data_for_view(filenames.NO_THRESHOLD)
+
+    def test_some_transfers_missing_loads(self):
+        """ Transfers are always optional """
+        # Ensure it's considered valid
+        self.assertTrue(UTSchema().validate(filenames.SOME_MISSING_TRANSFERS))
+
+        # And that it loads fine
+        self._get_data_for_view(filenames.SOME_MISSING_TRANSFERS)
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """

@@ -1,0 +1,247 @@
+{
+    "config": {
+        "contest": "Leaving out transfers on batch-elimination rounds succeeds, and the Sankey just skips those transfer lines but shows the rest",
+        "date": "2021-06-22",
+        "jurisdiction": "Mayor of New York",
+        "office": "Mayor of New York",
+        "threshold": "351143.5"
+    },
+    "results": [
+        {
+            "round": 1,
+            "tally": {
+                "Eric Adams": 260455.0,
+                "Maya Wiley": 181590.0,
+                "Kathryn Garcia": 158221.0,
+                "Andrew Yang": 96005.0,
+                "Scott Stringer": 41141.0,
+                "Dianne Morales": 23086.0,
+                "Raymond McGuire": 18893.0,
+                "Shaun Donovan": 17810.0,
+                "Aaron Foldenauer": 7121.0,
+                "Art Chang": 6073.0,
+                "Paperboy Prince": 3557.0,
+                "Joycelyn Taylor": 2289.0,
+                "Isaac Wright Jr.": 1999.0,
+                "Write-ins": 1374.0,
+                "Inactive Ballots": 0.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Write-ins",
+                    "transfers": {
+                        "Eric Adams": 174.0,
+                        "Maya Wiley": 58.0,
+                        "Kathryn Garcia": 97.0,
+                        "Andrew Yang": 147.0,
+                        "Scott Stringer": 58.0,
+                        "Dianne Morales": 35.0,
+                        "Raymond McGuire": 27.0,
+                        "Shaun Donovan": 18.0,
+                        "Aaron Foldenauer": 15.0,
+                        "Art Chang": 10.0,
+                        "Paperboy Prince": 35.0,
+                        "Joycelyn Taylor": 18.0,
+                        "Isaac Wright Jr.": 11.0,
+                        "Inactive Ballots": 671.0
+                    }
+                }
+            ]
+        },
+        {
+            "round": 2,
+            "tally": {
+                "Eric Adams": 260629.0,
+                "Maya Wiley": 181648.0,
+                "Kathryn Garcia": 158318.0,
+                "Andrew Yang": 96152.0,
+                "Scott Stringer": 41199.0,
+                "Dianne Morales": 23121.0,
+                "Raymond McGuire": 18920.0,
+                "Shaun Donovan": 17828.0,
+                "Aaron Foldenauer": 7136.0,
+                "Art Chang": 6083.0,
+                "Paperboy Prince": 3592.0,
+                "Joycelyn Taylor": 2307.0,
+                "Isaac Wright Jr.": 2010.0,
+                "Inactive Ballots": 671.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Isaac Wright Jr.",
+                    "transfers": {
+                        "Eric Adams": 413.0,
+                        "Maya Wiley": 297.0,
+                        "Kathryn Garcia": 87.0,
+                        "Andrew Yang": 179.0,
+                        "Scott Stringer": 89.0,
+                        "Dianne Morales": 98.0,
+                        "Raymond McGuire": 136.0,
+                        "Shaun Donovan": 104.0,
+                        "Aaron Foldenauer": 54.0,
+                        "Art Chang": 26.0,
+                        "Paperboy Prince": 45.0,
+                        "Joycelyn Taylor": 77.0,
+                        "Inactive Ballots": 405.0
+                    }
+                }
+            ]
+        },
+        {
+            "round": 3,
+            "tally": {
+                "Eric Adams": 261042.0,
+                "Maya Wiley": 181945.0,
+                "Kathryn Garcia": 158405.0,
+                "Andrew Yang": 96331.0,
+                "Scott Stringer": 41288.0,
+                "Dianne Morales": 23219.0,
+                "Raymond McGuire": 19056.0,
+                "Shaun Donovan": 17932.0,
+                "Aaron Foldenauer": 7190.0,
+                "Art Chang": 6109.0,
+                "Paperboy Prince": 3637.0,
+                "Joycelyn Taylor": 2384.0,
+                "Inactive Ballots": 1076.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Paperboy Prince"
+                },
+                {
+                    "eliminated": "Joycelyn Taylor"
+                }
+            ]
+        },
+        {
+            "round": 4,
+            "tally": {
+                "Eric Adams": 261532.0,
+                "Maya Wiley": 183897.0,
+                "Kathryn Garcia": 158946.0,
+                "Andrew Yang": 96765.0,
+                "Scott Stringer": 41576.0,
+                "Dianne Morales": 23926.0,
+                "Raymond McGuire": 19213.0,
+                "Shaun Donovan": 18092.0,
+                "Aaron Foldenauer": 7297.0,
+                "Art Chang": 6521.0,
+                "Inactive Ballots": 1849.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Aaron Foldenauer"
+                },
+                {
+                    "eliminated": "Art Chang"
+                }
+            ]
+        },
+        {
+            "round": 5,
+            "tally": {
+                "Eric Adams": 262609.0,
+                "Maya Wiley": 186001.0,
+                "Kathryn Garcia": 160226.0,
+                "Andrew Yang": 98485.0,
+                "Scott Stringer": 42731.0,
+                "Dianne Morales": 26386.0,
+                "Raymond McGuire": 19880.0,
+                "Shaun Donovan": 18544.0,
+                "Inactive Ballots": 4752.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Shaun Donovan",
+                    "transfers": {
+                        "Eric Adams": 3096.0,
+                        "Maya Wiley": 2529.0,
+                        "Kathryn Garcia": 4169.0,
+                        "Andrew Yang": 2622.0,
+                        "Scott Stringer": 2259.0,
+                        "Dianne Morales": 632.0,
+                        "Raymond McGuire": 1184.0,
+                        "Inactive Ballots": 2053.0
+                    }
+                }
+            ]
+        },
+        {
+            "round": 6,
+            "tally": {
+                "Eric Adams": 265705.0,
+                "Maya Wiley": 188530.0,
+                "Kathryn Garcia": 164395.0,
+                "Andrew Yang": 101107.0,
+                "Scott Stringer": 44990.0,
+                "Dianne Morales": 27018.0,
+                "Raymond McGuire": 21064.0,
+                "Inactive Ballots": 6805.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Scott Stringer"
+                },
+                {
+                    "eliminated": "Dianne Morales"
+                },
+                {
+                    "eliminated": "Raymond McGuire"
+                }
+            ]
+        },
+        {
+            "round": 7,
+            "tally": {
+                "Eric Adams": 283142.0,
+                "Maya Wiley": 213857.0,
+                "Kathryn Garcia": 190106.0,
+                "Andrew Yang": 111239.0,
+                "Inactive Ballots": 21270.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Andrew Yang",
+                    "transfers": {
+                        "Eric Adams": 31052.0,
+                        "Maya Wiley": 12718.0,
+                        "Kathryn Garcia": 36816.0,
+                        "Inactive Ballots": 30653.0
+                    }
+                }
+            ]
+        },
+        {
+            "round": 8,
+            "tally": {
+                "Eric Adams": 314194.0,
+                "Maya Wiley": 226575.0,
+                "Kathryn Garcia": 226922.0,
+                "Inactive Ballots": 51923.0
+            },
+            "tallyResults": [
+                {
+                    "eliminated": "Maya Wiley",
+                    "transfers": {
+                        "Eric Adams": 44327.0,
+                        "Kathryn Garcia": 116844.0,
+                        "Inactive Ballots": 65404.0
+                    }
+                }
+            ]
+        },
+        {
+            "round": 9,
+            "tally": {
+                "Eric Adams": 358521.0,
+                "Kathryn Garcia": 343766.0,
+                "Inactive Ballots": 117327.0
+            },
+            "tallyResults": [
+                {
+                    "elected": "Eric Adams"
+                }
+            ]
+        }
+    ]
+}
