@@ -95,19 +95,20 @@ class Upload(LoginRequiredMixin, CreateView):
 
         except BadJSONError:
             form.add_error('jsonFile', traceback.format_exc(limit=1))
-            logger.error(str(traceback.format_exc()))
+            tbText = traceback.format_exc()
+            logger.error("BadJSONError. User %s: %s", self.request.user.username, tbText)
             return self.form_invalid(form)
         except BadSidecarError as exception:
             form.add_error('candidateSidecarFile', str(exception))
-            logger.error(str(exception))
+            logger.error("BadSidecarError. User %s: %s", self.request.user.username, str(exception))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
-            logger.error(exceptionString)
+            logger.error("Misc Exception. User %s: %s", self.request.user.username, exceptionString)
 
             # Not sure how dangerous this traceback can be...
             # Limit it to admins only
-            if self.request.user.is_anonymous:
+            if not self.request.user.is_staff:
                 context = {'debugInfo': 'Please log in or contact us to see detailed errors'}
             else:
                 context = {'debugInfo': exceptionString}
