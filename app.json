@@ -76,6 +76,13 @@
   ],
   "environments": {
     "test": {
+      "addons": ["heroku-postgresql:in-dyno"],
+      "formation": {
+        "test": {
+          "quantity": 3,
+          "size": "performance-m"
+        }
+      },
       "scripts": {
         "test": "./scripts/run-tests.sh"
       },
