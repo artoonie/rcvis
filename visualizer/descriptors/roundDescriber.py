@@ -2,6 +2,7 @@
 Describes what happened in each round of an RCV Election in plain English.
 """
 
+from visualizer.common import intify
 from visualizer.descriptors import common
 from visualizer.descriptors import textForWinnerUtils
 
@@ -154,8 +155,9 @@ class Describer:
         event = textForWinnerUtils.as_event(self.config, 1)
 
         if self.graph.threshold is not None:
+            thresholdString = intify(self.graph.threshold)
             whatHappened = "{name} reached the threshold of "\
-                f"{self.graph.threshold} votes and {event}. "
+                f"{thresholdString} votes and {event}. "
         else:
             whatHappened = "{name} " + event + ". "
         return self._describe_list_of_names(winners, " won", whatHappened)

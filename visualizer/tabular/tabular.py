@@ -1,6 +1,6 @@
 """ Various classes for creating tables """
 
-from visualizer.common import intify, percentify
+from visualizer.common import intify, percentify, INACTIVE_TEXT
 from visualizer.descriptors import textForWinnerUtils as TextForWinner
 
 
@@ -37,6 +37,12 @@ class TabulateByRoundInteractive:
                     d['secondaryLabel'] = ""
                 elif i >= len(cinfo.votesAddedPerRound):
                     continue
+                elif cinfo.name == INACTIVE_TEXT:
+                    if i == 0:
+                        d['change'] = "All ballots are active in the first round"
+                    else:
+                        votesAddedThisRound = intify(cinfo.votesAddedPerRound[i])
+                        d['change'] = f"{votesAddedThisRound} ballots became inactive"
                 else:
                     votesAddedThisRound = cinfo.votesAddedPerRound[i]
 
@@ -181,9 +187,8 @@ class CandidateTabulation:
                 # No incoming nodes this round (always true on first round)
                 linksForThisNode = []
 
-            totalActiveVotes = intify(node.count)
             self.rounds.append(
-                RoundTabulation(config, totalActiveVotes, i,
+                RoundTabulation(config, node.count, i,
                                 item, summary.rounds, linksForThisNode))
 
 
@@ -198,9 +203,8 @@ class RoundTabulation:
         self.round_i = round_i + 1
 
         allVotes = roundInfos[round_i].totalActiveVotes
-        myNumVotes = float(totalActiveVotes)
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            myNumVotes, allVotes, item)
+            allVotes, allVotes, item)
 
         thisRoundWinners = roundInfos[round_i].winnerNames
         if round_i < len(roundInfos) - 1:
@@ -262,12 +266,10 @@ def changify(num):
         return f"Gained {num:s} votes"
     else:
         num = intify(-num)
-        return f"{num} votes redistributed to remaining candidates"
+        return f"{num} votes redistributed to remaining candidates or became inactive"
 
 
 def votify(num):
     if not isinstance(num, str):
-        # c/o https://stackoverflow.com/a/10507593
-        # Only show decimal place if needed
-        num = "{0}".format(str(round(num, 1) if num % 1 else int(num)))
+        num = intify(num)
     return num + " votes"

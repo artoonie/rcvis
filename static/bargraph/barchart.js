@@ -665,7 +665,7 @@ function makeBarGraph(args) {
           .attr(votesSizeStr, mouseOverBorder)
           .attr("opacity", "0")
           .attr("data-toggle", "tooltip")
-          .attr("title", function(d) { return "Threshold to win: " + threshold; });
+          .attr("title", function(d) { return "Threshold to win: " + votesToText(threshold); });
   }
 
   function moveBarsToAnimationStartPoint() {

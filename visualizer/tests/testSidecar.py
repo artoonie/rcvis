@@ -94,7 +94,7 @@ class SidecarTests(TestCase):
 
         texts = {
             'title': b'<div id="bp-header">Favorite ice cream flavors',
-            'totalVotes': b'Total Votes: 1200',
+            'totalVotes': b'Total Votes: 1,200',
             'certified': b'The results have been certified',
             'incumbentsBolded': b'Incumbents are <span class="dataLabelIncumbent">'
                                 b'bolded and underlined</span>',

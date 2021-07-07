@@ -19,8 +19,8 @@ def make_complete_url(request, urlWithoutDomain):
 def intify(notint):
     """ Turn into int if it's a round number """
     if abs(round(notint) - notint) < 1e-6:
-        return "%d" % round(notint)
-    return "%0.2f" % notint
+        return "{:,}".format(round(notint))
+    return "{:,.2f}".format(notint)
 
 
 def percentify(numerator, denominator):
