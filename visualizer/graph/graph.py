@@ -5,7 +5,6 @@
 
 import datetime
 
-from visualizer.common import intify
 from visualizer.graph import rcvResult
 from visualizer.graph.graphSummary import GraphSummary
 
@@ -104,7 +103,7 @@ class Graph:
         if isinstance(threshold, str):
             threshold = float(threshold)
 
-        self.threshold = intify(threshold)
+        self.threshold = threshold
 
     def _add_connection(self, sourceNode, targetNode, value):
         """ Adds a Link between the source and target.
