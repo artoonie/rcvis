@@ -364,11 +364,13 @@ class JSONReader:
         eliminationOrder = []
         itemsRemaining = set(items)
         for rnd in rounds:
-            for elimination in rnd.transfers:
-                if not isinstance(elimination, rcvResult.Elimination):
-                    continue
-                eliminationOrder.append(elimination.item)
-                itemsRemaining.remove(elimination.item)
+            itemsEliminatedThisRound = [
+                e.item for e in rnd.transfers if isinstance(e, rcvResult.Elimination)]
+            itemsEliminatedThisRound = sorted(
+                itemsEliminatedThisRound, key=lambda item, rnd=rnd: rnd.itemsToVotes[item])
+            for item in itemsEliminatedThisRound:
+                eliminationOrder.append(item)
+                itemsRemaining.remove(item)
 
         # Winners are added last
         winners = []

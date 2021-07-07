@@ -4,7 +4,7 @@ Generates the dynamic, per-round Frequently-Asked-Questions
 
 import abc
 
-from visualizer.common import INACTIVE_TEXT
+from visualizer.common import INACTIVE_TEXT, intify
 from visualizer.descriptors import common
 from visualizer.descriptors import textForWinnerUtils
 
@@ -158,7 +158,7 @@ class WhyMultiWinner(FAQBase):
     def get_answer(self, roundNum):
         winners = self.summary.rounds[roundNum].winnerNames
         winnerText = common.comma_separated_names_with_and(winners)
-        threshold = self.graph.threshold
+        threshold = intify(self.graph.threshold)
         supportCount = len(self.summary.winnerNames) + 1
         return f"Because {winnerText} received {threshold} votes. "\
                f"The threshold of {threshold} votes was chosen to achieve proportional "\
@@ -178,7 +178,7 @@ class WhyThreshold(FAQBase):
         return len(allWinners) > 1 and len(thisRoundWinners) >= 1
 
     def get_question(self, roundNum):
-        threshold = self.graph.threshold
+        threshold = intify(self.graph.threshold)
         return f"Why did they need {threshold} votes to win?"
 
     def get_answer(self, roundNum):
@@ -217,7 +217,7 @@ class WhySurplusTransfer(FAQBase):
         redistributionData = self._surplusCache[roundNum]
         lostVotes = int(round(redistributionData['sum']))  # note: don't aboutify
         names = common.comma_separated_names_with_and(redistributionData['names'])
-        threshold = self.graph.threshold
+        threshold = intify(self.graph.threshold)
         numWinners = self.summary.numWinners
         return "A principle of RCV is that no vote should be wasted. "\
             f"Since {names} only needed {threshold} votes, "\
