@@ -18,9 +18,10 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     SC_PID=$!
     trap "kill $SC_PID" EXIT
 
-    python3 manage.py test visualizer/tests/testLiveBrowser.py
+    python3 manage.py test visualizer/tests/testLiveBrowserWithHead.py
   elif [ "$CI_NODE_INDEX" -eq 1 ]; then
     python3 manage.py test movie
+    python3 manage.py test visualizer/tests/testLiveBrowserHeadless.py
   elif [ "$CI_NODE_INDEX" -eq 2 ]; then
     ./scripts/test-code-quality.sh
 
