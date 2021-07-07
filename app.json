@@ -67,7 +67,7 @@
   },
   "buildpacks": [
     { "url": "heroku/chromedriver" },
-    { "url": "heroku/google-chrome" },
+    { "url": "https://github.com/artoonie/heroku-buildpack-google-chrome" },
     { "url": "heroku/nodejs" },
     { "url": "heroku/python" },
     { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },
@@ -76,6 +76,13 @@
   ],
   "environments": {
     "test": {
+      "addons": ["heroku-postgresql:in-dyno"],
+      "formation": {
+        "test": {
+          "quantity": 3,
+          "size": "performance-m"
+        }
+      },
       "scripts": {
         "test": "./scripts/run-tests.sh"
       },
