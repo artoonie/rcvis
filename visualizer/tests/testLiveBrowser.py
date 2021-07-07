@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.core import mail as test_mailbox
+from django.db.models import BooleanField
 from django.urls import reverse
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
@@ -135,6 +136,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
 
     def _make_url(self, url):
         """ Creates an absolute url using the current server URL """
+        if not url.startswith('/'):
+            url = '/' + url
         return "%s%s" % (self.live_server_url, url)
 
     def _disable_all_animations(self):
@@ -181,17 +184,38 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         self.browser.get(url)
         self._assert_log_len(0)
 
+    @classmethod
+    def _get_json_config_default_bools(cls):
+        """ Returns a dict of all the default bools of JsonConfig """
+        allKeys = JsonConfig.get_all_non_auto_fields()
+        values = {}
+        for key in allKeys:
+            field = JsonConfig._meta.get_field(key)
+            if isinstance(field, BooleanField):
+                values[key] = field.get_default()
+        return values
+
     def _upload(self, jsonFilename, sidecarFilename=None):
-        """ Uploads the given local files. The sidecar file is optional. """
-        self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("jsonFile")
-        fileUpload.send_keys(os.path.join(os.getcwd(), jsonFilename))
-        if sidecarFilename is not None:
-            fileUpload = self.browser.find_element_by_id("candidateSidecarFile")
-            fileUpload.send_keys(os.path.join(os.getcwd(), sidecarFilename))
-        uploadButton = self.browser.find_element_by_id("uploadButton")
-        uploadButton.click()
-        self._assert_log_len(0)
+        """
+        Uploads the given local files. The sidecar file is optional.
+        After upload, follows the redirect.
+        """
+        values = self._get_json_config_default_bools()
+
+        with open(jsonFilename, 'r') as jsonFileObject:
+            values['jsonFile'] = jsonFileObject
+
+            if sidecarFilename is None:
+                response = self.client.post('/upload.html', values)
+            else:
+                with open(sidecarFilename, 'r') as sidecarFileObject:
+                    values['candidateSidecarFile'] = sidecarFileObject
+                    response = self.client.post('/upload.html', values)
+
+        if response.status_code == 302:
+            self.open(response['location'], prependServer=True)
+        else:
+            print(response.status_code, response.content)
 
     def _upload_something_if_needed(self):
         """
@@ -270,6 +294,19 @@ class LiveBrowserTests(StaticLiveServerTestCase):
         ActionChains(self.browser).move_to_element(tick)\
             .click(tick)\
             .perform()
+
+    def test_upload(self):
+        """ Tests the upload page """
+        self.open('/upload.html')
+
+        fileUpload = self.browser.find_element_by_id("jsonFile")
+        fileUpload.send_keys(os.path.join(os.getcwd(), filenames.THREE_ROUND))
+
+        fileUpload = self.browser.find_element_by_id("candidateSidecarFile")
+        fileUpload.send_keys(os.path.join(os.getcwd(), filenames.THREE_ROUND_SIDECAR))
+
+        uploadButton = self.browser.find_element_by_id("uploadButton")
+        uploadButton.click()
 
     def test_render(self):
         """ Tests the resizing of the window and verifies that things fit """
@@ -689,8 +726,8 @@ class LiveBrowserTests(StaticLiveServerTestCase):
     def test_timeline_and_longform_desc(self):
         """ Ensures the timeline show correct data, and that it can be toggled to show
             the longform description instead """
-        self._disable_all_animations()
         self._upload(filenames.MULTIWINNER)
+        self._disable_all_animations()
 
         # The expand button is hidden
         expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
