@@ -3,15 +3,16 @@ set -e
 
 python3 manage.py compress
 
-# If running locally, just specify --parallel
 if [ -z "$CI_NODE_TOTAL" ]; then
+  # If running locally, just specify --parallel
+
   # Code quality first - fail fast
   ./scripts/test-code-quality.sh
 
   python3 manage.py test --parallel 4
-
-# If running on heroku, assign each node a portion of the test
 elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
+  # If running on heroku, assign each node a portion of the test
+
   if [ "$CI_NODE_INDEX" -eq 0 ]; then
     # Start tunnel, make sure its killed on exit (success or failure)
     ./sc -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY -i sc-proxy-tunnel-$HEROKU_TEST_RUN_ID &
