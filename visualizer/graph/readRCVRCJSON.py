@@ -140,9 +140,11 @@ class MakeExhaustedAndSurplusACandidate(JSONMigrateTask):
                 return
 
     def do(self):
-        """ Run the migration """
-        self._make_it_a_candidate_if_in_transfers(common.INACTIVE_TEXT)
-        self._make_it_a_candidate_if_in_transfers(common.RESIDUAL_SURPLUS_TEXT)
+        """ Run the migration, ensuring they are not already marked as candidates """
+        if common.INACTIVE_TEXT not in self.data['results'][0]['tally']:
+            self._make_it_a_candidate_if_in_transfers(common.INACTIVE_TEXT)
+        if common.RESIDUAL_SURPLUS_TEXT not in self.data['results'][0]:
+            self._make_it_a_candidate_if_in_transfers(common.RESIDUAL_SURPLUS_TEXT)
 
 
 class RenameCapitalizeResidualSurplus(JSONMigrateTask):

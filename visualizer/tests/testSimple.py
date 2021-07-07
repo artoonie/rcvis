@@ -17,6 +17,7 @@ from common.viewUtils import get_data_for_view
 from common.cloudflare import CloudflareAPI
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.graph.graphCreator import make_graph_with_file
+from visualizer.graph.readRCVRCJSON import JSONReader
 from visualizer.views import Oembed
 from visualizer.models import JsonConfig, HomepageFeaturedElection, HomepageFeaturedElectionColumn
 from visualizer.forms import JsonConfigForm
@@ -393,3 +394,31 @@ class SimpleTests(TestCase):
 
         content = get_response_content_for_enum(2)
         self.assertIn(b'Harvey Curley and Larry Edwards advanced to the general', content)
+
+    def test_dont_recompute_inactive_ballots_if_already_exists(self):
+        """
+        If "Inactive Ballots" is listed as a candidate, don't override that data
+        with inactive ballot data computed from the transfers.
+        """
+        with open(filenames.SOME_MISSING_TRANSFERS, 'r') as f:
+            data = json.load(f)
+
+        # Baseline: this is directly from the file
+        self.assertEqual(data['results'][-1]['tally']['Inactive Ballots'], 117327.0)
+
+        # When "Inactive Ballots" exists as a candidate, don't recompute any of its data.
+        # The tallyresults and Inactive Ballots don't add up, so err on the side of the provided
+        # candidate.
+        # This happens especially when the transfer data is partial, e.g. if it is missing
+        # for batch eliminations
+        JSONReader(data)  # note: this happens to modify data in-place, but it may not always do so
+        self.assertEqual(data['results'][-1]['tally']['Inactive Ballots'], 117327.0)
+
+        # Now remove "Inactive Ballots" as a candidate
+        for roundData in data['results']:
+            del roundData['tally']['Inactive Ballots']
+
+        # When we re-read the data, it now recomputed inactive ballots from transfer data,
+        # so it's smaller
+        JSONReader(data)  # note: this happens to modify data in-place, but it may not always do so
+        self.assertEqual(data['results'][-1]['tally']['Inactive Ballots'], 99186.0)
