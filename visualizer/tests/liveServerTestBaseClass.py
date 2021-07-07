@@ -111,6 +111,10 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # Remove the message created by _add_login_cookie_to_browser
         log = [l for l in log if 'Unrecognized feature: \'clipboard-write\'.' not in l['message']]
 
+        # This happens sporadically, and seems to happen between tests and cause a random
+        # test to fail. Doesn't happen on SauceLabs, only headless browsers.
+        log = [l for l in log if '\'window.webkitStorageInfo\' is deprecated.' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
@@ -222,11 +226,6 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         self.open(reverse('visualize', args=(objects[0].slug,)))
         self._assert_log_len(0)
 
-    def _get_each_bargraph_tag(self):
-        """ Returns a list of candidate's tags in the interactive bargraph """
-        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
-        return bargraph.find_elements_by_tag_name('tspan')
-
     def _go_to_tab(self, tabId):
         self.browser.find_elements_by_id(tabId)[0].click()
 
@@ -254,21 +253,3 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         ActionChains(self.browser).move_to_element(tick)\
             .click(tick)\
             .perform()
-
-    def _is_visible(self, elementId):
-        """ Is the element ID visible? """
-        elem = self.browser.find_elements_by_id(elementId)[0]
-        return self._is_elem_visible(elem)
-
-    @classmethod
-    def _is_elem_visible(cls, elem):
-        """ Is the element visible? """
-        # Note: Previously, we needed the following code to handle fullpage.js slides,
-        # where everything returns is_displayed but some things are way over to the right.
-        # It is left here for posterity, since I suspect we will need it again someday.
-        # if not elem.is_displayed():
-        #     return False
-        # elemX = elem.location['x']
-        # pageWidth = self.browser.execute_script('return $(window).width();')
-        # return 0 <= elemX < pageWidth
-        return elem.is_displayed()

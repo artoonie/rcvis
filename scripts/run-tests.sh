@@ -15,14 +15,23 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
 
   if [ "$CI_NODE_INDEX" -eq 0 ]; then
     # Start tunnel, make sure its killed on exit (success or failure)
-    ./sc -u $SAUCE_USERNAME -k $SAUCE_ACCESS_KEY -i sc-proxy-tunnel-$HEROKU_TEST_RUN_ID &
+    READY_FILENAME=saucelabs-is-now-ready.tmp.file
+    ./sc -u $SAUCE_USERNAME \
+         -k $SAUCE_ACCESS_KEY \
+         -i sc-proxy-tunnel-$HEROKU_TEST_RUN_ID \
+         -f $READY_FILENAME &
     SC_PID=$!
     trap "kill $SC_PID" EXIT
 
+    # Wait for $READY_FILENAME to exist
+    while [ ! -f $READY_FILENAME ]; do sleep 1; done
+    echo "Readyfile found."
+
+    # Run tests once saucelabs proxy is ready
     python3 manage.py test visualizer/tests/testLiveBrowserWithHead.py
   elif [ "$CI_NODE_INDEX" -eq 1 ]; then
-    python3 manage.py test movie
-    python3 manage.py test visualizer/tests/testLiveBrowserHeadless.py
+    python3 manage.py test movie \
+                           visualizer/tests/testLiveBrowserHeadless.py
   elif [ "$CI_NODE_INDEX" -eq 2 ]; then
     ./scripts/test-code-quality.sh
 

@@ -6,6 +6,7 @@ and likely will not need any of the rendering functionality provided by saucelab
 
 import json
 import os
+import platform
 import time
 import uuid
 from urllib.parse import urlparse
@@ -14,6 +15,8 @@ from django.contrib.auth import get_user_model
 from django.core import mail as test_mailbox
 from django.urls import reverse
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -21,9 +24,16 @@ from common.testUtils import TestHelpers
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
 
+CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
+
 
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests that launch a selenium browser """
+
+    def _get_each_bargraph_tag(self):
+        """ Returns a list of candidate's tags in the interactive bargraph """
+        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
+        return bargraph.find_elements_by_tag_name('tspan')
 
     def test_upload(self):
         """ Tests the upload page """
@@ -37,40 +47,6 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         uploadButton = self.browser.find_element_by_id("uploadButton")
         uploadButton.click()
-
-    def test_settings_tab(self):
-        """ Tests the functionality of the settings tab """
-        self._disable_all_animations()
-
-        # Upload with non-default setting: hiding sankey tab.
-        self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("jsonFile")
-        fileUpload.send_keys(os.path.join(os.getcwd(), filenames.ONE_ROUND))
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_element_by_id("uploadButton").click()  # Hit upload
-        assert not self._is_visible("sankey-body")
-
-        # Go to the settings tab
-        self._go_to_tab("settings-tab")
-
-        # Then, toggle on the sankey tab from the settings page
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert self._is_visible("sankey-tab")
-
-        # Finally, toggle it back off
-        self._go_to_tab("settings-tab")
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
-        assert not self._is_visible("sankey-tab")
-
-        self._assert_log_len(0)
 
     def test_setting_eliminated_colors(self):
         """ Ensure eliminated color setting can be changed """
@@ -293,64 +269,6 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._ensure_eventually_asserts(
             lambda: self.assertNotIn('what happened in each round', desc.text))
 
-    def test_timeline_and_longform_desc(self):
-        """ Ensures the timeline show correct data, and that it can be toggled to show
-            the longform description instead """
-        self._upload(filenames.MULTIWINNER)
-        self._disable_all_animations()
-
-        # The expand button is hidden
-        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
-        self.assertEqual(self._is_elem_visible(expandButton), False)
-
-        # And longform description is visible
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertEqual(self._is_elem_visible(desc), True))
-
-        # Cancel animation
-        self._go_to_round_by_clicking(0)
-
-        # Move animation to end
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
-
-        # Give JS a second to catch up with the animation
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards had more than enough', desc.text))
-        self.assertNotIn('Larry Edwards reached the threshold of 134', desc.text)
-
-        # Go to the settings tab
-        self._go_to_tab("settings-tab")
-
-        # Then, toggle on the sankey tab from the settings page
-        self.browser.find_element_by_id("bargraphOptions").click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("doUseDescriptionInsteadOfTimeline")[1].click()
-        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
-
-        # Go to the bargraph
-        self._go_to_tab("barchart-tab")
-
-        # Now the the expand/collapse button is visible
-        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
-        self.assertEqual(self._is_elem_visible(expandButton), True)
-        expandButton.click()
-
-        # And longform description is hidden
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
-        self.assertEqual(self._is_elem_visible(desc), False)
-
-        # Ensure the timeline has all expected data
-        elems = self.browser.find_elements_by_class_name('timeline-info-good')
-        self.assertEqual(len(elems), 2 * 2)  # two elected, x2 graphs
-
-        elems = self.browser.find_elements_by_class_name('timeline-info-bad')
-        self.assertEqual(len(elems), 2 * 2)  # two eliminated, x2 graphs
-
-        elems = self.browser.find_elements_by_class_name('timeline-info')
-        # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
-        self.assertEqual(len(elems), 2 * 9)
-
     def test_crazy_names(self):
         """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
             too-long filenames are split at sane points """
@@ -520,3 +438,67 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_round_by_clicking(2)
         self._ensure_eventually_asserts(
             lambda: self.assertIn('Round 3', span.get_attribute('innerHTML')))
+
+    def test_no_threshold_draws_no_line(self):
+        """ Tests that no threshold line is drawn if the threshold is not provided """
+        xpathsOfLines = ['//*[@id="threshold#bargraph-interactive-body"]',
+                         '//*[@id="threshold-hover#bargraph-interactive-body"]']
+
+        # Make sure it does exist when there is a threshold
+        self._upload(filenames.ONE_ROUND)
+        for xpath in xpathsOfLines:
+            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 1)
+
+        # Make sure it does exist when there is a threshold
+        self._upload(filenames.NO_THRESHOLD)
+        for xpath in xpathsOfLines:
+            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 0)
+
+    def test_sharetab_copy_paste(self):
+        """ Check that the share tab can be copy/paste wiki & html successfully. """
+        self._upload_something_if_needed()
+        self._go_to_tab("share-tab")
+
+        # Check the wikicode
+        textAreaValues = []
+        for elementId in ("wikicode", "htmlembedexport"):
+            self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
+
+            # Grab the element and read its value
+            textarea = self.browser.find_element_by_id(elementId)
+            initialText = textarea.get_attribute('value')
+            textAreaValues.append(initialText)
+
+            # Ensure clicking copies to keyboard
+            textarea.click()
+            textarea.send_keys(Keys.BACKSPACE)
+            textarea.send_keys("Different text")
+
+            # Make sure it's different
+            assert initialText != textarea.get_attribute('value')
+
+            # Select all, delete, paste
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('a')\
+                                      .key_up('a')\
+                                      .key_up(CONTROL_KEY) \
+                                      .perform()
+            ActionChains(self.browser).key_down(Keys.BACKSPACE)\
+                                      .key_up(Keys.BACKSPACE)\
+                                      .perform()
+            # Note: don't keyup or `v` or saucelabs may double-paste
+            ActionChains(self.browser).key_down(CONTROL_KEY)\
+                                      .key_down('v')\
+                                      .perform()
+
+            # Assert we have the original text back
+            self._ensure_eventually_asserts(
+                lambda text=initialText, textarea=textarea: self.assertEqual(
+                    text, textarea.get_attribute('value')))
+
+        # Verify the values are sane...somewhat
+        wiki = textAreaValues[0]
+        assert 'wikitable' in wiki
+        assert 'Macomb' in wiki
+        html = textAreaValues[1]
+        assert html.startswith('<iframe')
