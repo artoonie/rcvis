@@ -215,16 +215,29 @@
       <div class="container text-center">
         <div class="row">
           <div class="col resourceCell">
-            <h5>Create an RCV poll or election</h5>
+            <h5>RankIt Online RCV Polls</h5>
             <a href="https://www.rankit.vote">
-              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rankit.jpg' %}" width="300px" alt="Rankit.vote icon" loading="lazy">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rankit.svg' %}" width="300px" alt="Rankit.vote icon" loading="lazy">
               <br/>
               rankit.vote
             </a>
             <div class="descriptors">
-              Rankit allows you to create an RCV election. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.
+              RankIt is FairVote's RCV online polling tool. You can use it to elect a leader in your local student organization, or just ask your friends which movie they'd like to watch next.
             </div>
           </div>
+          <div class="col resourceCell">
+            <h5>RankedVote Online RCV Polls</h5>
+            <a href="https://www.rankedvote.co">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rankedvote.png' %}" width="300px" alt="RankedVote.co icon" loading="lazy">
+              <br/>
+              rankedvote.co
+            </a>
+            <div class="descriptors">
+              RankedVote is a feature-packed RCV polling tool. The free version allows basic RCV elections and polls, and optional upgrades allow you to run advanced elections with features such as voter registration, voter lists, and duplicate voter detection.
+            </div>
+          </div>
+        </div>
+        <div class="row">
           <div class="col resourceCell">
             <h5>Advocate for RCV</h5>
             <a href="https://www.fairvote.org">
@@ -233,24 +246,11 @@
               fairvote.org
             </a>
             <div class="descriptors">
-              FairVote is a champion of electoral reform. One of their main platforms is advocating for ranked choice voting, but they also advocate for multi-winner districts and other reforms to create a more proportional, representative, and fair democracy.
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col resourceCell">
-            <h5>Tabulate the results of an RCV election</h5>
-            <a href="https://www.rcvresources.org/rcv-universal-tabulator">
-              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" alt="Universal RCV Tabulator icon" loading="lazy">
-              <br/>
-              rcvresources.org/rcv-universal-tabulator
-            </a>
-            <div class="descriptors">
-              The Universal RCV Tabulator is a software package with multiple algorithms for tabulating votes. It parses your CVR (Cast Vote Record) files, which include information about each ballot, and tabulate it to determine eliminations, transfers, and ultimately winners. It outputs a JSON file with this information, which RCVis can ingest and visualize.
+              FairVote is a champion of electoral reform. including adovcating for Instant Runoff Voting (IRV, i.e. single-winner RCV) and Single Transferrable Vote (STV, i.e. multi-member RCV). Their gold standard is the Fair Representation Act, which would enact proportional representation in the US.
             </div>
           </div>
           <div class="col resourceCell">
-            <h5>Implement RCV in your jurisdiction</h5>
+            <h5>Implement RCV</h5>
             <a href="https://www.rcvresources.org/">
               <img class="resourceCellImage" data-src="{% static 'visualizer/resource_rcvrc.png' %}" width="300px" alt="RCV Resource Center icon" loading="lazy">
               <br/>
@@ -258,6 +258,17 @@
             </a>
             <div class="descriptors">
               The RCV Resource Center provides resources and guidance for implementing RCV to everyone, from jurisdictions to individual voters. They played a major role in guiding the development of RCVis.
+            </div>
+          </div>
+          <div class="col resourceCell">
+            <h5>Tabulate an RCV election</h5>
+            <a href="https://www.rcvresources.org/rcv-universal-tabulator">
+              <img class="resourceCellImage" data-src="{% static 'visualizer/resource_tabulator.png' %}" width="300px" alt="Universal RCV Tabulator icon" loading="lazy">
+              <br/>
+              rcvresources.org/rcv-universal-tabulator
+            </a>
+            <div class="descriptors">
+              The Universal RCV Tabulator is a tested and certified software package many RCV tabulation rules implemented. It parses Cast Vote Record files and creates results summary files which RCVis can then visualize.
             </div>
           </div>
         </div>
