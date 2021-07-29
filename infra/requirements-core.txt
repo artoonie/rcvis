@@ -1,5 +1,6 @@
 boto3==1.17.100
 csscompressor==0.9.5
+django-admin-cursor-paginator==0.1.0
 django-compressor==2.4.1
 django-node-assets==0.9.9
 django-registration==3.2
