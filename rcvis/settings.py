@@ -51,6 +51,8 @@ INSTALLED_APPS = [
 
     'visualizer',
     'movie',
+
+    'admin_cursor_paginator',
     'accounts.apps.AccountsAppConfig',
     'storages',
     'compressor',
