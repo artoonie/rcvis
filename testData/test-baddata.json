@@ -1,6 +1,6 @@
 {
   "config" : {
-    "contest" : "Transfer to nonexistent candidate",
+    "contest" : "Elimination on final round",
     "date" : "2055-05-05",
     "jurisdiction" : "Test",
     "office" : "Test",
@@ -17,7 +17,7 @@
     "tallyResults" : [ {
       "eliminated" : "Write-In",
       "transfers" : {
-        "Harvey Curley" : "64"
+        "Sarah Lucido" : "64"
       }
     } ]
   }]

@@ -40,7 +40,6 @@ def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
 
     # Try to make the graph
     graph = make_graph_with_file(jsonFileObj, False)
-    graph.summarize()
 
     # Sanity check that the entire pipeline works
     # (If not, this could be the source of 500 errors)

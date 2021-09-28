@@ -93,8 +93,8 @@ class Upload(LoginRequiredMixin, CreateView):
             self.model.numCandidates = len(graph.summarize().candidates)
             self.model.save()
 
-        except BadJSONError:
-            form.add_error('jsonFile', traceback.format_exc(limit=1))
+        except BadJSONError as exception:
+            form.add_error('jsonFile', str(exception))
             tbText = traceback.format_exc()
             logger.error("BadJSONError. User %s: %s", self.request.user.username, tbText)
             return self.form_invalid(form)

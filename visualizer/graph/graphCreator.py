@@ -3,6 +3,7 @@
 import logging
 import json
 
+from rcvformats.schemas.universaltabulator import SchemaV0
 from rcvformats.conversions.automatic import AutomaticConverter
 
 import visualizer.graph.readRCVRCJSON as rcvrcJson
@@ -20,7 +21,7 @@ def convert_to_standardized_format(fileObject):
         return AutomaticConverter().convert_to_ut(fileObject)
     except Exception as exc:
         logger.info("Upload failed: %s", str(exc))
-        raise BadJSONError("Upload failed") from exc
+        raise BadJSONError(exc) from exc
 
 
 def remove_last_winner_and_eliminated(graph, rounds):
@@ -44,6 +45,18 @@ def remove_last_winner_and_eliminated(graph, rounds):
         if haveRemovedEliminated and haveRemovedWinner:
             break
 
+def initialize_graph(jsonReader, excludeFinalWinnerAndEliminatedCandidate):
+    graph = jsonReader.get_graph()
+    rounds = jsonReader.get_rounds()
+    graph.set_elimination_order(jsonReader.get_elimination_order())
+
+    if excludeFinalWinnerAndEliminatedCandidate:
+        remove_last_winner_and_eliminated(graph, rounds)
+
+    graph.summarize()
+
+    return graph
+
 
 def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
     """ Load the given fileObject, create and return a graph """
@@ -60,7 +73,7 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         try:
             jsonData = convert_to_standardized_format(fileObject)
         except Exception as exc:
-            raise BadJSONError("File format is not valid:") from exc
+            raise BadJSONError("File format is not valid: " + str(exc)) from exc
 
         # Then, try to load
         try:
@@ -68,11 +81,15 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         except Exception as exc:
             raise BadJSONError("File schema was valid, but we could not interpret it") from exc
 
-    graph = jsonReader.get_graph()
-    rounds = jsonReader.get_rounds()
-    graph.set_elimination_order(jsonReader.get_elimination_order())
-
-    if excludeFinalWinnerAndEliminatedCandidate:
-        remove_last_winner_and_eliminated(graph, rounds)
+    try:
+        graph = initialize_graph(jsonReader, excludeFinalWinnerAndEliminatedCandidate)
+    except Exception as exc:
+        schema = SchemaV0()
+        if schema.is_data_valid(jsonData):
+            # We don't know why the data was invalid
+            raise exc
+        else:
+            # We have a nice error message to present
+            raise BadJSONError(schema.last_error())
 
     return graph
