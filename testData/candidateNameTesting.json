@@ -21,6 +21,7 @@
       "Don't split me" : "9",
       "A malicious name <b>with html</b>" : "10",
       "A malicious name with \"quotes\" and 'ticks'" : "11",
+      "A name (middle name) with parenthesis in the middle" : "12",
       "Winner!" : "501"
     },
     "tallyResults" : [ {

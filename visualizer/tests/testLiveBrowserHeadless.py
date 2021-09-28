@@ -279,6 +279,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             "3",
 
+            "A name (middle name)",
+            "with parenthesis in the middle",
+
             "A malicious name with",
             "\"quotes\" and 'ticks'",
 

@@ -127,12 +127,13 @@ function splitText(text) {
    * Helper function for magicWordWrap. Always returns an array with
    * exactly two elements
    */
-  // First, split parantheticals, e.g. Bob (Incumbant) -> [Bob, (Incumbant)]
-  // Then, split commas, e.g. Bob, The First -> [Bob, The First]
-  for (const regexp of [/([^(]*)(\(.*\))/, /(.*,)(.*)/]) {
+  // First, split parantheticals,                                e.g. Bob (Incumbant)   -> [Bob,          (Incumbant)]
+  // Then, similar but if there's text after end of parenthesis, e.g. Bob (Middle) Bill -> [Bob (Middle), Bill]
+  // Then, split commas,                                         e.g. Bob, The First    -> [Bob,          The First]
+  for (const regexp of [/^([^(]*)(\(.*\))$/, /^([^(]*\(.*\))(.*)$/, /^(.*,)(.*)$/]) {
     const match = text.match(regexp)
     if (match) {
-        return [match[1], match[2]]
+        return [match[1], match[2]];
     }
   }
 
