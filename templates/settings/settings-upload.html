@@ -34,7 +34,7 @@ function sidecarFileSelected(files)
   <div class="mb-2 mt-2" id="fileselection">
     <div class="selectFileButtonWrapper">
       <button id="selectResultsFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv"  onchange="summaryFileSelected(this.files)"/>
+      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv, .xlsx"  onchange="summaryFileSelected(this.files)"/>
     </div>
 
     {% include "settings/settings-help-filetype.html" %}

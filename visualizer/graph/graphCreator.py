@@ -5,6 +5,7 @@ import json
 
 from rcvformats.schemas.universaltabulator import SchemaV0
 from rcvformats.conversions.automatic import AutomaticConverter
+from rcvformats.conversions.base import CouldNotConvertException
 
 import visualizer.graph.readRCVRCJSON as rcvrcJson
 
@@ -19,6 +20,9 @@ def convert_to_standardized_format(fileObject):
     """ Loops through each of the three readers trying to find one that works on this file """
     try:
         return AutomaticConverter().convert_to_ut(fileObject)
+    except CouldNotConvertException as exc:
+        logger.info("The file was not valid. Reason: %s", str(exc))
+        raise BadJSONError(exc) from exc
     except Exception as exc:
         logger.info("Upload failed: %s", str(exc))
         raise BadJSONError(exc) from exc
@@ -70,10 +74,7 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         fileObject.seek(0)
 
         # First, try to convert
-        try:
-            jsonData = convert_to_standardized_format(fileObject)
-        except Exception as exc:
-            raise BadJSONError("File format is not valid: " + str(exc)) from exc
+        jsonData = convert_to_standardized_format(fileObject)
 
         # Then, try to load
         try:
