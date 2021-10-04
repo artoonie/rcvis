@@ -90,9 +90,9 @@ class SimpleTests(TestCase):
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
-        with self.assertRaises(BadJSONError) as context_manager:
+        with self.assertRaises(BadJSONError) as contextManager:
             self._get_data_for_view(filenames.BAD_DATA)
-        message = str(context_manager.exception)
+        message = str(contextManager.exception)
         self.assertIn('There cannot be an elimination on the last round.', message)
 
     def test_too_long_name_fails(self):

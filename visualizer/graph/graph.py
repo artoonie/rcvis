@@ -61,6 +61,7 @@ class Graph:
         self.transfersPerRound = []
         self.winnersSoFar = set()
 
+        # This is reset if set_elimination_order is changed
         self.summary = None
 
     @property
@@ -92,6 +93,9 @@ class Graph:
         """
         self.eliminationOrder = orderedItems
         self.nodes = sorted(self.nodes, key=lambda x: -orderedItems.index(x.item))
+
+        # Reset summary: it's no longer accurate
+        self.summary = None
 
     def set_date(self, date):
         """ Sets the date of this election """

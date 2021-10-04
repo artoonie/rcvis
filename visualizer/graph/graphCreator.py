@@ -49,7 +49,13 @@ def remove_last_winner_and_eliminated(graph, rounds):
         if haveRemovedEliminated and haveRemovedWinner:
             break
 
+
 def initialize_graph(jsonReader, excludeFinalWinnerAndEliminatedCandidate):
+    """
+    Uses the reader to create the graph, set its elimination order,
+    and summarize it. If this function succeeds, the jsonReader is good
+    and it's very very likely that the page will render correctly.
+    """
     graph = jsonReader.get_graph()
     rounds = jsonReader.get_rounds()
     graph.set_elimination_order(jsonReader.get_elimination_order())
@@ -79,18 +85,18 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         # Then, try to load
         try:
             jsonReader = rcvrcJson.JSONReader(jsonData)
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             raise BadJSONError("File schema was valid, but we could not interpret it") from exc
 
     try:
         graph = initialize_graph(jsonReader, excludeFinalWinnerAndEliminatedCandidate)
     except Exception as exc:
         schema = SchemaV0()
-        if schema.is_data_valid(jsonData):
-            # We don't know why the data was invalid
-            raise exc
-        else:
+        if not schema.is_data_valid(jsonData):
             # We have a nice error message to present
-            raise BadJSONError(schema.last_error())
+            raise BadJSONError(schema.last_error()) from exc
+
+        # We don't know why the data was invalid
+        raise exc
 
     return graph
