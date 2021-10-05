@@ -27,6 +27,7 @@ class DefaultConfig():  # pylint: disable=too-few-public-methods
     def __init__(self):
         self.onlyShowWinnersTabular = False
         self.textForWinner = TextForWinner.ELECTED
+        self.isPreferentialBlock = False
 
 
 def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):

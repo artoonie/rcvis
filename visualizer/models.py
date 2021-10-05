@@ -90,6 +90,7 @@ class JsonConfig(models.Model):
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
     doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
+    isPreferentialBlock = models.BooleanField(default=False)
     colorTheme = models.IntegerField(choices=ColorTheme.choices, default=1)
     eliminationBarColor = models.IntegerField(choices=EliminationBarColor.choices, default=0)
 
@@ -109,6 +110,7 @@ class JsonConfig(models.Model):
                 'onlyShowWinnersTabular',
                 'doUseHorizontalBarGraph',
                 'doUseDescriptionInsteadOfTimeline',
+                'isPreferentialBlock',
                 'hideSankey',
                 'hideTabular',
                 'doDimPrevRoundColors',
