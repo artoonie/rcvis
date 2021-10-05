@@ -187,11 +187,12 @@ function generateTickTexts(numRounds) {
   if (!doHideActiveTickText(numRounds)) {
     return Array(numRounds).fill().map((_, i) => "Round " + (i+1));
   }
-  return "»";
+  return Array(numRounds).fill().map((_, i) => "#" + (i+1));
 }
 
 function doHideActiveTickText(numRounds) {
-  // The magic number swapping from "Rounds" mode to >> mode
+  // The magic number swapping from "Round X" mode to just "#X"
+  // And showing the <> slider instead of the underline
   return numRounds > 7;
 }
 
