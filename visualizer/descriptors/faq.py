@@ -38,7 +38,9 @@ class WhatHappeningSingleWinner(FAQBase):
     """ Summary shown on all single-winner elections """
 
     def is_active(self, roundNum):
-        return self.summary.numWinners <= 1 and self.summary.rounds[0].totalActiveVotes != 0
+        return not self.config.isPreferentialBlock \
+            and self.summary.numWinners <= 1 \
+            and self.summary.rounds[0].totalActiveVotes != 0
 
     def get_question(self, roundNum):
         return "What is happening?"
@@ -58,11 +60,32 @@ class WhatHappeningSingleWinner(FAQBase):
         return base + elim + win
 
 
+class WhatHappeningPreferentialBlockWinner(FAQBase):
+    """ Summary shown on all single-winner elections """
+
+    def is_active(self, roundNum):
+        return self.config.isPreferentialBlock \
+            and self.summary.numWinners <= 1 \
+            and self.summary.rounds[0].totalActiveVotes != 0
+
+    def get_question(self, roundNum):
+        return "What is happening?"
+
+    def get_answer(self, roundNum):
+        return "This is a Ranked Choice Voting election with Preferential Block Voting. "\
+            "There were multiple seats to fill, but only one seat is represented here. "\
+            "Voters have ranked their candidates in order of preference. "\
+            "Each voter still only had one vote, but if their top pick wasn't going to win, "\
+            "their next choices were taken into account. Once one winner is chosen, the "\
+            "counting repeats without that candidate in play, until all seats are filled. "\
+            "The other seats may be available on RCVis, but are not part of this visualization. "
+
+
 class WhatHappeningMultiWinner(FAQBase):
     """ Summary shown on all multi-winner elections """
 
     def is_active(self, roundNum):
-        return self.summary.numWinners > 1
+        return not self.config.isPreferentialBlock and self.summary.numWinners > 1
 
     def get_question(self, roundNum):
         return "What is happening?"
@@ -274,6 +297,7 @@ class FAQGenerator():
     """ Helper class to generate a full FAQ for this graph """
     generators = (WhatHappeningSingleWinner,
                   WhatHappeningMultiWinner,
+                  WhatHappeningPreferentialBlockWinner,
                   WhyNoVotes,
                   WhyEliminated,
                   WhyBatchEliminated,

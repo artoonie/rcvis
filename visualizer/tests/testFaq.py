@@ -31,6 +31,8 @@ class FAQTests(TestCase):
         args = (graph, self.config)
         self.assertTrue(faq.WhatHappeningSingleWinner(*args).is_active(0))
         self.assertFalse(faq.WhatHappeningMultiWinner(*args).is_active(0))
+        self.assertFalse(faq.WhatHappeningPreferentialBlockWinner(*args).is_active(0))
+
         self.assertFalse(faq.WhyEliminated(*args).is_active(0))
         self.assertFalse(faq.WhyBatchEliminated(*args).is_active(0))
         self.assertTrue(faq.WhySingleWinner(*args).is_active(0))
@@ -50,6 +52,7 @@ class FAQTests(TestCase):
 
         self.assertFalse(faq.WhatHappeningSingleWinner(*args).is_active(0))
         self.assertTrue(faq.WhatHappeningMultiWinner(*args).is_active(0))
+        self.assertFalse(faq.WhatHappeningPreferentialBlockWinner(*args).is_active(0))
 
         self.assertFalse(faq.WhyEliminated(*args).is_active(0))
         self.assertTrue(faq.WhyEliminated(*args).is_active(1))
@@ -76,6 +79,20 @@ class FAQTests(TestCase):
         with open('testData/expected-multiwinner-faqs.json', 'r') as f:
             expectedData = json.load(f)
         self.assertEqual(allDescriptions, expectedData)
+
+    def test_preferential_block(self):
+        """ Basic single-round test ensuring the right classes are active each round """
+        with open(filenames.ONE_ROUND, 'r') as f:
+            graph = make_graph_with_file(f, False)
+        self.config.isPreferentialBlock = True
+        args = (graph, self.config)
+        self.assertFalse(faq.WhatHappeningSingleWinner(*args).is_active(0))
+        self.assertFalse(faq.WhatHappeningMultiWinner(*args).is_active(0))
+        self.assertTrue(faq.WhatHappeningPreferentialBlockWinner(*args).is_active(0))
+
+        # There is one round, with two FAQs
+        allDescriptions = faq.FAQGenerator(*args).describe_all_rounds()
+        assert len(allDescriptions[0]) == 2
 
     def test_no_winners(self):
         """ Ensure the right thing is printed if there are no winners """

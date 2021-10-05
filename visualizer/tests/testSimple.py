@@ -39,7 +39,7 @@ class SimpleTests(TestCase):
     @classmethod
     def _get_data_for_view(cls, fn):
         """ Opens the given file and creates a graph with it """
-        with open(fn, 'r+') as f:
+        with open(fn, 'rb+') as f:
             config = JsonConfig(jsonFile=File(f))
             return get_data_for_view(config)
 
@@ -56,6 +56,10 @@ class SimpleTests(TestCase):
     def test_multiwinner_loads(self):
         """ Opens the multiwinner file """
         self._get_data_for_view(filenames.MULTIWINNER)
+
+    def test_dominion_loads(self):
+        """ Opens the dominion file """
+        self._get_data_for_view(filenames.DOMINION)
 
     def test_rankit_loads(self):
         """ Opens a rankit.vote file -
@@ -86,8 +90,10 @@ class SimpleTests(TestCase):
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """
-        with self.assertRaises(BadJSONError):
+        with self.assertRaises(BadJSONError) as contextManager:
             self._get_data_for_view(filenames.BAD_DATA)
+        message = str(contextManager.exception)
+        self.assertIn('There cannot be an elimination on the last round.', message)
 
     def test_too_long_name_fails(self):
         """ Titles are limited to 256 chars """

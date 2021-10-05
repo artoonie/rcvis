@@ -15,5 +15,6 @@ ELECTIONBUDDY_REGRESSION = 'testData/electionbuddy-regression.csv'
 ZERO_VOTE_ELECTION = 'testData/zero-vote-election.json'
 NO_THRESHOLD = 'testData/no-threshold.json'
 SOME_MISSING_TRANSFERS = 'testData/some-xfers.json'
+DOMINION = 'testData/dominion-input.xlsx'
 
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
