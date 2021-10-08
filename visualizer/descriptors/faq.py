@@ -78,7 +78,8 @@ class WhatHappeningPreferentialBlockWinner(FAQBase):
             "Each voter still only had one vote, but if their top pick wasn't going to win, "\
             "their next choices were taken into account. Once one winner is chosen, the "\
             "counting repeats without that candidate in play, until all seats are filled. "\
-            "The other seats may be available on RCVis, but are not part of this visualization. "
+            "Check the page that linked you to this visualization to see if other seats "\
+            "from this election are also visualized on RCVis."
 
 
 class WhatHappeningMultiWinner(FAQBase):
