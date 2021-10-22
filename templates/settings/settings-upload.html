@@ -14,6 +14,12 @@ function sidecarFileSelected(files)
 {
   document.getElementById("selectSidecarFileButton").innerHTML = files[0].name
 }
+
+function showDataTable(doShow)
+{
+  document.getElementById("file-upload-box").style.display = doShow ? "none" : "block";
+  document.getElementById("datatable-upload-box").style.display = doShow ? "block" : "none";
+}
 </script>
 
   <div class="mb-2 mt-2" id="header">
@@ -31,13 +37,25 @@ function sidecarFileSelected(files)
     </div>
   </div>
 
-  <div class="mb-2 mt-2" id="fileselection">
-    <div class="selectFileButtonWrapper">
-      <button id="selectResultsFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv, .xlsx"  onchange="summaryFileSelected(this.files)"/>
-    </div>
+  <div id="file-upload-box">
+    {% include "settings/settings-upload-by-file.html" %}
 
-    {% include "settings/settings-help-filetype.html" %}
+    <p class="masthead-subheading font-weight-light mt-3 narrowbox">
+     You may also choose to: 
+     <button class="btn btn-link" onclick="showDataTable(true)" type="button">
+       enter round-by-round results manually
+     </button>
+    </p>
+  </div>
+  <div id="datatable-upload-box">
+    {% include "settings/settings-upload-by-datatable.html" %}
+
+    <p class="masthead-subheading font-weight-light mt-3 narrowbox">
+     You may also choose to: 
+     <button class="btn btn-link" onclick="showDataTable(false)" type="button">
+       upload a Results Summary File
+     </button>
+    </p>
   </div>
 
   <div class="mb-2 mt-2" id="options">

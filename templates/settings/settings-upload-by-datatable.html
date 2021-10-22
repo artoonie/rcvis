@@ -1,0 +1,19 @@
+{% load static %}
+<script type="text/javascript" src="{% static 'data-table/table.js' %}"></script>
+<link rel="stylesheet" href="{% static 'data-table/table.css' %}">
+
+<div class="mt-3 container" style="overflow-x: auto">
+  <div id="dataTableWrapper">
+  </div>
+
+  <script type="text/javascript">
+    dt_CreateDataTable({
+      wrapperDivId: 'dataTableWrapper',
+
+      /* Datum Config */
+      names: ["Num Votes", "Status"],
+      types: [Number, Object],
+      values: [0, ["Active", "Eliminated", "Elected"]]
+    });
+  </script>
+</div>

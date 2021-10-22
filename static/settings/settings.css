@@ -67,3 +67,6 @@ svg {
 #options {
  opacity: 20%;
 }
+#datatable-upload-box {
+  display: none;
+}

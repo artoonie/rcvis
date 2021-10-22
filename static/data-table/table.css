@@ -1,0 +1,88 @@
+
+.SubDiv {
+    padding: 15px;
+    border: 1px solid black;
+    width: fit-content;
+    float: left;
+}
+.enter-row-name{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 12px 16px;
+
+  width: 224px;
+  height: 46px;
+
+  background: #FFFFFF;
+  border: 2px solid #D9D9D9;
+  box-sizing: border-box;
+  border-radius: 8px;
+}
+
+.add-row-button{
+
+  height: 44px;
+  background: #FFFFFF;
+  border: 2px solid #D9D9D9;
+  box-sizing: border-box;
+
+  /* Inside Auto Layout */
+
+  flex: none;
+  order: 3;
+  align-self: stretch;
+  flex-grow: 0;
+  margin: 1px 0px;
+}
+.data-table{
+  background: #FFFFFF;
+  border: 1px solid #000000;
+  box-sizing: border-box;
+  border-collapse: collapse;
+}
+
+.data-table-cell{
+  padding: 15px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.row-header-input{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 16px;
+
+    width: 150px;
+    height: 46px;
+
+    background: #FFFFFF;
+    border: 2px solid #D9D9D9;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+
+.cell-input{
+    display: inline-block;
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 16px;
+
+    width: 50px;
+    height: 25px;
+
+    background: #FFFFFF;
+    border: 2px solid #D9D9D9;
+    box-sizing: border-box;
+    border-radius: 8px;
+}
+
+.cell-label{
+    white-space: nowrap;
+}
+
+.cell-label::after{
+    content: "\a";
+    white-space: pre;
+}
