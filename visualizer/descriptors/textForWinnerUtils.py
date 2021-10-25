@@ -20,6 +20,8 @@ def as_caption(config):
         return "Won"
     if config.textForWinner == TextForWinner.PRIMARY:
         return "Advanced"
+    if config.textForWinner == TextForWinner.LEAD:
+        return "Leading"
 
     raise RuntimeError("Unsupported TextForWinner.")
 
@@ -35,6 +37,8 @@ def as_event(config, numWinners):
         return "won"
     if config.textForWinner == TextForWinner.PRIMARY:
         return "advanced to the general"
+    if config.textForWinner == TextForWinner.LEAD:
+        return "is in the lead"
 
     raise RuntimeError("Unsupported TextForWinner.")
 
@@ -51,6 +55,8 @@ def as_question(config, names):
         return f"Why did {nameText} win?"
     if config.textForWinner == TextForWinner.PRIMARY:
         return f"Why did {nameText} advanced to the general?"
+    if config.textForWinner == TextForWinner.LEAD:
+        return f"Why is {nameText} in the lead?"
 
     raise RuntimeError("Unsupported TextForWinner.")
 
@@ -66,5 +72,8 @@ def as_present_perfect_tense(config, numWinners):
         return f"{haveOrHas} won"
     if config.textForWinner == TextForWinner.PRIMARY:
         return f"{haveOrHas} advanced to the general"
+    if config.textForWinner == TextForWinner.LEAD:
+        isOrAre = "is" if numWinners == 1 else "are"
+        return f"{isOrAre} in the lead"
 
     raise RuntimeError("Unsupported TextForWinner.")

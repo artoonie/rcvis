@@ -225,6 +225,11 @@ class FAQTests(TestCase):
         answer = faq.WhatHappeningMultiWinner(graph, self.config).get_answer(0)
         self.assertIn("2 candidates have advanced to the general", answer)
 
+        # Set to TextForWinner.LEAD
+        self.config.textForWinner = TextForWinner.LEAD
+        answer = faq.WhatHappeningMultiWinner(graph, self.config).get_answer(0)
+        self.assertIn("2 candidates are in the lead", answer)
+
     def test_text_for_winner_in_summaries(self):
         """
         Check TextForWinner in the round summaries and overall summary

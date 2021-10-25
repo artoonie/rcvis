@@ -29,6 +29,7 @@ class TextForWinner(models.IntegerChoices):
     ELECTED = 0, _('Candidate was elected')
     WON = 1, _('Candidate won')
     PRIMARY = 2, _('Candidate advanced to the general')
+    LEAD = 3, _('Candidate is in the lead')
 
 
 class MovieGenerationStatuses(models.IntegerChoices):
