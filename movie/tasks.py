@@ -25,7 +25,8 @@ def launch_big_dynos(pk, domain):
         }
         data = {
             "attach": False,
-            "command": "celery -A rcvis worker --loglevel info",
+            "command": "./scripts/fix-moviepy-on-ubuntu.sh && "
+                       "celery -A rcvis worker --loglevel info",
             "size": settings.HEROKU_WORKER_DYNO_TYPE,
             "type": "moviegen",
             "time_to_live": 600
