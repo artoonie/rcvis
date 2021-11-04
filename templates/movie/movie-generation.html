@@ -23,17 +23,18 @@ function flushAllD3Transitions() {
 
 </head>
 <body>
-<div id="movieRoundNum">
-Round Number
+<div id="logo">
+  <img src="{% static 'visualizer/logo-dark.png' %}" width="180"> <!-- update #movieRoundNum css if you change this width -->
 </div>
+<div id="movieRoundNum">
+  Round Number
+</div>
+
 <div>
 {% include "bargraph/barchart-interactive.html" %}
 </div>
-<div id="caption">
-Caption
-</div>
-<div id="logo">
-  <img src="{% static 'visualizer/logo-dark.png' %}" width="256">
+<div id="caption" class="col-xl">
+  Caption
 </div>
 
 {% include "visualizer/common-visualizer-nonblocking.html" %}
@@ -41,8 +42,9 @@ Caption
 {% include "bargraph/barchart-interactive-nonblocking.html" %}
 
 <script>
-    $("#bargraph-slider-container").hide();
-    $("#bargraph-interactive-legend").hide();
+    $("#bargraph-slider-container").remove();
+    $("#bargraph-interactive-legend").remove();
+    $("#round-description-wrapper").remove();
 
     const roomForCaptions = 300;
     const windowWidth = window.innerWidth;

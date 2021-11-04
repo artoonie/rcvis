@@ -6,7 +6,7 @@ from django.views.decorators.cache import never_cache
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import DetailView
 
-from common.viewUtils import get_data_for_view
+from common.viewUtils import get_data_for_view, request_to_domain
 from visualizer.models import JsonConfig, MovieGenerationStatuses
 from movie.tasks import launch_big_dynos
 
@@ -30,13 +30,8 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
     permanent = False
     query_string = False
 
-    def _get_domain(self):
-        relativeUrl = self.request.get_full_path()
-        absoluteUrl = self.request.build_absolute_uri(relativeUrl)
-        return absoluteUrl[:absoluteUrl.find(relativeUrl)]
-
     def get_redirect_url(self, *args, **kwargs):
-        domain = self._get_domain()
+        domain = request_to_domain(self.request)
 
         slug = kwargs['slug']
         jsonconfig = JsonConfig.objects.get(slug=slug)

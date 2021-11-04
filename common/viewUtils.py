@@ -130,3 +130,10 @@ def get_script_to_disable_animations():
             \
             let fakeTime = 0;\
             window.requestAnimationFrame = function(f) { fakeTime += 300; f(fakeTime); }"
+
+
+def request_to_domain(request):
+    """ Gets the domain name from the request """
+    relativeUrl = request.get_full_path()
+    absoluteUrl = request.build_absolute_uri(relativeUrl)
+    return absoluteUrl[:absoluteUrl.find(relativeUrl)]
