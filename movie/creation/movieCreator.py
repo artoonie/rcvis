@@ -129,14 +129,15 @@ class SingleMovieCreator():
     def _generate_image_for_round_synchronously(self, roundNum):
         try:
             self.browser.execute_script(f'transitionEachBarForRound({roundNum});')
-            time.sleep(0.3)  # flushAllD3Transitions doesn't seem to work...
-            self.browser.execute_script("flushAllD3Transitions();")
         except selenium.common.exceptions.JavascriptException as exception:
             errorText = "This error commonly occurs with Xvfb issues: "
             errorText += str(exception)
             errorText += "\n\nCurrent browser context:\n"
             errorText += self.browser.page_source[0:1000]
             raise ProbablyFailedToLaunchBrowser(errorText) from exception
+
+        time.sleep(0.3)  # flushAllD3Transitions doesn't seem to work, so just sleep
+        # self.browser.execute_script("flushAllD3Transitions();")
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)

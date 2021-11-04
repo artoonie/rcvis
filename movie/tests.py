@@ -103,10 +103,13 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         assert os.path.exists(jsonConfig.movieHorizontal.movieFile.path)
         assert os.path.exists(jsonConfig.movieHorizontal.gifFile.path)
         assert os.path.exists(jsonConfig.movieHorizontal.titleImage.path)
-        assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
-        assert os.path.exists(jsonConfig.movieVertical.gifFile.path)
-        assert os.path.exists(jsonConfig.movieVertical.titleImage.path)
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.COMPLETE
+
+        # Vertical movies are disabled now
+        assert jsonConfig.movieVertical is None
+        # assert os.path.exists(jsonConfig.movieVertical.movieFile.path)
+        # assert os.path.exists(jsonConfig.movieVertical.gifFile.path)
+        # assert os.path.exists(jsonConfig.movieVertical.titleImage.path)
 
         # Ensure it's loaded in the View
         response = self.client.get('/visualizeMovie=macomb-multiwinner-surplus')
@@ -227,7 +230,9 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Create the mock calls
         callsForOneVideo = [mock.call(mock.ANY, caption=line) for line in lines]
         # Ensure each line is called twice, once horizontal once vertical
-        mockSpawnAudio.assert_has_calls(callsForOneVideo * 2)
+        isVerticalEnabled = False
+        multiplier = 2 if isVerticalEnabled else 1
+        mockSpawnAudio.assert_has_calls(callsForOneVideo * multiplier)
 
     @mock.patch('traceback.print_exc')
     def test_failure_status(self, mockTraceback):

@@ -83,12 +83,13 @@ def _make_movies_for_config(browser, domain, jsonconfig):
 
     horizontal = movieCreator.make_one_movie_at_resolution(1280, 720)  # 720p
 
-    jsonconfig.movieGenerationStatus = MovieGenerationStatuses.LANDSCAPE_COMPLETE
-    jsonconfig.save()
+    # jsonconfig.movieGenerationStatus = MovieGenerationStatuses.LANDSCAPE_COMPLETE
+    # jsonconfig.save()
 
-    vertical = movieCreator.make_one_movie_at_resolution(480, 640)  # 480p
+    # Skip vertical
+    # vertical = movieCreator.make_one_movie_at_resolution(480, 640)  # 480p
 
     jsonconfig.movieGenerationStatus = MovieGenerationStatuses.COMPLETE
     jsonconfig.movieHorizontal = horizontal
-    jsonconfig.movieVertical = vertical
+    # jsonconfig.movieVertical = vertical
     jsonconfig.save()
