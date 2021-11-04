@@ -6,8 +6,10 @@ body {
 
 #movieRoundNum {
   font-size: 45px;
-  width: 100%;
+  width: calc(100% - 360px); /* logo width * 2 */
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #caption {
@@ -22,7 +24,6 @@ body {
 
 #logo {
   position: absolute;
-  right: 50px;
-  bottom: 0;
-  display: none;
+  left: 20px;
+  top: 5px;
 }

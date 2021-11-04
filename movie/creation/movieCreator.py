@@ -115,8 +115,11 @@ class SingleMovieCreator():
         """ Returns a GeneratedAudioWrapper which you should poll for completion """
         return self.textToSpeechFactory.text_to_speech(caption)
 
-    def _set_captions_on_page(self, roundNum, caption):
-        roundText = "Round " + str(roundNum + 1)
+    def _set_captions_on_page(self, roundNum, caption, showGraphTitleInsteadOfRoundNum):
+        if showGraphTitleInsteadOfRoundNum:
+            roundText = self.graph.title
+        else:
+            roundText = "Round " + str(roundNum + 1)
         captionText = caption.replace("'", "\\'")
         roundScript = f"document.getElementById('movieRoundNum').innerHTML = '{roundText}';"
         captionScript = f"document.getElementById('caption').innerHTML = '{captionText}';"
@@ -132,7 +135,7 @@ class SingleMovieCreator():
             errorText = "This error commonly occurs with Xvfb issues: "
             errorText += str(exception)
             errorText += "\n\nCurrent browser context:\n"
-            errorText += self.browser.page_source
+            errorText += self.browser.page_source[0:1000]
             raise ProbablyFailedToLaunchBrowser(errorText) from exception
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
@@ -152,7 +155,7 @@ class SingleMovieCreator():
 
     def _generate_gif_for_round(self, caption, duration, roundNum):
         # First update the HTML to match the caption & round num
-        self._set_captions_on_page(roundNum, caption)
+        self._set_captions_on_page(roundNum, caption, False)
 
         # Create background image
         imageClip0 = self._generate_image_for_round_synchronously(roundNum)
@@ -170,12 +173,13 @@ class SingleMovieCreator():
         caption = roundDescriber.describe_initial_summary(isForVideo=True)
 
         lastRound = self._get_num_rounds() - 1
-        return self._generate_clip_with_caption(lastRound, caption)
+        return self._generate_clip_with_caption(
+            lastRound, caption, showGraphTitleInsteadOfRoundNum=True)
 
-    def _generate_clip_with_caption(self, roundNum, caption):
+    def _generate_clip_with_caption(self, roundNum, caption, showGraphTitleInsteadOfRoundNum=False):
         """ Uses the caption to create audio and visual captions for the round """
         # First update the HTML to match the caption & round num
-        self._set_captions_on_page(roundNum, caption)
+        self._set_captions_on_page(roundNum, caption, showGraphTitleInsteadOfRoundNum)
 
         # Create audio
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
@@ -207,13 +211,7 @@ class SingleMovieCreator():
         """ Returns the number of rounds in this jsonconfig """
         return len(self.graph.summarize().rounds)
 
-    def make_static_image(self, outputFilename):
-        """ Saves a static title image showing the last round, saving to outputFilename """
-        lastRound = self._get_num_rounds() - 1
-        imageClip = self._generate_image_for_round_synchronously(lastRound)
-        imageClip.save_frame(outputFilename)
-
-    def make_movie(self, mp4Filename):
+    def make_movie(self, mp4Filename, staticPngFilename):
         """ Create a movie at a specific resolution """
         roundDescriber = Describer(self.graph, self.config, summarizeAsParagraph=True)
 
@@ -224,6 +222,7 @@ class SingleMovieCreator():
 
         # Summarize the election
         clip = self._generate_initial_summary(roundDescriber)
+        clip.save_frame(staticPngFilename)  # this is also the static frame
         imageClips.append(clip)
 
         # Each round
@@ -327,8 +326,7 @@ class MovieCreationFactory():
                 tempfile.NamedTemporaryFile(suffix=".gif") as gifTempFile, \
                 tempfile.NamedTemporaryFile(suffix=".png") as imageTempFile:
             try:
-                creator.make_movie(mp4TempFile.name)
-                creator.make_static_image(imageTempFile.name)
+                creator.make_movie(mp4TempFile.name, imageTempFile.name)
                 creator.make_gif(gifTempFile.name)
                 self.save_and_upload(
                     movie,
