@@ -68,7 +68,7 @@
   <policy domain="delegate" rights="none" pattern="HTTPS" />
   <policy domain="delegate" rights="none" pattern="HTTP" />
   <!-- in order to avoid to get image with password text -->
-  <!--<policy domain="path" rights="none" pattern="@*"/>-->
+  <policy domain="path" rights="read|write" pattern="@*"/>
   <policy domain="cache" name="shared-secret" value="passphrase" stealth="true"/>
   <!-- disable ghostscript format types -->
   <policy domain="coder" rights="none" pattern="PS" />
