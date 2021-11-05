@@ -185,11 +185,15 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             return toc - tic
 
         def is_cache_much_faster():
-            loadWithoutCache = measure_load_time(f"{fn1}?hideSankey=on")
-            loadWithCache = measure_load_time(f"{fn1}?hideSankey=on")
+            urlsToLoad = [f"{fn1}?a=b", f"{fn1}?b=c", f"{fn1}?c=d"]
+            loadTimesWithoutCache = [measure_load_time(f) for f in urlsToLoad]
+            loadTimesWithCache = [measure_load_time(f) for f in urlsToLoad]
+            avgLoadTimeWithoutCache = sum(loadTimesWithoutCache) / len(loadTimesWithoutCache)
+            avgLoadTimeWithCache = sum(loadTimesWithCache) / len(loadTimesWithCache)
+
             # Verify that it's at least 2x faster with cache (closer to 5x on
             # selenium, 200x in real life)
-            return loadWithoutCache > loadWithCache * 2
+            return avgLoadTimeWithoutCache > avgLoadTimeWithCache * 5
 
         # Upload a file, check cache
         self._upload(filenames.OPAVOTE)
