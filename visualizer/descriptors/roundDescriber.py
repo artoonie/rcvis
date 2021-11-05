@@ -192,7 +192,8 @@ class Describer:
         numRounds = len(summary.rounds)
 
         if len(winners) == 0:
-            return "This election does not have any winners. "
+            return "This election does not have any winners "\
+                   "(perhaps because the results are still preliminary). "
 
         # Initial summary is always just text
         try:
