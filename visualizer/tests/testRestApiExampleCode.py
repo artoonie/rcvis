@@ -99,6 +99,11 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         # You can also grab a direct link to RCVis
         assert responseJson['visualizeUrl'].endswith('/v/medium-rcvis')
 
+        # If you want to embed it, you can grab several embedding URLs too
+        assert responseJson['embedUrl'].endswith('/ve/medium-rcvis')
+        assert responseJson['embedSankeyUrl'].endswith('sankey')
+        assert responseJson['embedTableUrl'].endswith('tabular-candidate-by-round')
+
         # Or build an embeddable URL:
         # https://www.rcvis.com/v/{slug} for the basic embed
         # https://www.rcvis.com/vb/{slug} for a ballotpedia embed

@@ -42,10 +42,18 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         visRelativeUrl = reverse('visualize', args=(instance.slug,))
         visAbsoluteUrl = request.build_absolute_uri(visRelativeUrl)
 
+        embedRelativeUrl = reverse('visualizeEmbedded', args=(instance.slug,))
+        embedAbsoluteUrl = request.build_absolute_uri(embedRelativeUrl)
+        embedSankeyAbsoluteUrl = embedAbsoluteUrl + "?vistype=sankey"
+        embedTableAbsoluteUrl = embedAbsoluteUrl + "?vistype=tabular-candidate-by-round"
+
         oembedRelativeUrl = reverse('oembed') + "?url=" + visAbsoluteUrl
         oembedAbsoluteUrl = request.build_absolute_uri(oembedRelativeUrl)
 
         data['visualizeUrl'] = visAbsoluteUrl
+        data['embedUrl'] = embedAbsoluteUrl
+        data['embedSankeyUrl'] = embedSankeyAbsoluteUrl
+        data['embedTableUrl'] = embedTableAbsoluteUrl
         data['oembedEndpointUrl'] = oembedAbsoluteUrl
         return data
 
