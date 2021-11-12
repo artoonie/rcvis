@@ -16,7 +16,7 @@ from django.urls import Resolver404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from rest_framework import permissions, viewsets
@@ -145,11 +145,12 @@ class Visualize(DetailView):
         oembedUrl = make_complete_url(self.request, reverse("oembed")) + args
         data['oembed_url'] = oembedUrl
 
-        # html embedding
-        embedUrl = reverse('visualizeEmbedded', args=(slug,))
-        embedUrl = make_complete_url(self.request, embedUrl)
-        data['htmlEmbedExport'] = viewUtils.get_embed_html(
-            embedUrl, self.request, 'barchart-interactive', 400, 800)
+        # embedly href
+        embedlyUrl = make_complete_url(
+            self.request, reverse(
+                "visualizeEmbedlyDefault", args=(
+                    slug,)))
+        data['embedlyUrl'] = embedlyUrl
 
         # wikipedia embedding
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
@@ -161,7 +162,9 @@ class Visualize(DetailView):
 
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeEmbedded(DetailView):
-    """ The embedded visualization, pointed to from Oembed """
+    """
+    The embedded visualization, to be used in an iframe.
+    """
     model = JsonConfig
     template_name = 'visualizer/visualize-embedded.html'
 
@@ -174,6 +177,46 @@ class VisualizeEmbedded(DetailView):
         data['vistype'] = self.request.GET.get('vistype', 'barchart-interactive')
 
         return data
+
+
+class VisualizeEmbedly(RedirectView):
+    """
+    VisualizeEmbedded, but without any custom arguments so it can be supported by embedly.
+    Since embedly doesn't allow custom arguments, we cannot use ?vistype in oembed.
+    We have replaced this with /vo/slug/vistype instead,
+
+    Further, we simplify vistype so it reads more easily. The changed vistypes are:
+    barchart-interactive         --> bar
+    barchart-fixed               --> bar-static
+    tabular-candidate-by-round   --> table
+    tabular-by-round-interactive --> table-by-round
+    tabular-by-round             --> table-by-round-static
+    tabular-by-candidate         --> table-by-candidate
+    """
+    permanent = True
+    pattern_name = 'visualizeEmbedded'
+
+    def get_redirect_url(self, *args, **kwargs):
+        slug = kwargs['slug']
+        vistype = kwargs.get('vistype')  # optional
+
+        # Simplifying translations:
+        if not vistype:
+            vistype = 'barchart-interactive'
+        elif vistype == 'bar':
+            vistype = 'barchart-interactive'
+        elif vistype == 'bar-static':
+            vistype = 'barchart-fixed'
+        elif vistype == 'table':
+            vistype = 'tabular-candidate-by-round'
+        elif vistype == 'table-by-round':
+            vistype = 'tabular-by-round-interactive'
+        elif vistype == 'table-by-round-static':
+            vistype = 'tabular-by-round'
+        elif vistype == 'table-by-candidate':
+            vistype = 'tabular-by-candidate'
+
+        return super().get_redirect_url(slug) + "?vistype=" + vistype
 
 
 @method_decorator(xframe_options_exempt, name='dispatch')

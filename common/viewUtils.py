@@ -45,7 +45,7 @@ def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
     }
 
     httpResponse = render(request, 'visualizer/oembed.html', renderData)
-    html = httpResponse.content.decode('utf-8')
+    html = httpResponse.content.decode('utf-8').strip()
     return html
 
 

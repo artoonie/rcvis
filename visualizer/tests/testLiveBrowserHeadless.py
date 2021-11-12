@@ -240,6 +240,33 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
                 else:
                     assert 't.me' in href
 
+    def test_sharetab_can_switch_vistype(self):
+        """ Check that the share tab has sane URLs for iframe and embedly codes """
+        self._upload_something_if_needed()
+        self._go_to_tab("share-tab")
+
+        # Change to the tabular selector
+        selectElement = self.browser.find_element_by_id('exportVistypeSelector')
+        selector = Select(selectElement)
+        selector.select_by_index(3)
+
+        # Which should generate this url somewhere in the textarea
+        expectedURL = reverse('visualizeEmbedly', args=(
+            TestHelpers.get_latest_upload().slug, 'table'))
+
+        # Note: can't use .text on htmlTextarea, it shows the old, stale value?
+        htmlTextarea = self.browser.find_element_by_id('htmlembedexport')
+        self.assertIn(expectedURL, htmlTextarea.get_attribute("value"))
+
+        # Repeat for the plain URL
+        selectElement = self.browser.find_element_by_id('embedlyVistypeSelector')
+        selector = Select(selectElement)
+        selector.select_by_index(3)
+
+        # But this time it should end with the URL, no extra code
+        htmlTextarea = self.browser.find_element_by_id('embedlyexport')
+        assert htmlTextarea.get_attribute("value").endswith(expectedURL)
+
     def test_slider_animates_and_summary_shown(self):
         """ Check that the share tab has sane links for all buttons """
         # Upload something with few rounds so the animation doesn't take too long
