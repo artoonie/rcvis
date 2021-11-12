@@ -37,7 +37,9 @@
 
 <div class="container">
   <div class="row justify-content-md-left mt-5">
-    <div class="col-sm"><label for="wikicode"><h3>WikiCode Export</h3></label></div>
+    <div class="col-sm"><label for="wikicode"><h3 class="px-0">WikiCode Export</h3></label></div>
+  </div>
+  <div class="row justify-content-md-left mt-0">
     <div class="col-xl"><textarea id="wikicode" class="codeExport" cols="500" rows="3">{{ wikicodeExport }}</textarea></div>
   </div>
   <div class="row mt-0">
@@ -49,7 +51,19 @@
 
 <div class="container mb-5">
   <div class="row justify-content-md-left mt-5">
-    <div class="col-sm"><label for="htmlembedexport"><h3>HTML Export</h3></label></div>
+    <div class="col-sm">
+      <label for="htmlembedexport"><h3 class="px-0">HTML Export</h3></label>
+    </div>
+  </div>
+  <div class="row justify-content-md-left mt-1">
+    <div class="col-sm">
+      <label for="exportVistypeSelector">Visualization type: </label>
+      <select class="form-control" id="exportVistypeSelector" onchange="switchVisType('{{htmlEmbedExport}}', this.value);">
+        <!-- Filled out by initializeOptions() -->
+      </select>
+    </div>
+  </div>
+  <div class="row justify-content-md-left mt-0">
     <div class="col-xl"><textarea id="htmlembedexport" class="codeExport" cols="500" rows="3">{{ htmlEmbedExport }}</textarea></div>
   </div>
   <div class="row mt-0">

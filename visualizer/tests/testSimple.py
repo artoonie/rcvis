@@ -241,6 +241,25 @@ class SimpleTests(TestCase):
 
         assert 'sankey' in response.context_data['oembed_url']
 
+    def test_oembed_all_urls(self):
+        """ Tests that the home page loads """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = TestHelpers.get_latest_upload().slug
+
+        easyToHardURLTranslation = [
+            ('barchart-interactive', 'bar'),
+            ('barchart-fixed', 'bar-static'),
+            ('tabular-candidate-by-round', 'table'),
+            ('tabular-by-round-interactive', 'table-by-round'),
+            ('tabular-by-round', 'table-by-round-static'),
+            ('tabular-by-candidate', 'table-by-candidate'),
+        ]
+        expectedBaseURL = '/ve/macomb-multiwinner-surplus?vistype='
+        for (hardURL, easyURL) in easyToHardURLTranslation:
+            visualizeUrl = reverse('visualizeOembed', args=(slug, easyURL))
+            response = self.client.get(visualizeUrl)
+            self.assertRedirects(response, expectedBaseURL + hardURL, status_code=301)
+
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
     def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
