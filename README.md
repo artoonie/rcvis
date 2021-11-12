@@ -1,8 +1,16 @@
-[![Build Status](https://travis-ci.com/artoonie/rcvis.png?branch=main)](https://travis-ci.com/artoonie/rcvis) [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
+[![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
 
 # RCVis.com
-See the site in action at [rcvis.com](https://www.rcvis.com).
+This is the code repository for [rcvis.com](https://www.rcvis.com). Unless you're a programmer, you probably want to be there instead of here!
+
+RCVis has been used to visualize hundreds of polls and dozens of elections.
+It has been used as part of the official reporting of tabulation data in cities across Utah, as well as unofficially in New York City, Minnesota, Maine, California, and more.
+It is connected to both [Rankit.Vote](https://rankit.vote) and [RankedVote.co](https://rankedvote.co), the premier online-RCV websites.
+It can import data from Opavote, ElectionBuddy, Dominion software, the Universal Ranked-Choice Tabulator, and more.
+It was featured on a [Ballotpedia page](https://ballotpedia.org/June_22,_2021,_election_results) during the 2020 NYC election cycle, as well as in the [Gothamist](https://gothamist.com/arts-entertainment/big-apple-book-ballot-results-best-nyc-book), [NBC New York](https://www.nbcnewyork.com/news/politics/adams-garcia-wnbc-poll-nyc-mayor/3104963/), [Fox 5 NY](https://www.fox5ny.com/video/940333), [JD Forward](https://www.google.com/url?q=https://forward.com/culture/471811/ranked-choice-jewish-bagels-new-york-mayoral-race-seinfeld-polls/&sa=D&source=editors&ust=1636685968994000&usg=AOvVaw0CQ7-NuULv3TeJCbp8wEv8), among others.
+
+You may fork and run this code locally, though you can probably get what you want by just uploading your data directly to RCVis.
 
 # Ranked Choice Voting Visualization
 Visualize the results of ranked-choice voting elections.

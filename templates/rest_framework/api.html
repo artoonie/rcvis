@@ -1,9 +1,6 @@
 {% extends "rest_framework/base.html" %}
-
-{% block bootstrap_theme %}
-    {% include "visualizer/common-header.html" %}
-{% endblock %}
+{% load static %}
 
 {% block branding %}
-<a href="/">RCVis</a>
+<a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo-white.png' %}" width="120" height="28" alt="RCVis logo" id="logo" /></a>
 {% endblock %}
