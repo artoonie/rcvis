@@ -241,8 +241,11 @@ class SimpleTests(TestCase):
 
         assert 'sankey' in response.context_data['oembed_url']
 
-    def test_oembed_all_urls(self):
-        """ Tests that the home page loads """
+    def test_embedly_translation(self):
+        """
+        The embedly URLs are are prettier than the ?vistype= URLs.
+        Make sure we cleanly translate between the two.
+        """
         TestHelpers.get_multiwinner_upload_response(self.client)
         slug = TestHelpers.get_latest_upload().slug
 
@@ -256,9 +259,14 @@ class SimpleTests(TestCase):
         ]
         expectedBaseURL = '/ve/macomb-multiwinner-surplus?vistype='
         for (hardURL, easyURL) in easyToHardURLTranslation:
-            visualizeUrl = reverse('visualizeOembed', args=(slug, easyURL))
+            visualizeUrl = reverse('visualizeEmbedly', args=(slug, easyURL))
             response = self.client.get(visualizeUrl)
             self.assertRedirects(response, expectedBaseURL + hardURL, status_code=301)
+
+        # Also check the base
+        visualizeUrl = reverse('visualizeEmbedlyDefault', args=(slug,))
+        response = self.client.get(visualizeUrl)
+        self.assertRedirects(response, expectedBaseURL + 'barchart-interactive', status_code=301)
 
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
     def test_wikicode(self, mockGetDateString):

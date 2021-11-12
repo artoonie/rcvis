@@ -145,11 +145,12 @@ class Visualize(DetailView):
         oembedUrl = make_complete_url(self.request, reverse("oembed")) + args
         data['oembed_url'] = oembedUrl
 
-        # html embedding
-        embedUrl = reverse('visualizeEmbedded', args=(slug,))
-        embedUrl = make_complete_url(self.request, embedUrl)
-        data['htmlEmbedExport'] = viewUtils.get_embed_html(
-            embedUrl, self.request, 'barchart-interactive', 400, 800)
+        # embedly href
+        embedlyUrl = make_complete_url(
+            self.request, reverse(
+                "visualizeEmbedlyDefault", args=(
+                    slug,)))
+        data['embedlyUrl'] = embedlyUrl
 
         # wikipedia embedding
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
@@ -178,7 +179,7 @@ class VisualizeEmbedded(DetailView):
         return data
 
 
-class VisualizeOembed(RedirectView):
+class VisualizeEmbedly(RedirectView):
     """
     VisualizeEmbedded, but without any custom arguments so it can be supported by embedly.
     Since embedly doesn't allow custom arguments, we cannot use ?vistype in oembed.
@@ -197,10 +198,12 @@ class VisualizeOembed(RedirectView):
 
     def get_redirect_url(self, *args, **kwargs):
         slug = kwargs['slug']
-        vistype = kwargs['vistype']
+        vistype = kwargs.get('vistype')  # optional
 
         # Simplifying translations:
-        if vistype == 'bar':
+        if not vistype:
+            vistype = 'barchart-interactive'
+        elif vistype == 'bar':
             vistype = 'barchart-interactive'
         elif vistype == 'bar-static':
             vistype = 'barchart-fixed'
