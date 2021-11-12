@@ -68,6 +68,10 @@ function hideTabsBasedOnConfig() {
 
   // Dynamically load this when everything else finishes loading so it doesn't flicker the above two tabs
   $("#visualize-header-deferred-visibility").css("opacity","1");
+
+  // The height has been guessed at to reduce the cumulative layout shift score.
+  // Remove the guessed height so it dynamically scales with the content again.
+  $("#visualize-header-deferred-visibility").css("height","");
 }
 
 function togglePrintFriendly(isPrintFriendly) {
