@@ -96,14 +96,17 @@ class Upload(LoginRequiredMixin, CreateView):
         except BadJSONError as exception:
             form.add_error('jsonFile', str(exception))
             tbText = traceback.format_exc()
+            # lgtm [py/clear-text-logging-sensitive-data]
             logger.error("BadJSONError. User %s: %s", self.request.user.username, tbText)
             return self.form_invalid(form)
         except BadSidecarError as exception:
             form.add_error('candidateSidecarFile', str(exception))
+            # lgtm [py/clear-text-logging-sensitive-data]
             logger.error("BadSidecarError. User %s: %s", self.request.user.username, str(exception))
             return self.form_invalid(form)
         except Exception:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
+            # lgtm [py/clear-text-logging-sensitive-data]
             logger.error("Misc Exception. User %s: %s", self.request.user.username, exceptionString)
 
             # Not sure how dangerous this traceback can be...

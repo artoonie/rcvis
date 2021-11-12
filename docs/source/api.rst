@@ -4,14 +4,6 @@ REST API
 The REST API usage documentation can be found at https://www.rcvis.com/api/
 This documentation only covers the internal modules used to support the REST API.
 
-Permissions
--------------------------------------
-
-.. automodule:: visualizer.permissions
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Serializers
 ------------------------------------
 

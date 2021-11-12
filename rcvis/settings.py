@@ -66,10 +66,6 @@ INSTALLED_APPS = [
 ]
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = [
-    '--with-coverage',
-    '--cover-package=visualizer,movie',
-]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

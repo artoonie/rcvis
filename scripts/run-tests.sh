@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
 
-python3 manage.py compress
+RUN="coverage run --append ./manage.py"
+
+$RUN compress
 
 if [ -z "$CI_NODE_TOTAL" ]; then
   # If running locally, just specify --parallel
@@ -9,7 +11,7 @@ if [ -z "$CI_NODE_TOTAL" ]; then
   # Code quality first - fail fast
   ./scripts/test-code-quality.sh
 
-  python3 manage.py test --parallel 4
+  $RUN test --parallel 4
 elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
   # If running on heroku, assign each node a portion of the test
 
@@ -28,21 +30,21 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     echo "Readyfile found."
 
     # Run tests once saucelabs proxy is ready
-    python3 manage.py test visualizer/tests/testLiveBrowserWithHead.py
+    $RUN test visualizer/tests/testLiveBrowserWithHead.py
   elif [ "$CI_NODE_INDEX" -eq 1 ]; then
-    python3 manage.py test movie \
+    $RUN test movie \
                            visualizer/tests/testLiveBrowserHeadless.py
   elif [ "$CI_NODE_INDEX" -eq 2 ]; then
     ./scripts/test-code-quality.sh
 
     echo "Starting tests"
-    python3 manage.py test visualizer/tests/testBallotpediaRestApi.py\
-                           visualizer/tests/testFaq.py\
-                           visualizer/tests/testModelDeletion.py\
-                           visualizer/tests/testRestApi.py\
-                           visualizer/tests/testRestApiExampleCode.py\
-                           visualizer/tests/testSidecar.py\
-                           visualizer/tests/testSimple.py
+    $RUN test visualizer/tests/testBallotpediaRestApi.py\
+              visualizer/tests/testFaq.py\
+              visualizer/tests/testModelDeletion.py\
+              visualizer/tests/testRestApi.py\
+              visualizer/tests/testRestApiExampleCode.py\
+              visualizer/tests/testSidecar.py\
+              visualizer/tests/testSimple.py
   else
     # Should never happen
     exit -1
