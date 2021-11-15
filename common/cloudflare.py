@@ -42,6 +42,11 @@ class CloudflareAPI():
         rcvisPaths = [
             reverse('visualize', args=(slug,)),
             reverse('visualizeEmbedded', args=(slug,)),
+            reverse('visualizeEmbedlyDefault', args=(slug,)),
+            reverse('visualizeEmbedly', args=(slug, 'bar')),
+            reverse('visualizeEmbedly', args=(slug, 'barchart-interactive')),
+            reverse('visualizeEmbedly', args=(slug, 'sankey')),
+            reverse('visualizeEmbedly', args=(slug, 'table')),
             reverse('visualizeBallotpedia', args=(slug,))
         ]
 
