@@ -1,4 +1,5 @@
-""" Integration tests without a server
+"""
+Integration tests without a server
 """
 
 from io import StringIO

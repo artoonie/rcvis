@@ -41,6 +41,7 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     $RUN test visualizer/tests/testBallotpediaRestApi.py\
               visualizer/tests/testFaq.py\
               visualizer/tests/testModelDeletion.py\
+              visualizer/tests/testRawData.py\
               visualizer/tests/testRestApi.py\
               visualizer/tests/testRestApiExampleCode.py\
               visualizer/tests/testSidecar.py\

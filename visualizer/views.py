@@ -239,6 +239,26 @@ class VisualizeBallotpedia(DetailView):
         return data
 
 
+class DownloadRawData(LoginRequiredMixin, DetailView):
+    """
+    Download raw data - don't just share the presigned AWS URL, we want a fresh URL
+    for each download.
+    """
+    model = JsonConfig
+    template_name = 'visualizer/rawdata.html'
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
+
+    def get_context_data(self, **kwargs):
+        config = super().get_context_data(**kwargs)
+
+        self.request.user.userprofile.downloadedRawData.add(self.object)
+        self.request.user.userprofile.save()
+
+        return {'title': config['jsonconfig'].title,
+                'jsonfile': config['jsonconfig'].jsonFile}
+
+
 @method_decorator(xframe_options_exempt, name='dispatch')
 class Oembed(View):
     """ The oembed protocol, pointing to VisualizeEmbedded """

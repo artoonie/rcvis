@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
 from accounts.models import UserProfile
+from visualizer.models import JsonConfig
 
 
 class UserProfileInline(admin.StackedInline):
@@ -15,11 +16,16 @@ class UserProfileInline(admin.StackedInline):
     verbose_name_plural = 'Profile'
     fk_name = 'user'
 
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == "downloadedRawData":
+            kwargs["queryset"] = JsonConfig.objects.filter(rawDownloadedBy=request.user.id)
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
 
 class CustomUserAdmin(UserAdmin):
     """ Custom user admin with the fields we care about """
     inlines = (UserProfileInline, )
-    list_display = ('username', 'email', 'is_staff', 'can_use_api')
+    list_display = ('username', 'email', 'is_staff', 'can_use_api', 'num_raw_downloads')
     list_select_related = ('userprofile', )
     ordering = ('date_joined', )
 
@@ -32,6 +38,11 @@ class CustomUserAdmin(UserAdmin):
     def can_use_api(cls, instance):
         """ getter for this user's UserProfile.canUseApi """
         return instance.userprofile.canUseApi
+
+    @classmethod
+    def num_raw_downloads(cls, instance):
+        """ getter for this user's UserProfile.downloadedRawData """
+        return instance.userprofile.downloadedRawData.all().count()
 
     can_use_api.short_description = 'API access?'
 
