@@ -1,0 +1,27 @@
+{% extends "visualizer/base.html" %}
+{% load static %}
+{% load compress %}
+
+{% block header %}
+  <title>Raw Data</title>
+  <meta name="description" content="Raw Data Download">
+{% endblock %}
+
+{% block maincontent %}
+  <div class="container">
+    <h1 class="page-section-heading text-center mt-3 mb-3">Raw Data for {{title}}</h1>
+
+    <p>
+    You may download the raw data to perform additional analysis on this visualization.
+    If you need to access RCVis data in bulk, please use the <a href="https://github.com/artoonie/rcvis#rest-api">api</a> instead of using any scrapers on this page.
+    </p>
+
+    <p>
+    Use the <a href="https://rcvformats.readthedocs.io/en/latest/">rcvformats</a> library to parse this data. The link will expire in 15 minutes.
+    </p>
+
+    <p>
+    <a href="{{jsonfile.url}}"><button class="btn btn-primary btn-xl">Download</button></a>
+    </p>
+  </div>
+{% endblock %}

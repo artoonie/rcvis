@@ -27,6 +27,7 @@ urlpatterns = [
     path('vo/<slug>', views.VisualizeEmbedly.as_view(), name='visualizeEmbedlyDefault'),
     path('vo/<slug>/<vistype>', views.VisualizeEmbedly.as_view(), name='visualizeEmbedly'),
     path('vb/<slug>', views.VisualizeBallotpedia.as_view(), name='visualizeBallotpedia'),
+    path('raw/<slug>', views.DownloadRawData.as_view(), name='downloadRawData'),
     path('upload.html', views.Upload.as_view(), name='upload'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
 

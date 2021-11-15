@@ -275,6 +275,57 @@
       </div>
     </div>
   </div>
+
+  <div class="homedescriptor" id="lookingfor">
+    <div class="container">
+      <h2 class="page-section-heading text-center text-uppercase">Future Development</h2>
+
+      <!-- Icon Divider -->
+      <div class="divider-custom">
+        <div class="divider-custom-line"></div>
+        <div class="divider-custom-icon">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <div class="divider-custom-line"></div>
+      </div>
+
+      <div class="container">
+        <div class="row">
+            <p>
+                RCVis is free, open-source, and nonpartisan.
+                These are our top projects.
+                If you'd like to help fund the development of RCVis, or volunteer your time as a developer, please get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
+            </p>
+            <ol>
+                <li>
+                    <strong>Accessibility</strong>:
+                    RCVis is not screenreader-friendly, though we have an undocumented audio captions for each visualization.
+                    We'd like to make these audio captions widely available, as well as making all RCVis visualizations screenreader-friendly.
+                </li>
+                <li>
+                    <strong>ES&S Data</strong>:
+                    We'd like to be able to upload and visualize data from Election Systems & Software voting machines.
+                </li>
+                <li>
+                    <strong>Election Pages</strong>:
+                    In addition to hosting visualizations, we'd like to host a list of visualizations, so a jurisdiction can point to a list of all available visualizations for a given election.
+                    This has historically been burdensome to smaller, less-resourced municipalities.
+                </li>
+                <li>
+                    <strong>Live Updates</strong>:
+                    While the API allows you to update an existing visualization, there is no UI for this.
+                    Being able to update existing visualizations with newer data would allow the same URL to update as election data rolls in.
+                </li>
+                <li>
+                    <strong>Infrastructure Updates</strong>:
+                    We'd like to use enable autoscaling to better support the influx of users and uploads on election night, as well as other infrastructure
+                    updates for stability and speed.
+                </li>
+            </ol>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block afterMaincontent %}
