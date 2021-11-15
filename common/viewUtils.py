@@ -2,8 +2,6 @@
 
 import json
 
-from django.shortcuts import render
-
 from rcvis.settings import OFFLINE_MODE
 from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.descriptors.faq import FAQGenerator
@@ -30,22 +28,15 @@ class DefaultConfig():  # pylint: disable=too-few-public-methods
         self.isPreferentialBlock = False
 
 
-def get_embed_html(embedUrl, request, vistype, maxwidth, maxheight):
-    """ Given the absolute URL to the visualizeEmbedded page, returns the UTF-8 encoded HTML
+def get_embed_html(embedlyUrl, maxwidth, maxheight):
+    """ Given the absolute URL to the visualizeEmbedly page, returns the UTF-8 encoded HTML
         needed to embed that page in an iframe. """
     # Force HTTPS because embedly requires it
-    if not embedUrl.startswith('https'):
-        embedUrl = 'https' + embedUrl[4:]
+    if not embedlyUrl.startswith('https'):
+        embedlyUrl = 'https' + embedlyUrl[4:]
 
-    renderData = {
-        'width': maxwidth,
-        'height': maxheight,
-        'iframe_url': embedUrl,
-        'vistype': vistype
-    }
-
-    httpResponse = render(request, 'visualizer/oembed.html', renderData)
-    html = httpResponse.content.decode('utf-8').strip()
+    html = f'<iframe width="{maxwidth}" height="{maxheight}" src="{embedlyUrl}" '\
+        'frameborder="0" allowfullscreen="allowfullscreen"></iframe>'
     return html
 
 

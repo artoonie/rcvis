@@ -139,9 +139,10 @@ class Visualize(DetailView):
         # oembed href
         vistype = self.request.GET.get('vistype', 'barchart-interactive')
         slug = config['jsonconfig'].slug
-        iframeUrl = make_complete_url(self.request, reverse("visualizeEmbedded", args=(slug,)))
+        embedUrl = reverse("visualizeEmbedly", args=(slug, vistype))
+        iframeUrl = make_complete_url(self.request, embedUrl)
         iframeUrl = urllib.parse.quote_plus(iframeUrl)
-        args = f"?url={iframeUrl}&vistype={vistype}"
+        args = f"?url={iframeUrl}"
         oembedUrl = make_complete_url(self.request, reverse("oembed")) + args
         data['oembed_url'] = oembedUrl
 
@@ -221,7 +222,7 @@ class VisualizeEmbedly(RedirectView):
 
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeBallotpedia(DetailView):
-    """ The embedded visualization, pointed to from Oembed """
+    """ The embedded ballotpedia visualization """
     model = JsonConfig
     template_name = 'visualizer/visualize-ballotpedia.html'
 
@@ -244,7 +245,7 @@ class Oembed(View):
 
     @classmethod
     def _get_visualize_embedded_url_from(cls, url):
-        """ Returns a visualizeEmbedded URL. Can pass a visualize or a visualizeEmbedded URL """
+        """ Returns a visualizeEmbedly URL. Can pass a visualize or a visualizeEmbedly URL """
         # Parse the URL
         urlPath = urllib.parse.urlparse(url).path
         try:
@@ -256,7 +257,9 @@ class Oembed(View):
         if not kwargs:
             # invalid URL
             return None
-        return reverse('visualizeEmbedded', kwargs=kwargs)
+        if 'vistype' not in kwargs:
+            kwargs['vistype'] = 'barchart-interactive'
+        return reverse('visualizeEmbedly', kwargs=kwargs)
 
     def get(self, request):
         """ Overriding the getter for this class-based view """
@@ -265,27 +268,29 @@ class Oembed(View):
         maxwidth = int(requestData.get('maxwidth', 1440))
         maxheight = int(requestData.get('maxheight', 1080))
         returnType = str(requestData.get('type', 'json'))
-        vistype = str(requestData.get('vistype', 'barchart-interactive'))
 
         if returnType == 'xml':
             # not implemented
             return HttpResponse(status=501)
 
         embedUrl = self._get_visualize_embedded_url_from(url)
+        if embedUrl is None:
+            return HttpResponse(status=404)
+
         embedUrl = make_complete_url(request, embedUrl)
-        if not embedUrl:
-            # invalid URL
-            HttpResponse(status=404)
-        html = viewUtils.get_embed_html(embedUrl, request, vistype, maxwidth, maxheight)
+        if embedUrl is None:
+            return HttpResponse(status=404)
+
+        html = viewUtils.get_embed_html(embedUrl, maxwidth, maxheight)
 
         jsonData = {
             "version": "1.0",
             "title": "Ranked Choice Voting Visualization",
             "cache_age": "86400",  # one day
             "author_name": "rcvis.com",
-            "author_url": "http://www.rcvis.com/",
+            "author_url": "https://www.rcvis.com/",
             "provider_name": "rcvis.com",
-            "provider_url": "http://www.rcvis.com/",
+            "provider_url": "https://www.rcvis.com/",
             "thumbnail": make_complete_url(request, static("visualizer/icon_interactivebar.gif"))
         }
         jsonData['type'] = "rich"

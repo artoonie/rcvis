@@ -42,19 +42,16 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         visRelativeUrl = reverse('visualize', args=(instance.slug,))
         visAbsoluteUrl = request.build_absolute_uri(visRelativeUrl)
 
-        embedRelativeUrl = reverse('visualizeEmbedded', args=(instance.slug,))
-        embedAbsoluteUrl = request.build_absolute_uri(embedRelativeUrl)
-        embedSankeyAbsoluteUrl = embedAbsoluteUrl + "?vistype=sankey"
-        embedTableAbsoluteUrl = embedAbsoluteUrl + "?vistype=tabular-candidate-by-round"
-
+        embedRelativeBarUrl = reverse('visualizeEmbedly', args=(instance.slug, 'bar'))
+        embedRelativeSankeyUrl = reverse('visualizeEmbedly', args=(instance.slug, 'sankey'))
+        embedRelativeTableUrl = reverse('visualizeEmbedly', args=(instance.slug, 'table'))
         oembedRelativeUrl = reverse('oembed') + "?url=" + visAbsoluteUrl
-        oembedAbsoluteUrl = request.build_absolute_uri(oembedRelativeUrl)
 
         data['visualizeUrl'] = visAbsoluteUrl
-        data['embedUrl'] = embedAbsoluteUrl
-        data['embedSankeyUrl'] = embedSankeyAbsoluteUrl
-        data['embedTableUrl'] = embedTableAbsoluteUrl
-        data['oembedEndpointUrl'] = oembedAbsoluteUrl
+        data['embedUrl'] = request.build_absolute_uri(embedRelativeBarUrl)
+        data['embedSankeyUrl'] = request.build_absolute_uri(embedRelativeSankeyUrl)
+        data['embedTableUrl'] = request.build_absolute_uri(embedRelativeTableUrl)
+        data['oembedEndpointUrl'] = request.build_absolute_uri(oembedRelativeUrl)
         return data
 
     def to_internal_value(self, data):

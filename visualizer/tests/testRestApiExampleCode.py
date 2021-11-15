@@ -100,9 +100,9 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         assert responseJson['visualizeUrl'].endswith('/v/medium-rcvis')
 
         # If you want to embed it, you can grab several embedding URLs too
-        assert responseJson['embedUrl'].endswith('/ve/medium-rcvis')
+        assert responseJson['embedUrl'].endswith('/vo/medium-rcvis/bar')
         assert responseJson['embedSankeyUrl'].endswith('sankey')
-        assert responseJson['embedTableUrl'].endswith('tabular-candidate-by-round')
+        assert responseJson['embedTableUrl'].endswith('table')
 
         # Or build an embeddable URL:
         # https://www.rcvis.com/v/{slug} for the basic embed

@@ -201,7 +201,7 @@ class SimpleTests(TestCase):
         ensure_url_uses_template(oldStyleEmbedUrl, 'visualize-embedded')
 
     def test_oembed_converts_url(self):
-        """ Check that the oembed converts a visualize URL to a visualizeEmbedded URL """
+        """ Check that the oembed converts a visualize URL to a visualizeEmbedly URL """
         # First unit tests
         view = Oembed()
         func = view._get_visualize_embedded_url_from  # pylint:disable=protected-access
@@ -212,7 +212,7 @@ class SimpleTests(TestCase):
                        'https://fakeurl.com/ve/fakeslug',
                        'https://fakeurl.com/visualizeMovie=fakeslug']
         for allowedUrl in allowedUrls:
-            self.assertEqual(func(allowedUrl), '/ve/fakeslug')
+            self.assertEqual(func(allowedUrl), '/vo/fakeslug/barchart-interactive')
         disallowedUrls = ['https://fakeurl.com/oembed=fakeslug',
                           'https://fakeurl.com/visualize=',
                           'https://fakeurl.com/ve/']
@@ -230,7 +230,7 @@ class SimpleTests(TestCase):
         responseData = json.loads(jsonResponse.content)
 
         # Validate the response - this time the complete URL is needed
-        assert 'https://fakeurl.com/ve/fakeslug' in responseData['html']
+        assert 'https://fakeurl.com/vo/fakeslug' in responseData['html']
 
     def test_oembed_keeps_vistype(self):
         """ Ensure vistype is shepharded from visualize to visualizembedded via oembed """
@@ -369,9 +369,17 @@ class SimpleTests(TestCase):
             "Content-Type": "application/json",
             "Authorization": "Bearer mytoken"
         }
-        expectedData = {'files': ['https://example.com/v/macomb-multiwinner-surplus',
-                                  'https://example.com/ve/macomb-multiwinner-surplus',
-                                  'https://example.com/vb/macomb-multiwinner-surplus']}
+
+        expectedData = {
+            'files': [
+                "https://example.com/v/macomb-multiwinner-surplus",
+                "https://example.com/ve/macomb-multiwinner-surplus",
+                "https://example.com/vo/macomb-multiwinner-surplus",
+                "https://example.com/vo/macomb-multiwinner-surplus/bar",
+                "https://example.com/vo/macomb-multiwinner-surplus/barchart-interactive",
+                "https://example.com/vo/macomb-multiwinner-surplus/sankey",
+                "https://example.com/vo/macomb-multiwinner-surplus/table",
+                "https://example.com/vb/macomb-multiwinner-surplus"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData))

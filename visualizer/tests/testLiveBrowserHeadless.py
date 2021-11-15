@@ -92,7 +92,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Sanity check that a json exists
         uploadedPath = urlparse(self.browser.current_url).path
         oembedJsonUrl = self.browser.find_element_by_id("oembed").get_attribute('href')
-        embeddedUrl = uploadedPath.replace('v/', 've/')
+        embeddedUrl = uploadedPath.replace('v/', 'vo/')
 
         # Sanity check
         self.open(uploadedPath)
@@ -116,19 +116,28 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         assert responseData['width']
         assert responseData['height']
 
-        # Note: ensure it ends with ?vistype not &vistype
+        # Note: ensure it ends with /barchart-interactive not ?vistype=barchart-interactive
         url = responseData['url']
         html = responseData['html']
 
         # Embedly requires the iframe URL is secure
         assert url.startswith('http')
         assert 'https' in html
-        urlWithHttps = url.replace('http', 'https')
-        assert html[html.find(urlWithHttps) + len(urlWithHttps)] == "?"
+        assert 'vistype' not in url
+        assert 'barchart-interactive' in url
+        assert '/vo/' in url
 
         # Verify base URL for embedded visualization does not have errors
         self.open(embeddedUrl)
 
+        # Verify oembed URL is also valid
+        self.open(url, prependServer=False)
+
+    def test_legacy_embedded_urls(self):
+        """ Test old /ve/ urls work """
+        self._upload_something_if_needed()
+        uploadedPath = urlparse(self.browser.current_url).path
+        embeddedUrl = uploadedPath.replace('v/', 've/')
         validVistypes = ["sankey",
                          "barchart-fixed",
                          "barchart-interactive",
@@ -242,8 +251,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_sharetab_can_switch_vistype(self):
         """ Check that the share tab has sane URLs for iframe and embedly codes """
+        # Note: in this test, can't use .text on htmlTextarea, it shows the old, stale value?
         self._upload_something_if_needed()
         self._go_to_tab("share-tab")
+
+        # On init, text area should have the initial URL
+        htmlTextarea = self.browser.find_element_by_id('htmlembedexport')
+        self.assertIn('/bar', htmlTextarea.get_attribute("value"))
 
         # Change to the tabular selector
         selectElement = self.browser.find_element_by_id('exportVistypeSelector')
@@ -254,7 +268,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         expectedURL = reverse('visualizeEmbedly', args=(
             TestHelpers.get_latest_upload().slug, 'table'))
 
-        # Note: can't use .text on htmlTextarea, it shows the old, stale value?
+        # URL should be somewhere in the text area
         htmlTextarea = self.browser.find_element_by_id('htmlembedexport')
         self.assertIn(expectedURL, htmlTextarea.get_attribute("value"))
 
