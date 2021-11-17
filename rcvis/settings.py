@@ -275,12 +275,8 @@ AWS_DEFAULT_ACL = None
 
 CACHES = {
     'default': {
-        'BACKEND': 'django_bmemcached.memcached.BMemcached',
-        'LOCATION': os.environ['MEMCACHEDCLOUD_SERVERS'].split(','),  # Required
-        'OPTIONS': {
-            'username': os.environ.get('MEMCACHEDCLOUD_USERNAME'),  # Optional
-            'password': os.environ.get('MEMCACHEDCLOUD_PASSWORD'),  # Optional
-        }
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/django_rcvis_cache/',
     }
 }
 
