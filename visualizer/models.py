@@ -152,10 +152,11 @@ class JsonConfig(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._get_unique_slug()
-        else:
+
+        if not self._state.adding:
             # Model is being updated, not created. Clear the cache.
 
-            # A) Local mem cache clearing.
+            # A) filesystem caching clearing.
             # This is not useful in most cases, but is useful when:
             # 1. The admin page changes something
             # 2. In unit tests, where the db gets cleared for each test, and you don't want to see

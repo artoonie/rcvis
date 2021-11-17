@@ -79,11 +79,14 @@ or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
 ## Running
 To begin serving the website at localhost:8000:
 ```bash
+./scripts/serve.sh
+```
+
+You may also need to run this whenever the npm dependencies change:
+```bash
 source .env
 source venv/bin/activate
 python3 manage.py npminstall
-python3 manage.py compress
-python3 manage.py runserver
 ```
 
 To run workers to generate movies (optional - only needed to use the movie generation flow):
