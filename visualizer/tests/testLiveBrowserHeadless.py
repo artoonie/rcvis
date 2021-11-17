@@ -550,3 +550,10 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         assert 'Macomb' in wiki
         html = textAreaValues[1]
         assert html.startswith('<iframe')
+
+    def test_dominion_strips_quotes(self):
+        """
+        Dominion input might have JSON-safe names.
+        This is a rRegression test to make sure we handle it right.
+        """
+        self._upload(filenames.DOMINION)
