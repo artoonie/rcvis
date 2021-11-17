@@ -78,8 +78,8 @@ def get_data_for_round_describer(graph, config):
     faqsPerRound = json.dumps(FAQGenerator(graph, config).describe_all_rounds())
 
     return {
-        'humanFriendlyEventsPerRound': humanFriendlyEventsPerRound,
-        'humanFriendlySummary': humanFriendlySummary,
+        'humanFriendlyEventsPerRound': json.dumps(humanFriendlyEventsPerRound),
+        'humanFriendlySummary': json.dumps(humanFriendlySummary),
         'faqsPerRound': faqsPerRound
     }
 

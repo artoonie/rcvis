@@ -115,6 +115,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # test to fail. Doesn't happen on SauceLabs, only headless browsers.
         log = [l for l in log if '\'window.webkitStorageInfo\' is deprecated.' not in l['message']]
 
+        # This happens on the chromedriver used on 2021-11-17
+        log = [l for l in log if 'ch-ua-bitness' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
@@ -197,7 +200,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """
         values = self._get_json_config_default_bools()
 
-        with open(jsonFilename, 'r') as jsonFileObject:
+        with open(jsonFilename, 'rb') as jsonFileObject:
             values['jsonFile'] = jsonFileObject
 
             if sidecarFilename is None:
