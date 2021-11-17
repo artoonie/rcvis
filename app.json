@@ -19,6 +19,9 @@
       "options": {
         "version": "13"
       }
+    },
+    {
+      "plan": "memcachedcloud:30"
     }
   ],
   "env": {
@@ -76,7 +79,10 @@
   ],
   "environments": {
     "test": {
-      "addons": ["heroku-postgresql:in-dyno"],
+      "addons": [
+        "heroku-postgresql:in-dyno",
+        "memcachedcloud:30"
+      ],
       "formation": {
         "test": {
           "quantity": 3,

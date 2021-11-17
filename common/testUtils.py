@@ -99,6 +99,7 @@ class TestHelpers():
         loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
         for logger in loggers:
             logger.setLevel(logging.CRITICAL)
+        logging.getLogger('bmemcached.protocol').setLevel(logging.CRITICAL)
         logging.getLogger('boto').setLevel(logging.CRITICAL)
         logging.getLogger('boto3').setLevel(logging.CRITICAL)
         logging.getLogger('botocore').setLevel(logging.CRITICAL)

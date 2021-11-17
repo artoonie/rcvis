@@ -24,7 +24,7 @@ Visualize the results of ranked-choice voting elections.
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
 ## Installation
-Install python3 and virtualenv, then
+Install python3, virtualenv, memcached, then
 
 ```bash
 virtualenv venv
@@ -39,6 +39,7 @@ Create a .env file with your secrets and configuration options:
 export RCVIS_SECRET_KEY=''
 export RCVIS_DEBUG=True
 export RCVIS_HOST=localhost
+export MEMCACHEDCLOUD_SERVERS='localhost:11211'
 
 # Either have OFFLINE_MODE=True
 export OFFLINE_MODE=True
@@ -79,11 +80,14 @@ or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
 ## Running
 To begin serving the website at localhost:8000:
 ```bash
+./scripts/serve.sh
+```
+
+You may also need to run this whenever the npm dependencies change:
+```bash
 source .env
 source venv/bin/activate
 python3 manage.py npminstall
-python3 manage.py compress
-python3 manage.py runserver
 ```
 
 To run workers to generate movies (optional - only needed to use the movie generation flow):

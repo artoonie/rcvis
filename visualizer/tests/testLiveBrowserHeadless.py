@@ -12,8 +12,10 @@ import uuid
 from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core import mail as test_mailbox
 from django.urls import reverse
+from mock import patch
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -21,6 +23,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
+from common.viewUtils import get_data_for_view
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
 
@@ -34,6 +37,30 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Returns a list of candidate's tags in the interactive bargraph """
         bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
         return bargraph.find_elements_by_tag_name('tspan')
+
+    def _go_to_without_cache(self, url):
+        """
+        To skip browser cache, use a fresh browser.
+        and there doesn't seem to be an easy way to skip the cache every time:
+        https://stackoverflow.com/a/9563341/1057105
+        This also returns the local browser if you want to use it
+        """
+        localBrowser = TestHelpers.get_headless_browser()
+
+        # First, navigate to a random URL to cache the static files
+        localBrowser.get(self._make_url("/upload.html"))
+
+        # Then, go to the URL we care about
+        localBrowser.get(self._make_url(url))
+
+        return localBrowser
+
+    def _assert_bmemcached_is_running(self):
+        """ Ensure bmemcached is running - if not, needs to be started before tests run """
+        cache.set('key', 'value')
+        if not cache.get('key') == 'value':
+            print("You must start bmemcached before running these tests")
+        self.assertEqual(cache.get('key'), 'value')
 
     def test_upload(self):
         """ Tests the upload page """
@@ -169,22 +196,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         except NoSuchElementException:
             pass
 
-    def test_cache(self):
+    def test_cache_speed(self):
         """ Tests that caching works and that second loads are faster,
             even without browser cache """
 
         # Verify that the django.core.cache middleware works as expected
         def measure_load_time(url):
-            # Use a fresh browser - we never want to hit the cache,
-            # and there doesn't seem to be an easy way to skip the cache every time:
-            # https://stackoverflow.com/a/9563341/1057105
-            localBrowser = TestHelpers.get_headless_browser()
-
-            # First, navigate to a random URL to cache the static files
-            localBrowser.get(self._make_url("/upload.html"))
-
-            # Then, go to the URL we care about
-            localBrowser.get(self._make_url(url))
+            localBrowser = self._go_to_without_cache(url)
 
             WebDriverWait(localBrowser, timeout=5, poll_frequency=0.05).until(
                 lambda d: d.find_element_by_id("page-top"))
@@ -193,29 +211,68 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             toc = localBrowser.execute_script('return performance.timing.domLoading')
             return toc - tic
 
-        def is_cache_much_faster():
-            urlsToLoad = [f"{fn1}?a=b", f"{fn1}?b=c", f"{fn1}?c=d"]
+        def is_cache_much_faster(url, shouldItBe):
+            urlsToLoad = [f"{url}?a={num}" for num in range(10)]
+
             loadTimesWithoutCache = [measure_load_time(f) for f in urlsToLoad]
             loadTimesWithCache = [measure_load_time(f) for f in urlsToLoad]
+
             avgLoadTimeWithoutCache = sum(loadTimesWithoutCache) / len(loadTimesWithoutCache)
             avgLoadTimeWithCache = sum(loadTimesWithCache) / len(loadTimesWithCache)
 
             # Verify that it's at least 2x faster with cache (closer to 5x on
             # selenium, 200x in real life)
-            return avgLoadTimeWithoutCache > avgLoadTimeWithCache * 5
+            print("For debugging this flaky test: Without cache", loadTimesWithoutCache)
+            print("For debugging this flaky test: With cache", loadTimesWithCache)
+            if shouldItBe:
+                self.assertGreater(avgLoadTimeWithoutCache, avgLoadTimeWithCache * 2)
+            else:
+                self.assertLess(avgLoadTimeWithoutCache, avgLoadTimeWithCache * 2)
 
-        # Upload a file, check cache
-        self._upload(filenames.OPAVOTE)
-        fn1 = "/v/opavote-fairvote"
-        assert is_cache_much_faster()
+        self._assert_bmemcached_is_running()
+
+        # Upload a file
+        self._upload_something_if_needed()
+        url = reverse('visualize', args=(TestHelpers.get_latest_upload().slug,))
+
+        # Force cache clearing
+        TestHelpers.get_latest_upload().save()
+
+        # Initial load should not be cached
+        is_cache_much_faster(url, True)
 
         # Uploading should clear all cache
         self._upload(filenames.ONE_ROUND)
-        assert is_cache_much_faster()
+        is_cache_much_faster(url, True)
 
         # But just visiting the upload page and returning should not clear cache
         self.open("/upload.html")
-        assert not is_cache_much_faster()
+        is_cache_much_faster(url, False)
+
+    @patch('common.viewUtils.get_data_for_view', side_effect=get_data_for_view)
+    def test_cache_works(self, dataForViewPatch):
+        """ Tests that caching doesn't call the heavy graph-generation function more than once """
+        def count_cache_misses_mocked(url):
+            dataForViewPatch.reset_mock()
+            self._go_to_without_cache(url)
+            return dataForViewPatch.call_count
+
+        self._assert_bmemcached_is_running()
+
+        self._upload_something_if_needed()
+        url = reverse('visualize', args=(TestHelpers.get_latest_upload().slug,))
+
+        # Updating should clear all cache
+        TestHelpers.get_latest_upload().save()
+        self.assertEqual(count_cache_misses_mocked(url), 1)
+
+        # Going to the same URL should now be cached
+        self.assertEqual(count_cache_misses_mocked(url), 0)
+
+        # Uploading also clears cache, but this is accidental -
+        # it just happens to save() multiple times
+        self._upload(filenames.ONE_ROUND)
+        self.assertEqual(count_cache_misses_mocked(url), 1)
 
     def test_sharetab_sane_links(self):
         """ Check that the share tab has sane links for all buttons """
