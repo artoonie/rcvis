@@ -86,7 +86,9 @@ You may also need to run this whenever the npm dependencies change:
 ```bash
 source .env
 source venv/bin/activate
-python3 manage.py npminstall
+
+npm install  # this works for me
+python3 manage.py npminstall  # this is purported to work but doesn't
 ```
 
 To run workers to generate movies (optional - only needed to use the movie generation flow):
