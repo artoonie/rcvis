@@ -70,3 +70,26 @@ svg {
 #datatable-upload-box {
   display: none;
 }
+.left-panel-button {
+  width: 300px !important;
+  margin: 30px !important;
+}
+.dt_left-panel {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: auto auto;
+}
+#dataTableWrapper {
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 5px 5px 5px #ccc;
+  margin: 15px;
+  overflow-x: scroll;
+}
+.dt_cell {
+  vertical-align: top;
+}
+.dt_cell input:disabled {
+  opacity: 5%;
+}

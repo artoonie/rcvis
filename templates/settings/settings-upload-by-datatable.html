@@ -1,30 +1,17 @@
 {% load static %}
-<script type="text/javascript" src="{% static 'usfca-data-table/data-table/table.js' %}"></script>
+{% load compress %}
+
+{% compress css file %}
 <link rel="stylesheet" href="{% static 'usfca-data-table/data-table/table.css' %}">
+{% endcompress %}
+
 
 <div class="mt-3 container" style="overflow-x: auto">
   <div id="dataTableWrapper">
   </div>
-
-  <script type="text/javascript">
-    function NotNegative(value)
-    {
-        if (value < 0)
-        {
-            return "Vote counts must be positive";
-        }
-    }
-
-    dtCreateDataTable({
-      wrapperDivId: 'dataTableWrapper',
-      rowsName: "Candidate",
-      columnsName: "Round",
-
-      /* Datum Config */
-      names: ["# Votes", "Status"],
-      types: [Number, Array],
-      values: [0, ["Active", "Eliminated", "Elected"]],
-      callbacks: [NotNegative, null]
-    });
-  </script>
 </div>
+
+{% compress js file %}
+<script type="text/javascript" src="{% static 'usfca-data-table/data-table/table.js' %}"></script>
+<script type="text/javascript" src="{% static 'settings/upload-by-datatable-nonblocking.js' %}" defer></script>
+{% endcompress %}
