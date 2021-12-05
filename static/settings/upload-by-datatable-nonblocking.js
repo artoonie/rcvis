@@ -13,12 +13,14 @@ function clearVoteCountError(row, col) {
 }
 
 function voteCountCallback(value, row, col) {
+    disableDataOptionsAndSubmitButton(); // Any change requires revalidation
+
     if (value < 0) {
         return "Vote counts must be positive";
     }
 
     let thisCellErrorMessage = null;
-    const numCols = dtGetNumColumns('dataTableWrapper');
+    const numCols = dtGetNumColumns(wrapperDivId);
     let prevCellData = dtGetCellData(wrapperDivId, row, 0);
     for (let c = 1; c < numCols; ++c) {
         const cellData = dtGetCellData(wrapperDivId, row, c);
@@ -88,7 +90,37 @@ function updateActivationOfRowStartingAtCol(status, row, col) {
 }
 
 function statusCallback(status, row, col) {
+    disableDataOptionsAndSubmitButton(); // Any change requires revalidation
+
     updateActivationOfRowStartingAtCol(status, row, col);
+
+    if (col == dtGetNumColumns(wrapperDivId) - 1 && status == 'Eliminated') {
+        return "Cannot eliminate a candidate on the last round. (Where do their votes go?)" +
+               " There should be an elimination on Round 1, but not the last round.";
+    }
+}
+
+function validateDataEntry() {
+   // Serialize data, add it to the hidden input
+   const serializedData = dtToJSON(wrapperDivId);
+   document.getElementById('dataEntry').value = serializedData;
+
+   // Prepare the mock form
+   const form = document.getElementsByTagName('form')[0];
+   const data = $(form).serializeArray();
+
+   // AJAX to check if it would survive all serverside processing
+   $.post('/validateDataEntry', data, function(data) {
+      $('#dataEntryValidationMessage').text(data.message);
+
+      $('#dataEntryValidationMessage').toggleClass('validationSuccess', data.success);
+      $('#dataEntryValidationMessage').toggleClass('validationFailure', !data.success);
+      if (data.success) {
+        enableDataOptionsAndSubmitButton();
+      } else {
+        disableDataOptionsAndSubmitButton();
+      }
+   });
 }
 
 dtCreateDataTable({

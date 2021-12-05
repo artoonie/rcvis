@@ -1,26 +1,11 @@
 {% extends  "settings/base.html" %}
 {% load static %}
+{% load compress %}
 
 {% block beforeOptions %}
-<script>
-function summaryFileSelected(files)
-{
-  document.getElementById("selectResultsFileButton").innerHTML = files[0].name
-  document.getElementById("options").style.opacity = '100%'
-  document.getElementById("uploadButton").disabled = false;
-}
-
-function sidecarFileSelected(files)
-{
-  document.getElementById("selectSidecarFileButton").innerHTML = files[0].name
-}
-
-function showDataTable(doShow)
-{
-  document.getElementById("file-upload-box").style.display = doShow ? "none" : "block";
-  document.getElementById("datatable-upload-box").style.display = doShow ? "block" : "none";
-}
-</script>
+{% compress js file %}
+<script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
+{% endcompress %}
 
   <div class="mb-2 mt-2" id="header">
     <div class="uploaddescriptor">
@@ -42,7 +27,7 @@ function showDataTable(doShow)
 
     <p class="masthead-subheading font-weight-light mt-3 narrowbox">
      You may also choose to: 
-     <button class="btn btn-link" onclick="showDataTable(true)" type="button">
+     <button id="swapDataTables" class="btn btn-link" onclick="showDataTable(true)" type="button">
        enter round-by-round results manually
      </button>
     </p>

@@ -29,7 +29,11 @@ urlpatterns = [
     path('vb/<slug>', views.VisualizeBallotpedia.as_view(), name='visualizeBallotpedia'),
     path('raw/<slug>', views.DownloadRawData.as_view(), name='downloadRawData'),
     path('upload.html', views.Upload.as_view(), name='upload'),
+    path('uploadByDataTable.html', views.UploadByDataTable.as_view(), name='uploadByDataTable'),
     path('oembed', views.Oembed.as_view(), name='oembed'),
+
+    # Upload Validation API / AJAX
+    path('validateDataEntry', views.ValidateDataEntry.as_view(), name='validateDataEntry'),
 
     # REST API
     path('api/', include(router.urls)),

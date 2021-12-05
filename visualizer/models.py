@@ -125,7 +125,7 @@ class JsonConfig(models.Model):
 
     def _get_unique_slug(self):
         # loop until the name is unique
-        slug = slugify(self.jsonFile)
+        slug = slugify(self.title)
         if slug.endswith('json'):
             slug = slug[:-4]
 
