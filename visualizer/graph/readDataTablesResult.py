@@ -7,68 +7,67 @@ class InvalidDataTableInput(Exception):
     """ Error messages caught here, that may not have been caught in JS """
 
 
-def convert_to_urcvt(jsonData):
-    if 'dataEntry' not in jsonData:
-        raise InvalidDataTableInput("Data Tables isn't even shown. This should never happen.")
+class ReadDataTableJSON():
+    """ A class to read DataTable-serialized data """
 
-    dataTableData = json.loads(jsonData['dataEntry'])
-    config = {}
-    results = []
-    config['contest'] = jsonData['configElectionTitle']
-    config['date'] = jsonData['configElectionDate']
-    config['threshold'] = jsonData['configThreshold']
+    def __init__(self, jsonData):
+        self.jsonData = jsonData
+        self.numRounds = None
 
-    if config['contest'] == "":
-        raise InvalidDataTableInput("Must give this election a title")
+    def _parse_config(self):
+        """ Parses the config from the JSON data passed from upload.html """
+        config = {}
+        config['contest'] = self.jsonData['configElectionTitle']
+        config['date'] = self.jsonData['configElectionDate']
+        config['threshold'] = self.jsonData['configThreshold']
 
-    if config['date'] == "":
-        raise InvalidDataTableInput("Must give this election a date")
+        if config['contest'] == "":
+            raise InvalidDataTableInput("Must give this election a title")
 
-    if config['threshold'] == "":
-        raise InvalidDataTableInput("Threshold cannot be empty")
+        if config['date'] == "":
+            raise InvalidDataTableInput("Must give this election a date")
 
-    numRounds = len(dataTableData['data'][0])
-    results = [{"round": i + 1, "tally": {}, "tallyResults": []} for i in range(numRounds)]
+        if config['threshold'] == "":
+            raise InvalidDataTableInput("Threshold cannot be empty")
 
-    names = dataTableData['rowNames']
-    if len(set(names)) != len(names):
-        raise InvalidDataTableInput("All candidate names must be unique")
-    if any(n == "" for n in names):
-        raise InvalidDataTableInput("All candidates must have names")
+        return config
 
-    # Iterate over the data, which goes candidate-by-candidate (whereas URCVT data
-    # goes round-by-round), so we will transpose it
-    for candidateNum, candidateData in enumerate(dataTableData['data']):
-        candidateName = names[candidateNum]
+    def _fill_rest_of_rounds_after_elected(
+            self,
+            results,
+            candidateName,
+            electedOnRound,
+            finalVoteTotal):
+        if electedOnRound + 1 > self.numRounds:
+            return
 
+        # All future rounds keep the same vote total
+        for futureRoundNum in range(electedOnRound + 1, self.numRounds):
+            results[futureRoundNum]['tally'][candidateName] = finalVoteTotal
+
+    def _handle_candidate(self, results, candidateData, candidateName):
+        """
+        Fills in the data for one candidate across all rounds
+        Returns true if was just elected
+        """
         # Iterate over each row for this candidate
         wasElectedLastRound = False
-        numVotesAfterElected = None
         for roundNum, roundData in enumerate(candidateData):
             # Gather data from table
             numVotes = roundData['# Votes']
             status = roundData['Status']
 
-            # Special case: surplus transfer / all future rounds after an election
+            # Already elected last round - fill out remaining rounds, then break
             if wasElectedLastRound:
-                futureRoundStartsAt = roundNum
-                if numVotes is not None and numVotes != 0:
-                    # Surplus transfer round
-                    numVotes = float(numVotes)
-                    results[roundNum]['tally'][candidateName] = numVotes
-                    futureRoundStartsAt += 1
-                    numVotesAfterElected = numVotes
+                if numVotes is None or numVotes == 0:
+                    # No surplus transfer: use the last-round's value
+                    finalVoteTotal = results[roundNum - 1]['tally'][candidateName]
+                else:
+                    # Has surplus transfer
+                    finalVoteTotal = float(numVotes)
 
-                # All future rounds keep the same vote total
-                for futureRoundNum in range(futureRoundStartsAt, numRounds):
-                    results[futureRoundNum]['tally'][candidateName] = numVotes
-
-                # And don't process anything further from this candidate -
-                # raising an error if any data does exist
-                for i in range(roundNum + 1, numRounds):
-                    if candidateData[roundNum]['# Votes'] is not None:
-                        raise InvalidDataTableInput(
-                            "You can't input values after a candidate is elected")
+                self._fill_rest_of_rounds_after_elected(
+                    results, candidateName, roundNum - 1, finalVoteTotal)
                 break
 
             # The normal case: just append the tally
@@ -86,6 +85,36 @@ def convert_to_urcvt(jsonData):
             elif status == 'Elected':
                 results[roundNum]['tallyResults'].append({'elected': candidateName})
                 wasElectedLastRound = True
-                numVotesAfterElected = numVotes
 
-    return {'config': config, 'results': results}
+    def _parse_results(self):
+        """ Parses the results from the dataEntry serialization """
+        if 'dataEntry' not in self.jsonData:
+            raise InvalidDataTableInput("Data Tables isn't even shown. This should never happen.")
+        dataTableData = json.loads(self.jsonData['dataEntry'])
+
+        self.numRounds = len(dataTableData['data'][0])
+        results = [{"round": i + 1, "tally": {}, "tallyResults": []} for i in range(self.numRounds)]
+
+        names = dataTableData['rowNames']
+        if len(set(names)) != len(names):
+            raise InvalidDataTableInput("All candidate names must be unique")
+        if any(n == "" for n in names):
+            raise InvalidDataTableInput("All candidates must have names")
+
+        # Iterate over the data, which goes candidate-by-candidate (whereas URCVT data
+        # goes round-by-round), so we will transpose it
+        for candidateNum, candidateData in enumerate(dataTableData['data']):
+            candidateName = names[candidateNum]
+            self._handle_candidate(results, candidateData, candidateName)
+
+        return results
+
+    def convert_to_urcvt(self):
+        """
+        Worker function: converts all data passed from upload.html, including the config
+        (from RCVis' fields) and the results (from the datatables' serialization)
+        """
+        config = self._parse_config()
+        results = self._parse_results()
+
+        return {'config': config, 'results': results}

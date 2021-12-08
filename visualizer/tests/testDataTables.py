@@ -50,7 +50,8 @@ class DataTablesTests(TestCase):
         JSON FieldFile
         """
         formOutput = self._get_simplified_post_data()
-        urcvtData = readDataTablesResult.convert_to_urcvt(formOutput)
+        reader = readDataTablesResult.ReadDataTableJSON(formOutput)
+        urcvtData = reader.convert_to_urcvt()
         schema = universaltabulator.SchemaV0()
         self.assertTrue(schema.validate(urcvtData))
 

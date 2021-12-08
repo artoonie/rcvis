@@ -1,7 +1,6 @@
 """ Forms enable users to create Models """
 
 import json
-import tempfile
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -23,8 +22,6 @@ class UploadForm(forms.ModelForm):
         model = JsonConfig
         fields = JsonConfig.get_all_non_auto_fields()
 
-#pylint: disable=too-few-public-methods
-
 
 class UploadByDataTableForm(UploadForm):
     """ Used by the upload form using the DataTables entry"""
@@ -36,7 +33,8 @@ class UploadByDataTableForm(UploadForm):
 
     def clean_jsonFile(self):
         try:
-            urcvtData = readDataTablesResult.convert_to_urcvt(self.data)
+            reader = readDataTablesResult.ReadDataTableJSON(self.data)
+            urcvtData = reader.convert_to_urcvt()
         except BaseException as e:  # pylint:disable-broad-except
             raise ValidationError(str(e)) from e
 

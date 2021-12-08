@@ -12,8 +12,13 @@ function clearVoteCountError(row, col) {
     dtClearCellErrorMessage(wrapperDivId, row, col, VOTES_FIELD_NUM);
 }
 
+function requireRevalidation() {
+    disableDataOptionsAndSubmitButton();
+    $("#validateButton").prop("disabled", false);
+}
+
 function voteCountCallback(value, row, col) {
-    disableDataOptionsAndSubmitButton(); // Any change requires revalidation
+    requireRevalidation();
 
     if (value < 0) {
         return "Vote counts must be positive";
@@ -90,7 +95,7 @@ function updateActivationOfRowStartingAtCol(status, row, col) {
 }
 
 function statusCallback(status, row, col) {
-    disableDataOptionsAndSubmitButton(); // Any change requires revalidation
+    requireRevalidation();
 
     updateActivationOfRowStartingAtCol(status, row, col);
 
@@ -117,6 +122,7 @@ function validateDataEntry() {
       $('#dataEntryValidationMessage').toggleClass('validationFailure', !data.success);
       if (data.success) {
         enableDataOptionsAndSubmitButton();
+        $("#validateButton").prop("disabled", true);
       } else {
         disableDataOptionsAndSubmitButton();
       }

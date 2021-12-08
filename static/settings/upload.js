@@ -12,13 +12,13 @@ function disableDataOptionsAndSubmitButton()
 
 function summaryFileSelected(files)
 {
-  document.getElementById("selectResultsFileButton").innerHTML = files[0].name
+  $("#selectResultsFileButton").text(files[0].name)
   enableDataOptionsAndSubmitButton();
 }
 
 function sidecarFileSelected(files)
 {
-  document.getElementById("selectSidecarFileButton").innerHTML = files[0].name
+  $("#selectSidecarFileButton").text(files[0].name)
 }
 
 function showDataTable(doShow)

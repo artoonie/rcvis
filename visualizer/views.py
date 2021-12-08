@@ -9,7 +9,6 @@ import urllib.parse
 # Django helpers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files.base import ContentFile
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -22,7 +21,6 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from django.utils.text import slugify
 from rest_framework import permissions, viewsets
 from rest_framework_tracking.mixins import LoggingMixin
 
@@ -85,7 +83,7 @@ class Upload(LoginRequiredMixin, CreateView):
     build_path = "upload.html"
     include = JsonConfig.get_all_non_auto_fields()
 
-    def _actions_before_save(self):
+    def _actions_before_save(self, form):
         """
         This is a horribly hacky way to ensure that upload-by-datatables
         actually creates the file to upload - no-op here, but our child
@@ -342,11 +340,11 @@ class Oembed(View):
         return JsonResponse(jsonData)
 
 
-class ValidateDataEntry(View):
+class ValidateDataEntry(LoginRequiredMixin, View):
     @classmethod
-    def _make_failure(cls, errNum, message, exception):
+    def _make_failure(cls, errNum, message):
         return JsonResponse({
-            'message': f'Error #{errNum}: {message}: {str(exception)}',
+            'message': f'Error #{errNum}: {message}',
             'success': False
         })
 
@@ -354,20 +352,24 @@ class ValidateDataEntry(View):
         """ Doesn't render a webpage - just text """
         jsonData = request.POST
         try:
-            urcvt_data = readDataTablesResult.convert_to_urcvt(jsonData)
+            reader = readDataTablesResult.ReadDataTableJSON(jsonData)
+            urcvtData = reader.convert_to_urcvt()
         except readDataTablesResult.InvalidDataTableInput as e:
-            return self._make_failure(10, 'Data is not valid', e)
-        except BaseException as e:
-            return self._make_failure(20, 'Unknown error', e)
+            return self._make_failure(10, 'Data is not valid: ' + str(e))
+        except BaseException as e:  # pylint: disable=broad-except
+            logger.warning(e)
+            return self._make_failure(20, 'Unknown error')
 
         with tempfile.TemporaryFile(mode='w+') as tf:
-            json.dump(urcvt_data, tf)
+            json.dump(urcvtData, tf)
             try:
                 validators.try_to_load_jsons(tf, None)
             except BadJSONError as e:
-                return self._make_failure(30, 'Could not generate a visualization', e)
-            except BaseException as e:
-                return self._make_failure(40, 'Unknown error', e)
+                logger.warning(e)
+                return self._make_failure(30, 'Could not generate a visualization' + str(e))
+            except BaseException as e:  # pylint: disable=broad-except
+                logger.warning(e)
+                return self._make_failure(40, 'Unknown error')
             return JsonResponse({'message': "Data is valid!", 'success': True})
 
 
