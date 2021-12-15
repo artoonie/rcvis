@@ -138,6 +138,7 @@ class Upload(LoginRequiredMixin, CreateView):
 
 #pylint: disable=too-many-ancestors
 class UploadByDataTable(Upload):
+    """ Upload form when using the datatables input """
     form_class = UploadByDataTableForm
 
     def _actions_before_save(self, form):
@@ -341,6 +342,8 @@ class Oembed(View):
 
 
 class ValidateDataEntry(LoginRequiredMixin, View):
+    """ Validation AJAX view: would the current input succeed in creating a graph? """
+
     @classmethod
     def _make_failure(cls, errNum, message):
         return JsonResponse({
@@ -354,21 +357,21 @@ class ValidateDataEntry(LoginRequiredMixin, View):
         try:
             reader = readDataTablesResult.ReadDataTableJSON(jsonData)
             urcvtData = reader.convert_to_urcvt()
-        except readDataTablesResult.InvalidDataTableInput as e:
-            return self._make_failure(10, 'Data is not valid: ' + str(e))
-        except BaseException as e:  # pylint: disable=broad-except
-            logger.warning(e)
+        except readDataTablesResult.InvalidDataTableInput as exc:
+            return self._make_failure(10, 'Data is not valid: ' + str(exc))
+        except BaseException as exc:  # pylint: disable=broad-except
+            logger.warning(exc)
             return self._make_failure(20, 'Unknown error')
 
         with tempfile.TemporaryFile(mode='w+') as tf:
             json.dump(urcvtData, tf)
             try:
                 validators.try_to_load_jsons(tf, None)
-            except BadJSONError as e:
-                logger.warning(e)
-                return self._make_failure(30, 'Could not generate a visualization' + str(e))
-            except BaseException as e:  # pylint: disable=broad-except
-                logger.warning(e)
+            except BadJSONError as exc:
+                logger.warning(exc)
+                return self._make_failure(30, 'Could not generate a visualization' + str(exc))
+            except BaseException as exc:  # pylint: disable=broad-except
+                logger.warning(exc)
                 return self._make_failure(40, 'Unknown error')
             return JsonResponse({'message': "Data is valid!", 'success': True})
 

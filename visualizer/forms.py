@@ -31,12 +31,14 @@ class UploadByDataTableForm(UploadForm):
         """ Metadata is all we need here """
         fields = [f for f in UploadForm.Meta.fields if f != 'jsonFile']
 
+    #pylint: disable=invalid-name
     def clean_jsonFile(self):
+        """ Converts the datatables json to URCVT json """
         try:
             reader = readDataTablesResult.ReadDataTableJSON(self.data)
             urcvtData = reader.convert_to_urcvt()
-        except BaseException as e:  # pylint:disable-broad-except
-            raise ValidationError(str(e)) from e
+        except BaseException as exc:  # pylint:disable-broad-except
+            raise ValidationError(str(exc)) from exc
 
         contentFile = ContentFile(json.dumps(urcvtData).encode('utf-8'))
         return contentFile

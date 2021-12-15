@@ -21,7 +21,7 @@ from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.graph.readRCVRCJSON import JSONReader
 from visualizer.views import Oembed
 from visualizer.models import JsonConfig, HomepageFeaturedElection, HomepageFeaturedElectionColumn
-from visualizer.forms import JsonConfigForm
+from visualizer.forms import UploadForm
 from visualizer.tests import filenames
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
@@ -131,7 +131,7 @@ class SimpleTests(TestCase):
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
         fieldsToIgnore = ('jsonFile', 'candidateSidecarFile')
-        configBoolsToToggle = [t for t in JsonConfigForm.Meta.fields if t not in fieldsToIgnore]
+        configBoolsToToggle = [t for t in UploadForm.Meta.fields if t not in fieldsToIgnore]
         fn = filenames.MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
             with open(fn, 'r+') as f:

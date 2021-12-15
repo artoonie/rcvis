@@ -6,18 +6,11 @@ with a more-expensive selenium testing.
 """
 
 from enum import Enum
-import json
 
-from django.urls import reverse
-from rcvformats.schemas import universaltabulator
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 
-from common.testUtils import TestHelpers
-from visualizer.models import JsonConfig
-from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
-from visualizer.graph import readDataTablesResult
 
 
 class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
@@ -34,18 +27,11 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(len(buttons), 4)
         return buttons[buttonEnum.value]
 
-    @classmethod
-    def _get_simplified_post_data(cls):
-        """ The barebones data sent via POST - no extraneous options included """
-        with open(filenames.DATATABLES_OUTPUT, 'r') as f:
-            data = json.dumps(json.load(f))
-        formOutput = {'dataEntry': data,
-                      'configElectionTitle': 't',
-                      'configElectionDate': 'd',
-                      'configThreshold': 1}
-        return formOutput
-
     def test_one_round_one_candidate(self):
+        """
+        The most basic test: remove two cols, two rows to get a 1x1 grid,
+        and fill out valid data. Does it work?
+        """
         # Go to data tables
         self.open('/upload.html')
         self.browser.find_element_by_id('swapDataTables').click()

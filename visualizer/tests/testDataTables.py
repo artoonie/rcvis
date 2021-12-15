@@ -2,14 +2,11 @@
 DataTables tests without a browser.
 """
 
-from enum import Enum
 import json
 
 from django.test import TestCase
 from django.urls import reverse
 from rcvformats.schemas import universaltabulator
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from visualizer.models import JsonConfig
@@ -19,13 +16,6 @@ from visualizer.graph import readDataTablesResult
 
 class DataTablesTests(TestCase):
     """ Tests for the DataTables library """
-
-    def setUp(self):
-        TestHelpers.login(self.client)
-        TestHelpers.setup_host_mocks(self)
-
-    def tearDown(self):
-        TestHelpers.logout(self.client)
 
     @classmethod
     def _get_simplified_post_data(cls):
@@ -49,6 +39,7 @@ class DataTablesTests(TestCase):
         all django functionality - specifically, actually creating the
         JSON FieldFile
         """
+        TestHelpers.login(self.client)
         formOutput = self._get_simplified_post_data()
         reader = readDataTablesResult.ReadDataTableJSON(formOutput)
         urcvtData = reader.convert_to_urcvt()

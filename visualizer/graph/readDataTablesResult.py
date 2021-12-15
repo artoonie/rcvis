@@ -7,6 +7,7 @@ class InvalidDataTableInput(Exception):
     """ Error messages caught here, that may not have been caught in JS """
 
 
+# pylint: disable=too-few-public-methods
 class ReadDataTableJSON():
     """ A class to read DataTable-serialized data """
 
@@ -73,16 +74,16 @@ class ReadDataTableJSON():
             # The normal case: just append the tally
             try:
                 numVotes = float(numVotes)
-            except TypeError as e:
-                raise InvalidDataTableInput(
-                    f"On Round {roundNum+1}, \"{candidateName}\" has an invalid number of votes") from e
+            except TypeError as typeError:
+                raise InvalidDataTableInput(f"On Round {roundNum+1}, \"{candidateName}\" " +
+                                            "has an invalid number of votes") from typeError
             results[roundNum]['tally'][candidateName] = numVotes
 
             # TallyResults only exist for eliminated and elected candidates
             if status == 'Eliminated':
                 results[roundNum]['tallyResults'].append({'eliminated': candidateName})
                 break
-            elif status == 'Elected':
+            if status == 'Elected':
                 results[roundNum]['tallyResults'].append({'elected': candidateName})
                 wasElectedLastRound = True
 
