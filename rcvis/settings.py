@@ -26,6 +26,9 @@ SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 
+# Only useful to disable in tests
+RATE_LIMIT_AJAX = True
+
 # I'm not proud of this. Add hosts - one per environment variable
 ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
 if 'RCVIS_HOST_ALIAS' in os.environ:

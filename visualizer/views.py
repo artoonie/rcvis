@@ -3,12 +3,15 @@
 import json
 import logging
 import tempfile
+import time
 import traceback
 import urllib.parse
 
 # Django helpers
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -351,8 +354,36 @@ class ValidateDataEntry(LoginRequiredMixin, View):
             'success': False
         })
 
+    def _check_rate_limit(self):
+        """
+        Returns the number of ms the user must wait before trying again.
+        If 0 is returned, the user is not rate limited.
+        """
+        user = self.request.user
+        cacheKey = 'last_req_' + str(user.id)
+        lastRequest = cache.get(cacheKey, 0)
+        now = time.time()
+        secsSinceLastReq = now - lastRequest
+        secsToWaitBeforeRateLimit = 5
+        if secsSinceLastReq > secsToWaitBeforeRateLimit:
+            cache.set(cacheKey, now)
+            return 0
+
+        logger.warning("User %s has been rate limited", self.request.user.username)
+        if not settings.RATE_LIMIT_AJAX:
+            # Rate limiting disabled - should only happen in tests
+            return 0
+
+        return secsToWaitBeforeRateLimit - secsSinceLastReq
+
     def post(self, request):
         """ Doesn't render a webpage - just text """
+        secsToWait = self._check_rate_limit()
+        if secsToWait > 0:
+            secsToWait = int(secsToWait) + 1
+            message = f"Please wait {secsToWait} seconds before trying again"
+            return JsonResponse({'message': message, 'success': False})
+
         jsonData = request.POST
         try:
             reader = readDataTablesResult.ReadDataTableJSON(jsonData)

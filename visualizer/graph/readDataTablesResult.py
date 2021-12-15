@@ -58,6 +58,9 @@ class ReadDataTableJSON():
             numVotes = roundData['# Votes']
             status = roundData['Status']
 
+            if numVotes < 0:
+                raise InvalidDataTableInput("All vote counts must be positive")
+
             # Already elected last round - fill out remaining rounds, then break
             if wasElectedLastRound:
                 if numVotes is None or numVotes == 0:

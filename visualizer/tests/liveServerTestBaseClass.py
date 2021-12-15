@@ -256,3 +256,15 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         ActionChains(self.browser).move_to_element(tick)\
             .click(tick)\
             .perform()
+
+    def _set_input_to(self, inputId, value):
+        """
+        Uses JS to set the input to the given value
+        """
+        self.browser.execute_script(f'document.getElementById("{inputId}").value = "{value}"')
+
+    def _get_attr_from_id(self, inputId, attr):
+        """
+        Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
+        """
+        return self.browser.execute_script(f'return document.getElementById("{inputId}").{attr};')

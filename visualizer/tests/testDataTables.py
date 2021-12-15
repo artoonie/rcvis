@@ -17,6 +17,9 @@ from visualizer.graph import readDataTablesResult
 class DataTablesTests(TestCase):
     """ Tests for the DataTables library """
 
+    def setUp(self):
+        TestHelpers.setup_host_mocks(self)
+
     @classmethod
     def _get_simplified_post_data(cls):
         """ The barebones data sent via POST - no extraneous options included """
@@ -56,6 +59,7 @@ class DataTablesTests(TestCase):
         This uses the built-in client, but not the browser
         """
 
+        TestHelpers.login(self.client)
         with self.assertRaises(JsonConfig.DoesNotExist):
             TestHelpers.get_latest_upload()
 
@@ -77,3 +81,28 @@ class DataTablesTests(TestCase):
         url = reverse('visualize', args=(TestHelpers.get_latest_upload().slug,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_rate_limit(self):
+        """
+        Data validation is CPU-intensive. Rate limit to once per 5 seconds.
+        """
+        TestHelpers.login(self.client)
+
+        # Fail first
+        response = self.client.post(reverse('validateDataEntry'))
+        self.assertEqual(response.json()['message'], 'Error #20: Unknown error')
+
+        # Then rate limit
+        with self.assertLogs("visualizer.views") as logger:
+            response = self.client.post(reverse('validateDataEntry'))
+            self.assertEqual(response.json()['message'],
+                             'Please wait 5 seconds before trying again')
+            self.assertListEqual(logger.output,
+                                 ["WARNING:visualizer.views:User testuser has been rate limited"])
+
+    def test_login_required(self):
+        """
+        Login is required to hit the validation endpoint
+        """
+        response = self.client.post(reverse('validateDataEntry'))
+        self.assertEqual(response.status_code, 302)
