@@ -349,6 +349,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
 
     @classmethod
     def _make_failure(cls, errNum, message):
+        # lgtm [py/stack-trace-exposure]
         return JsonResponse({
             'message': f'Error #{errNum}: {message}',
             'success': False
@@ -359,6 +360,10 @@ class ValidateDataEntry(LoginRequiredMixin, View):
         Returns the number of ms the user must wait before trying again.
         If 0 is returned, the user is not rate limited.
         """
+        if not settings.RATE_LIMIT_AJAX:
+            # Rate limiting disabled - should only happen in tests
+            return 0
+
         user = self.request.user
         cacheKey = 'last_req_' + str(user.id)
         lastRequest = cache.get(cacheKey, 0)
@@ -369,11 +374,8 @@ class ValidateDataEntry(LoginRequiredMixin, View):
             cache.set(cacheKey, now)
             return 0
 
+        # lgtm [py/clear-text-logging-sensitive-data]
         logger.warning("User %s has been rate limited", self.request.user.username)
-        if not settings.RATE_LIMIT_AJAX:
-            # Rate limiting disabled - should only happen in tests
-            return 0
-
         return secsToWaitBeforeRateLimit - secsSinceLastReq
 
     def post(self, request):
@@ -400,7 +402,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
                 validators.try_to_load_jsons(tf, None)
             except BadJSONError as exc:
                 logger.warning(exc)
-                return self._make_failure(30, 'Could not generate a visualization' + str(exc))
+                return self._make_failure(30, 'Could not generate a visualization: ' + str(exc))
             except BaseException as exc:  # pylint: disable=broad-except
                 logger.warning(exc)
                 return self._make_failure(40, 'Unknown error')

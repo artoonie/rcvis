@@ -62,12 +62,10 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _assert_ajax_response(self, message):
         self.browser.find_element_by_id('validateButton').click()
-        self._ensure_eventually_asserts(lambda:
-            self.assertEqual(
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(
                 self.browser.find_element_by_id('dataEntryValidationMessage').text,
-                message
-            )
-        )
+                message))
 
     def _create_valid_1x1_table(self):
         self._fill_in_config()
@@ -138,12 +136,44 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
-        self._set_input_to(cellId1, "2")
-        self._set_input_to(cellId2, "1")
+        self._set_input_to(cellId1, '2')
+        self._set_input_to(cellId2, '1')
 
         self.browser.find_element_by_id(cellId2).send_keys(Keys.TAB)
         errorMessage = self._get_attr_from_id(errCellId, 'innerHTML')
         assert errorMessage.startswith('Vote count cannot decrease')
+
+        # And make the error message clear
+        self._set_input_to(cellId2, '3')
+        self.browser.find_element_by_id(cellId2).send_keys(Keys.TAB)
+        self.assertEqual(self.browser.find_elements_by_id(errCellId), [])
+
+    def test_vote_counts_can_decrease_for_surplus(self):
+        """
+        Tests the JS-based error message: vote counts shouldn't decrease
+        """
+        self._init_data_tables()
+
+        dropdownId1 = 'dataTableWrapper_row_1_and_col_1_and_field_1_'
+        cellId1 = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
+        cellId2 = 'dataTableWrapper_row_1_and_col_2_and_field_0_'
+        errCellId = 'dataTableWrapper_row_1_and_col_2_0_error_'
+
+        # Create a 1x2 table with decreasing votes
+        self._create_valid_1x1_table()
+        self._make_table_of_size(2, 1)
+        self._set_input_to(cellId1, '2')
+        self._set_input_to(cellId2, '1')
+
+        # Set candidate to elected
+        options = Select(self.browser.find_element_by_id(dropdownId1))
+        options.select_by_index(1)  # Elected
+
+        # Which makes this valid
+        self.browser.find_element_by_id(dropdownId1).send_keys(Keys.TAB)
+        self.assertEqual(self.browser.find_elements_by_id(errCellId), [])
+
+        self._assert_ajax_response('Data is valid!')
 
     def test_dropdowns_disable_after_nonactive(self):
         """
@@ -191,3 +221,23 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             else:
                 self.assertTrue(self.browser.find_element_by_id(inputId2).is_enabled())
             self.assertFalse(self.browser.find_element_by_id(inputId3).is_enabled())
+
+    def test_unsafe_names(self):
+        """
+        Check that unsafe names are correctly stripped
+        """
+        self._init_data_tables()
+        self._create_valid_1x1_table()
+
+        candidateNameCellId = 'dataTableWrapper_row_1_and_col_0_and_field_0_'
+
+        unsafeChars = '&><\'"'
+        self.browser.find_element_by_id('configElectionTitle').send_keys(unsafeChars)
+        self.browser.find_element_by_id(candidateNameCellId).send_keys(unsafeChars)
+
+        self._assert_ajax_response('Data is valid!')
+        self.browser.find_element_by_id('uploadButton').click()
+
+        # Go to the latest upload, make sure it worked and has no errors
+        wait = WebDriverWait(self.browser, 2)
+        wait.until(expected_conditions.title_contains("electiontitle"))

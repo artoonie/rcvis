@@ -39,8 +39,7 @@ class ReadDataTableJSON():
             candidateName,
             electedOnRound,
             finalVoteTotal):
-        if electedOnRound + 1 > self.numRounds:
-            return
+        assert electedOnRound < self.numRounds
 
         # All future rounds keep the same vote total
         for futureRoundNum in range(electedOnRound + 1, self.numRounds):
@@ -57,6 +56,12 @@ class ReadDataTableJSON():
             # Gather data from table
             numVotes = roundData['# Votes']
             status = roundData['Status']
+
+            try:
+                numVotes = float(numVotes)
+            except (TypeError, ValueError) as exc:
+                raise InvalidDataTableInput(f"On Round {roundNum+1}, \"{candidateName}\" " +
+                                            "has an invalid number of votes") from exc
 
             if numVotes < 0:
                 raise InvalidDataTableInput("All vote counts must be positive")
@@ -75,11 +80,6 @@ class ReadDataTableJSON():
                 break
 
             # The normal case: just append the tally
-            try:
-                numVotes = float(numVotes)
-            except TypeError as typeError:
-                raise InvalidDataTableInput(f"On Round {roundNum+1}, \"{candidateName}\" " +
-                                            "has an invalid number of votes") from typeError
             results[roundNum]['tally'][candidateName] = numVotes
 
             # TallyResults only exist for eliminated and elected candidates
@@ -89,6 +89,8 @@ class ReadDataTableJSON():
             if status == 'Elected':
                 results[roundNum]['tallyResults'].append({'elected': candidateName})
                 wasElectedLastRound = True
+            else:
+                assert status == 'Active'
 
     def _parse_results(self):
         """ Parses the results from the dataEntry serialization """
@@ -102,7 +104,7 @@ class ReadDataTableJSON():
         names = dataTableData['rowNames']
         if len(set(names)) != len(names):
             raise InvalidDataTableInput("All candidate names must be unique")
-        if any(n == "" for n in names):
+        if any(n == "" or n is None for n in names):
             raise InvalidDataTableInput("All candidates must have names")
 
         # Iterate over the data, which goes candidate-by-candidate (whereas URCVT data
