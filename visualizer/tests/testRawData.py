@@ -30,7 +30,7 @@ class RawDataTests(TestCase):
         TestHelpers.logout(self.client)
         rawDataUrl = reverse('downloadRawData', args=(self.slug,))
         response = self.client.get(rawDataUrl)
-        expectedUrl = "/accounts/login/?redirect_to=/raw/macomb-multiwinner-surplus"
+        expectedUrl = "/accounts/login/?redirect_to=/raw/city-of-eastpointe-macomb-county-mi"
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], expectedUrl)
 

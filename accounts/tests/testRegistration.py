@@ -50,7 +50,7 @@ class RegistrationTests(TestCase):
         """ Tests that upload succeeds when authenticated """
         TestHelpers.login(self.client)
         response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response.url, 'v/macomb-multiwinner-surplus')
+        self.assertEqual(response.url, 'v/city-of-eastpointe-macomb-county-mi')
 
     def test_invalid_username_and_pass(self):
         """

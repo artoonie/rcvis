@@ -112,7 +112,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # assert os.path.exists(jsonConfig.movieVertical.titleImage.path)
 
         # Ensure it's loaded in the View
-        response = self.client.get('/visualizeMovie=macomb-multiwinner-surplus')
+        response = self.client.get('/visualizeMovie=city-of-eastpointe-macomb-county-mi')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movie/only-movie.html')
 
@@ -129,21 +129,21 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Upload
         response = TestHelpers.get_multiwinner_upload_response(self.client)
-        self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
+        self.assertEqual(response['location'], "v/city-of-eastpointe-macomb-county-mi")
 
         # Create movie logged out, it should fail
         TestHelpers.logout(self.client)
-        response = self.client.get('/createMovie=macomb-multiwinner-surplus')
+        response = self.client.get('/createMovie=city-of-eastpointe-macomb-county-mi')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         '/admin/login/?next=/createMovie%253Dmacomb-multiwinner-surplus')
+                         '/admin/login/?next=/createMovie%253Dcity-of-eastpointe-macomb-county-mi')
         mockCreateMovie.assert_not_called()
 
         # Log in and try again
         jsonConfig = TestHelpers.get_latest_upload()
         assert jsonConfig.movieGenerationStatus == MovieGenerationStatuses.NOT_REQUESTED
         self.client.post('/admin/login/', {'username': 'admin', 'password': 'password'})
-        response = self.client.get('/createMovie=macomb-multiwinner-surplus')
+        response = self.client.get('/createMovie=city-of-eastpointe-macomb-county-mi')
 
         # Make sure we see it requested - note, we mock out all future MovieGenerationStatuses
         jsonConfig = TestHelpers.get_latest_upload()
@@ -152,7 +152,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         # Assert it redirects to a waiting page
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'],
-                         "/visualizeMovie=macomb-multiwinner-surplus")
+                         "/visualizeMovie=city-of-eastpointe-macomb-county-mi")
 
         # Ensure progress has begun
         mockCreateMovie.assert_called_once()
