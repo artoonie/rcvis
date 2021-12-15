@@ -148,7 +148,7 @@ class SimpleTests(TestCase):
         """ Tests uploading a random file """
         response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], "v/macomb-multiwinner-surplus")
+        self.assertEqual(response['location'], "v/city-of-eastpointe-macomb-county-mi")
 
     def test_upload_file_failure(self):
         """ Tests that we get an error page if a file fails to upload """
@@ -167,7 +167,7 @@ class SimpleTests(TestCase):
         with open(acceptableSizeJson) as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], "v/randomfile")
+        self.assertEqual(response['location'], "v/nothing")
 
         # Then verify it fails with a too-large filesize
         tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
@@ -258,7 +258,7 @@ class SimpleTests(TestCase):
             ('tabular-by-round', 'table-by-round-static'),
             ('tabular-by-candidate', 'table-by-candidate'),
         ]
-        expectedBaseURL = '/ve/macomb-multiwinner-surplus?vistype='
+        expectedBaseURL = '/ve/city-of-eastpointe-macomb-county-mi?vistype='
         for (hardURL, easyURL) in easyToHardURLTranslation:
             visualizeUrl = reverse('visualizeEmbedly', args=(slug, easyURL))
             response = self.client.get(visualizeUrl)
@@ -309,8 +309,8 @@ class SimpleTests(TestCase):
 
     def test_uniqueness(self):
         """ Ensures filenames are not overwritten """
-        slug0 = "macomb-multiwinner-surplus"
-        slug1 = "macomb-multiwinner-surplus-1"
+        slug0 = "city-of-eastpointe-macomb-county-mi"
+        slug1 = "city-of-eastpointe-macomb-county-mi-1"
 
         response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
@@ -330,12 +330,13 @@ class SimpleTests(TestCase):
         # Upload two files
         TestHelpers.get_multiwinner_upload_response(self.client)
         TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = 'city-of-eastpointe-macomb-county-mi'
 
         # Load those two via the database
         out = StringIO()
         call_command('checkUploads', 0, 100, stdout=out)
-        self.assertIn('0: Successfully loaded macomb-multiwinner-surplus-1', out.getvalue())
-        self.assertIn('1: Successfully loaded macomb-multiwinner-surplus', out.getvalue())
+        self.assertIn(f'0: Successfully loaded {slug}-1', out.getvalue())
+        self.assertIn(f'1: Successfully loaded {slug}', out.getvalue())
         self.assertIn('Successfully loaded configs', out.getvalue())
 
         # Load all files in the testData/ directory (one of which raises a TypeError)
@@ -355,8 +356,8 @@ class SimpleTests(TestCase):
         slug = TestHelpers.get_latest_upload().slug
 
         requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
-        expectedLogString = "INFO:common.cloudflare:"\
-                            "Cleared cloudflare cache for macomb-multiwinner-surplus: {'a': 0}"
+        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for "\
+                            "city-of-eastpointe-macomb-county-mi: {'a': 0}"
 
         with self.settings(
                 CLOUDFLARE_AUTH_TOKEN='mytoken',
@@ -373,14 +374,14 @@ class SimpleTests(TestCase):
 
         expectedData = {
             'files': [
-                "https://example.com/v/macomb-multiwinner-surplus",
-                "https://example.com/ve/macomb-multiwinner-surplus",
-                "https://example.com/vo/macomb-multiwinner-surplus",
-                "https://example.com/vo/macomb-multiwinner-surplus/bar",
-                "https://example.com/vo/macomb-multiwinner-surplus/barchart-interactive",
-                "https://example.com/vo/macomb-multiwinner-surplus/sankey",
-                "https://example.com/vo/macomb-multiwinner-surplus/table",
-                "https://example.com/vb/macomb-multiwinner-surplus"]}
+                "https://example.com/v/city-of-eastpointe-macomb-county-mi",
+                "https://example.com/ve/city-of-eastpointe-macomb-county-mi",
+                "https://example.com/vo/city-of-eastpointe-macomb-county-mi",
+                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
+                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
+                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
+                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/table",
+                "https://example.com/vb/city-of-eastpointe-macomb-county-mi"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData))

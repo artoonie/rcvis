@@ -94,13 +94,13 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
 
         # The response has information needed to embed it.
         # Use the slug to construct embeddable URLs.
-        self.assertEqual(responseJson['slug'], 'medium-rcvis')
+        self.assertEqual(responseJson['slug'], 'favorite-ice-cream-flavors')
 
         # You can also grab a direct link to RCVis
-        assert responseJson['visualizeUrl'].endswith('/v/medium-rcvis')
+        assert responseJson['visualizeUrl'].endswith('/v/favorite-ice-cream-flavors')
 
         # If you want to embed it, you can grab several embedding URLs too
-        assert responseJson['embedUrl'].endswith('/vo/medium-rcvis/bar')
+        assert responseJson['embedUrl'].endswith('/vo/favorite-ice-cream-flavors/bar')
         assert responseJson['embedSankeyUrl'].endswith('sankey')
         assert responseJson['embedTableUrl'].endswith('table')
 
@@ -149,10 +149,10 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
 
         # The response has information needed to embed it.
         # Use the slug to construct embeddable URLs.
-        self.assertEqual(responseJson['slug'], 'medium-rcvis')
+        self.assertEqual(responseJson['slug'], 'favorite-ice-cream-flavors')
 
         # You can also grab a direct link to RCVis
-        assert responseJson['visualizeUrl'].endswith('/v/medium-rcvis')
+        assert responseJson['visualizeUrl'].endswith('/v/favorite-ice-cream-flavors')
 
         # Or build an embeddable URL:
         # https://www.rcvis.com/v/{slug} for the basic embed
@@ -192,5 +192,5 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         response = requests.post(url, data=data, headers=headers)
 
         # The response is the same as when you created the data, sans any changes you just made
-        self.assertEqual(response.json()['slug'], 'medium-rcvis')
+        self.assertEqual(response.json()['slug'], 'favorite-ice-cream-flavors')
         self.assertEqual(response.json()['id'], visId)
