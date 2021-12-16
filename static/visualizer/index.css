@@ -76,13 +76,6 @@
   .subheader {
     font-size: 0.6em;
   }
-  .divider-custom {
-    margin-top: 0.2em;
-    margin-bottom: 0.2em;
-  }
-  .divider-custom-icon {
-    font-size: 1.4em !important;
-  }
   .video-container iframe {
     width: 280px;
     height: 157px;
