@@ -1,12 +1,17 @@
 """ The django views file """
 
+import json
 import logging
+import tempfile
+import time
 import traceback
 import urllib.parse
 
 # Django helpers
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
@@ -27,7 +32,8 @@ from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
-from visualizer.forms import JsonConfigForm
+from visualizer.forms import UploadForm, UploadByDataTableForm
+from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
@@ -75,10 +81,17 @@ class Upload(LoginRequiredMixin, CreateView):
     redirect_field_name = 'redirect_to'
     template_name = 'visualizer/uploadFile.html'
     success_url = 'v/{slug}'
+    form_class = UploadForm
     model = JsonConfig
-    form_class = JsonConfigForm
     build_path = "upload.html"
     include = JsonConfig.get_all_non_auto_fields()
+
+    def _actions_before_save(self, form):
+        """
+        This is a horribly hacky way to ensure that upload-by-datatables
+        actually creates the file to upload - no-op here, but our child
+        uses it. Love ya kiddo!
+        """
 
     def form_valid(self, form):
         try:
@@ -91,8 +104,8 @@ class Upload(LoginRequiredMixin, CreateView):
             self.model.title = graph.title
             self.model.numRounds = len(graph.summarize().rounds)
             self.model.numCandidates = len(graph.summarize().candidates)
+            self._actions_before_save(form)
             self.model.save()
-
         except BadJSONError as exception:
             form.add_error('jsonFile', str(exception))
             tbText = traceback.format_exc()
@@ -104,7 +117,7 @@ class Upload(LoginRequiredMixin, CreateView):
             # lgtm [py/clear-text-logging-sensitive-data]
             logger.error("BadSidecarError. User %s: %s", self.request.user.username, str(exception))
             return self.form_invalid(form)
-        except Exception:  # pylint: disable=broad-except
+        except BaseException:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
             # lgtm [py/clear-text-logging-sensitive-data]
             logger.error("Misc Exception. User %s: %s", self.request.user.username, exceptionString)
@@ -124,6 +137,15 @@ class Upload(LoginRequiredMixin, CreateView):
     def form_invalid(self, form):
         context = {'formErrorList': form.errors}
         return render(self.request, 'visualizer/errorBadJson.html', context=context)
+
+
+#pylint: disable=too-many-ancestors
+class UploadByDataTable(Upload):
+    """ Upload form when using the datatables input """
+    form_class = UploadByDataTableForm
+
+    def _actions_before_save(self, form):
+        self.model.jsonFile.save('datatablesfile.json', form.cleaned_data['jsonFile'])
 
 
 class Visualize(DetailView):
@@ -320,6 +342,72 @@ class Oembed(View):
         jsonData['html'] = html
 
         return JsonResponse(jsonData)
+
+
+class ValidateDataEntry(LoginRequiredMixin, View):
+    """ Validation AJAX view: would the current input succeed in creating a graph? """
+
+    @classmethod
+    def _make_failure(cls, errNum, message):
+        # lgtm [py/stack-trace-exposure]
+        return JsonResponse({
+            'message': f'Error #{errNum}: {message}',
+            'success': False
+        })
+
+    def _check_rate_limit(self):
+        """
+        Returns the number of ms the user must wait before trying again.
+        If 0 is returned, the user is not rate limited.
+        """
+        if not settings.RATE_LIMIT_AJAX:
+            # Rate limiting disabled - should only happen in tests
+            return 0
+
+        user = self.request.user
+        cacheKey = 'last_req_' + str(user.id)
+        lastRequest = cache.get(cacheKey, 0)
+        now = time.time()
+        secsSinceLastReq = now - lastRequest
+        secsToWaitBeforeRateLimit = 5
+        if secsSinceLastReq > secsToWaitBeforeRateLimit:
+            cache.set(cacheKey, now)
+            return 0
+
+        # lgtm [py/clear-text-logging-sensitive-data]
+        logger.warning("User %s has been rate limited", self.request.user.username)
+        return secsToWaitBeforeRateLimit - secsSinceLastReq
+
+    def post(self, request):
+        """ Doesn't render a webpage - just text """
+        secsToWait = self._check_rate_limit()
+        if secsToWait > 0:
+            secsToWait = int(secsToWait) + 1
+            message = f"Please wait {secsToWait} seconds before trying again"
+            return JsonResponse({'message': message, 'success': False})
+
+        jsonData = request.POST
+        try:
+            reader = readDataTablesResult.ReadDataTableJSON(jsonData)
+            urcvtData = reader.convert_to_urcvt()
+        except readDataTablesResult.InvalidDataTableInput as exc:
+            return self._make_failure(10, 'Data is not valid: ' + str(exc))
+        except BaseException as exc:  # pylint: disable=broad-except
+            logger.warning(exc)
+            return self._make_failure(20, 'Unknown error')
+
+        with tempfile.TemporaryFile(mode='w+') as tf:
+            json.dump(urcvtData, tf)
+            try:
+                validators.try_to_load_jsons(tf, None)
+            except BadJSONError as exc:
+                logger.warning(exc)
+                return self._make_failure(30, 'Could not generate a visualization: ' + str(exc))
+            except BaseException as exc:  # pylint: disable=broad-except
+                logger.warning(exc)
+                return self._make_failure(40, 'Unknown error')
+            return JsonResponse({'message': "Data is valid!", 'success': True})
+
 
 # For django REST
 

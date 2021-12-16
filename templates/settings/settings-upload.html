@@ -1,20 +1,11 @@
 {% extends  "settings/base.html" %}
 {% load static %}
+{% load compress %}
 
 {% block beforeOptions %}
-<script>
-function summaryFileSelected(files)
-{
-  document.getElementById("selectResultsFileButton").innerHTML = files[0].name
-  document.getElementById("options").style.opacity = '100%'
-  document.getElementById("uploadButton").disabled = false;
-}
-
-function sidecarFileSelected(files)
-{
-  document.getElementById("selectSidecarFileButton").innerHTML = files[0].name
-}
-</script>
+{% compress js file %}
+<script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
+{% endcompress %}
 
   <div class="mb-2 mt-2" id="header">
     <div class="uploaddescriptor">
@@ -31,13 +22,25 @@ function sidecarFileSelected(files)
     </div>
   </div>
 
-  <div class="mb-2 mt-2" id="fileselection">
-    <div class="selectFileButtonWrapper">
-      <button id="selectResultsFileButton" class="btn btn-primary btn-xl">Click to select a file</button>
-      <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv, .xlsx"  onchange="summaryFileSelected(this.files)"/>
-    </div>
+  <div id="file-upload-box">
+    {% include "settings/settings-upload-by-file.html" %}
 
-    {% include "settings/settings-help-filetype.html" %}
+    <p class="masthead-subheading font-weight-light mt-3 narrowbox">
+     You may also choose to: 
+     <button id="swapDataTables" class="btn btn-link" onclick="showDataTable(true)" type="button">
+       enter round-by-round results manually
+     </button>
+    </p>
+  </div>
+  <div id="datatable-upload-box">
+    {% include "settings/settings-upload-by-datatable.html" %}
+
+    <p class="masthead-subheading font-weight-light mt-3 narrowbox">
+     You may also choose to: 
+     <button class="btn btn-link" onclick="showDataTable(false)" type="button">
+       upload a Results Summary File
+     </button>
+    </p>
   </div>
 
   <div class="mb-2 mt-2" id="options">

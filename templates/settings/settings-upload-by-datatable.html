@@ -1,0 +1,38 @@
+{% load static %}
+{% load compress %}
+
+{% compress css file %}
+<link rel="stylesheet" href="{% static 'usfca-data-table/data-table/table.css' %}">
+{% endcompress %}
+
+
+<div class="mt-3 container" style="overflow-x: auto">
+  <div id="configDataTableWrapper">
+      <div class="container mt-3">
+        <label for="configElectionTitle">Title of election</label>
+        <input type="text" id="configElectionTitle" name="configElectionTitle"/>
+      </div>
+      <div class="container mt-3">
+        <label for="configElectionDate">Date of election</label>
+        <input type="date" id="configElectionDate" name="configElectionDate"/>
+      </div>
+      <div class="container mt-3">
+        <label for="configThreshold">Winning threshold</label>
+        <input type="number" id="configThreshold" name="configThreshold"/>
+      </div>
+  </div>
+  <div id="dataTableWrapper">
+  </div>
+  <div class="text-center">
+    <div id="dataEntryValidationMessage"></div>
+    <input type="hidden" id="dataEntry" name="dataEntry" value="" />
+    <button id="validateButton" type="button" class="btn btn-primary btn-xl" onclick="validateDataEntry()">Validate Data Before Proceeding</button>
+  </div>
+</div>
+
+<!-- non-slim jquery needed for AJAX validation calls -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
+{% compress js file %}
+<script type="text/javascript" src="{% static 'usfca-data-table/data-table/table.js' %}"></script>
+<script type="text/javascript" src="{% static 'settings/upload-by-datatable-nonblocking.js' %}" defer></script>
+{% endcompress %}

@@ -1,5 +1,6 @@
 """ Data validation - to be used across REST and HTTP access """
 
+from django.core.files.uploadedfile import UploadedFile
 import rest_framework.serializers as serializers
 
 from common import viewUtils
@@ -34,8 +35,9 @@ def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
          - Loaded graph
     """
     # Check filesize before opening a massive file
-    ensure_file_is_under_2_mb(jsonFileObj)
-    if sidecarJsonFileObj is not None:
+    if isinstance(jsonFileObj, UploadedFile):
+        ensure_file_is_under_2_mb(jsonFileObj)
+    if sidecarJsonFileObj is not None and isinstance(sidecarJsonFileObj, UploadedFile):
         ensure_file_is_under_2_mb(sidecarJsonFileObj)
 
     # Try to make the graph

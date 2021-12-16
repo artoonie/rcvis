@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "@artoonie/timeline-range-slider": "^0.1.12"
+    "@artoonie/timeline-range-slider": "^0.1.12",
+    "usfca-data-table": "^0.1.0"
   },
   "devDependencies": {
-    "jquery": "^3.2.1",
-    "bootstrap": "^3.3.5"
+    "bootstrap": "^3.3.5",
+    "jquery": "^3.2.1"
   }
 }

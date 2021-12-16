@@ -18,3 +18,4 @@ SOME_MISSING_TRANSFERS = 'testData/some-xfers.json'
 DOMINION = 'testData/dominion-input.xlsx'
 
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
+DATATABLES_OUTPUT = 'testData/datatables-output.json'

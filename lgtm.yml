@@ -7,3 +7,6 @@ path_classifiers:
     - "static/localdeps/*"
   templates:
     - "templates/*"
+
+queries:
+  - exclude: py/catch-base-exception

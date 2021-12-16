@@ -1,0 +1,68 @@
+{
+    "columnNames": [],
+    "data": [
+        [
+            {
+                "# Votes": 350,
+                "Status": "Active"
+            },
+            {
+                "# Votes": 375,
+                "Status": "Active"
+            },
+            {
+                "# Votes": 625,
+                "Status": "Elected"
+            }
+        ],
+        [
+            {
+                "# Votes": 500,
+                "Status": "Active"
+            },
+            {
+                "# Votes": 550,
+                "Status": "Active"
+            },
+            {
+                "# Votes": 575,
+                "Status": "Active"
+            }
+        ],
+        [
+            {
+                "# Votes": 250,
+                "Status": "Active"
+            },
+            {
+                "# Votes": 275,
+                "Status": "Eliminated"
+            },
+            {
+                "# Votes": null,
+                "Status": null
+            }
+        ],
+        [
+            {
+                "# Votes": 100,
+                "Status": "Eliminated"
+            },
+            {
+                "# Votes": null,
+                "Status": null
+            },
+            {
+                "# Votes": null,
+                "Status": null
+            }
+        ]
+    ],
+    "rowNames": [
+        "Blackberry",
+        "Vanilla",
+        "Strawberry",
+        "Banana"
+    ],
+    "version": 1
+}
