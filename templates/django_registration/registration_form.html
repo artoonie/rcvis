@@ -15,6 +15,8 @@
   {% csrf_token %}
   {{ form.as_table }}
   </table>
+
+  <div><small>By submitting this form, you will join our mailing list to receive important RCVis updates. You may unsubscribe at any time.</small></div>
   <input type="submit" value="Submit">
 </form>
 {% endblock %}

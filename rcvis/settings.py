@@ -308,6 +308,10 @@ REST_FRAMEWORK = {
 
 MOVIE_FONT_NAME = os.environ.get("MOVIE_FONT_NAME", "Roboto")
 
+MAILCHIMP_API_KEY = os.environ.get("MAILCHIMP_API_KEY")
+MAILCHIMP_LIST_ID = os.environ.get("MAILCHIMP_LIST_ID")
+MAILCHIMP_DC = os.environ.get("MAILCHIMP_DC")
+
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
     # Also ensure logging is output on remote

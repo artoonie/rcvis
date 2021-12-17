@@ -43,6 +43,9 @@ export RCVIS_HOST=localhost
 # Either have OFFLINE_MODE=True
 export OFFLINE_MODE=True
 
+# The following fields are optional, though you will
+# have limited functionality without them.
+
 # Or set up an AWS bucket and enter your credentials
 # export OFFLINE_MODE=False
 # export AWS_STORAGE_BUCKET_NAME=''
@@ -63,10 +66,15 @@ export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
 # To generate videos, you need:
-export SQS_QUEUE_NAME=''
-export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-export MOVIE_FONT_NAME="Roboto"
-export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
+# export SQS_QUEUE_NAME=''
+# export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
+# export MOVIE_FONT_NAME="Roboto"
+# export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
+
+# To subscribe users to mailchimp upon registration, you need:
+# export MAILCHIMP_API_KEY=''
+# export MAILCHIMP_LIST_ID=''
+# export MAILCHIMP_DC=''
 
 ```
 

@@ -7,6 +7,7 @@ import os
 import tempfile
 import time
 
+from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from moviepy.config import change_settings
@@ -15,7 +16,6 @@ from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextCli
 import selenium
 
 from common.viewUtils import get_script_to_disable_animations
-from rcvis.settings import MOVIE_FONT_NAME
 from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
 from movie import models
@@ -41,7 +41,7 @@ class SingleMovieCreator():
         self.config = jsonconfig
         self.size = size
 
-        self.fontName = MOVIE_FONT_NAME
+        self.fontName = settings.MOVIE_FONT_NAME
 
         self.toDelete = []
 
