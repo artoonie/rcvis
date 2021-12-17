@@ -20,3 +20,12 @@ h6 {
 #mainNav .navbar-toggler {
   font-size: 0.8rem;
 }
+
+#mc_embed_signup form {
+  margin-top: 10px;
+  padding: 0px;
+}
+
+#mc_embed_signup input.email {
+  width: 50%;
+}
