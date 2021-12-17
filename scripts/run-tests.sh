@@ -33,6 +33,7 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     $RUN test visualizer/tests/testLiveBrowserWithHead.py
   elif [ "$CI_NODE_INDEX" -eq 1 ]; then
     $RUN test movie \
+              accounts \
               visualizer/tests/testLiveBrowserHeadless.py
   elif [ "$CI_NODE_INDEX" -eq 2 ]; then
     ./scripts/test-code-quality.sh

@@ -11,6 +11,7 @@ import time
 import uuid
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core import mail as test_mailbox
@@ -484,10 +485,11 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.find_element_by_xpath("//input[@type='submit']").click()
 
         def click_activation_link():
-            emailBodyLines = test_mailbox.outbox[0].body.split('\n')
-            emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
-            emailBodyRelativeLink = urlparse(emailBodyLink).path
+            emailBodyRelativeLink = TestHelpers.get_email_reg_link(test_mailbox.outbox)
             self.open(emailBodyRelativeLink)
+
+        # Make sure we won't sign up for mailchimp
+        self.assertEqual(settings.MAILCHIMP_API_KEY, None)
 
         # First logout
         TestHelpers.logout(self.client)

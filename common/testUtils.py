@@ -6,6 +6,7 @@ import logging
 import json
 import tempfile
 import uuid
+from urllib.parse import urlparse
 from mock import patch
 
 from django.contrib.auth import get_user_model
@@ -182,6 +183,13 @@ class TestHelpers():
 
             return MockResponse()
         return mocked_request
+
+    @classmethod
+    def get_email_reg_link(cls, outbox):
+        """ Gets the auth regisration link from the email outbox """
+        emailBodyLines = outbox[0].body.split('\n')
+        emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
+        return urlparse(emailBodyLink).path
 
 
 # Silence logging spam for any test that includes this

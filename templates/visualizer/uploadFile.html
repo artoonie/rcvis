@@ -23,14 +23,6 @@
 </p>
 {% endblock %}
 
-{% block beforeMaincontent %}
-  <form action="upload.html" enctype="multipart/form-data" method="post" id="form">
-{% endblock %}
-
 {% block maincontent %}
 {% include "settings/settings-upload.html" %}
-{% endblock %}
-
-{% block afterMaincontent %}
-  </form>
 {% endblock %}

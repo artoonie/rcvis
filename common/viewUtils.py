@@ -2,7 +2,7 @@
 
 import json
 
-from rcvis.settings import OFFLINE_MODE
+from django.conf import settings
 from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.descriptors.faq import FAQGenerator
 from visualizer.descriptors.roundDescriber import Describer
@@ -99,7 +99,7 @@ def get_data_for_view(config):
         candidateSidecarDataPyObj = None
     candidateSidecarData = json.dumps(candidateSidecarDataPyObj)
 
-    offlineMode = OFFLINE_MODE
+    offlineMode = settings.OFFLINE_MODE
 
     graphData = get_data_for_graph(graph, config)
     additionalData = {

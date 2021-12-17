@@ -5,9 +5,12 @@ django-registration has more complete tests, so we only need test the basics her
 
 import uuid
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core import mail as test_mailbox
 from django.test import TestCase
 from django.urls import reverse
+from mock import patch
 from rest_framework import status
 
 from common.testUtils import TestHelpers
@@ -18,6 +21,9 @@ class RegistrationTests(TestCase):
 
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
+
+        # Don't send mailchimp mails here
+        self.assertEqual(settings.MAILCHIMP_API_KEY, None)
 
     def test_registration_pages(self):
         """ Ensures all required django-registration templates render successfully. """
@@ -87,3 +93,33 @@ class RegistrationTests(TestCase):
             'email': 'test@example.com'
         })
         self.assertEqual(len(get_user_model().objects.filter(username='testuser')), 1)
+
+    @patch('requests.post')
+    def test_registration_registers_mailchimp(self, postMock):
+        """ Tests that auth successfully subscribes to mailchimp """
+        with self.settings(MAILCHIMP_API_KEY="mysecret",
+                           MAILCHIMP_DC="dc",
+                           MAILCHIMP_LIST_ID="listid"):
+            password = uuid.uuid4()
+            self.client.post(reverse('django_registration_register'), {
+                'username': 'testuser',
+                'password1': password,
+                'password2': password,
+                'email': 'test@example.com'
+            })
+
+            # requests.post has not been called yet
+            postMock.assert_not_called()
+
+            # and it is called once we click the activation email
+            self.client.get(TestHelpers.get_email_reg_link(test_mailbox.outbox))
+            postMock.assert_called_once()
+
+            # Check all the arguments
+            postMock.assert_called_with('https://dc.api.mailchimp.com/3.0/lists/listid/members',
+                                        auth=('apikey', 'mysecret'),
+                                        data={'email_address': 'test@example.com',
+                                              'FNAME': 'testuser',
+                                              'status': 'subscribed',
+                                              'ip_signup': '127.0.0.1',
+                                              'tags': ['autosignup']})
