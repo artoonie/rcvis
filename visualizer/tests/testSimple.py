@@ -410,6 +410,15 @@ class SimpleTests(TestCase):
         self.assertIn(columnTitle, indexResponse.content)
         self.assertIn(linkTitle, indexResponse.content)
 
+    def test_slug_generation(self):
+        """
+        Tests that slug generation increments with each upload
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = TestHelpers.get_latest_upload().slug
+        self.assertEqual(slug, 'city-of-eastpointe-macomb-county-mi-1')
+
     def test_homepage_recent_uploads(self):
         """
         Tests the "most recent uploads" section on the homepage.

@@ -109,18 +109,18 @@ class Upload(LoginRequiredMixin, CreateView):
         except BadJSONError as exception:
             form.add_error('jsonFile', str(exception))
             tbText = traceback.format_exc()
-            # lgtm [py/clear-text-logging-sensitive-data]
-            logger.error("BadJSONError. User %s: %s", self.request.user.username, tbText)
+            logger.error(  # lgtm [py/clear-text-logging-sensitive-data]
+                "BadJSONError. User %s: %s", self.request.user.username, tbText)
             return self.form_invalid(form)
         except BadSidecarError as exception:
             form.add_error('candidateSidecarFile', str(exception))
-            # lgtm [py/clear-text-logging-sensitive-data]
-            logger.error("BadSidecarError. User %s: %s", self.request.user.username, str(exception))
+            logger.error(  # lgtm [py/clear-text-logging-sensitive-data]
+                "BadSidecarError. User %s: %s", self.request.user.username, str(exception))
             return self.form_invalid(form)
         except BaseException:  # pylint: disable=broad-except
             exceptionString = traceback.format_exc()
-            # lgtm [py/clear-text-logging-sensitive-data]
-            logger.error("Misc Exception. User %s: %s", self.request.user.username, exceptionString)
+            logger.error(  # lgtm [py/clear-text-logging-sensitive-data]
+                "Misc Exception. User %s: %s", self.request.user.username, exceptionString)
 
             # Not sure how dangerous this traceback can be...
             # Limit it to admins only
@@ -349,8 +349,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
 
     @classmethod
     def _make_failure(cls, errNum, message):
-        # lgtm [py/stack-trace-exposure]
-        return JsonResponse({
+        return JsonResponse({  # lgtm [py/stack-trace-exposure]
             'message': f'Error #{errNum}: {message}',
             'success': False
         })
@@ -374,8 +373,8 @@ class ValidateDataEntry(LoginRequiredMixin, View):
             cache.set(cacheKey, now)
             return 0
 
-        # lgtm [py/clear-text-logging-sensitive-data]
-        logger.warning("User %s has been rate limited", self.request.user.username)
+        logger.warning(  # lgtm [py/clear-text-logging-sensitive-data]
+            "User %s has been rate limited", self.request.user.username)
         return secsToWaitBeforeRateLimit - secsSinceLastReq
 
     def post(self, request):

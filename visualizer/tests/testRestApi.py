@@ -354,6 +354,21 @@ class RestAPITests(APITestCase):
         self.assertEqual(logs[0].method, 'POST')
         self.assertEqual(logs[1].method, 'GET')
 
+    def test_slug_generation(self):
+        """ Ensure slug generation increments on the rest API """
+        self._authenticate_as('notadmin')
+
+        # Upload once
+        response = self._upload_file_for_api(filenames.ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Upload again
+        response = self._upload_file_for_api(filenames.ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        oneRoundObject = TestHelpers.get_latest_upload()
+        self.assertEqual(oneRoundObject.slug, 'one-round-1')
+
     def test_defaults(self):
         """ Ensure the correct defaults are used on upload """
         self._authenticate_as('notadmin')
