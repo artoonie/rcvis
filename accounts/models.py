@@ -15,4 +15,5 @@ class UserProfile(models.Model):
     canUseApi = models.BooleanField(default=False)
 
     # Which raw data has this user downloaded?
-    downloadedRawData = models.ManyToManyField(JsonConfig, related_name="rawDownloadedBy")
+    downloadedRawData = models.ManyToManyField(
+        JsonConfig, related_name="rawDownloadedBy", blank=True)
