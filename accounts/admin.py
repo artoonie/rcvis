@@ -19,6 +19,7 @@ class UserProfileInline(admin.StackedInline):
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "downloadedRawData":
             kwargs["queryset"] = JsonConfig.objects.filter(rawDownloadedBy=request.user.id)
+            kwargs["required"] = False
         return super().formfield_for_manytomany(db_field, request, **kwargs)
 
 
