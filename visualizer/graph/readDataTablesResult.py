@@ -1,6 +1,7 @@
 """ Converts DataTables JSON format to URCVT """
 
 import json
+from rcvformats.conversions.ut_without_transfers import UTWithoutTransfersConverter
 
 
 class InvalidDataTableInput(Exception):
@@ -122,5 +123,12 @@ class ReadDataTableJSON():
         """
         config = self._parse_config()
         results = self._parse_results()
+        withoutTransfers = {'config': config, 'results': results}
 
-        return {'config': config, 'results': results}
+        converter = UTWithoutTransfersConverter()
+        try:
+            withTransfers = converter.convert_to_ut(withoutTransfers)
+        except Exception as exc:
+            raise InvalidDataTableInput("Could not add transfers") from exc
+
+        return withTransfers
