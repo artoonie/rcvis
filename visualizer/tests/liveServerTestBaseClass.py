@@ -118,6 +118,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on the chromedriver used on 2021-11-17
         log = [l for l in log if 'ch-ua-bitness' not in l['message']]
 
+        # This happens on the chromedriver used on 2022-01-27
+        log = [l for l in log if 'ch-ua-full-version-list' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
