@@ -177,9 +177,7 @@ class DataTablesTests(TestCase):
             data['data'][0][1]['# Votes'] = 1
         formOutput = self._get_simplified_post_data_with_modifier(modifier)
 
-        # TODO this should eventually fail here, but for now, votes are
-        # allowed to decrease even without a surplus transfer
-        self._ajax_starts_with(formOutput, 'Data is valid')
+        self._ajax_starts_with(formOutput, 'Error #10: Data is not valid: Could not add transfers')
 
     def test_invalid_votes(self):
         """
