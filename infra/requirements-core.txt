@@ -27,7 +27,7 @@ drf-api-tracking==1.8.0
 markdown==3.3.4
 
 # For movie creation
-celery==5.1.1
+celery==5.2.2
 django-cleanup==5.2.0
 moviepy==1.0.3
 
