@@ -6,7 +6,7 @@ django-node-assets==0.9.10
 django-registration==3.2
 django-social-share==2.2.1
 django-storages==1.11.1
-Django==3.2.11
+Django==3.2.12
 mock==4.0.3
 rcvformats==0.0.34
 selenium==3.141.0
