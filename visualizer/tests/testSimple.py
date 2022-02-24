@@ -422,20 +422,27 @@ class SimpleTests(TestCase):
     def test_public_user(self):
         """
         Test that "public" users appear in the sitemap and the homepage list of recent URLs
+        and should not be marked as noindex
         This test should mirror test_private_user
         """
         TestHelpers.get_multiwinner_upload_response(self.client)
         lastUpload = TestHelpers.get_latest_upload()
         latestSlug = lastUpload.slug
 
+        # It is in index latest list + sitemap
         indexResponse = self.client.get(reverse('index'))
         self.assertIn(latestSlug, str(indexResponse.content))
         sitemapResponse = self.client.get('/sitemap.xml')
         self.assertIn(latestSlug, str(sitemapResponse.content))
 
+        # It is not labeled as noindex
+        visResponse = self.client.get(reverse('visualize', args=(latestSlug,)))
+        self.assertNotIn('noindex', str(visResponse.content))
+
     def test_private_user(self):
         """
-        Test that "private" users do not appear in the sitemap or homepage list of recent URLs
+        Test that "private" users do not appear in the sitemap or homepage list of recent URLs,
+        and should be marked as noindex
         This test should mirror test_public_user
         """
         TestHelpers.get_multiwinner_upload_response(self.client)
@@ -445,11 +452,15 @@ class SimpleTests(TestCase):
         lastUpload.owner.userprofile.isPrivate = True
         lastUpload.owner.userprofile.save()
 
+        # It is not in index latest list + sitemap
         indexResponse = self.client.get(reverse('index') + "nocache=1")
         self.assertNotIn(latestSlug, str(indexResponse.content))
-
         sitemapResponse = self.client.get('/sitemap.xml')
         self.assertNotIn(latestSlug, str(sitemapResponse.content))
+
+        # It is labeled as noindex
+        visResponse = self.client.get(reverse('visualize', args=(latestSlug,)))
+        self.assertIn('noindex', str(visResponse.content))
 
     def test_text_for_winner(self):
         """ Integration test: is basic test for TextForWinner shown? """
