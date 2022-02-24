@@ -81,3 +81,7 @@
 <meta property="og:video:height" content="{{ config.movieHorizontal.height }}" />
 <meta property="og:url" content="{% get_reverse_as_complete_url 'visualize' config.slug %}" />
 {% endif %}
+
+{% if config.owner.userprofile.isPrivate %}
+<meta name="robots" content="noindex">
+{% endif %}
