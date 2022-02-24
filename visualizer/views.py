@@ -52,7 +52,7 @@ class Index(TemplateView):
         context = super().get_context_data(**kwargs)
 
         # most recent uploads
-        models = JsonConfig.objects.all().order_by('-uploadedAt')[:10]
+        models = JsonConfig.get_all_public().order_by('-uploadedAt')[:10]
         context['mostRecent'] = [{'slug': model.slug,
                                   'title': model.title,
                                   'numRounds': model.numRounds,

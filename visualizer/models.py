@@ -1,6 +1,7 @@
 """ The django object models """
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
@@ -122,6 +123,13 @@ class JsonConfig(models.Model):
                 'dataSourceURL',
                 'areResultsCertified',
                 'textForWinner']
+
+    @classmethod
+    def get_all_public(cls):
+        """ Returns users whose data can be included in sitemap & index """
+        userModel = get_user_model()
+        privateUsers = userModel.objects.filter(userprofile__isPrivate=True)
+        return JsonConfig.objects.all().exclude(owner__in=privateUsers)
 
     def _get_unique_slug(self):
         # loop until the name is unique

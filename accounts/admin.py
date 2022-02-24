@@ -26,7 +26,8 @@ class UserProfileInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     """ Custom user admin with the fields we care about """
     inlines = (UserProfileInline, )
-    list_display = ('username', 'email', 'is_staff', 'can_use_api', 'num_raw_downloads')
+    list_display = ('username', 'email', 'is_staff', 'can_use_api',
+                    'is_private', 'num_raw_downloads')
     list_select_related = ('userprofile', )
     ordering = ('date_joined', )
 
@@ -41,11 +42,17 @@ class CustomUserAdmin(UserAdmin):
         return instance.userprofile.canUseApi
 
     @classmethod
+    def is_private(cls, instance):
+        """ getter for this user's UserProfile.isPrivate """
+        return instance.userprofile.isPrivate
+
+    @classmethod
     def num_raw_downloads(cls, instance):
         """ getter for this user's UserProfile.downloadedRawData """
         return instance.userprofile.downloadedRawData.all().count()
 
     can_use_api.short_description = 'API access?'
+    is_private.short_description = 'Private?'
 
 
 admin.site.unregister(get_user_model())
