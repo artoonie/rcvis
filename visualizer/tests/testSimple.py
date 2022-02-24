@@ -419,15 +419,37 @@ class SimpleTests(TestCase):
         slug = TestHelpers.get_latest_upload().slug
         self.assertEqual(slug, 'city-of-eastpointe-macomb-county-mi-1')
 
-    def test_homepage_recent_uploads(self):
+    def test_public_user(self):
         """
-        Tests the "most recent uploads" section on the homepage.
+        Test that "public" users appear in the sitemap and the homepage list of recent URLs
+        This test should mirror test_private_user
         """
         TestHelpers.get_multiwinner_upload_response(self.client)
-        latestTitle = TestHelpers.get_latest_upload().title
+        lastUpload = TestHelpers.get_latest_upload()
+        latestSlug = lastUpload.slug
 
         indexResponse = self.client.get(reverse('index'))
-        self.assertIn(latestTitle, str(indexResponse.content))
+        self.assertIn(latestSlug, str(indexResponse.content))
+        sitemapResponse = self.client.get('/sitemap.xml')
+        self.assertIn(latestSlug, str(sitemapResponse.content))
+
+    def test_private_user(self):
+        """
+        Test that "private" users do not appear in the sitemap or homepage list of recent URLs
+        This test should mirror test_public_user
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        lastUpload = TestHelpers.get_latest_upload()
+        latestSlug = lastUpload.slug
+
+        lastUpload.owner.userprofile.isPrivate = True
+        lastUpload.owner.userprofile.save()
+
+        indexResponse = self.client.get(reverse('index') + "nocache=1")
+        self.assertNotIn(latestSlug, str(indexResponse.content))
+
+        sitemapResponse = self.client.get('/sitemap.xml')
+        self.assertNotIn(latestSlug, str(sitemapResponse.content))
 
     def test_text_for_winner(self):
         """ Integration test: is basic test for TextForWinner shown? """

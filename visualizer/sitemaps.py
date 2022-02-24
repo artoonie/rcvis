@@ -26,7 +26,7 @@ class VisualizationSitemap(sitemaps.Sitemap):
     protocol = 'https'
 
     def items(self):
-        return JsonConfig.objects.all()
+        return JsonConfig.get_all_public()
 
     def location(self, item):
         return reverse('visualize', args=(item.slug,))

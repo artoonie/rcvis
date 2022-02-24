@@ -17,3 +17,6 @@ class UserProfile(models.Model):
     # Which raw data has this user downloaded?
     downloadedRawData = models.ManyToManyField(
         JsonConfig, related_name="rawDownloadedBy", blank=True)
+
+    # Private user? Hide from sitemap?
+    isPrivate = models.BooleanField(default=False)
