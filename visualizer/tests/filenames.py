@@ -16,6 +16,7 @@ ZERO_VOTE_ELECTION = 'testData/zero-vote-election.json'
 NO_THRESHOLD = 'testData/no-threshold.json'
 SOME_MISSING_TRANSFERS = 'testData/some-xfers.json'
 DOMINION = 'testData/dominion-input.xlsx'
+INACTIVE_BALLOT_APPEARS_LATER = 'testData/inactive-ballots-appears-later.json'
 
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
 DATATABLES_OUTPUT = 'testData/datatables-output.json'

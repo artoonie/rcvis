@@ -1,0 +1,107 @@
+{
+  "config": {
+    "contest": "Inactive ballots appears only after double elimination",
+    "date": "2022-05-04",
+    "jurisdiction": "",
+    "office": "",
+    "threshold": 31
+  },
+  "results": [
+    {
+      "round": 1,
+      "tally": {
+        "WII": 9,
+        "AAA": 7,
+        "BAA": 7,
+        "Who": 7,
+        "lalala3": 7,
+        "Blab": 6,
+        "YINK": 5,
+        "PLOP": 4,
+        "TAPA": 4,
+        "PEEP": 4
+      },
+      "tallyResults": [
+        {
+          "eliminated": "PLOP"
+        },
+        {
+          "eliminated": "TAPA"
+        },
+        {
+          "eliminated": "PEEP"
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "tally": {
+        "BAA": 12,
+        "WII": 10,
+        "Who": 10,
+        "AAA": 8,
+        "lalala3": 8,
+        "YINK": 6,
+        "Blab": 6
+      },
+      "tallyResults": [
+        {
+          "eliminated": "YINK"
+        },
+        {
+          "eliminated": "Blab"
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "tally": {
+        "AAA": 13,
+        "BAA": 12,
+        "Who": 12,
+        "lalala3": 12,
+        "WII": 11
+      },
+      "tallyResults": [
+        {
+          "eliminated": "WII",
+          "transfers": {
+            "AAA": 3,
+            "Who": 2,
+            "lalala3": 2
+          }
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "tally": {
+        "AAA": 16,
+        "BAA": 16,
+        "Who": 14,
+        "lalala3": 14
+      },
+      "tallyResults": [
+        {
+          "eliminated": "Who"
+        },
+        {
+          "eliminated": "lalala3"
+        }
+      ]
+    },
+    {
+      "round": 5,
+      "tally": {
+        "AAA": 26,
+        "BAA": 23,
+        "Inactive Ballots": 11
+      },
+      "tallyResults": [
+        {
+          "elected": "AAA"
+        }
+      ]
+    }
+  ]
+}

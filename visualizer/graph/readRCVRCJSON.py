@@ -133,7 +133,13 @@ class MakeExhaustedAndSurplusACandidate(JSONMigrateTask):
                     numExhausted += tallyResult['transfers'][searchText]
 
     def _make_it_a_candidate_if_in_transfers(self, searchText):
-        """ Looks for searchText in transfers. If it exists, makes it a candidate. """
+        """ Looks for searchText in transfers OR in list of names.
+            If it exists, makes it a candidate. """
+        for result in self.data['results']:
+            if common.INACTIVE_TEXT in result['tally']:
+                self._make_it_a_candidate(searchText)
+                return
+
         for tallyResult in self._enumerate_tally_results():
             if searchText in tallyResult['transfers']:
                 self._make_it_a_candidate(searchText)
@@ -411,5 +417,5 @@ class JSONReader:
 
     def get_elimination_order(self):
         """ Returns the elimination order:
-            a list of names in the order in whhich they were eliminated """
+            a list of names in the order in which they were eliminated """
         return self.eliminationOrder

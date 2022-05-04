@@ -44,6 +44,15 @@ class SimpleTests(TestCase):
             config = JsonConfig(jsonFile=File(f))
             return get_data_for_view(config)
 
+    def test_inactive_ballots_appears_later(self):
+        """
+        When there is a double-elimination, the transfer dictionary isn't loaded.
+        That means no tallyResult includes an "Inactive Ballots".
+        This ensures that we can still load these files.
+        Note: this is a regression test from a RankedVote file.
+        """
+        self._get_data_for_view(filenames.INACTIVE_BALLOT_APPEARS_LATER)
+
     def test_opavote_loads(self):
         """ Opens the opavote file """
         self._get_data_for_view(filenames.OPAVOTE)
