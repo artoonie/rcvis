@@ -31,6 +31,7 @@ class JsonAdmin(CursorPaginatorAdmin):
     view_on_site = True
     show_full_result_count = False  # else we get timeouts with 1000s of rows
     actions = [make_movie]
+    search_fields = ['slug']
 
     list_display = (
         'slug',
