@@ -1,0 +1,100 @@
+{
+    "version": "1.0",
+    "info": {
+        "Eric L. Adams": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Eric_adams.JPG",
+            "moreinfo_url": "https://ballotpedia.org/Eric_Adams_(New_York)",
+            "party": "Democratic Party"
+        },
+        "Art Chang": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Art_Chang.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Art_Chang",
+            "party": "Democratic Party"
+        },
+        "Shaun Donovan": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Shaun_Donovan.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Shaun_Donovan",
+            "party": "Democratic Party"
+        },
+        "Aaron S. Foldenauer": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Aaron_Foldenauer.png",
+            "moreinfo_url": "https://ballotpedia.org/Aaron_Foldenauer",
+            "party": "Democratic Party"
+        },
+        "Kathryn A. Garcia": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Garcia.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Kathryn_Garcia",
+            "party": "Democratic Party"
+        },
+        "Raymond J. McGuire": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Screen_Shot_2021-05-11_at_12.38.02_PM.png",
+            "moreinfo_url": "https://ballotpedia.org/Raymond_McGuire",
+            "party": "Democratic Party"
+        },
+        "Dianne Morales": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/dianne.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Dianne_Morales",
+            "party": "Democratic Party"
+        },
+        "Paperboy Love Prince": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/PaperboyPrince.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Paperboy_Prince",
+            "party": "Democratic Party"
+        },
+        "Scott M. Stringer": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Scott_Stringer.PNG",
+            "moreinfo_url": "https://ballotpedia.org/Scott_Stringer",
+            "party": "Democratic Party"
+        },
+        "Joycelyn Taylor": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Joycelyn_Taylor.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Joycelyn_Taylor",
+            "party": "Democratic Party"
+        },
+        "Maya D. Wiley": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/wiley.jpg",
+            "moreinfo_url": "https://ballotpedia.org/Maya_Wiley",
+            "party": "Democratic Party"
+        },
+        "Isaac Wright Jr.": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Isaac_Wright_Jr..jpg",
+            "moreinfo_url": "https://ballotpedia.org/Isaac_Wright_Jr._(New_York)",
+            "party": "Democratic Party"
+        },
+        "Andrew Yang": {
+            "incumbent": false,
+            "photo_url": "https://s3.amazonaws.com/ballotpedia-api4/files/thumbs/100/100/Screen_Shot_2019-02-21_at_3.25.16_PM.png",
+            "moreinfo_url": "https://ballotpedia.org/Andrew_Yang",
+            "party": "Democratic Party"
+        }
+    },
+    "order": [
+        "Eric L. Adams",
+        "Kathryn A. Garcia",
+        "Maya D. Wiley",
+        "Andrew Yang",
+        "Scott M. Stringer",
+        "Dianne Morales",
+        "Raymond J. McGuire",
+        "Shaun Donovan",
+        "Aaron S. Foldenauer",
+        "Art Chang",
+        "Paperboy Love Prince",
+        "Joycelyn Taylor",
+        "Isaac Wright Jr.",
+        "Write-ins",
+        "Inactive Ballots"
+    ]
+}
