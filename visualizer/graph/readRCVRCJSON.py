@@ -136,7 +136,7 @@ class MakeExhaustedAndSurplusACandidate(JSONMigrateTask):
         """ Looks for searchText in transfers OR in list of names.
             If it exists, makes it a candidate. """
         for result in self.data['results']:
-            if common.INACTIVE_TEXT in result['tally']:
+            if searchText in result['tally']:
                 self._make_it_a_candidate(searchText)
                 return
 

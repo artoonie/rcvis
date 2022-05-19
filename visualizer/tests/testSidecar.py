@@ -34,6 +34,16 @@ class SidecarTests(TestCase):
         with open(filenames.THREE_ROUND_SIDECAR, 'r+') as sidecarFileObj:
             self._assert_sidecar_valid(sidecarFileObj)
 
+    @classmethod
+    def test_regression_residual_surplus(cls):
+        """
+        Test residual surplus in main, not in sidecar
+        regression: c28d6a7 (fix-inactive-after-double-elim)
+        """
+        with open(filenames.RESIDUAL_SURPLUS_MAIN, 'r+') as jsonFileObj:
+            with open(filenames.RESIDUAL_SURPLUS_SIDECAR, 'r+') as sidecarFileObj:
+                try_to_load_jsons(File(jsonFileObj), File(sidecarFileObj))
+
     def test_error_on_version(self):
         """ Ensure the version number is checked """
         tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,

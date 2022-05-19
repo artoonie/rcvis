@@ -18,5 +18,9 @@ SOME_MISSING_TRANSFERS = 'testData/some-xfers.json'
 DOMINION = 'testData/dominion-input.xlsx'
 INACTIVE_BALLOT_APPEARS_LATER = 'testData/inactive-ballots-appears-later.json'
 
+# Regression tests for commit c28d6a7 (fix-inactive-after-double-elim)
+RESIDUAL_SURPLUS_MAIN = 'testData/with-residual-surplus.json'
+RESIDUAL_SURPLUS_SIDECAR = 'testData/with-residual-surplus-sidecar.json'
+
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
 DATATABLES_OUTPUT = 'testData/datatables-output.json'
