@@ -40,7 +40,7 @@ function initializeOptions()
 
 function switchVisTypeHTML(iframeUrl, value)
 {
-    const text = `<iframe width="400" height="800" src="${iframeUrl}/${value}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>`
+    const text = `<iframe width="100%" height="800" src="${iframeUrl}/${value}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>`
     document.getElementById("htmlembedexport").value = text;
 }
 

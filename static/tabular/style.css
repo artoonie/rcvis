@@ -9,7 +9,7 @@
 }
 .responsive-table-wrapper {
     width: 100%;
-    max-width: 95vw;
+    max-width: calc(100vw - 25px); /* -25px to prevent scrollbar on embed */
     overflow-x: auto;
     margin: auto;
     width: fit-content;
