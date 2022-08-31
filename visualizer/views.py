@@ -145,7 +145,7 @@ class Visualize(DetailView):
         embedUrl = reverse('visualizeEmbedded', args=(slug,))
         embedUrl = make_complete_url(self.request, embedUrl)
         data['htmlEmbedExport'] = viewUtils.get_embed_html(
-            embedUrl, self.request, 'barchart-interactive', 400, 800)
+            embedUrl, self.request, 'barchart-interactive', "100%", 800)
 
         # wikipedia embedding
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
