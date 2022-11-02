@@ -7,6 +7,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import ugettext as _
+from sortedm2m.fields import SortedManyToManyField
 
 from common.cloudflare import CloudflareAPI
 
@@ -220,6 +221,27 @@ class HomepageFeaturedElection(models.Model):
     class Meta:
         """ Meta-controls: the default ordering """
         ordering = ["order"]
+
+    def __str__(self):
+        return str(self.title)
+
+
+class ElectionPage(models.Model):
+    """ Represents a group of elections all listed on the same page. """
+    # Title of the election
+    title = models.CharField(max_length=128)
+
+    # Description to put under the title and date
+    description = models.CharField(max_length=2048)
+
+    # Manually-created slug (URL)
+    slug = models.SlugField(unique=True, max_length=255)
+
+    # Date of the election
+    date = models.DateField()
+
+    # The list of all elections in this election page
+    listOfElections = SortedManyToManyField(JsonConfig)
 
     def __str__(self):
         return str(self.title)

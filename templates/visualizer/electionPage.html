@@ -1,0 +1,24 @@
+{% extends "visualizer/base.html" %}
+{% load static %}
+{% load compress %}
+
+{% block header %}
+{% endblock %} 
+
+{% block navlinks %}
+{% endblock %}
+
+{% block maincontent %}
+<div class="container mt-3">
+      <h1 class="masthead-subheading font-weight-light">{{ electionpage.title }}</h1>
+      <p class="font-weight-light">{{ electionpage.date }}</p>
+    <ul>
+        {% for election in electionpage.listOfElections.all %}
+            <li><a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
+
+{% block afterMaincontent %}
+{% endblock %}

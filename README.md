@@ -76,6 +76,9 @@ export SAUCE_ACCESS_KEY=''
 # export MAILCHIMP_LIST_ID=''
 # export MAILCHIMP_DC=''
 
+# If you are updating a template, you'll need to clear the cache every time or set:
+# export DISABLE_CACHE=True
+
 ```
 
 To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
