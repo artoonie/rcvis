@@ -18,7 +18,7 @@ class BaseElectionPage(models.Model):
     title = models.CharField(max_length=128)
 
     # Description to put under the title and date
-    description = models.CharField(max_length=2048)
+    description = models.TextField(max_length=2048)
 
     # Manually-created slug (URL)
     slug = models.SlugField(unique=True, max_length=255)
@@ -43,3 +43,8 @@ class ScrapableElectionPage(BaseElectionPage):
     """ An election page consisting of several Scrapers """
     # The list of all elections in this election page
     listOfScrapers = SortedManyToManyField(Scraper)
+
+    # Are all of these results certified?
+    # If so, we'll overwrite the corresponding field in each Scraper next time
+    # we ScrapeAll.
+    areResultsCertified = models.BooleanField(default=False)

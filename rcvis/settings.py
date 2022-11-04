@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'storages',
     'compressor',
     'django_nose',
+    'extra_views',
     'rest_framework',
     'rest_framework.authtoken',
     'rest_framework_tracking',

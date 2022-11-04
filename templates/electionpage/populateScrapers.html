@@ -1,0 +1,41 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+    {% if formset.non_form_errors %}
+        <div class="alert alert-warning">
+            {{ formset.non_form_errors }}
+        </div>
+    {% endif %}
+
+    <h1>{{title}}</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ formset.management_form }}
+        <table class="table">
+            <thead>
+                {% for form in formset.forms %}
+                    {% if forloop.first %}
+                        {% for field in form %}
+                            <th>{{ field.label_tag }}</th>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </thead>
+            <tbody>
+                {% for form in formset.forms %}
+                    <tr>
+                        {% for field in form %}
+                            <td>{{ field }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="submit" value="Submit" class="btn btn-primary" />
+    </form>
+</div>
+{% endblock %}
+

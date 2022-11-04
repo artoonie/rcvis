@@ -1,0 +1,19 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+  <p>
+      <a href="{% url 'createScrapableElection' %}">
+          <button class="btn btn-primary">Create new scrapable election</button>
+      </a>
+  </p>
+
+      Instructions:
+      <ol>
+          <li>Create a scrapable election by clicking the link above. You must have permissions to do so.</li>
+          <li>Populate the metadata for the election. Admins can change this later.</li>
+          <li>Populate the source links for each election. Order is important. Admins can re-order later.</li>
+          <li>To re-scrape each election, click the button on the corresponding election page.</li>
+      </ol>
+</div>
+{% endblock %}
