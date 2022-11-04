@@ -1,3 +1,9 @@
+"""
+Models for a Scraper, which has:
+    1. The machine-readable URL, to scrape
+    2. The human-readable URL, to display
+    3. After the parsing succeeds, jsonConfig will be non-null
+"""
 from django.db import models
 
 from visualizer.models import JsonConfig

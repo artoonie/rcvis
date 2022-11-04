@@ -1,3 +1,12 @@
+"""
+Views for electionpages.
+Anything related to creating, editing, or scraping should not be publicly-accessible.
+
+Allows viewing of both ElectionPage and ScrapableElectionPage, but as of this creation (Nov 2022),
+only ScrapableElectionPage is given a nice workflow. The other case is simpler, and can be
+created in an admin page I suppose - though eventually we want to give that access to uploaders
+so they can aggregate any of their uploads into a single page.
+"""
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.views.generic.base import TemplateView
@@ -6,10 +15,10 @@ from django.views.generic.edit import FormView
 from extra_views import ModelFormSetView
 
 from electionpage.forms import ScrapableElectionPageForm
+from electionpage.models import ElectionPage, ScrapableElectionPage
 from scraper.forms import ScraperForm
 from scraper.models import Scraper
 from scraper.scrapeWorker import ScrapeWorker
-from electionpage.models import ElectionPage, ScrapableElectionPage
 
 
 class ElectionPageView(DetailView):
@@ -46,15 +55,12 @@ class ScrapeAll(DetailView):
     template_name = 'electionpage/scrapeAllResults.html'
 
     def get_context_data(self, **kwargs):
-        scraperObject = self.get_object()
-        user = self.request.user
-
         results = []
         for scraper in self.object.listOfScrapers.all():
             try:
                 ScrapeWorker.scrape(scraper, self.request.user)
                 succeeded = True
-            except BaseException:
+            except BaseException:  # pylint: disable=broad-except
                 succeeded = False
 
             results.append({'scraper': scraper, 'succeeded': succeeded})
@@ -66,6 +72,7 @@ class ScrapeAll(DetailView):
         return context
 
 
+#pylint: disable=too-many-ancestors
 class PopulateScrapers(LoginRequiredMixin, ModelFormSetView):
     """ A form allowing you to create a ScrapableElectionPage """
     login_url = 'login'
@@ -73,6 +80,7 @@ class PopulateScrapers(LoginRequiredMixin, ModelFormSetView):
     model = Scraper
     form_class = ScraperForm
     template_name = 'electionPage/populateScrapers.html'
+    electionPage = None  # populated in get_queryset
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -100,6 +108,7 @@ class ScrapableElectionPageCreator(LoginRequiredMixin, FormView):
     model = ScrapableElectionPage
     form_class = ScrapableElectionPageForm
     template_name = 'electionPage/createScrapableElection.html'
+    slug = None  # added in form_valid
 
     def get_success_url(self):
         return reverse("populateScrapers", args=(self.slug,))
@@ -107,7 +116,7 @@ class ScrapableElectionPageCreator(LoginRequiredMixin, FormView):
     def form_valid(self, form):
         form.instance.save()
         self.slug = form.instance.slug
-        for i in range(form.cleaned_data['numElections']):
+        for _ in range(form.cleaned_data['numElections']):
             scraper = Scraper()
             scraper.scrapableURL = ""
             scraper.sourceURL = ""

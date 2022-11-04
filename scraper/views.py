@@ -1,21 +1,16 @@
+"""
+Scraper views:
+    both the worker to scrape now,
+    and the page with all info about the scraper.
+All of these are limited to authorized users.
+"""
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.files import File
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic.detail import DetailView
-import logging
-import os
-import requests
-import tempfile
-
-from visualizer import validators
-from visualizer.models import JsonConfig
 
 from scraper.models import Scraper
 from scraper.scrapeWorker import ScrapeWorker
-
-logger = logging.getLogger(__name__)
 
 
 class ViewScraper(LoginRequiredMixin, DetailView):
@@ -35,5 +30,5 @@ class ScrapeNow(LoginRequiredMixin, DetailView):
             user = self.request.user
             ScrapeWorker.scrape(scraperObject, user)
             return redirect(reverse('viewScraper', kwargs=kwargs))
-        except BaseException:
+        except BaseException:  # pylint: disable=broad-except
             return redirect(reverse('viewScraper', kwargs=kwargs))

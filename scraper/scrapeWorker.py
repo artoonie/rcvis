@@ -8,22 +8,28 @@ DOS issues (this could take a while to run, and we haven't made this async.)
 
 TODO - make it async.
 """
-from django.core.files import File
-from django.utils import timezone
 import logging
 import os
-import requests
 import tempfile
+
+from django.core.files import File
+from django.utils import timezone
+import requests
 
 from visualizer import validators
 from visualizer.models import JsonConfig
+from visualizer.serializers import BaseVisualizationSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class ScrapeWorker():
+    """
+    Helper class which takes a Scraper model and downloads the file,
+    then uploads the scraped data if it's valid and updates the jsonConfig appropriately.
+    """
     @classmethod
-    def downloadLimitedSize(cls, url, maxSizeBytes):
+    def download_limited_size(cls, url, maxSizeBytes):
         """
         Downloads URL, limited to maxSizeBytes, and returns a tempfile
         file object of the resulting data
@@ -60,7 +66,7 @@ class ScrapeWorker():
         try:
             fromUrl = scraperObject.scrapableURL
 
-            fileObject = cls.downloadLimitedSize(fromUrl, 1024 * 1024)
+            fileObject = cls.download_limited_size(fromUrl, 1024 * 1024)
             assert fileObject is not None
 
             graph = validators.try_to_load_jsons(fileObject, None)
@@ -77,15 +83,13 @@ class ScrapeWorker():
             jsonConfig.dataSourceURL = scraperObject.sourceURL
             jsonConfig.areResultsCertified = scraperObject.areResultsCertified
 
-            jsonConfig.title = graph.title
-            jsonConfig.numRounds = len(graph.summarize().rounds)
-            jsonConfig.numCandidates = len(graph.summarize().candidates)
+            BaseVisualizationSerializer.populate_model_with_json_data(jsonConfig, graph)
             jsonConfig.save()
 
             scraperObject.jsonConfig = jsonConfig
             scraperObject.lastSuccessfulScrape = timezone.now()
             scraperObject.save()
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             logger.exception(exc)
             scraperObject.lastFailedScrape = timezone.now()
             scraperObject.save()

@@ -1,3 +1,6 @@
+"""
+Admin page to edit a scraper
+"""
 from django.contrib import admin
 
 from scraper.models import Scraper

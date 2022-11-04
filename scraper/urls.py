@@ -8,4 +8,3 @@ urlpatterns = [
     path('viewScraper/<pk>', views.ViewScraper.as_view(), name='viewScraper'),
     path('scrapeNow/<pk>', views.ScrapeNow.as_view(), name='scrapeNow'),
 ]
-

@@ -17,7 +17,7 @@
     <ul>
         {% for election in jsonConfigs %}
             <li>
-                <a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a>
+                <a href="{% url 'visualize' election.slug %}" target="blank">{{ election.title }}</a>
                 {% if election.scraper %}
                     <a href="{% url 'scrapeNow' election.scraper.pk %}">
                         <button class="btn btn-primary">Refresh (last updated: {{ election.scraper.lastSuccessfulScrape|timezone:"America/New_York" }} Eastern</button>
