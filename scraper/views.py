@@ -27,10 +27,10 @@ class ScrapeNow(PermissionRequiredMixin, DetailView):
     permission_required = ['scraper.add_scraper', 'scraper.change_scraper']
 
     def get(self, *args, **kwargs):
-        try:
-            scraperObject = self.get_object()
-            user = self.request.user
-            ScrapeWorker.scrape(scraperObject, user)
-            return redirect(reverse('viewScraper', kwargs=kwargs))
-        except BaseException:  # pylint: disable=broad-except
-            return redirect(reverse('viewScraper', kwargs=kwargs))
+        scraperObject = self.get_object()
+        user = self.request.user
+
+        # This may fail - that's okay, we want to hear all the errors
+        # in our logging. Eventually, come up with nicer error handling.
+        ScrapeWorker.scrape(scraperObject, user)
+        return redirect(reverse('viewScraper', kwargs=kwargs))

@@ -82,7 +82,9 @@ class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
     form_class = ScraperForm
     template_name = 'electionPage/populateScrapers.html'
     electionPage = None  # populated in get_queryset
-    permission_required = ['electionpage.add_scrapableelectionpage', 'scraper.change_scrapableelectionpage']
+    permission_required = [
+        'electionpage.add_scrapableelectionpage',
+        'scraper.change_scrapableelectionpage']
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()

@@ -144,7 +144,7 @@ class TestHelpers():
 
     @classmethod
     def login(cls, client):
-        """ Forces a login. Creates a user as needed. """
+        """ Forces a login. Creates a user as needed, and returns that user """
         users = get_user_model().objects.filter(username='testuser')
         if not users.count():
             # Since we're not controlling how this function is used as closely,
@@ -156,6 +156,7 @@ class TestHelpers():
         else:
             user = users[0]
         client.force_login(user)
+        return user
 
     @classmethod
     def logout(cls, client):
@@ -190,6 +191,13 @@ class TestHelpers():
         emailBodyLines = outbox[0].body.split('\n')
         emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
         return urlparse(emailBodyLink).path
+
+    @classmethod
+    def give_auth(cls, user, authType):
+        """ Gives the auth to the current user, then refetches user from the db """
+        user.user_permissions.add(Permission.objects.get(codename=authType))
+        user = get_user_model().objects.get(pk=user.pk)
+
 
 
 # Silence logging spam for any test that includes this

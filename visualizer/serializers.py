@@ -81,7 +81,7 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
 
         if 'jsonFile' in data:
             # Only update these fields if the jsonFile changed
-            self.populate_model_with_json_data(data, graph)
+            self.populate_dict_with_json_data(data, graph)
 
         # Now run all other validations
         data = super().to_internal_value(data)
@@ -122,11 +122,19 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         raise serializers.ValidationError({api_settings.NON_FIELD_ERRORS_KEY: [superfluousString]})
 
     @classmethod
-    def populate_model_with_json_data(cls, model, graph):
+    def populate_dict_with_json_data(cls, model, graph):
         """ Adds title, num rounds, num candidates to the model. Does not save the model. """
         model['title'] = graph.title
         model['numRounds'] = len(graph.summarize().rounds)
         model['numCandidates'] = len(graph.summarize().candidates)
+        return model
+
+    @classmethod
+    def populate_model_with_json_data(cls, model, graph):
+        """ Same as populate_dict_with_json_data, but using dot notation instead of bracket """
+        model.title = graph.title
+        model.numRounds = len(graph.summarize().rounds)
+        model.numCandidates = len(graph.summarize().candidates)
         return model
 
 

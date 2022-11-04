@@ -24,6 +24,10 @@ from visualizer.serializers import BaseVisualizationSerializer
 logger = logging.getLogger(__name__)
 
 
+class FileTooLargeException(Exception):
+    """ We don't present friendly error messages to the user, we just 500 here and die """
+
+
 class ScrapeWorker():
     """
     Helper class which takes a Scraper model and downloads the file,
@@ -41,7 +45,7 @@ class ScrapeWorker():
         contentLengthFromHeader = int(r.headers.get('Content-Length', 0))
         if contentLengthFromHeader > maxSizeBytes:
             logger.error("Content length was too large: %d", contentLengthFromHeader)
-            return None
+            raise FileTooLargeException("Headers say it's too large")
 
         length = 0
 
@@ -53,7 +57,7 @@ class ScrapeWorker():
             # In case the headers lied
             if length > maxSizeBytes:
                 logger.error("Headers were fine, but we've now pulled %d", length)
-                return None
+                raise FileTooLargeException("Actual data too large")
 
         tf.seek(0)
         tf.flush()
@@ -64,9 +68,9 @@ class ScrapeWorker():
         """
         May throw errors - be ready to handle them.
         """
-        if not user.request.has_perm('scraper.change_scraper'):
+        if not user.has_perm('scraper.change_scraper'):
             # Should be impossible to get here, but just in case.
-            logger.logError("This should not be possible to get here without having permissions!")
+            logger.error("This should not be possible to get here without having permissions!")
             raise PermissionDenied()
 
         try:
