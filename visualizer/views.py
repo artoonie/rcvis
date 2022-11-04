@@ -36,7 +36,7 @@ from visualizer.forms import UploadForm, UploadByDataTableForm
 from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
 from visualizer.sidecar.reader import BadSidecarError
-from visualizer.models import ElectionPage, JsonConfig, HomepageFeaturedElectionColumn
+from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
@@ -406,12 +406,6 @@ class ValidateDataEntry(LoginRequiredMixin, View):
                 logger.warning(exc)
                 return self._make_failure(40, 'Unknown error')
             return JsonResponse({'message': "Data is valid!", 'success': True})
-
-
-class ElectionPageView(DetailView):
-    """ Visualizing a single JsonConfig """
-    model = ElectionPage
-    template_name = 'visualizer/electionPage.html'
 
 
 # For django REST

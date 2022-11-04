@@ -54,6 +54,8 @@ INSTALLED_APPS = [
 
     'visualizer',
     'movie',
+    'scraper',
+    'electionpage',
 
     'admin_cursor_paginator',
     'accounts.apps.AccountsAppConfig',

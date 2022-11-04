@@ -9,6 +9,8 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('', include('visualizer.urls')),
     path('', include('movie.urls')),
+    path('', include('scraper.urls')),
+    path('', include('electionpage.urls')),
     path('admin/', admin.site.urls),
 ]
 if settings.OFFLINE_MODE:

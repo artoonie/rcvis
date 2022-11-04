@@ -61,7 +61,3 @@ class HomepageFeaturedElectionAdmin(admin.ModelAdmin):
 class HomepageFeaturedElectionColumnAdmin(admin.ModelAdmin):
     """ Administer homepage featured link columns """
     list_display = ('title', 'order')
-
-@admin.register(models.ElectionPage)
-class ElectionPageAdmin(admin.ModelAdmin):
-    """ Administer election pages """

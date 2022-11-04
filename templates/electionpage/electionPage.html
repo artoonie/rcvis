@@ -12,6 +12,7 @@
 <div class="container mt-3">
       <h1 class="masthead-subheading font-weight-light">{{ electionpage.title }}</h1>
       <p class="font-weight-light">{{ electionpage.date }}</p>
+      <p>{{ electionpage.description }}</p>
     <ul>
         {% for election in electionpage.listOfElections.all %}
             <li><a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a></li>
