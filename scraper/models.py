@@ -5,6 +5,7 @@ Models for a Scraper, which has:
     3. After the parsing succeeds, jsonConfig will be non-null
 """
 from django.db import models
+from django.urls import reverse
 
 from visualizer.models import JsonConfig
 
@@ -36,3 +37,7 @@ class Scraper(models.Model):
         on_delete=models.CASCADE,
         null=True,
         blank=True)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('viewScraper', args=(self.pk,))

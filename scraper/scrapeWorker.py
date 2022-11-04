@@ -13,6 +13,7 @@ import os
 import tempfile
 
 from django.core.files import File
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 import requests
 
@@ -63,6 +64,11 @@ class ScrapeWorker():
         """
         May throw errors - be ready to handle them.
         """
+        if not user.request.has_perm('scraper.change_scraper'):
+            # Should be impossible to get here, but just in case.
+            logger.logError("This should not be possible to get here without having permissions!")
+            raise PermissionDenied()
+
         try:
             fromUrl = scraperObject.scrapableURL
 

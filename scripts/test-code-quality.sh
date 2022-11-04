@@ -3,7 +3,7 @@
 
 myExitCode=0
 
-modules="accounts accounts/tests common electionpage electionpage/tests movie rcvis scraper scraper/tests visualizer visualizer/descriptors visualizer/tests"
+modules="accounts accounts/tests common electionpage movie rcvis scraper visualizer visualizer/descriptors visualizer/tests"
 
 # Require 100% lint-free code
 echo "Checking for pylint issues"

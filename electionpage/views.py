@@ -7,7 +7,7 @@ only ScrapableElectionPage is given a nice workflow. The other case is simpler, 
 created in an admin page I suppose - though eventually we want to give that access to uploaders
 so they can aggregate any of their uploads into a single page.
 """
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
@@ -47,12 +47,13 @@ class ScrapableElectionPageView(DetailView):
         return context
 
 
-class ScrapeAll(DetailView):
+class ScrapeAll(PermissionRequiredMixin, DetailView):
     """
     Scrapes everything we can in this election
     """
     model = ScrapableElectionPage
     template_name = 'electionpage/scrapeAllResults.html'
+    permission_required = ['scraper.add_scraper', 'scraper.update_scraper']
 
     def get_context_data(self, **kwargs):
         results = []
@@ -73,7 +74,7 @@ class ScrapeAll(DetailView):
 
 
 #pylint: disable=too-many-ancestors
-class PopulateScrapers(LoginRequiredMixin, ModelFormSetView):
+class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
     """ A form allowing you to create a ScrapableElectionPage """
     login_url = 'login'
     redirect_field_name = 'redirect_to'
@@ -81,6 +82,7 @@ class PopulateScrapers(LoginRequiredMixin, ModelFormSetView):
     form_class = ScraperForm
     template_name = 'electionPage/populateScrapers.html'
     electionPage = None  # populated in get_queryset
+    permission_required = ['electionpage.add_scrapableelectionpage', 'scraper.change_scrapableelectionpage']
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -101,7 +103,7 @@ class PopulateScrapers(LoginRequiredMixin, ModelFormSetView):
         return context
 
 
-class ScrapableElectionPageCreator(LoginRequiredMixin, FormView):
+class ScrapableElectionPageCreator(PermissionRequiredMixin, FormView):
     """ A form allowing you to create a ScrapableElectionPage """
     login_url = 'login'
     redirect_field_name = 'redirect_to'
@@ -109,6 +111,7 @@ class ScrapableElectionPageCreator(LoginRequiredMixin, FormView):
     form_class = ScrapableElectionPageForm
     template_name = 'electionPage/createScrapableElection.html'
     slug = None  # added in form_valid
+    permission_required = ['electionpage.create_scrapableelectionpage']
 
     def get_success_url(self):
         return reverse("populateScrapers", args=(self.slug,))
