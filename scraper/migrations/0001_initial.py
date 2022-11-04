@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('sourceURL', models.CharField(max_length=128)),
                 ('lastSuccessfulScrape', models.DateTimeField(null=True, blank=True)),
                 ('lastFailedScrape', models.DateTimeField(null=True, blank=True)),
-                ('jsonConfig', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='visualizer.jsonconfig')),
+                ('jsonConfig', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='visualizer.jsonconfig')),
                 ('areResultsCertified', models.BooleanField(default=False)),
             ],
         ),

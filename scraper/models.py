@@ -25,7 +25,7 @@ class Scraper(models.Model):
     areResultsCertified = models.BooleanField(default=False)
 
     # This is only optional because it may have failed to generate
-    jsonConfig = models.ForeignKey(
+    jsonConfig = models.OneToOneField(
         JsonConfig,
         on_delete=models.CASCADE,
         null=True,

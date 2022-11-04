@@ -6,4 +6,4 @@ from electionpage.models import ElectionPage
 class ElectionPageView(DetailView):
     """ Visualizing a single JsonConfig """
     model = ElectionPage
-    template_name = 'visualizer/electionPage.html'
+    template_name = 'electionpage/electionPage.html'

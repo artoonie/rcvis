@@ -1,6 +1,7 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
 {% load compress %}
+{% load tz %}
 
 {% block header %}
 {% endblock %} 
@@ -15,7 +16,14 @@
       <p>{{ electionpage.description }}</p>
     <ul>
         {% for election in electionpage.listOfElections.all %}
-            <li><a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a></li>
+            <li>
+                <a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a>
+                {% if election.scraper %}
+                    <a href="{% url 'scrapeNow' election.scraper.pk %}">
+                        <button class="btn btn-primary">Refresh (last updated: {{ election.scraper.lastSuccessfulScrape|timezone:"America/New_York" }} Eastern</button>
+                    </a>
+                {% endif %}
+            </li>
         {% endfor %}
     </ul>
 </div>
