@@ -1,6 +1,7 @@
 """ ElectionPage models """
 
 from django.db import models
+from django.urls import reverse
 
 from sortedm2m.fields import SortedManyToManyField
 
@@ -40,7 +41,12 @@ class ElectionPage(BaseElectionPage):
 
 
 class ScrapableElectionPage(BaseElectionPage):
-    """ An election page consisting of several Scrapers """
+    """
+    An election page consisting of several Scrapers.
+    Unlike an ElectionPage, the scrapers might NOT have an actual
+    visualization associated with them - these can be used as placeholders
+    leading up to an election.
+    """
     # The list of all elections in this election page
     listOfScrapers = SortedManyToManyField(Scraper)
 
@@ -48,3 +54,7 @@ class ScrapableElectionPage(BaseElectionPage):
     # If so, we'll overwrite the corresponding field in each Scraper next time
     # we ScrapeAll.
     areResultsCertified = models.BooleanField(default=False)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('populateScrapers', args=(self.slug,))

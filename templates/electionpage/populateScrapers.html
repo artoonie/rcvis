@@ -36,6 +36,17 @@
         </table>
         <input type="submit" value="Submit" class="btn btn-primary" />
     </form>
+
+    <hr>
+
+    <div class="alert alert-primary">
+        Be careful hitting this button - it will put a heavy load on the server.
+    </div>
+
+    <a href="{% url 'scrapeAll' slug %}">
+        <button class="btn btn-primary">Rescrape all URLs</button>
+    </a>
+
 </div>
 {% endblock %}
 

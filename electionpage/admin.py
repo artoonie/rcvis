@@ -13,3 +13,4 @@ class ElectionPageAdmin(admin.ModelAdmin):
 @admin.register(ScrapableElectionPage)
 class ScrapableElectionPageAdmin(admin.ModelAdmin):
     """ Administer election pages """
+    view_on_site = True

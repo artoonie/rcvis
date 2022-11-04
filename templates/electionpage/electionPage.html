@@ -15,7 +15,7 @@
       <p class="font-weight-light">{{ electionpage.date }}</p>
       <p>{{ electionpage.description }}</p>
     <ul>
-        {% for election in electionpage.listOfElections.all %}
+        {% for election in jsonConfigs %}
             <li>
                 <a href="/v/{{ election.slug }}" target="blank">{{ election.title }}</a>
                 {% if election.scraper %}

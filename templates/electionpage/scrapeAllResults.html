@@ -1,0 +1,20 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+    <a href="{% url 'scrapableElectionPage' slug %}">
+        <button class="btn btn-primary mb-3">{{ title }}</button>
+    </a>
+
+    {% for result in results %}
+        {% if result.succeeded %}
+            <div class="alert alert-primary">
+        {% else %}
+            <div class="alert alert-warning">
+        {% endif %}
+
+            <a href="{% url 'scrapeNow' result.scraper.pk %}">{{ result.scraper.jsonConfig.title }}</a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
