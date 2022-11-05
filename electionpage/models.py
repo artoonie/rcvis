@@ -39,6 +39,10 @@ class ElectionPage(BaseElectionPage):
     # The list of all elections in this election page
     listOfElections = SortedManyToManyField(JsonConfig)
 
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('electionPage', args=(self.slug,))
+
 
 class ScrapableElectionPage(BaseElectionPage):
     """
@@ -57,4 +61,4 @@ class ScrapableElectionPage(BaseElectionPage):
 
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
-        return reverse('populateScrapers', args=(self.slug,))
+        return reverse('scrapableElectionPage', args=(self.slug,))

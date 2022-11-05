@@ -10,6 +10,7 @@ from urllib.parse import urlparse
 from mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 
 from selenium import webdriver
 from visualizer.models import JsonConfig
@@ -197,7 +198,6 @@ class TestHelpers():
         """ Gives the auth to the current user, then refetches user from the db """
         user.user_permissions.add(Permission.objects.get(codename=authType))
         user = get_user_model().objects.get(pk=user.pk)
-
 
 
 # Silence logging spam for any test that includes this

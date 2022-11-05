@@ -7,6 +7,20 @@
 {% endblock %} 
 
 {% block navlinks %}
+<button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+  Menu
+</button>
+<div class="collapse navbar-collapse" id="navbarResponsive">
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item mx-0 mx-lg-1">
+        <a class="nav-link py-3 px-0 px-lg-3 rounded" href="{% url 'index' %}">Home</a>
+    </li>
+    <li class="nav-item mx-0 mx-lg-1">
+        <a class="nav-link py-3 px-0 px-lg-3 rounded" href="https://fairvote.org/how-to-display-rcv-election-results/">FairVote's best practices</a>
+    </li>
+    
+  </ul>
+</div>
 {% endblock %}
 
 {% block maincontent %}
@@ -18,11 +32,6 @@
         {% for election in jsonConfigs %}
             <li>
                 <a href="{% url 'visualize' election.slug %}" target="blank">{{ election.title }}</a>
-                {% if election.scraper %}
-                    <a href="{% url 'scrapeNow' election.scraper.pk %}">
-                        <button class="btn btn-primary">Refresh (last updated: {{ election.scraper.lastSuccessfulScrape|timezone:"America/New_York" }} Eastern</button>
-                    </a>
-                {% endif %}
             </li>
         {% endfor %}
     </ul>

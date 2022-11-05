@@ -2,6 +2,9 @@
 
 {% block maincontent %}
 <div class="container mt-3">
+    <h1>Create an auto-scraping election page</h1>
+    <p>An election page is a list of elections to be shown on one page, with buttons to automatically scrape from the source data anytime new results are released.</p>
+
     {% if form.errors %}
         <div class="alert alert-warning">
             {{ form.errors }}

@@ -8,6 +8,7 @@ from electionpage.models import ElectionPage, ScrapableElectionPage
 @admin.register(ElectionPage)
 class ElectionPageAdmin(admin.ModelAdmin):
     """ Administer election pages """
+    view_on_site = True
 
 
 @admin.register(ScrapableElectionPage)

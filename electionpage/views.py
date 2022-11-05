@@ -28,7 +28,7 @@ class ElectionPageView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['jsonConfigs'] = self.object.listOfElections
+        context['jsonConfigs'] = self.object.listOfElections.all()
         return context
 
 
@@ -92,7 +92,7 @@ class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
         return kwargs
 
     def get_success_url(self):
-        return reverse("electionPage", args=(self.electionPage.slug,))
+        return reverse("populateScrapers", args=(self.electionPage.slug,))
 
     def get_queryset(self):
         self.electionPage = ScrapableElectionPage.objects.get(slug=self.kwargs['slug'])

@@ -5,8 +5,6 @@ and if somehow ScrapeWorker.scrape is called without hitting a permission check,
 an error is raised (to future-proof that dangerous function).
 """
 
-from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Permission
 from django.core.exceptions import PermissionDenied
 from django.test import TestCase
 from django.urls import reverse

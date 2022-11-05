@@ -9,11 +9,19 @@
     {% for result in results %}
         {% if result.succeeded %}
             <div class="alert alert-primary">
+                Scrape succeeded:
         {% else %}
             <div class="alert alert-warning">
+                Scrape failed:
         {% endif %}
 
-            <a href="{% url 'scrapeNow' result.scraper.pk %}">{{ result.scraper.jsonConfig.title }}</a>
+            <a href="{% url 'viewScraper' result.scraper.pk %}">
+                {% if result.scraper.jsonConfig %}
+                    {{ result.scraper.jsonConfig.title }}
+                {% else %}
+                    No election available yet.
+                {% endif %}
+            </a>
         </div>
     {% endfor %}
 </div>

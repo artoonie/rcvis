@@ -2,13 +2,18 @@
 
 {% block maincontent %}
 <div class="container mt-3">
+    <h1>Set sources for scrapers</h1>
+    <p>The left-column must be machine-readable. The right column may be the same data, or be a PDF or human-friendly view.</p>
+
+    <hr/>
+
     {% if formset.non_form_errors %}
         <div class="alert alert-warning">
             {{ formset.non_form_errors }}
         </div>
     {% endif %}
 
-    <h1>{{title}}</h1>
+    <h3>Election Name: {{title}}</h3>
 
     <form method="post">
         {% csrf_token %}
@@ -28,25 +33,32 @@
                 {% for form in formset.forms %}
                     <tr>
                         {% for field in form %}
-                            <td>{{ field }}</td>
+                            <td>
+                                {% if field.errors %}
+                                <div class="alert alert-warning">{{ field.errors }}</div>
+                                {% endif %}
+                                {{ field }}
+                            </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-        <input type="submit" value="Submit" class="btn btn-primary" />
+        <input type="submit" value="Save" class="btn btn-primary" />
     </form>
 
     <hr>
+    <h1>Additional links</h1>
 
     <div class="alert alert-primary">
-        Be careful hitting this button - it will put a heavy load on the server.
+        Caution: Hit rescape sparingly - it will put a heavy load on the server.
     </div>
 
     <a href="{% url 'scrapeAll' slug %}">
-        <button class="btn btn-primary">Rescrape all URLs</button>
+        <button class="btn btn-secondary">Rescrape all now</button>
     </a>
-
+    <a href="{% url 'scrapableElectionPage' slug %}">
+        <button class="btn btn-secondary">View live</button>
+    </a>
 </div>
 {% endblock %}
-
