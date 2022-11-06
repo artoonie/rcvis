@@ -27,9 +27,6 @@ class BaseElectionPage(models.Model):
     # Date of the election
     date = models.DateField()
 
-    # The list of all elections in this election page
-    listOfElections = SortedManyToManyField(JsonConfig)
-
     def __str__(self):
         return str(self.title)
 

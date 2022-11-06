@@ -13,7 +13,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from selenium import webdriver
+from scraper.models import Scraper
 from visualizer.models import JsonConfig
+from visualizer.tests import filenames
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 
@@ -198,6 +200,29 @@ class TestHelpers():
         """ Gives the auth to the current user, then refetches user from the db """
         user.user_permissions.add(Permission.objects.get(codename=authType))
         user = get_user_model().objects.get(pk=user.pk)
+
+    @classmethod
+    def make_scraper(cls):
+        """ Creates a scraper object. You must mock out requests.get if you plan to scrape. """
+        return Scraper.objects.create(scrapableURL="mock://scrape", sourceURL="mock://source")
+
+    @classmethod
+    def mock_scraper_url_with_file(
+            cls,
+            requestMock,
+            url='mock://scrape',
+            filename=filenames.ONE_ROUND):
+        """ Creates a valid response from the server """
+        with open(filename, 'r') as f:
+            data = f.read()
+        requestMock.get(url, text=data)
+
+    @classmethod
+    def login_with_scrape_permissions(cls, client):
+        """ Logs in and creates permissions needed to run scraper """
+        user = TestHelpers.login(client)
+        TestHelpers.give_auth(user, 'add_scraper')
+        TestHelpers.give_auth(user, 'change_scraper')
 
 
 # Silence logging spam for any test that includes this

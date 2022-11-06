@@ -53,7 +53,7 @@ class ScrapeAll(PermissionRequiredMixin, DetailView):
     """
     model = ScrapableElectionPage
     template_name = 'electionpage/scrapeAllResults.html'
-    permission_required = ['scraper.add_scraper', 'scraper.update_scraper']
+    permission_required = ['scraper.add_scraper', 'scraper.change_scraper']
 
     def get_context_data(self, **kwargs):
         results = []
@@ -84,7 +84,7 @@ class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
     electionPage = None  # populated in get_queryset
     permission_required = [
         'electionpage.add_scrapableelectionpage',
-        'scraper.change_scrapableelectionpage']
+        'scraper.change_scraper']
 
     def get_factory_kwargs(self):
         kwargs = super().get_factory_kwargs()
@@ -113,7 +113,7 @@ class ScrapableElectionPageCreator(PermissionRequiredMixin, FormView):
     form_class = ScrapableElectionPageForm
     template_name = 'electionPage/createScrapableElection.html'
     slug = None  # added in form_valid
-    permission_required = ['electionpage.create_scrapableelectionpage']
+    permission_required = ['electionpage.add_scrapableelectionpage']
 
     def get_success_url(self):
         return reverse("populateScrapers", args=(self.slug,))
@@ -121,6 +121,7 @@ class ScrapableElectionPageCreator(PermissionRequiredMixin, FormView):
     def form_valid(self, form):
         form.instance.save()
         self.slug = form.instance.slug
+        assert form.cleaned_data['numElections'] <= 60
         for _ in range(form.cleaned_data['numElections']):
             scraper = Scraper()
             scraper.scrapableURL = ""

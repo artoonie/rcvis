@@ -3,7 +3,7 @@
 {% block maincontent %}
 <div class="container mt-3">
     <a href="{% url 'scrapableElectionPage' slug %}">
-        <button class="btn btn-primary mb-3">{{ title }}</button>
+        <button id="viewlive" class="btn btn-primary mb-3">{{ title }}</button>
     </a>
 
     {% for result in results %}

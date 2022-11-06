@@ -26,23 +26,6 @@ class ScraperTests(TestCase):
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
 
-    @classmethod
-    def _make_scraper(cls):
-        """ Creates a scraper object. You must mock out requests.get if you plan to scrape. """
-        return Scraper.objects.create(scrapableURL="mock://scrape", sourceURL="mock://source")
-
-    @classmethod
-    def _mock_request_with_file(cls, requestMock, filename=filenames.ONE_ROUND):
-        """ Creates a valid response from the server """
-        with open(filename, 'r') as f:
-            data = f.read()
-        requestMock.get('mock://scrape', text=data)
-
-    def _login_with_scrape_permissions(self):
-        user = TestHelpers.login(self.client)
-        TestHelpers.give_auth(user, 'add_scraper')
-        TestHelpers.give_auth(user, 'change_scraper')
-
     def test_bad_url_not_logged_in(self):
         """ When grabbing a nonexistent scraper, should get a 302 if not logged in """
         response = self.client.get(reverse('viewScraper', args=(0,)))
@@ -74,7 +57,7 @@ class ScraperTests(TestCase):
         """ Test 403 if no permissions to scrape """
         user = TestHelpers.login(self.client)
         TestHelpers.give_auth(user, 'view_scraper')
-        scraper = self._make_scraper()
+        scraper = TestHelpers.make_scraper()
         response = self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -82,9 +65,9 @@ class ScraperTests(TestCase):
     def test_scrapenow_is_authed_to_scrape(self, requestMock):
         """ Test scraping succeeds when authed, and jsonConfig is updated """
         # Set up the mock and log in
-        self._mock_request_with_file(requestMock)
-        self._login_with_scrape_permissions()
-        scraper = self._make_scraper()
+        TestHelpers.mock_scraper_url_with_file(requestMock)
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_scraper()
 
         # jsonConfig is None at first
         self.assertIsNone(scraper.jsonConfig)
@@ -106,8 +89,8 @@ class ScraperTests(TestCase):
     def test_scrapenow_bad_json(self, requestMock):
         """ Scrape succeeds, but the data is bad """
         requestMock.get('mock://scrape', text='{"baddata"}')
-        self._login_with_scrape_permissions()
-        scraper = self._make_scraper()
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_scraper()
 
         # We make the request. Assert it's called, and that lastFailedScrape is updated
         self.assertIsNone(scraper.lastFailedScrape)
@@ -120,13 +103,13 @@ class ScraperTests(TestCase):
     @Mocker()
     def test_circumvented_scrapenow(self, requestMock):
         """ Should not be possible, but to futureproof, auth is rechecked just before scraping """
-        self._mock_request_with_file(requestMock)
+        TestHelpers.mock_scraper_url_with_file(requestMock)
 
         # These aren't enough permissions.
         user = TestHelpers.login(self.client)
         TestHelpers.give_auth(user, 'view_scraper')
 
-        scraper = self._make_scraper()
+        scraper = TestHelpers.make_scraper()
         with self.assertRaises(PermissionDenied):
             ScrapeWorker.scrape(scraper, user)
 
@@ -134,11 +117,11 @@ class ScraperTests(TestCase):
     def test_update_on_second_scrape(self, requestMock):
         """ When scraping twice, the jsonFile is updated, not recreated. """
         # Set up the mock and log in
-        self._login_with_scrape_permissions()
-        scraper = self._make_scraper()
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_scraper()
 
         # On the first call, collect all the data
-        self._mock_request_with_file(requestMock, filenames.ONE_ROUND)
+        TestHelpers.mock_scraper_url_with_file(requestMock, filenames.ONE_ROUND)
         self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
         scraper = Scraper.objects.get(pk=scraper.pk)
         jsonSlug = scraper.jsonConfig.slug
@@ -146,7 +129,7 @@ class ScraperTests(TestCase):
         self.assertEqual(1, scraper.jsonConfig.numRounds)
 
         # On the second call, assert that the URL is the same, but the data is updated
-        self._mock_request_with_file(requestMock, filenames.THREE_ROUND)
+        TestHelpers.mock_scraper_url_with_file(requestMock, filenames.THREE_ROUND)
         self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
         scraper = Scraper.objects.get(pk=scraper.pk)
         self.assertEqual(jsonSlug, scraper.jsonConfig.slug)
@@ -156,11 +139,11 @@ class ScraperTests(TestCase):
     @Mocker()
     def test_fails_when_file_too_large(self, requestMock):
         """ Don't allow streaming giant files """
-        self._login_with_scrape_permissions()
-        scraper = self._make_scraper()
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_scraper()
 
         tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 2)  # 2 MB
-        self._mock_request_with_file(requestMock, tooLargeJson)
+        TestHelpers.mock_scraper_url_with_file(requestMock, tooLargeJson)
 
         # We should have better handling than just exceptions, but this is
         # limited to admins, so...it's fine for now.

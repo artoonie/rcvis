@@ -60,7 +60,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         self.browser.implicitly_wait(10)
         self._screenshotCount = 0
 
-        TestHelpers.login(self.client)
+        self.user = TestHelpers.login(self.client)
         self._add_login_cookie_to_browser()
 
     def tearDown(self):
@@ -178,12 +178,12 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
                 time.sleep(sleepInterval)
                 sleepInterval *= 1.5
 
-    def open(self, url, prependServer=True):
+    def open(self, url, prependServer=True, expectedErrorCount=0):
         """ Opens the given file. If prepend_server is true, turns it into an absolute URL """
         if prependServer:
             url = self._make_url(url)
         self.browser.get(url)
-        self._assert_log_len(0)
+        self._assert_log_len(expectedErrorCount)
 
     @classmethod
     def _get_json_config_default_bools(cls):

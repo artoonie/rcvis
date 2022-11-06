@@ -31,7 +31,7 @@
     <ul>
         {% for election in jsonConfigs %}
             <li>
-                <a href="{% url 'visualize' election.slug %}" target="blank">{{ election.title }}</a>
+                <a href="{% url 'visualize' election.slug %}" target="blank" class="expandableRow">{{ election.title }}</a>
             </li>
         {% endfor %}
     </ul>

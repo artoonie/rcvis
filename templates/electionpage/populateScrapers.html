@@ -44,7 +44,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <input type="submit" value="Save" class="btn btn-primary" />
+        <input id="submit" type="submit" value="Save" class="btn btn-primary" />
     </form>
 
     <hr>
@@ -55,7 +55,7 @@
     </div>
 
     <a href="{% url 'scrapeAll' slug %}">
-        <button class="btn btn-secondary">Rescrape all now</button>
+        <button id="rescrape" class="btn btn-secondary">Rescrape all now</button>
     </a>
     <a href="{% url 'scrapableElectionPage' slug %}">
         <button class="btn btn-secondary">View live</button>

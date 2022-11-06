@@ -16,4 +16,4 @@ class ScrapableElectionPageForm(forms.ModelForm):
         model = ScrapableElectionPage
         fields = ['slug', 'title', 'date', 'description', 'areResultsCertified']
 
-    numElections = forms.IntegerField(label='Number of elections')
+    numElections = forms.IntegerField(label='Number of elections', min_value=1, max_value=60)
