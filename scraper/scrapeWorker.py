@@ -11,6 +11,7 @@ TODO - make it async.
 import logging
 import os
 import tempfile
+import traceback
 
 from django.core.files import File
 from django.core.exceptions import PermissionDenied
@@ -100,7 +101,8 @@ class ScrapeWorker():
             scraperObject.lastSuccessfulScrape = timezone.now()
             scraperObject.save()
         except Exception as exc:  # pylint: disable=broad-except
-            logger.exception(exc)
+            logger.warning("Failed to parse URL: %s", scraperObject.scrapableURL)
+            logger.info(traceback.format_exc())
             scraperObject.lastFailedScrape = timezone.now()
             scraperObject.save()
             raise exc

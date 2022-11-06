@@ -8,7 +8,7 @@ modules="accounts accounts/tests common electionpage movie rcvis scraper visuali
 # Require 100% lint-free code
 echo "Checking for pylint issues"
 export DJANGO_SETTINGS_MODULE="rcvis.settings" # needed by pylint_django
-pylint $modules --load-plugins pylint_django --ignore */migrations
+pylint $modules --load-plugins pylint_django --ignore "*/migrations"
 errorCode=$?
 if [ $errorCode != 0 ]; then
     echo "These files must be perfectly linted"

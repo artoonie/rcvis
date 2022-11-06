@@ -78,7 +78,7 @@ class ScraperTests(TestCase):
 
         # The status must redirect us to the sucess page.
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        expectedRedirect = '/viewScraper/%d' % (scraper.pk,)
+        expectedRedirect = f'/viewScraper/{scraper.pk}'
         self.assertEqual(response['location'], expectedRedirect)
 
         # And the jsonconfig is filled out now
@@ -121,7 +121,7 @@ class ScraperTests(TestCase):
         scraper = TestHelpers.make_scraper()
 
         # On the first call, collect all the data
-        TestHelpers.mock_scraper_url_with_file(requestMock, filenames.ONE_ROUND)
+        TestHelpers.mock_scraper_url_with_file(requestMock, filename=filenames.ONE_ROUND)
         self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
         scraper = Scraper.objects.get(pk=scraper.pk)
         jsonSlug = scraper.jsonConfig.slug
@@ -129,7 +129,7 @@ class ScraperTests(TestCase):
         self.assertEqual(1, scraper.jsonConfig.numRounds)
 
         # On the second call, assert that the URL is the same, but the data is updated
-        TestHelpers.mock_scraper_url_with_file(requestMock, filenames.THREE_ROUND)
+        TestHelpers.mock_scraper_url_with_file(requestMock, filename=filenames.THREE_ROUND)
         self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
         scraper = Scraper.objects.get(pk=scraper.pk)
         self.assertEqual(jsonSlug, scraper.jsonConfig.slug)
@@ -143,7 +143,7 @@ class ScraperTests(TestCase):
         scraper = TestHelpers.make_scraper()
 
         tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 2)  # 2 MB
-        TestHelpers.mock_scraper_url_with_file(requestMock, tooLargeJson)
+        TestHelpers.mock_scraper_url_with_file(requestMock, filename=tooLargeJson)
 
         # We should have better handling than just exceptions, but this is
         # limited to admins, so...it's fine for now.

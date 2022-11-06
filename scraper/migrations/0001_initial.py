@@ -22,7 +22,8 @@ class Migration(migrations.Migration):
                 ('lastSuccessfulScrape', models.DateTimeField(blank=True, null=True)),
                 ('lastFailedScrape', models.DateTimeField(blank=True, null=True)),
                 ('areResultsCertified', models.BooleanField(default=False)),
-                ('jsonConfig', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='visualizer.jsonconfig')),
+                ('jsonConfig', models.OneToOneField(blank=True, null=True,
+                                                    on_delete=django.db.models.deletion.CASCADE, to='visualizer.jsonconfig')),
             ],
         ),
     ]

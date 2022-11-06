@@ -74,6 +74,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         TestHelpers.logout(self.client)
         TestHelpers.login(self.client)
         self._add_login_cookie_to_browser()
+        time.sleep(0.1)  # Testing why it fails...
 
     def _fill_in_create_form(self, slug):
         """ After you go to createScrapableElection page, call this to fill out the form """
@@ -164,7 +165,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             submit_with_num_elections_and_get_error('0'),
             "Value must be greater than or equal to 1.")
 
-        # Hitting submit should fail with 100 numElections
+        # Hitting submit should fail with >60 numElections
         self.assertEqual(
             submit_with_num_elections_and_get_error('65'),
             "Value must be less than or equal to 60.")

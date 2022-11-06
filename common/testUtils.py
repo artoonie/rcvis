@@ -88,7 +88,7 @@ class TestHelpers():
         """ Copies the file to a tempfile, but changes the name. Returns the tempfile """
         tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
-        with open(jsonFileToCopy, 'r') as f:
+        with open(jsonFileToCopy, 'r', encoding='utf_8') as f:
             data = json.loads(f.read())
 
         data['config']['contest'] = newName
@@ -112,6 +112,7 @@ class TestHelpers():
         logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
         logging.getLogger('selenium').setLevel(logging.CRITICAL)
         logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+        logging.getLogger('scraper.scrapeWorkerFailed').setLevel(logging.ERROR)
 
     @classmethod
     def modify_json_with(cls, jsonFilename, modifierFunc):
@@ -213,7 +214,7 @@ class TestHelpers():
             url='mock://scrape',
             filename=filenames.ONE_ROUND):
         """ Creates a valid response from the server """
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             data = f.read()
         requestMock.get(url, text=data)
 
