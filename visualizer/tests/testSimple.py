@@ -365,8 +365,8 @@ class SimpleTests(TestCase):
         slug = TestHelpers.get_latest_upload().slug
 
         requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
-        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for "\
-                            "city-of-eastpointe-macomb-county-mi: {'a': 0}"
+        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 8 starting with "\
+                            "/v/city-of-eastpointe-macomb-county-mi: {'a': 0}"
 
         with self.settings(
                 CLOUDFLARE_AUTH_TOKEN='mytoken',

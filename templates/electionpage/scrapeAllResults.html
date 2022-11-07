@@ -1,0 +1,28 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+    <a href="{% url 'scrapableElectionPage' slug %}">
+        <button id="viewlive" class="btn btn-primary mb-3">{{ title }}</button>
+    </a>
+
+    {% for result in results %}
+        {% if result.succeeded %}
+            <div class="alert alert-primary">
+                Scrape succeeded:
+        {% else %}
+            <div class="alert alert-warning">
+                Scrape failed:
+        {% endif %}
+
+            <a href="{% url 'viewScraper' result.scraper.pk %}">
+                {% if result.scraper.jsonConfig %}
+                    {{ result.scraper.jsonConfig.title }}
+                {% else %}
+                    No election available yet.
+                {% endif %}
+            </a>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

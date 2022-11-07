@@ -1,0 +1,34 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+  <p>
+      <a href="{% url 'createScrapableElection' %}">
+          <button class="btn btn-primary">Create new scrapable election</button>
+      </a>
+  </p>
+  <p>
+      Helpful URLs
+      <ul>
+          <li>/pPopulate/slug populates</li>
+          <li>/ps/slug to view scrapable election page</li>
+          <li>/p/slug to view non-scrapable election page</li>
+      </ul>
+  </p>
+
+      Instructions:
+      <ol>
+          <li>Create a scrapable election by clicking the link above. You must have permissions to do so.</li>
+          <li>Populate the metadata for the election. Admins can change this later.</li>
+          <li>Populate the source links for each election. Order is important. Admins can re-order later.</li>
+          <li>To re-scrape each election, click the button on the corresponding election page.</li>
+      </ol>
+
+      Permissions (useful only to Armin to understand this). In the admin panel, give authorized users access to one of a few things:
+      <ol>
+          <li>If they should be able to create election pages, give them electionpage.add_scrapableelectionpage and scraper.change_scrapableelectionpage</li>
+          <li>Do not give anybody else access to scraper.add_scraper or scraper.change_scraper - this will let them actually run the scrapers. Instead, let them do everything except for that, and you can verify they did things correctly, and you can run the scraper. You = Armin.</li>
+          <li>We can consider changing this if we test for additional security, but for now, let's lock down who can grab arbitrary URLs.</li>
+      </ol>
+</div>
+{% endblock %}

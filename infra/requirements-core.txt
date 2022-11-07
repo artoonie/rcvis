@@ -2,17 +2,22 @@ boto3==1.17.100
 csscompressor==0.9.5
 django-admin-cursor-paginator==0.1.0
 django-compressor==2.4.1
+django-extra-views==0.14.0
 django-node-assets==0.9.10
 django-registration==3.2
 django-social-share==2.2.1
+django-sortedm2m==3.1.1
 django-storages==1.11.1
 Django==3.2.15
-mock==4.0.3
-rcvformats==0.0.35
+rcvformats==0.0.36
 selenium==3.141.0
 psycopg2-binary==2.9.1
 pytz==2021.1
 whitenoise==5.2.0
+
+# For tests
+mock==4.0.3
+requests-mock==1.10.0
 
 # For coverage
 autopep8==1.5.7
@@ -34,3 +39,6 @@ moviepy==1.0.3
 # For Heroku
 gunicorn==20.1.0
 django-heroku==0.3.1
+
+# Workaround for https://stackoverflow.com/a/73934771/1057105
+importlib-metadata<5.0

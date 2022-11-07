@@ -35,6 +35,7 @@ from visualizer.common import make_complete_url, intify
 from visualizer.forms import UploadForm, UploadByDataTableForm
 from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.serializers import BaseVisualizationSerializer
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
 from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
@@ -101,9 +102,7 @@ class Upload(LoginRequiredMixin, CreateView):
 
             self.model = form.save(commit=False)
             self.model.owner = self.request.user
-            self.model.title = graph.title
-            self.model.numRounds = len(graph.summarize().rounds)
-            self.model.numCandidates = len(graph.summarize().candidates)
+            BaseVisualizationSerializer.populate_model_with_json_data(self.model, graph)
             self._actions_before_save(form)
             self.model.save()
         except BadJSONError as exception:
@@ -179,6 +178,9 @@ class Visualize(DetailView):
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
         referenceUrl += "#tabular-candidate-by-round"
         data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode()
+
+        # iframe height
+        data['iframeHeight'] = viewUtils.default_iframe_height(config['jsonconfig'].numCandidates)
 
         return data
 

@@ -5,6 +5,7 @@ import json
 import requests
 
 from django.conf import settings
+from django.core.cache import cache
 from django.contrib.sites.models import Site
 from django.urls import reverse
 
@@ -31,15 +32,7 @@ class CloudflareAPI():
     @classmethod
     def purge_vis_cache(cls, slug):
         """ Purges most canonical URLs for the visualization with the given slug. """
-        if not cls._is_api_enabled():
-            # local/dev/staging/etc
-            return
-
-        zoneId = settings.CLOUDFLARE_ZONE_ID
-        apiUrl = f"https://api.cloudflare.com/client/v4/zones/{zoneId}/purge_cache"
-
-        # Paths
-        rcvisPaths = [
+        paths = [
             reverse('visualize', args=(slug,)),
             reverse('visualizeEmbedded', args=(slug,)),
             reverse('visualizeEmbedlyDefault', args=(slug,)),
@@ -49,16 +42,33 @@ class CloudflareAPI():
             reverse('visualizeEmbedly', args=(slug, 'table')),
             reverse('visualizeBallotpedia', args=(slug,))
         ]
+        cls.purge_paths_cache(paths)
+
+    @classmethod
+    def purge_paths_cache(cls, paths):
+        """ Purges the URLs (paths, not URLs) """
+        # We also want to purge the file-based cache, but unfortunately
+        # we don't have a way of doing this per-URL.
+        # It's overkill, but here we purge everything.
+        cache.clear()
+
+        # If we're on local/dev/staging/etc, we're done.
+        if not cls._is_api_enabled():
+            return
+
+        zoneId = settings.CLOUDFLARE_ZONE_ID
+        apiUrl = f"https://api.cloudflare.com/client/v4/zones/{zoneId}/purge_cache"
 
         # Absolute URLs
         domain = Site.objects.get_current().domain
-        rcvisUrls = ['https://%s%s' % (domain, path) for path in rcvisPaths]
+        rcvisUrls = ['https://%s%s' % (domain, path) for path in paths]
         data = {'files': rcvisUrls}
 
         # Send it off
         response = requests.post(apiUrl, headers=cls._get_auth_headers(), data=json.dumps(data))
 
+        info = f"{len(paths)} starting with {paths[0]}"
         if response.status_code == 200:
-            logger.info("Cleared cloudflare cache for %s: %s", slug, response.json())
+            logger.info("Cleared cloudflare cache for %s: %s", info, response.json())
         else:
-            logger.error("Received bad response from cloudflare for %s: %s", slug, response.json())
+            logger.error("Received bad response from cloudflare for %s: %s", info, response.json())

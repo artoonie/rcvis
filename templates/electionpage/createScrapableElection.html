@@ -1,0 +1,30 @@
+{% extends "visualizer/base.html" %}
+
+{% block maincontent %}
+<div class="container mt-3">
+    <h1>Create an auto-scraping election page</h1>
+    <p>An election page is a list of elections to be shown on one page, with buttons to automatically scrape from the source data anytime new results are released.</p>
+
+    {% if form.errors %}
+        <div class="alert alert-warning">
+            {{ form.errors }}
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ formset.management_form }}
+        {% for field in form %}
+            <p class="font-weight-bold mt-3 mb-0">
+            {{ field.label }}
+            </p>
+            {{ field }}
+        {% endfor %}
+        <p class="mt-3">
+        <input id="submit" type="submit" value="Submit" class="btn btn-primary" />
+        </p>
+    </form>
+</div>
+{% endblock %}
+

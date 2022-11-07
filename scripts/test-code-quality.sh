@@ -3,12 +3,12 @@
 
 myExitCode=0
 
-modules="accounts accounts/tests common movie rcvis visualizer visualizer/descriptors visualizer/tests"
+modules="accounts accounts/tests common electionpage movie rcvis scraper visualizer visualizer/descriptors visualizer/tests"
 
 # Require 100% lint-free code
 echo "Checking for pylint issues"
 export DJANGO_SETTINGS_MODULE="rcvis.settings" # needed by pylint_django
-pylint $modules --load-plugins pylint_django --ignore visualizer/migrations,movie/migrations
+pylint $modules --load-plugins pylint_django --ignore "*/migrations"
 errorCode=$?
 if [ $errorCode != 0 ]; then
     echo "These files must be perfectly linted"

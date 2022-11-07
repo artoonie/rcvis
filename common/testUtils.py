@@ -10,9 +10,12 @@ from urllib.parse import urlparse
 from mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 
 from selenium import webdriver
+from scraper.models import Scraper
 from visualizer.models import JsonConfig
+from visualizer.tests import filenames
 
 FILENAME_MULTIWINNER = 'testData/macomb-multiwinner-surplus.json'
 
@@ -85,7 +88,7 @@ class TestHelpers():
         """ Copies the file to a tempfile, but changes the name. Returns the tempfile """
         tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
-        with open(jsonFileToCopy, 'r') as f:
+        with open(jsonFileToCopy, 'r', encoding='utf_8') as f:
             data = json.loads(f.read())
 
         data['config']['contest'] = newName
@@ -109,6 +112,7 @@ class TestHelpers():
         logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
         logging.getLogger('selenium').setLevel(logging.CRITICAL)
         logging.getLogger('urllib3').setLevel(logging.CRITICAL)
+        logging.getLogger('scraper.scrapeWorkerFailed').setLevel(logging.ERROR)
 
     @classmethod
     def modify_json_with(cls, jsonFilename, modifierFunc):
@@ -144,7 +148,7 @@ class TestHelpers():
 
     @classmethod
     def login(cls, client):
-        """ Forces a login. Creates a user as needed. """
+        """ Forces a login. Creates a user as needed, and returns that user """
         users = get_user_model().objects.filter(username='testuser')
         if not users.count():
             # Since we're not controlling how this function is used as closely,
@@ -156,6 +160,7 @@ class TestHelpers():
         else:
             user = users[0]
         client.force_login(user)
+        return user
 
     @classmethod
     def logout(cls, client):
@@ -190,6 +195,37 @@ class TestHelpers():
         emailBodyLines = outbox[0].body.split('\n')
         emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
         return urlparse(emailBodyLink).path
+
+    @classmethod
+    def give_auth(cls, user, auths):
+        """ Gives auth or list of auths to the current user, then refetches user from the db """
+        if isinstance(auths, str):
+            auths = [auths]
+        for auth in auths:
+            user.user_permissions.add(Permission.objects.get(codename=auth))
+        return get_user_model().objects.get(pk=user.pk)
+
+    @classmethod
+    def make_scraper(cls):
+        """ Creates a scraper object. You must mock out requests.get if you plan to scrape. """
+        return Scraper.objects.create(scrapableURL="mock://scrape", sourceURL="mock://source")
+
+    @classmethod
+    def mock_scraper_url_with_file(
+            cls,
+            requestMock,
+            url='mock://scrape',
+            filename=filenames.ONE_ROUND):
+        """ Creates a valid response from the server """
+        with open(filename, 'r', encoding='utf-8') as f:
+            data = f.read()
+        requestMock.get(url, text=data)
+
+    @classmethod
+    def login_with_scrape_permissions(cls, client):
+        """ Logs in and creates permissions needed to run scraper """
+        user = TestHelpers.login(client)
+        return TestHelpers.give_auth(user, ['add_scraper', 'change_scraper'])
 
 
 # Silence logging spam for any test that includes this
