@@ -38,9 +38,9 @@ function initializeOptions()
     }
 }
 
-function switchVisTypeHTML(iframeUrl, value)
+function switchVisTypeHTML(iframeUrl, value, height)
 {
-    const text = `<iframe width="100%" height="800" src="${iframeUrl}/${value}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>`
+    const text = `<iframe width="100%" height="${height}px" src="${iframeUrl}/${value}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>`
     document.getElementById("htmlembedexport").value = text;
 }
 

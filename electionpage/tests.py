@@ -18,7 +18,6 @@ as well as actually populate data.
 """
 
 import datetime
-import time
 from urllib.parse import urlparse
 
 from django.core.files import File
@@ -104,7 +103,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Click on bargraph button, and the opposite is true
         bargraphButton.click()
-        self.assertIn('?vistype=barchart', bargraphIframe.get_attribute('src'))
+        self.assertIn('?vistype=barchart-inte', bargraphIframe.get_attribute('src'))
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-primary')
 
     @Mocker()
@@ -130,9 +129,8 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # And the results page should have real data for only one election
         self.open(reverse('scrapableElectionPage', args=(epModel.slug,)))
-        listItems = self.browser.find_elements_by_class_name("card")
-        self.assertEqual(len(listItems), 1)
-        self.assertEqual(listItems[0].text, 'One round')
+        self._ensure_eventually_asserts(lambda: self.assertEqual(
+            len(self.browser.find_elements_by_class_name("card")), 1))
 
         # The title is visible too
         h1s = self.browser.find_elements_by_tag_name("h1")
@@ -243,7 +241,6 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Refresh (not sure why it's needed)
         self.browser.execute_script("location.reload(true);")
-        time.sleep(0.2)  # some breathing room after the refresh
 
         # There are two valid rows
         self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 2)

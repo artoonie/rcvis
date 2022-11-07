@@ -33,4 +33,5 @@ class ScrapeNow(PermissionRequiredMixin, DetailView):
         # This may fail - that's okay, we want to hear all the errors
         # in our logging. Eventually, come up with nicer error handling.
         ScrapeWorker.scrape(scraperObject, user)
+
         return redirect(reverse('viewScraper', kwargs=kwargs))

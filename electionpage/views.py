@@ -14,11 +14,23 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from extra_views import ModelFormSetView
 
+from common import viewUtils
+from common.cloudflare import CloudflareAPI
 from electionpage.forms import ScrapableElectionPageForm
 from electionpage.models import ElectionPage, ScrapableElectionPage
 from scraper.forms import ScraperForm
 from scraper.models import Scraper
 from scraper.scrapeWorker import ScrapeWorker
+
+
+def populate_election_context_data(context, jsonConfigs):
+    """ Populates context with data needed for each election """
+    context['elections'] = []
+    for jsonConfig in jsonConfigs:
+        context['elections'].append({
+            'jsonConfig': jsonConfig,
+            'iframeHeight': viewUtils.default_iframe_height(jsonConfig.numCandidates)
+        })
 
 
 class ElectionPageView(DetailView):
@@ -28,7 +40,8 @@ class ElectionPageView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['jsonConfigs'] = self.object.listOfElections.all()
+        context['elections'] = self.object.listOfElections.all()
+        populate_election_context_data(context, self.object.listOfElections.all())
         return context
 
 
@@ -42,9 +55,12 @@ class ScrapableElectionPageView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['jsonConfigs'] = [s.jsonConfig for s in self.object.listOfScrapers.all()]
-        context['jsonConfigs'] = [j for j in context['jsonConfigs'] if j is not None]
         context['electionpage'] = context['scrapableelectionpage']
+
+        jsonConfigs = [s.jsonConfig for s in self.object.listOfScrapers.all()]
+        jsonConfigs = [j for j in jsonConfigs if j is not None]
+        populate_election_context_data(context, jsonConfigs)
+
         return context
 
 
@@ -71,6 +87,11 @@ class ScrapeAll(PermissionRequiredMixin, DetailView):
         context['title'] = self.object.title
         context['slug'] = self.object.slug
         context['results'] = results
+
+        # Purge all local cache and the specific cloudflare cache
+        urlToPurge = reverse('scrapableElectionPage', args=(self.object.slug,))
+        CloudflareAPI.purge_paths_cache([urlToPurge])
+
         return context
 
 

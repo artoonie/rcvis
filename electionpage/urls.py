@@ -1,6 +1,7 @@
 """ URLs for the election page """
 
 from django.urls import path
+from django.views.decorators.cache import never_cache
 
 from electionpage import views
 
@@ -15,15 +16,15 @@ urlpatterns = [
         name='electionPage'),
     path(
         'pPopulate/<slug>',
-        views.PopulateScrapers.as_view(),
+        never_cache(views.PopulateScrapers.as_view()),
         name='populateScrapers'),
     path(
         'pScrapeAll/<slug>',
-        views.ScrapeAll.as_view(),
+        never_cache(views.ScrapeAll.as_view()),
         name='scrapeAll'),
     path(
         'pCreate.html',
-        views.ScrapableElectionPageCreator.as_view(),
+        never_cache(views.ScrapableElectionPageCreator.as_view()),
         name='createScrapableElection'),
     path(
         'pIndex.html',

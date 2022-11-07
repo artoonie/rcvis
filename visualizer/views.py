@@ -179,6 +179,9 @@ class Visualize(DetailView):
         referenceUrl += "#tabular-candidate-by-round"
         data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode()
 
+        # iframe height
+        data['iframeHeight'] = viewUtils.default_iframe_height(config['jsonconfig'].numCandidates)
+
         return data
 
 

@@ -2,7 +2,6 @@
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.cache import cache
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
@@ -163,20 +162,6 @@ class JsonConfig(models.Model):
 
         if not self._state.adding:
             # Model is being updated, not created. Clear the cache.
-
-            # A) filesystem caching clearing.
-            # This is not useful in most cases, but is useful when:
-            # 1. The admin page changes something
-            # 2. In unit tests, where the db gets cleared for each test, and you don't want to see
-            #    the previous test's cached results
-            # TODO - this is overkill, how can we just clear the cache for this model?
-            # 3. API updates
-            cache.clear()
-
-            # B) Cloudflare cache clearing
-            # Should only occur in production. Doesn't clear all possible cache keys
-            # (that would require an enterprise cloudflare connection), but hits the
-            # common URLs.
             CloudflareAPI.purge_vis_cache(self.slug)
 
         super().save(*args, **kwargs)
