@@ -21,7 +21,6 @@ import datetime
 import time
 from urllib.parse import urlparse
 
-from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from requests_mock import Mocker
@@ -67,10 +66,10 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             epModel.listOfScrapers.add(TestHelpers.make_scraper())
         return epModel
 
-    @classmethod
-    def _provide_all_credentials(cls, user):
+    def _provide_all_credentials(self):
         """ These three permissions are sufficient to create and scrape election pages """
-        TestHelpers.give_auth(user, ['add_scraper', 'change_scraper', 'add_scrapableelectionpage'])
+        auths = ['add_scraper', 'change_scraper', 'add_scrapableelectionpage']
+        self.user = TestHelpers.give_auth(self.user, auths)
 
     def _fill_in_create_form(self, slug):
         """ After you go to createScrapableElection page, call this to fill out the form """
@@ -79,11 +78,6 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.find_element_by_id("id_date").send_keys("2022-11-06")
         self.browser.find_element_by_id("id_description").send_keys("desc")
         self.browser.find_element_by_id("id_numElections").send_keys("1")
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if settings.DEBUG == False:
-            settings.DEBUG = True
 
     def test_index(self):
         """ The index page is publicly-viewable and contains the expected # of bullet points """
@@ -113,7 +107,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         epModel = self._create_scrapable_election_page(numElections=2)
         TestHelpers.mock_scraper_url_with_file(requestMock)
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
 
         # One works, one doesn't
         badScraper = epModel.listOfScrapers.all()[0]
@@ -150,7 +144,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             except NoSuchElementException:
                 return None
 
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
         self.open(reverse('createScrapableElection'))
 
         # Hitting submit before filling out the form fails
@@ -177,7 +171,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_scrapable_page_slug_must_be_unique(self):
         """ Ensure user cannot create a duplicate slug """
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
 
         # Create one directly into the database
         epModel = self._create_scrapable_election_page(1)
@@ -210,7 +204,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         TestHelpers.mock_scraper_url_with_file(requestMock, "mock://bad-url", filenames.BAD_DATA)
 
         epModel = self._create_scrapable_election_page(3)
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
         url = reverse('populateScrapers', args=(epModel.slug,))
         self.open(url)
 
@@ -240,11 +234,11 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         time.sleep(0.2)  # some breathing room after the refresh
 
         # There are two valid rows
-        self.assertEqual(len(self.browser.find_elements_by_class_name("expandableRow")), 2)
+        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 2)
 
     def test_are_results_certified_initializes_correctly(self):
         """ When initialized with areResultsCertified, it propagates to all scrapers """
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
         self.open(reverse('createScrapableElection'))
 
         # Create with certified checked
@@ -261,7 +255,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         epModel = self._create_scrapable_election_page(numElections=2)
         epModel.areResultsCertified = True
         TestHelpers.mock_scraper_url_with_file(requestMock)
-        self._provide_all_credentials(self.user)
+        self._provide_all_credentials()
 
         # Setting certified updates all models
         epModel.save()

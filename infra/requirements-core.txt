@@ -39,3 +39,6 @@ moviepy==1.0.3
 # For Heroku
 gunicorn==20.1.0
 django-heroku==0.3.1
+
+# Workaround for https://stackoverflow.com/a/73934771/1057105
+importlib-metadata<5.0

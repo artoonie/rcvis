@@ -44,6 +44,7 @@ class ScrapableElectionPageView(DetailView):
         context = super().get_context_data(**kwargs)
         context['jsonConfigs'] = [s.jsonConfig for s in self.object.listOfScrapers.all()]
         context['jsonConfigs'] = [j for j in context['jsonConfigs'] if j is not None]
+        context['electionpage'] = context['scrapableelectionpage']
         return context
 
 
@@ -80,7 +81,7 @@ class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
     redirect_field_name = 'redirect_to'
     model = Scraper
     form_class = ScraperForm
-    template_name = 'electionPage/populateScrapers.html'
+    template_name = 'electionpage/populateScrapers.html'
     electionPage = None  # populated in get_queryset
     permission_required = [
         'electionpage.add_scrapableelectionpage',
@@ -111,7 +112,7 @@ class ScrapableElectionPageCreator(PermissionRequiredMixin, FormView):
     redirect_field_name = 'redirect_to'
     model = ScrapableElectionPage
     form_class = ScrapableElectionPageForm
-    template_name = 'electionPage/createScrapableElection.html'
+    template_name = 'electionpage/createScrapableElection.html'
     slug = None  # added in form_valid
     permission_required = ['electionpage.add_scrapableelectionpage']
 

@@ -203,7 +203,7 @@ class TestHelpers():
             auths = [auths]
         for auth in auths:
             user.user_permissions.add(Permission.objects.get(codename=auth))
-        user = get_user_model().objects.get(pk=user.pk)
+        return get_user_model().objects.get(pk=user.pk)
 
     @classmethod
     def make_scraper(cls):
@@ -225,8 +225,7 @@ class TestHelpers():
     def login_with_scrape_permissions(cls, client):
         """ Logs in and creates permissions needed to run scraper """
         user = TestHelpers.login(client)
-        TestHelpers.give_auth(user, 'add_scraper')
-        TestHelpers.give_auth(user, 'change_scraper')
+        return TestHelpers.give_auth(user, ['add_scraper', 'change_scraper'])
 
 
 # Silence logging spam for any test that includes this
