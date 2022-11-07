@@ -90,14 +90,22 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(reverse('electionPage', args=(epModel.slug,)))
 
         # Two items
-        self.assertEqual(len(self.browser.find_elements_by_class_name("expandableRow")), 2)
+        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 2)
 
-        # TODO - add tests here to make sure the four buttons work:
-        # 1. Expand bargraph
-        # 2. Expand table
-        # 3. Open external
-        # 4. Click name (default action)
-        # Also make sure we click both, and that both iframes become visible
+        # The title is visible
+        h1s = self.browser.find_elements_by_tag_name("h1")
+        self.assertEqual(h1s[0].text, "Test Election")
+
+        # Bargraph button is grayed out and the iframe is not loaded
+        bargraphIframe = self.browser.find_element_by_id('bargraph-iframe-1')
+        bargraphButton = self.browser.find_element_by_id('bargraph-button-1')
+        self.assertEqual(bargraphIframe.get_attribute('src'), 'about:blank')
+        self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-secondary')
+
+        # Click on bargraph button, and the opposite is true
+        bargraphButton.click()
+        self.assertIn('?vistype=barchart', bargraphIframe.get_attribute('src'))
+        self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-primary')
 
     @Mocker()
     def test_scrape_all(self, requestMock):
@@ -122,9 +130,13 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # And the results page should have real data for only one election
         self.open(reverse('scrapableElectionPage', args=(epModel.slug,)))
-        listItems = self.browser.find_elements_by_class_name("expandableRow")
+        listItems = self.browser.find_elements_by_class_name("card")
         self.assertEqual(len(listItems), 1)
         self.assertEqual(listItems[0].text, 'One round')
+
+        # The title is visible too
+        h1s = self.browser.find_elements_by_tag_name("h1")
+        self.assertEqual(h1s[0].text, "Test Scrapable Election")
 
     def test_create_scrapable_page_logged_out(self):
         """ Redirect to login if not logged in (don't 403) """
@@ -218,7 +230,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # But the live page should be empty
         self.open(reverse('scrapableElectionPage', args=(epModel.slug,)))
-        self.assertEqual(len(self.browser.find_elements_by_class_name("expandableRow")), 0)
+        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 0)
 
         # Until we hit rescrape, then there should be 2/3 valid scrapes
         self.open(reverse('populateScrapers', args=(epModel.slug,)))
