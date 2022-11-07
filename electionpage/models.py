@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from sortedm2m.fields import SortedManyToManyField
 
+from common.cloudflare import CloudflareAPI
 from visualizer.models import JsonConfig
 from scraper.models import Scraper
 
@@ -36,6 +37,12 @@ class ElectionPage(BaseElectionPage):
     # The list of all elections in this election page
     listOfElections = SortedManyToManyField(JsonConfig)
 
+    def save(self, *args, **kwargs):
+        urlToPurge = reverse('electionPage', args=(self.slug,))
+        CloudflareAPI.purge_paths_cache([urlToPurge])
+
+        super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
         return reverse('electionPage', args=(self.slug,))
@@ -63,6 +70,11 @@ class ScrapableElectionPage(BaseElectionPage):
                 if self.areResultsCertified != scraper.areResultsCertified:
                     scraper.areResultsCertified = self.areResultsCertified
                     scraper.save()
+
+        # Purge cache
+        urlToPurge = reverse('scrapableElectionPage', args=(self.slug,))
+        CloudflareAPI.purge_paths_cache([urlToPurge])
+
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
