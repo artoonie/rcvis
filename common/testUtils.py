@@ -47,9 +47,9 @@ class TestHelpers():
         tally = data['results'][0]['tally']
         approximateBytesPerPerson = 30
         for i in range(0, round(numBytes / approximateBytesPerPerson)):
-            tally['candidate_%08d' % i] = "0"
+            tally[f'candidate_{i:08d}'] = "0"
 
-        with open(filename, 'w') as f:
+        with open(filename, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
         return filename
@@ -57,7 +57,7 @@ class TestHelpers():
     @classmethod
     def get_multiwinner_upload_response(cls, client):
         """ Uploads the multiwinner json file and returns a response """
-        with open(FILENAME_MULTIWINNER) as f:
+        with open(FILENAME_MULTIWINNER, 'r', encoding='utf-8') as f:
             response = client.post('/upload.html', {'jsonFile': f})
         return response
 
@@ -89,7 +89,7 @@ class TestHelpers():
         tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
         with open(jsonFileToCopy, 'r', encoding='utf_8') as f:
-            data = json.loads(f.read())
+            data = json.loads(f)
 
         data['config']['contest'] = newName
         with open(tf.name, 'w') as f:
@@ -141,7 +141,7 @@ class TestHelpers():
     @classmethod
     def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):
         """ Does the FieldFile (django field) equal the file at fsFilePath?  """
-        with open(fsFilePath, 'r') as f:
+        with open(fsFilePath, 'r', encoding='utf-8') as f:
             realFileData = f.read()
         fieldFileData = fieldFile.read()
         return realFileData == fieldFileData

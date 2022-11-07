@@ -9,9 +9,9 @@ class D3Sankey:
                                     for n in graph.nodesPerRound[0].values()])
         totalVotesPerRound = [r.totalActiveVotes for r in graph.summary.rounds]
         js = ''
-        js += 'numRounds = %d;\n' % graph.numRounds
-        js += 'numCandidates = %d;\n' % len(graph.nodesPerRound[0])
-        js += 'longestLabelApxWidth = %f;\n' % longestLabelApxWidth
+        js += f'numRounds = {graph.numRounds};\n'
+        js += f'numCandidates = {len(graph.nodesPerRound[0])} ;\n'
+        js += f'longestLabelApxWidth = {longestLabelApxWidth};\n'
         js += f'totalVotesPerRound = {totalVotesPerRound};\n'
         js += 'graph = {"nodes" : [], "links" : []};\n'
 
@@ -25,12 +25,12 @@ class D3Sankey:
                 continue
 
             nodeIndices[node] = i
-            js += 'graph.nodes.push({ "name": %s,\n' % json.dumps(node.label)
-            js += '                   "round": %d,\n' % node.roundNum
-            js += '                   "value": %f,\n' % node.count
-            js += '                   "isWinner": %d,\n' % node.isWinner
-            js += '                   "isEliminated": %d,\n' % node.isEliminated
-            js += '                   "index": "%s"});\n' % indices[node.item]
+            js += f'graph.nodes.push({{ "name": {json.dumps(node.label)},\n'
+            js += f'                    "round": {node.roundNum},\n'
+            js += f'                    "value": {node.count},\n'
+            js += f'                    "isWinner": {node.isWinner},\n'
+            js += f'                    "isEliminated": {node.isEliminated},\n'
+            js += f'                    "index": "{indices[node.item]}"}});\n'
         for link in graph.links:
             # Skip inactive (exhausted) nodes
             if not link.source.item.isActive:
@@ -40,8 +40,8 @@ class D3Sankey:
 
             sourceIndex = nodeIndices[link.source]
             targetIndex = nodeIndices[link.target]
-            js += 'graph.links.push({ "source": %d,\n' % sourceIndex
-            js += '                   "target": %d,\n' % targetIndex
-            js += '           "candidateIndex": %d,\n' % indices[link.source.item]
-            js += '                    "value": %0.3f });\n' % link.value
+            js += f'graph.links.push({{ "source": {sourceIndex},\n'
+            js += f'                    "target": {targetIndex},\n'
+            js += f'            "candidateIndex": {indices[link.source.item]},\n'
+            js += f'                     "value": {link.value:0.3f} }});\n'
         self.js = js

@@ -142,4 +142,4 @@ For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated
 RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
 
 ## Testing
-Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com), and CI/CD testing via [TravisCI](https://travisci.com).
+Cross-browser Testing Platform and Open Source ❤️ provided by [Sauce Labs](https://saucelabs.com).

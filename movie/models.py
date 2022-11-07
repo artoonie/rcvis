@@ -1,6 +1,5 @@
 """ Models for storing data about a movie """
 from django.conf import settings
-from django.contrib import admin
 from django.core.cache import cache
 from django.core.files.storage import get_storage_class
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -26,7 +25,7 @@ class Movie(models.Model):
     generatedOnApplicationVersion = models.CharField(max_length=30)
     movieFile = models.FileField(max_length=512, upload_to='movies')
     gifFile = models.FileField(max_length=512, upload_to="gifs", null=True, blank=True)
-    titleImage = models.ImageField(upload_to='movieTitleImages', null=True)
+    titleImage = models.ImageField(upload_to='movieTitleImages', null=True, blank=True)
 
     resolutionWidth = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
@@ -44,26 +43,9 @@ class Movie(models.Model):
 
 class TextToSpeechCachedFile(models.Model):
     """ A mapping from a text to an audio file of the text-to-speech mp3 """
-    text = models.CharField(max_length=2048, unique=True, primary_key=True)
+    text = models.TextField(unique=True, primary_key=True)
     audioFile = models.FileField(
         max_length=512,
         upload_to='speech-synth',
         storage=SpeechSynthStorage())
     lastUsed = models.DateTimeField(auto_now=True)
-
-
-@admin.register(Movie)
-class JsonAdmin(admin.ModelAdmin):
-    """ The admin page to modify JsonConfig """
-    list_display = ('generatedOnApplicationVersion',
-                    'movieFile',
-                    'gifFile',
-                    'titleImage',
-                    'resolutionWidth',
-                    'resolutionHeight')
-
-
-@admin.register(TextToSpeechCachedFile)
-class TextToSpeechCachedFileAdmin(admin.ModelAdmin):
-    """ The admin page to modify JsonConfig """
-    list_display = ('text', 'audioFile', 'lastUsed')
