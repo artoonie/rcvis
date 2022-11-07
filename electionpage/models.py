@@ -56,10 +56,6 @@ class ScrapableElectionPage(BaseElectionPage):
     # we ScrapeAll.
     areResultsCertified = models.BooleanField(default=False)
 
-    def get_absolute_url(self):
-        """ Used in the admin panel to have a "Visit Site" link """
-        return reverse('scrapableElectionPage', args=(self.slug,))
-
     def save(self, *args, **kwargs):
         if self.id:
             # Updating - and when we update, we need to propagate this to all scrapers
@@ -68,3 +64,7 @@ class ScrapableElectionPage(BaseElectionPage):
                     scraper.areResultsCertified = self.areResultsCertified
                     scraper.save()
         super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('scrapableElectionPage', args=(self.slug,))

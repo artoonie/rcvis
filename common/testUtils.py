@@ -197,9 +197,12 @@ class TestHelpers():
         return urlparse(emailBodyLink).path
 
     @classmethod
-    def give_auth(cls, user, authType):
-        """ Gives the auth to the current user, then refetches user from the db """
-        user.user_permissions.add(Permission.objects.get(codename=authType))
+    def give_auth(cls, user, auths):
+        """ Gives auth or list of auths to the current user, then refetches user from the db """
+        if isinstance(auths, str):
+            auths = [auths]
+        for auth in auths:
+            user.user_permissions.add(Permission.objects.get(codename=auth))
         user = get_user_model().objects.get(pk=user.pk)
 
     @classmethod

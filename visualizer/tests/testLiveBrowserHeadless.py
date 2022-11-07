@@ -136,7 +136,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.get(oembedJsonUrl)
         self.browser.execute_script("location.reload(true);")
         time.sleep(0.2)  # some breathing room after the refresh
-        self._assert_log_len(self._num_log_errors_for_missing_favicon())
+        self._assert_log_len(0)
 
         # Verify the JSON is sane and has all required fields
         responseText = self.browser.find_element_by_xpath("//pre").text

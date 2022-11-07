@@ -21,6 +21,7 @@ import datetime
 import time
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from requests_mock import Mocker
@@ -66,15 +67,10 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             epModel.listOfScrapers.add(TestHelpers.make_scraper())
         return epModel
 
-    def _provide_all_credentials(self, user):
+    @classmethod
+    def _provide_all_credentials(cls, user):
         """ These three permissions are sufficient to create and scrape election pages """
-        TestHelpers.give_auth(user, 'add_scraper')
-        TestHelpers.give_auth(user, 'change_scraper')
-        TestHelpers.give_auth(user, 'add_scrapableelectionpage')
-        TestHelpers.logout(self.client)
-        TestHelpers.login(self.client)
-        self._add_login_cookie_to_browser()
-        time.sleep(0.1)  # Testing why it fails...
+        TestHelpers.give_auth(user, ['add_scraper', 'change_scraper', 'add_scrapableelectionpage'])
 
     def _fill_in_create_form(self, slug):
         """ After you go to createScrapableElection page, call this to fill out the form """
@@ -83,6 +79,11 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.find_element_by_id("id_date").send_keys("2022-11-06")
         self.browser.find_element_by_id("id_description").send_keys("desc")
         self.browser.find_element_by_id("id_numElections").send_keys("1")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if settings.DEBUG == False:
+            settings.DEBUG = True
 
     def test_index(self):
         """ The index page is publicly-viewable and contains the expected # of bullet points """

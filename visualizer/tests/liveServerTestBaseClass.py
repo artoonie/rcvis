@@ -121,19 +121,13 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on the chromedriver used on 2022-01-27
         log = [l for l in log if 'ch-ua-full-version-list' not in l['message']]
 
+        # This happens on saucelabs
+        log = [l for l in log if 'favicon.ico - Failed to load resource' not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
-        assert len(log) == num
-
-    def _num_log_errors_for_missing_favicon(self):
-        if isinstance(self.browser, webdriver.Chrome):
-            return 0
-        if isinstance(self.browser, webdriver.Firefox):
-            return 0
-        if isinstance(self.browser, webdriver.Remote):
-            return 1
-        raise Exception("Unknown browser type")
+        self.assertEqual(len(log), num)
 
     def _make_url(self, url):
         """ Creates an absolute url using the current server URL """
