@@ -86,6 +86,26 @@ class ScraperTests(TestCase):
         self.assertIsNotNone(scraper.jsonConfig)
 
     @Mocker()
+    def test_scrapenow_matches_certified(self, requestMock):
+        """ Test scraping succeeds when authed, and jsonConfig is updated """
+        # Set up the mock and log in
+        TestHelpers.mock_scraper_url_with_file(requestMock)
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_scraper()
+
+        # Scrape with default value: not certified.
+        self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
+        self.assertFalse(TestHelpers.get_latest_upload().areResultsCertified)
+
+        # Change scraper certified status
+        scraper.areResultsCertified = True
+        scraper.save()
+
+        # Re-scrape
+        self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
+        self.assertTrue(TestHelpers.get_latest_upload().areResultsCertified)
+
+    @Mocker()
     def test_scrapenow_bad_json(self, requestMock):
         """ Scrape succeeds, but the data is bad """
         requestMock.get('mock://scrape', text='{"baddata"}')

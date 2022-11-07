@@ -240,3 +240,34 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # There are two valid rows
         self.assertEqual(len(self.browser.find_elements_by_class_name("expandableRow")), 2)
+
+    def test_are_results_certified_initializes_correctly(self):
+        """ When initialized with areResultsCertified, it propagates to all scrapers """
+        self._provide_all_credentials(self.user)
+        self.open(reverse('createScrapableElection'))
+
+        # Create with certified checked
+        self._fill_in_create_form("cuteslug")
+        self.browser.find_element_by_id("id_areResultsCertified").click()
+        self.browser.find_element_by_id("submit").click()
+
+        for scraper in ScrapableElectionPage.objects.get(slug='cuteslug').listOfScrapers.all():
+            self.assertTrue(scraper.areResultsCertified)
+
+    @Mocker()
+    def test_are_results_certified_updates_correctly(self, requestMock):
+        """ When areResultsCertified updates, it propagates to all scrapers """
+        epModel = self._create_scrapable_election_page(numElections=2)
+        epModel.areResultsCertified = True
+        TestHelpers.mock_scraper_url_with_file(requestMock)
+        self._provide_all_credentials(self.user)
+
+        # Setting certified updates all models
+        epModel.save()
+        for scraper in epModel.listOfScrapers.all():
+            self.assertTrue(scraper.areResultsCertified)
+
+        # As are the corresponding json configs
+        self.open(reverse('scrapeAll', args=(epModel.slug,)))
+        for scraper in epModel.listOfScrapers.all():
+            self.assertTrue(scraper.jsonConfig.areResultsCertified)

@@ -59,3 +59,12 @@ class ScrapableElectionPage(BaseElectionPage):
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
         return reverse('scrapableElectionPage', args=(self.slug,))
+
+    def save(self, *args, **kwargs):
+        if self.id:
+            # Updating - and when we update, we need to propagate this to all scrapers
+            for scraper in self.listOfScrapers.all():
+                if self.areResultsCertified != scraper.areResultsCertified:
+                    scraper.areResultsCertified = self.areResultsCertified
+                    scraper.save()
+        super().save(*args, **kwargs)
