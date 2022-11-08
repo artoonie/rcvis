@@ -24,3 +24,5 @@ RESIDUAL_SURPLUS_SIDECAR = 'testData/with-residual-surplus-sidecar.json'
 
 THREE_ROUND_SIDECAR = 'testData/bp-sidecar-medium.json'
 DATATABLES_OUTPUT = 'testData/datatables-output.json'
+
+MULTI_SCRAPE = 'testData/multi-scrape-example.xml'

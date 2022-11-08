@@ -26,7 +26,7 @@ from requests_mock import Mocker
 from selenium.common.exceptions import NoSuchElementException
 
 from common.testUtils import TestHelpers
-from electionpage.models import ElectionPage, ScrapableElectionPage
+from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
@@ -55,6 +55,16 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         return epModel
 
     @classmethod
+    def _create_single_source_election_page(cls):
+        epModel = SingleSourceElectionPage.objects.create(
+            title="Test Single Source Scrapable Election",
+            description="Test Description",
+            slug="test-slug",
+            date=datetime.datetime.utcnow(),
+            scraper=TestHelpers.make_multi_scraper())
+        return epModel
+
+    @classmethod
     def _create_scrapable_election_page(cls, numElections):
         epModel = ScrapableElectionPage.objects.create(
             title="Test Scrapable Election",
@@ -67,7 +77,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _provide_all_credentials(self):
         """ These three permissions are sufficient to create and scrape election pages """
-        auths = ['add_scraper', 'change_scraper', 'add_scrapableelectionpage']
+        auths = ['view_scraper', 'add_scraper', 'change_scraper', 'add_scrapableelectionpage']
         self.user = TestHelpers.give_auth(self.user, auths)
 
     def _fill_in_create_form(self, slug):
@@ -81,7 +91,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     def test_index(self):
         """ The index page is publicly-viewable and contains the expected # of bullet points """
         self.open(reverse('electionPageHome'))
-        self.assertEqual(len(self.browser.find_elements_by_tag_name("li")), 10)
+        self.assertGreater(len(self.browser.find_elements_by_tag_name("li")), 14)
 
     def test_election_pages(self):
         """ The election pages are error-free for non-scrapable election pages.  """
@@ -128,13 +138,37 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(len(self.browser.find_elements_by_class_name("alert-warning")), 1)
 
         # And the results page should have real data for only one election
-        self.open(reverse('scrapableElectionPage', args=(epModel.slug,)))
+        self.open(reverse('electionPageScrapable', args=(epModel.slug,)))
         self._ensure_eventually_asserts(lambda: self.assertEqual(
             len(self.browser.find_elements_by_class_name("card")), 1))
 
         # The title is visible too
         h1s = self.browser.find_elements_by_tag_name("h1")
         self.assertEqual(h1s[0].text, "Test Scrapable Election")
+
+    @Mocker()
+    def test_single_source(self, requestMock):
+        """
+        MultiScrape works, and generates a valid page
+        """
+        self._provide_all_credentials()
+        epModel = self._create_single_source_election_page()
+        TestHelpers.mock_scraper_url_with_file(
+            requestMock,
+            url=epModel.scraper.scrapableURL,
+            filename=filenames.MULTI_SCRAPE)
+
+        # Scrape goes to results page
+        self.open(reverse('multiScrapeNow', args=(epModel.scraper.pk,)))
+
+        # And the results page should have real data for 25 elections
+        self.open(reverse('electionPageSingleSource', args=(epModel.slug,)))
+        self._ensure_eventually_asserts(lambda: self.assertEqual(
+            len(self.browser.find_elements_by_class_name("card")), 25))
+
+        # The title is visible too
+        h1s = self.browser.find_elements_by_tag_name("h1")
+        self.assertEqual(h1s[0].text, "Test Single Source Scrapable Election")
 
     def test_create_scrapable_page_logged_out(self):
         """ Redirect to login if not logged in (don't 403) """
@@ -227,7 +261,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(urlparse(self.browser.current_url).path, url)
 
         # But the live page should be empty
-        self.open(reverse('scrapableElectionPage', args=(epModel.slug,)))
+        self.open(reverse('electionPageScrapable', args=(epModel.slug,)))
         self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 0)
 
         # Until we hit rescrape, then there should be 2/3 valid scrapes

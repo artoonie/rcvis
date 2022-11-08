@@ -7,14 +7,19 @@ Models for a Scraper, which has:
 from django.db import models
 from django.urls import reverse
 
+from sortedm2m.fields import SortedManyToManyField
+
 from visualizer.models import JsonConfig
 
 
-class Scraper(models.Model):
+class BaseScraper(models.Model):
     """
     A model representing URLs that can be scraped to populate
     either a single visualization or an electionpage
     """
+    class Meta:
+        abstract = True
+
     # URL to actually scrape (must be machine-readable by rcvformats)
     scrapableURL = models.CharField(max_length=128)
 
@@ -41,3 +46,23 @@ class Scraper(models.Model):
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
         return reverse('viewScraper', args=(self.pk,))
+
+    def __str__(self):
+        return self.scrapableURL
+
+
+class Scraper(BaseScraper):
+    """ A one-to-one scraper: the source generates a single visualization """
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('viewScraper', args=(self.pk,))
+
+
+class MultiScraper(BaseScraper):
+    """ A one-to-many scraper: the source generates several visualizations """
+    listOfElections = SortedManyToManyField(JsonConfig, related_name='+', blank=True)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('viewMultiScraper', args=(self.pk,))

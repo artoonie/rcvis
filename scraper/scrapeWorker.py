@@ -14,8 +14,10 @@ import tempfile
 import traceback
 
 from django.core.files import File
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.utils import timezone
+from django.utils.text import slugify
+from rcvformats.conversions.dominion_multi_converter import DominionMultiConverter as DMC
 import requests
 
 from visualizer import validators
@@ -65,14 +67,34 @@ class ScrapeWorker():
         return tf
 
     @classmethod
-    def scrape(cls, scraperObject, user):
-        """
-        May throw errors - be ready to handle them.
-        """
+    def _log_and_rethrow_exception(cls, scraperObject, exc):
+        logger.warning("Failed to parse URL: %s", scraperObject.scrapableURL)
+        logger.info(traceback.format_exc())
+        scraperObject.lastFailedScrape = timezone.now()
+        scraperObject.save()
+        raise exc
+
+    @classmethod
+    def _assert_permissions(cls, user):
         if not user.has_perm('scraper.change_scraper'):
             # Should be impossible to get here, but just in case.
             logger.error("This should not be possible to get here without having permissions!")
             raise PermissionDenied()
+
+    @classmethod
+    def _populate_jsonconfig(cls, scraperObject, jsonConfig, graph):
+        """ Populates an existing jsonconfig with metadata from scraperObject """
+        jsonConfig.dataSourceURL = scraperObject.sourceURL
+        jsonConfig.areResultsCertified = scraperObject.areResultsCertified
+        BaseVisualizationSerializer.populate_model_with_json_data(jsonConfig, graph)
+
+    @classmethod
+    def scrape(cls, scraperObject, user):
+        """
+        Scrape for a single election
+        May throw errors - be ready to handle them.
+        """
+        cls._assert_permissions(user)
 
         try:
             fromUrl = scraperObject.scrapableURL
@@ -91,18 +113,57 @@ class ScrapeWorker():
                 jsonConfig = scraperObject.jsonConfig
                 jsonConfig.jsonFile = File(fileObject, desiredFilename)
 
-            jsonConfig.dataSourceURL = scraperObject.sourceURL
-            jsonConfig.areResultsCertified = scraperObject.areResultsCertified
-
-            BaseVisualizationSerializer.populate_model_with_json_data(jsonConfig, graph)
+            cls._populate_jsonconfig(scraperObject, jsonConfig, graph)
             jsonConfig.save()
 
             scraperObject.jsonConfig = jsonConfig
             scraperObject.lastSuccessfulScrape = timezone.now()
             scraperObject.save()
         except Exception as exc:  # pylint: disable=broad-except
-            logger.warning("Failed to parse URL: %s", scraperObject.scrapableURL)
-            logger.info(traceback.format_exc())
-            scraperObject.lastFailedScrape = timezone.now()
-            scraperObject.save()
-            raise exc
+            cls._log_and_rethrow_exception(scraperObject, exc)
+
+    @classmethod
+    def multi_scrape(cls, multiScraperObject, user):
+        """
+        May throw errors - be ready to handle them.
+        Scrapes the source for a list of elections, then updates and creates any visualization
+        that doesn't match the list. Will not delete outdated visualizations, in case there's
+        a parsing error - we don't want to release those URLs.
+        """
+        cls._assert_permissions(user)
+        try:
+            fromUrl = multiScraperObject.scrapableURL
+            multiFileObject = cls.download_limited_size(fromUrl, 1024 * 1024 * 5)
+            assert multiFileObject is not None
+
+            titlesToNamedTempFiles = DMC.explode_to_files(multiFileObject)
+
+            for title, namedTempFile in titlesToNamedTempFiles.items():
+                graph = validators.try_to_load_jsons(namedTempFile, None)
+
+                desiredFilename = f'{os.path.basename(fromUrl)}-{slugify(title)}.json'
+
+                try:
+                    # Note: make sure you use graph.title, as it trims, to find in the db
+                    jsonConfig = multiScraperObject.listOfElections.get(title=graph.title)
+                    jsonConfig.jsonFile = File(namedTempFile, desiredFilename)
+                    wasAdded = False
+                except ObjectDoesNotExist:
+                    jsonConfig = JsonConfig(jsonFile=File(namedTempFile, desiredFilename))
+                    jsonConfig.owner = user
+                    wasAdded = True
+
+                jsonConfig.dataSourceURL = multiScraperObject.sourceURL
+                jsonConfig.areResultsCertified = multiScraperObject.areResultsCertified
+
+                BaseVisualizationSerializer.populate_model_with_json_data(jsonConfig, graph)
+                cls._populate_jsonconfig(multiScraperObject, jsonConfig, graph)
+                jsonConfig.save()
+
+                if wasAdded:
+                    multiScraperObject.listOfElections.add(jsonConfig)
+
+            multiScraperObject.lastSuccessfulScrape = timezone.now()
+            multiScraperObject.save()
+        except Exception as exc:  # pylint: disable=broad-except
+            cls._log_and_rethrow_exception(multiScraperObject, exc)
