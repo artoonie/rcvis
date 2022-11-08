@@ -36,28 +36,26 @@
     {% for election in elections %}
       <div class="card mb-2" id="contest-{{ forloop.counter0 }}">
         <div class="card-header" id="contentheading-{{ forloop.counter0 }}">
-          <h2 class="mb-0">
-            <div class="d-flex" style="justify-content: space-between;">
-              <div>
-                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#bargraph-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="bargraph-{{ forloop.counter0 }}">
-                  <h3 class="mb-0">{{ election.jsonConfig.title }}</h3>
-                </button>
-              </div>
-              <div>
-                <button id="bargraph-button-{{ forloop.counter0 }}" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#bargraph-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="bargraph-{{ forloop.counter0 }}">
-                   <img class="tabicon" src="{% static 'visualizer/tabicons/barchart.png' %}" width="18" height="18" alt="Barchart icon"/>
-                </button>
-                <button id="tabular-button-{{ forloop.counter0 }}" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#tabular-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="tabular-{{ forloop.counter0 }}">
-                    <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon"/>
-                </button>
-                <button class="btn btn-secondary" type="button">
-                    <a href="{% url 'visualize' election.jsonConfig.slug %}" target="_blank">
-                        <img class="tabicon" src="{% static 'visualizer/tabicons/newtab.png' %}" width="18" height="18" alt="Open in external tab"/>
-                  </a>
-                </button>
-              </div>
+          <div class="d-flex" style="justify-content: space-between;">
+            <div>
+              <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#bargraph-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="bargraph-{{ forloop.counter0 }}">
+                <h3 class="mb-0 text-left">{{ election.jsonConfig.title }}</h3>
+              </button>
             </div>
-          </h2>
+            <div style="min-width:160px">
+              <button id="bargraph-button-{{ forloop.counter0 }}" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#bargraph-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="bargraph-{{ forloop.counter0 }}">
+                 <img class="tabicon" src="{% static 'visualizer/tabicons/barchart.png' %}" width="18" height="18" alt="Barchart icon"/>
+              </button>
+              <button id="tabular-button-{{ forloop.counter0 }}" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#tabular-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="tabular-{{ forloop.counter0 }}">
+                  <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon"/>
+              </button>
+              <button class="btn btn-secondary" type="button">
+                  <a href="{% url 'visualize' election.jsonConfig.slug %}" target="_blank">
+                      <img class="tabicon" src="{% static 'visualizer/tabicons/newtab.png' %}" width="18" height="18" alt="Open in external tab"/>
+                </a>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div id="bargraph-{{ forloop.counter0 }}" class="collapse" aria-labelledby="contentheading-{{ forloop.counter0 }}" data-parent="#contest-{{ forloop.counter0 }}">
