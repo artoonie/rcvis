@@ -14,9 +14,9 @@ import tempfile
 import traceback
 
 from django.core.files import File
+from django.core.files.base import ContentFile
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.utils import timezone
-from django.utils.text import slugify
 from rcvformats.conversions.dominion_multi_converter import DominionMultiConverter as DMC
 import requests
 
@@ -138,18 +138,19 @@ class ScrapeWorker():
 
             titlesToNamedTempFiles = DMC.explode_to_files(multiFileObject)
 
-            for title, namedTempFile in titlesToNamedTempFiles.items():
+            for namedTempFile in titlesToNamedTempFiles.values():
                 graph = validators.try_to_load_jsons(namedTempFile, None)
 
-                desiredFilename = f'{os.path.basename(fromUrl)}-{slugify(title)}.json'
-
+                # Note: not sure why we need to use ContentFile instead of File.
+                # If we don't, boto gives an error when trying to create an md5:
+                #   "TypeError: Unicode-objects must be encoded before hashing"
                 try:
                     # Note: make sure you use graph.title, as it trims, to find in the db
                     jsonConfig = multiScraperObject.listOfElections.get(title=graph.title)
-                    jsonConfig.jsonFile = File(namedTempFile, desiredFilename)
+                    jsonConfig.jsonFile = ContentFile(namedTempFile.read())
                     wasAdded = False
                 except ObjectDoesNotExist:
-                    jsonConfig = JsonConfig(jsonFile=File(namedTempFile, desiredFilename))
+                    jsonConfig = JsonConfig(jsonFile=ContentFile(namedTempFile.read()))
                     jsonConfig.owner = user
                     wasAdded = True
 
