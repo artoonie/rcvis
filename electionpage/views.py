@@ -17,7 +17,7 @@ from extra_views import ModelFormSetView
 from common import viewUtils
 from common.cloudflare import CloudflareAPI
 from electionpage.forms import ScrapableElectionPageForm
-from electionpage.models import ElectionPage, ScrapableElectionPage
+from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
 from scraper.forms import ScraperForm
 from scraper.models import Scraper
 from scraper.scrapeWorker import ScrapeWorker
@@ -64,6 +64,22 @@ class ScrapableElectionPageView(DetailView):
         return context
 
 
+class SingleSourceElectionPageView(DetailView):
+    """
+    Visualizing all elections in a SingleSourceElectionPage,
+    if they exist- and hiding any election that doesn't exist yet.
+    """
+    model = SingleSourceElectionPage
+    template_name = 'electionpage/electionPage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['electionpage'] = context['singlesourceelectionpage']
+        populate_election_context_data(context, self.object.scraper.listOfElections.all())
+
+        return context
+
+
 class ScrapeAll(PermissionRequiredMixin, DetailView):
     """
     Scrapes everything we can in this election
@@ -89,7 +105,7 @@ class ScrapeAll(PermissionRequiredMixin, DetailView):
         context['results'] = results
 
         # Purge all local cache and the specific cloudflare cache
-        urlToPurge = reverse('scrapableElectionPage', args=(self.object.slug,))
+        urlToPurge = reverse('electionPageScrapable', args=(self.object.slug,))
         CloudflareAPI.purge_paths_cache([urlToPurge])
 
         return context

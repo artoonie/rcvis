@@ -7,7 +7,7 @@ from sortedm2m.fields import SortedManyToManyField
 
 from common.cloudflare import CloudflareAPI
 from visualizer.models import JsonConfig
-from scraper.models import Scraper
+from scraper.models import MultiScraper, Scraper
 
 
 class BaseElectionPage(models.Model):
@@ -72,11 +72,39 @@ class ScrapableElectionPage(BaseElectionPage):
                     scraper.save()
 
         # Purge cache
-        urlToPurge = reverse('scrapableElectionPage', args=(self.slug,))
+        urlToPurge = reverse('electionPageScrapable', args=(self.slug,))
         CloudflareAPI.purge_paths_cache([urlToPurge])
 
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
-        return reverse('scrapableElectionPage', args=(self.slug,))
+        return reverse('electionPageScrapable', args=(self.slug,))
+
+
+class SingleSourceElectionPage(BaseElectionPage):
+    """
+    An election page consisting of one file that can populate many elections
+    """
+    # The multi-scraper that will gather all data for us
+    scraper = models.OneToOneField(
+        MultiScraper,
+        on_delete=models.CASCADE,
+        null=False,
+        blank=False)
+
+    # Are all of these results certified?
+    # If so, we'll overwrite the corresponding field in each Scraper next time
+    # we ScrapeMulti.
+    areResultsCertified = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        # Purge cache
+        urlToPurge = reverse('electionPageSingleSource', args=(self.slug,))
+        CloudflareAPI.purge_paths_cache([urlToPurge])
+
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        """ Used in the admin panel to have a "Visit Site" link """
+        return reverse('electionPageSingleSource', args=(self.slug,))

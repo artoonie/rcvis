@@ -12,9 +12,10 @@ from requests_mock import Mocker
 from rest_framework import status
 
 from common.testUtils import TestHelpers
-from scraper.models import Scraper
+from scraper.models import MultiScraper, Scraper
 from scraper.scrapeWorker import ScrapeWorker, FileTooLargeException
 from visualizer.graph.graphCreator import BadJSONError
+from visualizer.models import JsonConfig
 from visualizer.tests import filenames
 
 TestHelpers.silence_logging_spam()
@@ -170,3 +171,30 @@ class ScraperTests(TestCase):
         # (Let's be real, it'll probably be "fine" forever. Sorry, future traveler.)
         with self.assertRaises(FileTooLargeException):
             self.client.get(reverse('scrapeNow', args=(scraper.pk,)))
+
+    @Mocker()
+    def test_multi_scraper(self, requestMock):
+        """ Don't allow streaming giant files """
+        TestHelpers.login_with_scrape_permissions(self.client)
+        scraper = TestHelpers.make_multi_scraper()
+        TestHelpers.mock_scraper_url_with_file(
+            requestMock,
+            url=scraper.scrapableURL,
+            filename=filenames.MULTI_SCRAPE)
+
+        # Just make sure the view page works
+        self.client.get(reverse('viewMultiScraper', args=(scraper.pk,)))
+
+        # And go ahead and scrape
+        self.client.get(reverse('multiScrapeNow', args=(scraper.pk,)))
+
+        self.assertEqual(JsonConfig.objects.count(), 25)
+
+        scraper = MultiScraper.objects.get(pk=scraper.pk)  # Refresh
+        self.assertEqual(scraper.listOfElections.count(), 25)
+        self.assertIsNone(scraper.lastFailedScrape)
+        self.assertIsNotNone(scraper.lastSuccessfulScrape)
+
+        # When scraping again, it updates instead of adding
+        self.client.get(reverse('multiScrapeNow', args=(scraper.pk,)))
+        self.assertEqual(JsonConfig.objects.count(), 25)

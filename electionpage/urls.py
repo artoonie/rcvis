@@ -7,9 +7,13 @@ from electionpage import views
 
 urlpatterns = [
     path(
-        'ps/<slug>',
+        'pv/<slug>',
         views.ScrapableElectionPageView.as_view(),
-        name='scrapableElectionPage'),
+        name='electionPageScrapable'),
+    path(
+        'ps/<slug>',
+        views.SingleSourceElectionPageView.as_view(),
+        name='electionPageSingleSource'),
     path(
         'p/<slug>',
         views.ElectionPageView.as_view(),
@@ -18,6 +22,10 @@ urlpatterns = [
         'pPopulate/<slug>',
         never_cache(views.PopulateScrapers.as_view()),
         name='populateScrapers'),
+    path(
+        'pScrapeAll/<slug>',
+        never_cache(views.ScrapeAll.as_view()),
+        name='scrapeSingleSource'),
     path(
         'pScrapeAll/<slug>',
         never_cache(views.ScrapeAll.as_view()),

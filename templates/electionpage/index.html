@@ -11,17 +11,26 @@
       Helpful URLs
       <ul>
           <li>/pPopulate/slug populates</li>
-          <li>/ps/slug to view scrapable election page</li>
+          <li>/ps/slug to view multi-scraper (single-source) election page</li>
+          <li>/pv/slug to view one-to-one scraper-to-vis election page</li>
           <li>/p/slug to view non-scrapable election page</li>
       </ul>
   </p>
 
-      Instructions:
+      Instructions for a one-to-one scraper:
       <ol>
           <li>Create a scrapable election by clicking the link above. You must have permissions to do so.</li>
           <li>Populate the metadata for the election. Admins can change this later.</li>
           <li>Populate the source links for each election. Order is important. Admins can re-order later.</li>
           <li>To re-scrape each election, click the button on the corresponding election page.</li>
+      </ol>
+
+      Instructions for a multi-election scraper is more complex - we didn't build out the UI as much for this. That's because the UI is largely already covered by the admin pages, but also due to time constraints.
+      <ol>
+          <li>Use the admin page to create the sources</li>
+          <li>Go to viewMultiScraper/<pk> by clicking View On Site in the admin page</li>
+          <li>Click Scrape to rescrape everything. It will match contests by filename.</li>
+          <li>Manually, you'll have to create a SingleSourceElectionPage that connects to the MultiScraper in the admin page.</li>
       </ol>
 
       Permissions (useful only to Armin to understand this). In the admin panel, give authorized users access to one of a few things:

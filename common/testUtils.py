@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from selenium import webdriver
-from scraper.models import Scraper
+from scraper.models import MultiScraper, Scraper
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
 
@@ -209,6 +209,15 @@ class TestHelpers():
     def make_scraper(cls):
         """ Creates a scraper object. You must mock out requests.get if you plan to scrape. """
         return Scraper.objects.create(scrapableURL="mock://scrape", sourceURL="mock://source")
+
+    @classmethod
+    def make_multi_scraper(cls):
+        """
+        Creates a multi-scraper object.
+        You must mock out requests.get if you plan to scrape.
+        """
+        return MultiScraper.objects.create(
+            scrapableURL="mock://multiscrape", sourceURL="mock://source")
 
     @classmethod
     def mock_scraper_url_with_file(
