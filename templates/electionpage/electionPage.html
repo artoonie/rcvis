@@ -4,6 +4,9 @@
 {% load tz %}
 
 {% block header %}
+<meta property="og:title" content="{{ electionpage.title }}" />
+<meta property="og:description" content="{{ electionpage.description }}" />
+<meta property="og:site_name" content="rcvis" />
 {% endblock %} 
 
 {% block navlinks %}
