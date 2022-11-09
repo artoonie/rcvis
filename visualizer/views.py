@@ -330,7 +330,7 @@ class Oembed(View):
         jsonData = {
             "version": "1.0",
             "title": "Ranked Choice Voting Visualization",
-            "cache_age": "86400",  # one day
+            "cache_age": "300",  # five minutes
             "author_name": "rcvis.com",
             "author_url": "https://www.rcvis.com/",
             "provider_name": "rcvis.com",
