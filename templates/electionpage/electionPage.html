@@ -8,7 +8,7 @@
 <meta property="og:description" content="{{ electionpage.description }}" />
 <meta property="og:site_name" content="rcvis" />
 <meta property="og:type" content="website">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'logo-dark.png' %}">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'visualizer/logo-dark.png' %}">
 <meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'electionPage' electionpage.slug %}">
 {% endblock %} 
 
