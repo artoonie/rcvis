@@ -1,6 +1,7 @@
 {% extends "visualizer/base.html" %}
 {% load static %}
 {% load compress %}
+{% load reverse %}
 {% load tz %}
 
 {% block header %}
@@ -9,7 +10,7 @@
 <meta property="og:site_name" content="rcvis" />
 <meta property="og:type" content="website">
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'visualizer/favicons/android-chrome-256x256.png' %}">
-<meta property="og:url" content="{{ request.scheme }}://{{ request.get_host }}{% url 'electionPage' electionpage.slug %}">
+<meta property="og:url" content="{% get_reverse_as_complete_url 'electionPage' electionpage.slug %}" />
 {% endblock %} 
 
 {% block navlinks %}
@@ -52,11 +53,11 @@
               <button id="tabular-button-{{ forloop.counter0 }}" class="btn btn-secondary" type="button" data-toggle="collapse" data-target="#tabular-{{ forloop.counter0 }}" aria-expanded="false" aria-controls="tabular-{{ forloop.counter0 }}">
                   <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon"/>
               </button>
-              <button class="btn btn-secondary" type="button">
-                  <a href="{% url 'visualize' election.jsonConfig.slug %}" target="_blank">
+              <a href="{% url 'visualize' election.jsonConfig.slug %}" target="_blank">
+                  <button class="btn btn-secondary" type="button">
                       <img class="tabicon" src="{% static 'visualizer/tabicons/newtab.png' %}" width="18" height="18" alt="Open in external tab"/>
-                </a>
-              </button>
+                  </button>
+              </a>
             </div>
           </div>
         </div>
