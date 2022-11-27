@@ -72,6 +72,7 @@
 <meta property="og:title" content="{{ title }}" />
 <meta property="og:description" content="Ranked Choice Voting Election Results for {{ title }}" />
 <meta property="og:site_name" content="rcvis" />
+<meta property="og:url" content="{% get_reverse_as_complete_url 'visualize' config.slug %}" />
 
 {% if config.movieHorizontal %}
 <meta property="og:type" content="video.movie" />
@@ -79,7 +80,9 @@
 <meta property="og:video" content="{% get_as_complete_url config.movieHorizontal.movieFile.url %}" />
 <meta property="og:video:width" content="{{ config.movieHorizontal.width }}" />
 <meta property="og:video:height" content="{{ config.movieHorizontal.height }}" />
-<meta property="og:url" content="{% get_reverse_as_complete_url 'visualize' config.slug %}" />
+{% else %}
+<meta property="og:type" content="website">
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'visualizer/favicons/android-chrome-256x256.png' %}">
 {% endif %}
 
 {% if config.owner.userprofile.isPrivate %}
