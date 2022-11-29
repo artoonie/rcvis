@@ -121,6 +121,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on the chromedriver used on 2022-01-27
         log = [l for l in log if 'ch-ua-full-version-list' not in l['message']]
 
+        # This happens on the chromedriver used on 2022-11-29
+        log = [l for l in log if 'ch-ua-wow64' not in l['message']]
+
         # This happens on saucelabs
         log = [l for l in log if 'favicon.ico - Failed to load resource' not in l['message']]
 

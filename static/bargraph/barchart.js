@@ -79,7 +79,7 @@ function makeBarGraph(args) {
   const viewboxWidth = width + margin.left + margin.right;
   const viewboxHeight = height + margin.top + margin.bottom + paddingForVertical;
   
-  const svg = d3.select(idOfContainer)
+  const svg = d3.select('#'+idOfContainer)
     .append("svg")
     .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
     .append("g")
@@ -101,8 +101,12 @@ function makeBarGraph(args) {
   // Add metadata to stackSeries and filter out already-eliminated candidates
   addMetadataToEachBar();
 
+  // Get the number of winners in the last round
+  const lastRoundNumWinners = stackSeries[numRounds-1].filter(d => d.isWinner).length;
+
   // Set x, y and colors
   let maxVotesToShow = d3.max(stackSeries, d => d3.max(d, d => d[1]));
+
   if (threshold !== null) {
       maxVotesToShow = Math.max(maxVotesToShow, threshold);
   }
@@ -464,6 +468,7 @@ function makeBarGraph(args) {
           stackSeries[round_i] = d;
       }
   }
+
   function hideResidualSurplus(candidateVoteCounts) {
       for (let i = 0; i < candidateVoteCounts.length; ++i) {
           const candidateName = candidateVoteCounts[i].candidate;
@@ -639,7 +644,7 @@ function makeBarGraph(args) {
 
   if (!isInteractive) {
     // Show a legend
-    d3.select(idOfLegend)
+    d3.select('#'+idOfLegend)
       .append("g")
         .call(legend);
   }
@@ -782,12 +787,34 @@ function makeBarGraph(args) {
         .attr("opacity", 1.0)
         .attr("transform", "translate(0, 0)");
   };
+  function transitionThresholdForRound() {
+    // In IRV, the threshold line is hidden until the last round.
+    // In STV, the threshold line is always visible.
+    if (lastRoundNumWinners > 1)
+    {
+        return;
+    }
+
+    if (currRound == numRounds - 1)
+    {
+        svg.select('#threshold'+idOfContainer).transition()
+            .duration(getTimeBetweenAnimationStepsMs(numRounds) * 0.5)
+            .attr("opacity", 1.0);
+    }
+    else
+    {
+        svg.select('#threshold'+idOfContainer).transition()
+            .duration(getTimeBetweenAnimationStepsMs(numRounds) * 0.15)
+            .attr("opacity", 0.0);
+    }
+  };
   function transitions(round) {
     completeAllExistingAnimations();
     prevRound = currRound;
     currRound = round;
     transitionEachBarForRound();
     transitionDataLabelsForRound();
+    transitionThresholdForRound();
   };
 
   // Enable the bootstrap tooltip
