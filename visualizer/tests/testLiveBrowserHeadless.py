@@ -553,10 +553,37 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._ensure_eventually_asserts(
             lambda: self.assertIn('Round 3', span.get_attribute('innerHTML')))
 
+    def test_threshold_animates(self):
+        """ Test that IRV shows no lines until the last round, and STV always shows """
+        # Upload IRV results
+        self._upload(filenames.THREE_ROUND)
+        thresholdInteractive = self.browser.find_element_by_id('thresholdbargraph-interactive-body')
+        thresholdStatic = self.browser.find_element_by_id('thresholdbargraph-fixed-body')
+
+        self._disable_all_animations()
+        self._disable_bargraph_slider_timer()
+
+        # Round 1: Static is visible, interactive isn't
+        self._go_to_round_by_clicking(0)
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(thresholdInteractive.value_of_css_property("opacity"), "0"))
+        self.assertEqual(thresholdStatic.value_of_css_property("opacity"), "1")
+
+        # Round 3: Threshold now visible
+        self._go_to_round_by_clicking(2)
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(thresholdInteractive.value_of_css_property("opacity"), "1"))
+
+        # STV has always-visible threshold
+        self._upload(filenames.MULTIWINNER)
+        threshold = self.browser.find_element_by_id('thresholdbargraph-interactive-body')
+        self._go_to_round_by_clicking(0)
+        self.assertEqual(threshold.value_of_css_property("opacity"), "1")
+
     def test_no_threshold_draws_no_line(self):
         """ Tests that no threshold line is drawn if the threshold is not provided """
-        xpathsOfLines = ['//*[@id="threshold#bargraph-interactive-body"]',
-                         '//*[@id="threshold-hover#bargraph-interactive-body"]']
+        xpathsOfLines = ['//*[@id="thresholdbargraph-interactive-body"]',
+                         '//*[@id="threshold-hoverbargraph-interactive-body"]']
 
         # Make sure it does exist when there is a threshold
         self._upload(filenames.ONE_ROUND)

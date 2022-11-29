@@ -3,6 +3,7 @@
 <script type="text/javascript">
 
 var isBargraphAnimationInProgress = false;
+const idOfWhyButton = "#bargraph-interactive-why-button";
 
 function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
   if (isBargraphAnimationInProgress) {
@@ -10,7 +11,6 @@ function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
   }
 
   const idOfLegendOrRoundDescriber = "#bargraph-interactive-round-description";
-  const idOfWhyButton = "#bargraph-interactive-why-button";
 
   d3.select(idOfLegendOrRoundDescriber)
   .transition()
@@ -100,7 +100,7 @@ function makeInteractiveGraph() {
 
   const isInteractive = true;
   transitionEachBarForRound = makeBarGraph({
-    idOfContainer: "#bargraph-interactive-body",
+    idOfContainer: "bargraph-interactive-body",
     idOfLegend: null,
     candidateVoteCounts,
     humanFriendlyRoundNames,
@@ -141,7 +141,6 @@ function makeInteractiveGraph() {
 }
 
 function showFaqButton() {
-  const idOfWhyButton = "#bargraph-interactive-why-button";
   d3.select(idOfWhyButton)
   .transition()
     .delay(300)
@@ -151,7 +150,6 @@ function showFaqButton() {
 
 function showFaqButtonNow() {
   // Just used for integration testing
-  const idOfWhyButton = "#bargraph-interactive-why-button";
   d3.select(idOfWhyButton)
     .style("opacity", "100%");
 }
