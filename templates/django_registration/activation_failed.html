@@ -9,9 +9,6 @@
 
   Account activation failed. Email team@rcvis.com for help.
   <br/>
-  Additional information:
-  {% for key, values in activation_error.items %}
-    <strong>{{key}}</strong>: {{value}}
-  {% endfor %}
+  {{ activation_error.message }}
 
 {% endblock %}
