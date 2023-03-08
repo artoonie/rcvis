@@ -7,5 +7,11 @@
   {% endblock %}
   </h2>
 
-  Account activation failed. No further information is available. Email team@rcvis.com for help.
+  Account activation failed. Email team@rcvis.com for help.
+  <br/>
+  Additional information:
+  {% for key, values in activation_error.items %}
+    <strong>{{key}}</strong>: {{value}}
+  {% endfor %}
+
 {% endblock %}
