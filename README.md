@@ -1,5 +1,4 @@
 [![Documentation Status](https://readthedocs.org/projects/rcvis/badge/?version=latest)](https://rcvis.readthedocs.io/en/latest/?badge=latest) [![codecov](https://codecov.io/gh/artoonie/rcvis/branch/main/graph/badge.svg)](https://codecov.io/gh/artoonie/rcvis)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:python) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/context:javascript) [![Total alerts](https://img.shields.io/lgtm/alerts/g/artoonie/rcvis.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/artoonie/rcvis/alerts/)
 
 # RCVis.com
 This is the code repository for [rcvis.com](https://www.rcvis.com). Unless you're a programmer, you probably want to be there instead of here!
