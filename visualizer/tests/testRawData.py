@@ -55,10 +55,10 @@ class RawDataTests(TestCase):
 
         # Should not exist
         with self.assertRaises(JsonConfig.DoesNotExist):
-            hasDownloadedSlug = user.userprofile.downloadedRawData.get(pk=pk)
+            user.userprofile.downloadedRawData.get(pk=pk)
 
         rawDataUrl = reverse('downloadRawData', args=(self.slug,))
-        response = self.client.get(rawDataUrl)
+        self.client.get(rawDataUrl)
 
         # Now it should
         hasDownloadedSlug = user.userprofile.downloadedRawData.get(pk=pk)

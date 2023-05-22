@@ -7,7 +7,7 @@
 var numRounds = {{ tabularByRoundInteractive.rounds|length }};
 
 function showRound(round) {
-    for (i = 0; i < numRounds; i++) { 
+    for (let i = 0; i < numRounds; i++) { 
       document.getElementById("tabular_round_container_"+i).style.display = "none";
     }
     document.getElementById("tabular_round_container_"+round).style.display = "block";
