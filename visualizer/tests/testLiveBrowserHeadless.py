@@ -17,7 +17,6 @@ from django.core import mail as test_mailbox
 from django.urls import reverse
 from mock import patch
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
