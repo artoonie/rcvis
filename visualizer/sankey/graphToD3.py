@@ -28,8 +28,8 @@ class D3Sankey:
             js += f'graph.nodes.push({{ "name": {json.dumps(node.label)},\n'
             js += f'                    "round": {node.roundNum},\n'
             js += f'                    "value": {node.count},\n'
-            js += f'                    "isWinner": {node.isWinner},\n'
-            js += f'                    "isEliminated": {node.isEliminated},\n'
+            js += f'                    "isWinner": {int(node.isWinner)},\n'
+            js += f'                    "isEliminated": {int(node.isEliminated)},\n'
             js += f'                    "index": "{indices[node.item]}"}});\n'
         for link in graph.links:
             # Skip inactive (exhausted) nodes
