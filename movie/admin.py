@@ -3,6 +3,7 @@ from django.contrib import admin
 
 from movie.models import Movie, TextToSpeechCachedFile
 
+
 @admin.register(Movie)
 class JsonAdmin(admin.ModelAdmin):
     """ The admin page to modify JsonConfig """

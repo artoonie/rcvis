@@ -89,7 +89,7 @@ class TestHelpers():
         tf = tempfile.NamedTemporaryFile(prefix=newFilenamePrefix, suffix='.json')
 
         with open(jsonFileToCopy, 'r', encoding='utf_8') as f:
-            data = json.loads(f)
+            data = json.loads(f.read())
 
         data['config']['contest'] = newName
         with open(tf.name, 'w') as f:

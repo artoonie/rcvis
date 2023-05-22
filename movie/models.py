@@ -25,7 +25,7 @@ class Movie(models.Model):
     generatedOnApplicationVersion = models.CharField(max_length=30)
     movieFile = models.FileField(max_length=512, upload_to='movies')
     gifFile = models.FileField(max_length=512, upload_to="gifs", null=True, blank=True)
-    titleImage = models.ImageField(upload_to='movieTitleImages', null=True, blank=True)
+    titleImage = models.ImageField(upload_to='movieTitleImages', null=True)
 
     resolutionWidth = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
@@ -43,7 +43,7 @@ class Movie(models.Model):
 
 class TextToSpeechCachedFile(models.Model):
     """ A mapping from a text to an audio file of the text-to-speech mp3 """
-    text = models.TextField(unique=True, primary_key=True)
+    text = models.CharField(max_length=2048, unique=True, primary_key=True)
     audioFile = models.FileField(
         max_length=512,
         upload_to='speech-synth',
