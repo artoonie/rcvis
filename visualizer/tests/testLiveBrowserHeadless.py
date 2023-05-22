@@ -6,7 +6,6 @@ and likely will not need any of the rendering functionality provided by saucelab
 
 import json
 import os
-import platform
 import time
 import uuid
 from urllib.parse import urlparse
@@ -18,8 +17,6 @@ from django.core import mail as test_mailbox
 from django.urls import reverse
 from mock import patch
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -27,8 +24,6 @@ from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
-
-CONTROL_KEY = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
 
 
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
@@ -594,55 +589,6 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.NO_THRESHOLD)
         for xpath in xpathsOfLines:
             self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 0)
-
-    def test_sharetab_copy_paste(self):
-        """ Check that the share tab can be copy/paste wiki & html successfully. """
-        self._upload_something_if_needed()
-        self._go_to_tab("share-tab")
-
-        # Check the wikicode
-        textAreaValues = []
-        for elementId in ("wikicode", "htmlembedexport"):
-            self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
-
-            # Grab the element and read its value
-            textarea = self.browser.find_element_by_id(elementId)
-            initialText = textarea.get_attribute('value')
-            textAreaValues.append(initialText)
-
-            # Ensure clicking copies to keyboard
-            textarea.click()
-            textarea.send_keys(Keys.BACKSPACE)
-            textarea.send_keys("Different text")
-
-            # Make sure it's different
-            assert initialText != textarea.get_attribute('value')
-
-            # Select all, delete, paste
-            ActionChains(self.browser).key_down(CONTROL_KEY)\
-                                      .key_down('a')\
-                                      .key_up('a')\
-                                      .key_up(CONTROL_KEY) \
-                                      .perform()
-            ActionChains(self.browser).key_down(Keys.BACKSPACE)\
-                                      .key_up(Keys.BACKSPACE)\
-                                      .perform()
-            # Note: don't keyup or `v` or saucelabs may double-paste
-            ActionChains(self.browser).key_down(CONTROL_KEY)\
-                                      .key_down('v')\
-                                      .perform()
-
-            # Assert we have the original text back
-            self._ensure_eventually_asserts(
-                lambda text=initialText, textarea=textarea: self.assertEqual(
-                    text, textarea.get_attribute('value')))
-
-        # Verify the values are sane...somewhat
-        wiki = textAreaValues[0]
-        assert 'wikitable' in wiki
-        assert 'Macomb' in wiki
-        html = textAreaValues[1]
-        assert html.startswith('<iframe')
 
     def test_dominion_strips_quotes(self):
         """

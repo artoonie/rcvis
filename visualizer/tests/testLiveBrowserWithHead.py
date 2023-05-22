@@ -9,9 +9,11 @@ saucelabs non-headless browsers.
 """
 
 import os
+import platform
 
 from django.urls import reverse
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 
 from common.testUtils import TestHelpers
@@ -310,3 +312,54 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(reverse('visualizeEmbedded', args=(TestHelpers.get_latest_upload().slug,)))
         ensure_correct_sizes_of_body_and_content(600, 800, footerHeight)
         ensure_correct_sizes_of_body_and_content(600, 200, footerHeight)
+
+    def test_sharetab_copy_paste(self):
+        """ Check that the share tab can be copy/paste wiki & html successfully. """
+        self._upload_something_if_needed()
+        self._go_to_tab("share-tab")
+
+        ctrl = Keys.COMMAND if platform.system() == "Darwin" else Keys.CONTROL
+
+        # Check the wikicode
+        textAreaValues = []
+        for elementId in ("wikicode", "htmlembedexport"):
+            self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
+
+            # Grab the element and read its value
+            textarea = self.browser.find_element_by_id(elementId)
+            initialText = textarea.get_attribute('value')
+            textAreaValues.append(initialText)
+
+            # Ensure clicking copies to keyboard
+            textarea.click()
+            textarea.send_keys(Keys.BACKSPACE)
+            textarea.send_keys("Different text")
+
+            # Make sure it's different
+            assert initialText != textarea.get_attribute('value')
+
+            # Select all, delete, paste
+            ActionChains(self.browser).key_down(ctrl)\
+                                      .key_down('a')\
+                                      .key_up('a')\
+                                      .key_up(ctrl) \
+                                      .perform()
+            ActionChains(self.browser).key_down(Keys.BACKSPACE)\
+                                      .key_up(Keys.BACKSPACE)\
+                                      .perform()
+            # Note: don't keyup or `v` or saucelabs may double-paste
+            ActionChains(self.browser).key_down(ctrl)\
+                                      .key_down('v')\
+                                      .perform()
+
+            # Assert we have the original text back
+            self._ensure_eventually_asserts(
+                lambda text=initialText, textarea=textarea: self.assertEqual(
+                    text, textarea.get_attribute('value')))
+
+        # Verify the values are sane...somewhat
+        wiki = textAreaValues[0]
+        assert 'wikitable' in wiki
+        assert 'Macomb' in wiki
+        html = textAreaValues[1]
+        assert html.startswith('<iframe')
