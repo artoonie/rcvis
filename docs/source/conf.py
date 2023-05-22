@@ -12,8 +12,6 @@
 import os
 import sys
 import django
-from m2r import MdInclude
-from recommonmark.transform import AutoStructify
 
 sys.path.insert(0, os.path.abspath('../../'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'rcvis.settings'
@@ -21,8 +19,8 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'rcvis'
-copyright = '2020, Armin Samii'
+project = 'RCVis'
+copyright = '2023, Robot Armin LLC'
 author = 'Armin Samii'
 
 
@@ -33,23 +31,8 @@ author = 'Armin Samii'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
-    'recommonmark'
+    'sphinx_mdinclude'
 ]
-
-# Markdown extension
-source_suffix = ['.rst', '.md']
-
-def setup(app):
-    # from m2r to make `mdinclude` work
-    app.add_config_value('no_underscore_emphasis', False, 'env')
-    app.add_config_value('m2r_parse_relative_links', False, 'env')
-    app.add_config_value('m2r_anonymous_references', False, 'env')
-    app.add_config_value('m2r_disable_inline_math', False, 'env')
-    app.add_directive('mdinclude', MdInclude)
-
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

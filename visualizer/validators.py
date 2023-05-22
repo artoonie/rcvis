@@ -9,7 +9,7 @@ from visualizer.sidecar.reader import SidecarReader
 
 
 def ensure_file_is_under_2_mb(jsonFileObj):
-    """ Limit file size to 2mb"""
+    """ Limit file size to 2mb """
     maxFileSize = 1024 * 1024 * 2  # 2MB
     if jsonFileObj.size > maxFileSize:
         raise serializers.ValidationError('Max file size is {} and your file size is {}'.
@@ -17,7 +17,7 @@ def ensure_file_is_under_2_mb(jsonFileObj):
 
 
 def ensure_title_is_under_256_chars(graph):
-    """ Limit title length 256 chars"""
+    """ Limit title length 256 chars """
     maxTitleSize = 256
     if len(graph.title) > maxTitleSize:
         raise serializers.ValidationError('Max title length is {} and your title length is {}'.
@@ -25,14 +25,15 @@ def ensure_title_is_under_256_chars(graph):
 
 
 def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):
-    """ Checks that the JSON can be loaded and is under 2mb.
-        Raises:
-         - BadJSONError: Summary JSON cannot be loaded
-         - BadSidecarError: Sidecar JSON cannot be loaded
-         - ValidationError: 2mb limit is reached
-         - Anything else: unknown error
-        Returns:
-         - Loaded graph
+    """
+    Checks that the JSON can be loaded and is under 2mb.
+    Raises:
+    - BadJSONError: Summary JSON cannot be loaded
+    - BadSidecarError: Sidecar JSON cannot be loaded
+    - ValidationError: 2mb limit is reached
+    - Anything else: unknown error
+    Returns:
+    - Loaded graph
     """
     # Check filesize before opening a massive file
     if isinstance(jsonFileObj, UploadedFile):
