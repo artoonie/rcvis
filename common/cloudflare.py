@@ -61,7 +61,7 @@ class CloudflareAPI():
 
         # Absolute URLs
         domain = Site.objects.get_current().domain
-        rcvisUrls = ['https://%s%s' % (domain, path) for path in paths]
+        rcvisUrls = [f'https://{domain}{path}' for path in paths]
         data = {'files': rcvisUrls}
 
         # Send it off

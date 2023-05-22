@@ -70,11 +70,11 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
     @classmethod
     def _num_movies(cls):
-        return len(Movie.objects.all())
+        return Movie.objects.count()
 
     @classmethod
     def _num_caches(cls):
-        return len(TextToSpeechCachedFile.objects.all())
+        return TextToSpeechCachedFile.objects.count()
 
     @patch('movie.creation.movieCreator.SingleMovieCreator._get_num_rounds')
     def test_movie_task_without_celery(self, mockGetNumRounds):
@@ -85,14 +85,14 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         TestHelpers.get_multiwinner_upload_response(self.client)
 
         # Make sure nothing is cached
-        assert len(TextToSpeechCachedFile.objects.all()) == 0
+        assert TextToSpeechCachedFile.objects.count() == 0
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_upload()
         create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
-        assert len(TextToSpeechCachedFile.objects.all()) == 4
+        assert TextToSpeechCachedFile.objects.count() == 4
 
         # TODO - why does this not work with .delay()? With celery running,
         # and the correct live_server_url, it accesses my localhost database
@@ -223,7 +223,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Read the script and get each line
-        with open(FILENAME_SCRIPT, 'r') as f:
+        with open(FILENAME_SCRIPT, 'r', encoding='utf-8') as f:
             lines = f.read().splitlines()
         # Allow \n to indicate multiline captions
         lines = [line.replace('\\n', '\n') for line in lines]
