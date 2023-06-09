@@ -34,26 +34,28 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
             accessKey = os.environ["SAUCE_ACCESS_KEY"]
-            capabilities = {}
-            capabilities["platform"] = "Windows 10"
-            capabilities["browserName"] = "chrome"
-            capabilities["version"] = "70.0"
-            capabilities["build"] = os.environ["HEROKU_TEST_RUN_ID"]
-            capabilities["tags"] = ["CI"]
-            capabilities["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
-            capabilities["name"] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            capabilities["commandTimeout"] = 100
-            capabilities["maxDuration"] = 1200
-            capabilities["screenResolution"] = "1280x1024"
-            capabilities["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
-            capabilities["captureHtml"] = True
-            capabilities["webdriverRemoteQuietExceptions"] = False
+
+            options = webdriver.ChromeOptions()
+            options.browser_version = '92'
+            options.platform_name = 'Windows 10'
+
+            sauce_options = {}
+            sauce_options['username'] = username
+            sauce_options['accessKey'] = accessKey
+            sauce_options['build'] = os.environ["HEROKU_TEST_RUN_ID"]
+            sauce_options['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
+            sauce_options["commandTimeout"] = 100
+            sauce_options["maxDuration"] = 1200
+            sauce_options["screenResolution"] = "1280x1024"
+            sauce_options["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
+            sauce_options["captureHtml"] = True
+            sauce_options["webdriverRemoteQuietExceptions"] = False
+            options.set_capability('sauce:options', sauce_options)
+
             seleniumEndpoint = "https://{}:{}@ondemand.saucelabs.com:443/wd/hub".format(
                 username, accessKey)
 
-            self.browser = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=seleniumEndpoint)
+            self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
 
@@ -86,7 +88,14 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _has_test_failed(self):
         """ helper for tearDown to check if the test has failed """
-        for _, error in self._outcome.errors:
+        if hasattr(self._outcome, 'errors'):
+            # Python <3.11
+            errors = self._outcome.errors
+        else:
+            # Python 3.11+
+            errors = self._outcome.result.errors
+
+        for _, error in errors:
             if error:
                 return True
         return False

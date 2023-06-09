@@ -12,7 +12,12 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-import django_heroku
+import django_on_heroku
+
+# patch for nose (django-nose) for py3.11
+import collections
+collections.Callable = collections.abc.Callable
+# End of patch
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -118,7 +123,7 @@ OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 # for django.sites (and thus, sitemap)
 SITE_ID = 1
 
-# django_heroku will override this in production
+# django_on_heroku will override this in production
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -207,7 +212,7 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 
-# Logging: include INFO logs, and combine with django_heroku
+# Logging: include INFO logs, and combine with django_on_heroku
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -327,4 +332,4 @@ MAILCHIMP_DC = os.environ.get("MAILCHIMP_DC")
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
     # Also ensure logging is output on remote
-    django_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
+    django_on_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
