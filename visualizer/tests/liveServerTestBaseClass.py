@@ -12,6 +12,7 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_script_to_disable_animations
@@ -242,7 +243,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         self._assert_log_len(0)
 
     def _go_to_tab(self, tabId):
-        self.browser.find_elements_by_id(tabId)[0].click()
+        self.browser.find_elements(By.ID, tabId)[0].click()
 
     def _debug_screenshot(self):
         """ Saves a screenshot in the current directory for debugging """
@@ -260,8 +261,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         you need to trigger the cancel-animation behavior.
         """
         # Cancel animation by clicking on round_i'th element element
-        container = self.browser.find_element_by_id('bargraph-slider-container')
-        tick = container.find_elements_by_class_name('slider-item')[round_i]
+        container = self.browser.find_element(By.ID, 'bargraph-slider-container')
+        tick = container.find_elements(By.CLASS_NAME, 'slider-item')[round_i]
 
         # Note - need an action chain because the first tick isn't actually receiving the click,
         # the slider itself handles it, and selenium throws ElementClickInterceptedException

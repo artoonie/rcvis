@@ -7,6 +7,7 @@ with a more-expensive selenium testing.
 
 from enum import Enum
 
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import Select
@@ -26,18 +27,18 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _init_data_tables(self):
         self.open('/upload.html')
-        self.browser.find_element_by_id('swapDataTables').click()
+        self.browser.find_element(By.ID, 'swapDataTables').click()
 
     def _get_button(self, buttonEnum):
-        buttons = self.browser.find_elements_by_class_name('dt_left-panel-button')
+        buttons = self.browser.find_elements(By.CLASS_NAME, 'dt_left-panel-button')
         self.assertEqual(len(buttons), 4)
         return buttons[buttonEnum.value]
 
     def _fill_in_config(self):
         """ Fills in the top three inputs for the config """
-        self.browser.find_element_by_id('configElectionTitle').send_keys('electiontitle')
-        self.browser.find_element_by_id('configElectionDate').send_keys('12/05/2021')
-        self.browser.find_element_by_id('configThreshold').send_keys('10')
+        self.browser.find_element(By.ID, 'configElectionTitle').send_keys('electiontitle')
+        self.browser.find_element(By.ID, 'configElectionDate').send_keys('12/05/2021')
+        self.browser.find_element(By.ID, 'configThreshold').send_keys('10')
 
     def _click_button_n_times(self, buttonEnum, numTimes):
         button = self._get_button(buttonEnum)
@@ -61,18 +62,18 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self._click_button_n_times(self.Button.ADD_CANDIDATE, candidatesDiff)
 
     def _assert_ajax_response(self, message):
-        self.browser.find_element_by_id('validateButton').click()
+        self.browser.find_element(By.ID, 'validateButton').click()
         self._ensure_eventually_asserts(
             lambda: self.assertEqual(
-                self.browser.find_element_by_id('dataEntryValidationMessage').text,
+                self.browser.find_element(By.ID, 'dataEntryValidationMessage').text,
                 message))
 
     def _create_valid_1x1_table(self):
         self._fill_in_config()
         self._make_table_of_size(1, 1)
-        self.browser.find_element_by_id(
+        self.browser.find_element(By.ID, 
             'dataTableWrapper_row_1_and_col_0_and_field_0_').send_keys('name')
-        self.browser.find_element_by_id(
+        self.browser.find_element(By.ID, 
             'dataTableWrapper_row_1_and_col_1_and_field_0_').send_keys(2)
 
     def test_one_round_one_candidate(self):
@@ -85,13 +86,13 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Create, validate, then upload
         self._create_valid_1x1_table()
         self._assert_ajax_response('Data is valid!')
-        self.browser.find_element_by_id('uploadButton').click()
+        self.browser.find_element(By.ID, 'uploadButton').click()
 
         # Go to the latest upload, make sure it worked
         wait = WebDriverWait(self.browser, 2)
         wait.until(expected_conditions.title_contains("electiontitle"))
 
-        self.assertEqual(self.browser.find_elements_by_tag_name('textarea')[0].text, "")
+        self.assertEqual(self.browser.find_elements(By.TAG_NAME, 'textarea')[0].text, "")
 
     def test_validation_controls_submit_button(self):
         """ Test that the submit button is only enabled after validation """
@@ -101,27 +102,27 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             # The upload button is disabled
             self._create_valid_1x1_table()
-            self.assertFalse(self.browser.find_element_by_id('uploadButton').is_enabled())
+            self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Validate, and then it's enabled
             self._assert_ajax_response('Data is valid!')
-            self.assertTrue(self.browser.find_element_by_id('uploadButton').is_enabled())
+            self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Any change disables the button
             self._set_input_to(cellId, "1")
-            self.browser.find_element_by_id(cellId).send_keys(Keys.TAB)
-            self.assertFalse(self.browser.find_element_by_id('uploadButton').is_enabled())
+            self.browser.find_element(By.ID, cellId).send_keys(Keys.TAB)
+            self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Invalid data keeps button disabled
             self._set_input_to(cellId, "-1")
             errorMessage = 'Error #10: Data is not valid: All vote counts must be positive'
             self._assert_ajax_response(errorMessage)
-            self.assertFalse(self.browser.find_element_by_id('uploadButton').is_enabled())
+            self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # And we're back
             self._set_input_to(cellId, "1")
             self._assert_ajax_response('Data is valid!')
-            self.assertTrue(self.browser.find_element_by_id('uploadButton').is_enabled())
+            self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
     def test_vote_counts_must_increase(self):
         """
@@ -139,14 +140,14 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._set_input_to(cellId1, '2')
         self._set_input_to(cellId2, '1')
 
-        self.browser.find_element_by_id(cellId2).send_keys(Keys.TAB)
+        self.browser.find_element(By.ID, cellId2).send_keys(Keys.TAB)
         errorMessage = self._get_attr_from_id(errCellId, 'innerHTML')
         assert errorMessage.startswith('Vote count cannot decrease')
 
         # And make the error message clear
         self._set_input_to(cellId2, '3')
-        self.browser.find_element_by_id(cellId2).send_keys(Keys.TAB)
-        self.assertEqual(self.browser.find_elements_by_id(errCellId), [])
+        self.browser.find_element(By.ID, cellId2).send_keys(Keys.TAB)
+        self.assertEqual(self.browser.find_elements(By.ID, errCellId), [])
 
     def test_vote_counts_can_decrease_for_surplus(self):
         """
@@ -166,12 +167,12 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._set_input_to(cellId2, '1')
 
         # Set candidate to elected
-        options = Select(self.browser.find_element_by_id(dropdownId1))
+        options = Select(self.browser.find_element(By.ID, dropdownId1))
         options.select_by_index(1)  # Elected
 
         # Which makes this valid
-        self.browser.find_element_by_id(dropdownId1).send_keys(Keys.TAB)
-        self.assertEqual(self.browser.find_elements_by_id(errCellId), [])
+        self.browser.find_element(By.ID, dropdownId1).send_keys(Keys.TAB)
+        self.assertEqual(self.browser.find_elements(By.ID, errCellId), [])
 
         self._assert_ajax_response('Data is valid!')
 
@@ -189,12 +190,12 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            options = Select(self.browser.find_element_by_id(dropdownId1))
+            options = Select(self.browser.find_element(By.ID, dropdownId1))
             options.select_by_index(i)
 
-            self.assertTrue(self.browser.find_element_by_id(dropdownId1).is_enabled())
-            self.assertFalse(self.browser.find_element_by_id(dropdownId2).is_enabled())
-            self.assertFalse(self.browser.find_element_by_id(dropdownId3).is_enabled())
+            self.assertTrue(self.browser.find_element(By.ID, dropdownId1).is_enabled())
+            self.assertFalse(self.browser.find_element(By.ID, dropdownId2).is_enabled())
+            self.assertFalse(self.browser.find_element(By.ID, dropdownId3).is_enabled())
 
     def test_electing_disables_rest_of_row_except_next(self):
         """
@@ -212,15 +213,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            options = Select(self.browser.find_element_by_id(dropdownId1))
+            options = Select(self.browser.find_element(By.ID, dropdownId1))
             options.select_by_index(i)
 
-            self.assertTrue(self.browser.find_element_by_id(inputId1).is_enabled())
+            self.assertTrue(self.browser.find_element(By.ID, inputId1).is_enabled())
             if i == 1:
-                self.assertFalse(self.browser.find_element_by_id(inputId2).is_enabled())
+                self.assertFalse(self.browser.find_element(By.ID, inputId2).is_enabled())
             else:
-                self.assertTrue(self.browser.find_element_by_id(inputId2).is_enabled())
-            self.assertFalse(self.browser.find_element_by_id(inputId3).is_enabled())
+                self.assertTrue(self.browser.find_element(By.ID, inputId2).is_enabled())
+            self.assertFalse(self.browser.find_element(By.ID, inputId3).is_enabled())
 
     def test_unsafe_names(self):
         """
@@ -232,11 +233,11 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         candidateNameCellId = 'dataTableWrapper_row_1_and_col_0_and_field_0_'
 
         unsafeChars = '&><\'"'
-        self.browser.find_element_by_id('configElectionTitle').send_keys(unsafeChars)
-        self.browser.find_element_by_id(candidateNameCellId).send_keys(unsafeChars)
+        self.browser.find_element(By.ID, 'configElectionTitle').send_keys(unsafeChars)
+        self.browser.find_element(By.ID, candidateNameCellId).send_keys(unsafeChars)
 
         self._assert_ajax_response('Data is valid!')
-        self.browser.find_element_by_id('uploadButton').click()
+        self.browser.find_element(By.ID, 'uploadButton').click()
 
         # Go to the latest upload, make sure it worked and has no errors
         wait = WebDriverWait(self.browser, 2)
