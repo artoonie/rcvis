@@ -14,11 +14,6 @@ import os
 
 import django_on_heroku
 
-# patch for nose (django-nose) for py3.11
-import collections
-collections.Callable = collections.abc.Callable
-# End of patch
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -66,7 +61,6 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsAppConfig',
     'storages',
     'compressor',
-    'django_nose',
     'extra_views',
     'rest_framework',
     'rest_framework.authtoken',
@@ -76,8 +70,6 @@ INSTALLED_APPS = [
     'django_social_share',
     'django_node_assets',
 ]
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -174,8 +166,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -193,7 +183,11 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
     'django_node_assets.finders.NodeModulesFinder',
 )
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    }
+}
 
 NODE_PACKAGE_JSON = './package.json'
 NODE_MODULES_ROOT = './node_modules'
@@ -257,14 +251,14 @@ LOGGING = {
 
 # Uploaded media
 if not OFFLINE_MODE:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"}
     AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
     AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
     AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     AWS_S3_FILE_OVERWRITE = False
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     MEDIAFILES_DIRS = [

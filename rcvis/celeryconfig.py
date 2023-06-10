@@ -15,7 +15,7 @@ task_annotations = {
     'tasks.create_movie_task': {'rate_limit': '1/s'}
 }
 
-sqs_queue_name = os.environ['SQS_QUEUE_NAME']
+sqs_queue_name = os.environ.get('SQS_QUEUE_NAME')
 if not sqs_queue_name:
     # Otherwise we get a cryptic error message
     raise Exception("No queue name set. Set SQS_QUEUE_NAME.")

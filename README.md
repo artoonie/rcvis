@@ -57,9 +57,9 @@ export OFFLINE_MODE=True
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
-# To generate videos, you need:
+# To generate videos (and to run movie tests), you will need:
 export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-# export SQS_QUEUE_NAME=''
+export SQS_QUEUE_NAME='default-queue'
 # export MOVIE_FONT_NAME="Roboto"
 # export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
 
