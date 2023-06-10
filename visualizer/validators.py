@@ -1,7 +1,7 @@
 """ Data validation - to be used across REST and HTTP access """
 
 from django.core.files.uploadedfile import UploadedFile
-import rest_framework.serializers as serializers
+from rest_framework import serializers
 
 from common import viewUtils
 from visualizer.graph.graphCreator import make_graph_with_file
@@ -12,16 +12,16 @@ def ensure_file_is_under_2_mb(jsonFileObj):
     """ Limit file size to 2mb """
     maxFileSize = 1024 * 1024 * 2  # 2MB
     if jsonFileObj.size > maxFileSize:
-        raise serializers.ValidationError('Max file size is {} and your file size is {}'.
-                                          format(maxFileSize, jsonFileObj.size))
+        raise serializers.ValidationError(
+            f'Max file size is {maxFileSize} and your file size is {jsonFileObj.size}')
 
 
 def ensure_title_is_under_256_chars(graph):
     """ Limit title length 256 chars """
     maxTitleSize = 256
     if len(graph.title) > maxTitleSize:
-        raise serializers.ValidationError('Max title length is {} and your title length is {}'.
-                                          format(maxTitleSize, len(graph.title)))
+        raise serializers.ValidationError(
+            f'Max title length is {maxTitleSize} and your title length is {len(graph.title)}')
 
 
 def try_to_load_jsons(jsonFileObj, sidecarJsonFileObj):

@@ -10,7 +10,7 @@ from visualizer.graph import readDataTablesResult
 from visualizer.models import JsonConfig
 
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 class UploadForm(forms.ModelForm):
     """ Used by the upload form """
     colorTheme = forms.IntegerField(required=False)
@@ -31,7 +31,7 @@ class UploadByDataTableForm(UploadForm):
         """ Metadata is all we need here """
         fields = [f for f in UploadForm.Meta.fields if f != 'jsonFile']
 
-    #pylint: disable=invalid-name
+    # pylint: disable=invalid-name
     def clean_jsonFile(self):
         """ Converts the datatables json to URCVT json """
         try:

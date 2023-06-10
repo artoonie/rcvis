@@ -71,10 +71,10 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     def _create_valid_1x1_table(self):
         self._fill_in_config()
         self._make_table_of_size(1, 1)
-        self.browser.find_element(By.ID, 
-            'dataTableWrapper_row_1_and_col_0_and_field_0_').send_keys('name')
-        self.browser.find_element(By.ID, 
-            'dataTableWrapper_row_1_and_col_1_and_field_0_').send_keys(2)
+        self.browser.find_element(By.ID,
+                                  'dataTableWrapper_row_1_and_col_0_and_field_0_').send_keys('name')
+        self.browser.find_element(By.ID,
+                                  'dataTableWrapper_row_1_and_col_1_and_field_0_').send_keys(2)
 
     def test_one_round_one_candidate(self):
         """

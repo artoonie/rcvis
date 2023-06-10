@@ -26,7 +26,7 @@ class FAQTests(TestCase):
 
     def test_single_round(self):
         """ Basic single-round test ensuring the right classes are active each round """
-        with open(filenames.ONE_ROUND, 'r') as f:
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
         args = (graph, self.config)
         self.assertTrue(faq.WhatHappeningSingleWinner(*args).is_active(0))
@@ -46,7 +46,7 @@ class FAQTests(TestCase):
 
     def test_multiwinner(self):
         """ More extensive tests with the multiwinner FAQs, checking word-for-word accuracy """
-        with open(filenames.MULTIWINNER, 'r') as f:
+        with open(filenames.MULTIWINNER, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
         args = (graph, self.config)
 
@@ -76,13 +76,13 @@ class FAQTests(TestCase):
 
         # Final check: make sure text matches
         allDescriptions = faq.FAQGenerator(*args).describe_all_rounds()
-        with open('testData/expected-multiwinner-faqs.json', 'r') as f:
+        with open('testData/expected-multiwinner-faqs.json', 'r', encoding='utf-8') as f:
             expectedData = json.load(f)
         self.assertEqual(allDescriptions, expectedData)
 
     def test_preferential_block(self):
         """ Basic single-round test ensuring the right classes are active each round """
-        with open(filenames.ONE_ROUND, 'r') as f:
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
         self.config.isPreferentialBlock = True
         args = (graph, self.config)
@@ -123,7 +123,7 @@ class FAQTests(TestCase):
 
     def test_excluded_winner(self):
         """ Ensure all descriptors work without crashing with no winner """
-        with open(filenames.THREE_ROUND, 'r') as f:
+        with open(filenames.THREE_ROUND, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=True)
         self.assertEqual(graph.summarize().numWinners, 0)
         allDescriptions = faq.FAQGenerator(graph, self.config).describe_all_rounds()
@@ -132,13 +132,13 @@ class FAQTests(TestCase):
 
     def test_batch_elim(self):
         """ Test batch elimination works """
-        with open(filenames.BATCH_ELIMINATION, 'r') as f:
+        with open(filenames.BATCH_ELIMINATION, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
         self.assertTrue(faq.WhyBatchEliminated(graph, self.config).is_active(1))
 
     def test_zero_votes(self):
         """ Test zero-vote elections work """
-        with open(filenames.ZERO_VOTE_ELECTION, 'r') as f:
+        with open(filenames.ZERO_VOTE_ELECTION, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
         # The basic summary is confusing. Skip it.
@@ -152,7 +152,7 @@ class FAQTests(TestCase):
         Ensure that no-threshold elections never print anything related to thresholds.
         This is quite aggressive - ensure "None" never appears in any text.
         """
-        with open(filenames.NO_THRESHOLD, 'r') as f:
+        with open(filenames.NO_THRESHOLD, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
         allRoundsQA = faq.FAQGenerator(graph, self.config).describe_all_rounds()
@@ -182,7 +182,7 @@ class FAQTests(TestCase):
         """
         Test that the word "elected" never appears when the TextForWinner is not set to ELECTED
         """
-        with open(filenames.MULTIWINNER, 'r') as f:
+        with open(filenames.MULTIWINNER, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
         searchFor = 'lected'  # match both elected and Elected
@@ -212,7 +212,7 @@ class FAQTests(TestCase):
         """
         Simple checks when TextForWinner set to WON
         """
-        with open(filenames.MULTIWINNER, 'r') as f:
+        with open(filenames.MULTIWINNER, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
         # Set to TextForWinner.WON
@@ -234,7 +234,7 @@ class FAQTests(TestCase):
         """
         Check TextForWinner in the round summaries and overall summary
         """
-        with open(filenames.NO_THRESHOLD, 'r') as f:
+        with open(filenames.NO_THRESHOLD, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
         self.config.textForWinner = TextForWinner.WON

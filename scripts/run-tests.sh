@@ -30,27 +30,27 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     echo "Readyfile found."
 
     # Run tests once saucelabs proxy is ready
-    $RUN test visualizer/tests/testLiveBrowserWithHead.py
+    $RUN test visualizer.tests.testLiveBrowserWithHead
   elif [ "$CI_NODE_INDEX" -eq 1 ]; then
     $RUN test movie \
               accounts \
               scraper \
               electionpage \
-              visualizer/tests/testLiveBrowserHeadless.py
+              visualizer.tests.testLiveBrowserHeadless
   elif [ "$CI_NODE_INDEX" -eq 2 ]; then
     ./scripts/test-code-quality.sh
 
     echo "Starting tests"
-    $RUN test visualizer/tests/testBallotpediaRestApi.py\
-              visualizer/tests/testDataTables.py\
-              visualizer/tests/testDataTablesHeadlessBrowser.py\
-              visualizer/tests/testFaq.py\
-              visualizer/tests/testModelDeletion.py\
-              visualizer/tests/testRawData.py\
-              visualizer/tests/testRestApi.py\
-              visualizer/tests/testRestApiExampleCode.py\
-              visualizer/tests/testSidecar.py\
-              visualizer/tests/testSimple.py
+    $RUN test visualizer.tests.testBallotpediaRestApi\
+              visualizer.tests.testDataTables\
+              visualizer.tests.testDataTablesHeadlessBrowser\
+              visualizer.tests.testFaq\
+              visualizer.tests.testModelDeletion\
+              visualizer.tests.testRawData\
+              visualizer.tests.testRestApi\
+              visualizer.tests.testRestApiExampleCode\
+              visualizer.tests.testSidecar\
+              visualizer.tests.testSimple
   else
     # Should never happen
     exit -1

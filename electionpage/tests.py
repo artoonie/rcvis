@@ -37,7 +37,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests for the electionpage app - using a live browser """
     @classmethod
     def _create_json_config(cls):
-        with open(filenames.ONE_ROUND, 'r+') as f:
+        with open(filenames.ONE_ROUND, 'r+', encoding='utf-8') as f:
             return JsonConfig.objects.create(
                 jsonFile=File(f),
                 title='x',
@@ -184,8 +184,8 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.find_element(By.ID, "id_numElections").send_keys(num)
             self.browser.find_element(By.ID, "submit").click()
             try:
-                return self.browser.find_element(By.ID, 
-                    "id_numElections").get_attribute("validationMessage")
+                return self.browser.find_element(
+                    By.ID, "id_numElections").get_attribute("validationMessage")
             except NoSuchElementException:
                 return None
 
@@ -194,7 +194,8 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Hitting submit before filling out the form fails
         self.browser.find_element(By.ID, "submit").click()
-        errorMessage = self.browser.find_element(By.ID, "id_slug").get_attribute("validationMessage")
+        errorMessage = self.browser.find_element(
+            By.ID, "id_slug").get_attribute("validationMessage")
         self.assertEqual(errorMessage, "Please fill out this field.")
 
         # Fill it out, too few elections

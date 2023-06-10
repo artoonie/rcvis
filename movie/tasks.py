@@ -31,7 +31,7 @@ def launch_big_dynos(pk, domain):
             "time_to_live": 600
         }
         url = f"https://api.heroku.com/apps/{settings.HEROKU_APP_NAME}/dynos"
-        response = requests.post(url, json=data, headers=headers)
+        response = requests.post(url, json=data, headers=headers, timeout=3)
         if response.json().get('state') != 'starting':
             jsonconfig = JsonConfig.objects.get(pk=pk)
             jsonconfig.movieGenerationStatus = MovieGenerationStatuses.FAILED
@@ -41,6 +41,7 @@ def launch_big_dynos(pk, domain):
     else:
         print("Not launching new dynos. Assuming Celery is running somewhere already.")
 
+    # pylint: disable=no-member
     create_movie_task.delay(pk, domain)
 
 

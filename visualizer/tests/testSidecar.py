@@ -26,12 +26,12 @@ class SidecarTests(TestCase):
     def _assert_sidecar_valid(cls, sidecarFileObj):
         """ Opens the given file and creates a graph with it """
         jsonFilename = filenames.THREE_ROUND
-        with open(jsonFilename, 'r+') as jsonFileObj:
+        with open(jsonFilename, 'r+', encoding='utf-8') as jsonFileObj:
             try_to_load_jsons(File(jsonFileObj), File(sidecarFileObj))
 
     def test_data_loads(self):
         """ Test the happy path: correct data loads """
-        with open(filenames.THREE_ROUND_SIDECAR, 'r+') as sidecarFileObj:
+        with open(filenames.THREE_ROUND_SIDECAR, 'r+', encoding='utf-8') as sidecarFileObj:
             self._assert_sidecar_valid(sidecarFileObj)
 
     @classmethod
@@ -40,8 +40,8 @@ class SidecarTests(TestCase):
         Test residual surplus in main, not in sidecar
         regression: c28d6a7 (fix-inactive-after-double-elim)
         """
-        with open(filenames.RESIDUAL_SURPLUS_MAIN, 'r+') as jsonFileObj:
-            with open(filenames.RESIDUAL_SURPLUS_SIDECAR, 'r+') as sidecarFileObj:
+        with open(filenames.RESIDUAL_SURPLUS_MAIN, 'r+', encoding='utf-8') as jsonFileObj:
+            with open(filenames.RESIDUAL_SURPLUS_SIDECAR, 'r+', encoding='utf-8') as sidecarFileObj:
                 try_to_load_jsons(File(jsonFileObj), File(sidecarFileObj))
 
     def test_error_on_version(self):
@@ -113,9 +113,8 @@ class SidecarTests(TestCase):
         }
 
         # Look through the test config to see if the text should be in or not in the HTML
-        for key in texts:
+        for key, textToSearchFor in texts.items():
             assertFunc = testConfigFuncs[key]
-            textToSearchFor = texts[key]
             assertFunc(textToSearchFor, staticHtml)
 
         # Banan should be somewhere, though not in the main body
@@ -124,7 +123,7 @@ class SidecarTests(TestCase):
     def test_ballotpedia_text(self):
         """ Test that the ballotpedia visualization has the required bp-specific text """
         # Test with no ballotpedia-specific data
-        with open(filenames.THREE_ROUND) as jsonFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
             self._test_ballotpedia_text_with_config({
                 'jsonFile': jsonFile
             }, {
@@ -137,8 +136,8 @@ class SidecarTests(TestCase):
             })
 
         # Add the sidecar but nothing else
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 self._test_ballotpedia_text_with_config({
                     'jsonFile': jsonFile,
                     'candidateSidecarFile': sidecarFile
@@ -155,8 +154,8 @@ class SidecarTests(TestCase):
         tf = TestHelpers.modify_json_with(
             filenames.THREE_ROUND_SIDECAR,
             lambda d: d['info']['Blackberry'].update({'incumbent': False}))
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(tf.name) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(tf.name, encoding='utf-8') as sidecarFile:
                 self._test_ballotpedia_text_with_config({
                     'jsonFile': jsonFile,
                     'candidateSidecarFile': sidecarFile
@@ -170,8 +169,8 @@ class SidecarTests(TestCase):
                 })
 
         # Test with additional data
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 self._test_ballotpedia_text_with_config({
                     'jsonFile': jsonFile,
                     'candidateSidecarFile': sidecarFile,

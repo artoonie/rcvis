@@ -40,21 +40,22 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             options.browser_version = '92'
             options.platform_name = 'Windows 10'
 
-            sauce_options = {}
-            sauce_options['username'] = username
-            sauce_options['accessKey'] = accessKey
-            sauce_options['build'] = os.environ["HEROKU_TEST_RUN_ID"]
-            sauce_options['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            sauce_options["commandTimeout"] = 100
-            sauce_options["maxDuration"] = 1200
-            sauce_options["screenResolution"] = "1280x1024"
-            sauce_options["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
-            sauce_options["captureHtml"] = True
-            sauce_options["webdriverRemoteQuietExceptions"] = False
-            options.set_capability('sauce:options', sauce_options)
+            sauceOptions = {}
+            sauceOptions['username'] = username
+            sauceOptions['accessKey'] = accessKey
+            sauceOptions['build'] = os.environ["HEROKU_TEST_RUN_ID"]
+            sauceOptions['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
+            sauceOptions["commandTimeout"] = 100
+            sauceOptions["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
+            sauceOptions["tags"] = ["CI"]
+            sauceOptions["maxDuration"] = 1200
+            sauceOptions["screenResolution"] = "1280x1024"
+            sauceOptions["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
+            sauceOptions["captureHtml"] = True
+            sauceOptions["webdriverRemoteQuietExceptions"] = False
+            options.set_capability('sauce:options', sauceOptions)
 
-            seleniumEndpoint = "https://{}:{}@ondemand.saucelabs.com:443/wd/hub".format(
-                username, accessKey)
+            seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
 
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
@@ -73,7 +74,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         if self.isUsingSauceLabs:
             sauceResult = "passed" if not self._has_test_failed() else "failed"
-            self.browser.execute_script("sauce:job-result={}".format(sauceResult))
+            self.browser.execute_script(f"sauce:job-result={sauceResult}")
 
         TestHelpers.logout(self.client)
 
@@ -149,7 +150,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """ Creates an absolute url using the current server URL """
         if not url.startswith('/'):
             url = '/' + url
-        return "%s%s" % (self.live_server_url, url)
+        return f"{self.live_server_url}{url}"
 
     def _disable_all_animations(self):
         """ Disables transitions on the current page """
@@ -219,7 +220,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             if sidecarFilename is None:
                 response = self.client.post('/upload.html', values)
             else:
-                with open(sidecarFilename, 'r') as sidecarFileObject:
+                with open(sidecarFilename, 'r', encoding='utf-8') as sidecarFileObject:
                     values['candidateSidecarFile'] = sidecarFileObject
                     response = self.client.post('/upload.html', values)
 

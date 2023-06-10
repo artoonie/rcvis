@@ -26,7 +26,7 @@ class Command(BaseCommand):
             filepath = os.path.join(directory, filename)
             try:
                 # First try the normal way
-                with open(filepath, 'r') as f:
+                with open(filepath, 'r', encoding='utf-8') as f:
                     make_graph_with_file(f, False)
             except Exception as exc1:  # pylint: disable=broad-except
                 # Some codecs are different - not an issue in jsonconfig,

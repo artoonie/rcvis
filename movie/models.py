@@ -32,7 +32,7 @@ class Movie(models.Model):
     resolutionHeight = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
 
-    #pylint: disable=signature-differs
+    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 

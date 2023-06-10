@@ -553,7 +553,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Test that IRV shows no lines until the last round, and STV always shows """
         # Upload IRV results
         self._upload(filenames.THREE_ROUND)
-        thresholdInteractive = self.browser.find_element(By.ID, 'thresholdbargraph-interactive-body')
+        thresholdInteractive = self.browser.find_element(
+            By.ID, 'thresholdbargraph-interactive-body')
         thresholdStatic = self.browser.find_element(By.ID, 'thresholdbargraph-fixed-body')
 
         self._disable_all_animations()

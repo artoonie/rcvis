@@ -136,14 +136,13 @@ class SimpleTests(TestCase):
         lastUpload = TestHelpers.get_latest_upload()
         self.assertLess(len(lastUpload.slug), 100)
 
-    # pylint: disable=R0201
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
         fieldsToIgnore = ('jsonFile', 'candidateSidecarFile')
         configBoolsToToggle = [t for t in UploadForm.Meta.fields if t not in fieldsToIgnore]
         fn = filenames.MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
-            with open(fn, 'r+') as f:
+            with open(fn, 'r+', encoding='utf-8') as f:
                 config = JsonConfig(jsonFile=File(f))
                 config.__dict__[configBoolToToggle] = not config.__dict__[configBoolToToggle]
                 get_data_for_view(config)
@@ -161,7 +160,7 @@ class SimpleTests(TestCase):
 
     def test_upload_file_failure(self):
         """ Tests that we get an error page if a file fails to upload """
-        with open(filenames.BAD_DATA) as f:
+        with open(filenames.BAD_DATA, encoding='utf-8') as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorBadJson.html')
@@ -173,14 +172,14 @@ class SimpleTests(TestCase):
         # down the tests trying to load ~2mb of data...
         acceptableSizeJson = TestHelpers.generate_random_valid_json_of_size(
             1024 * 1024 * 0.1)  # 0.1 MB
-        with open(acceptableSizeJson) as f:
+        with open(acceptableSizeJson, encoding='utf-8') as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['location'], "v/nothing")
 
         # Then verify it fails with a too-large filesize
         tooLargeJson = TestHelpers.generate_random_valid_json_of_size(1024 * 1024 * 3)  # 3 MB
-        with open(tooLargeJson) as f:
+        with open(tooLargeJson, encoding='utf-8') as f:
             response = self.client.post('/upload.html', {'jsonFile': f})
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'visualizer/errorUploadFailedGeneric.html')
@@ -284,7 +283,7 @@ class SimpleTests(TestCase):
         # First mock out the date so the result is the same
         mockGetDateString.return_value = "Today's Date - mocked out!"
 
-        with open(filenames.MULTIWINNER, 'r+') as f:
+        with open(filenames.MULTIWINNER, 'r+', encoding='utf-8') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
 
         text = WikipediaExport(graph, "http://example.com/v/slug").create_wikicode()
@@ -294,7 +293,7 @@ class SimpleTests(TestCase):
         # length is the same magic number I expect, so I don't inadvertently change anything
         magicKnownTextLength = 4094
         self.assertEqual(len(text), magicKnownTextLength)
-        with open('testData/wikiOutput.txt', 'r') as f:
+        with open('testData/wikiOutput.txt', 'r', encoding='utf-8') as f:
             self.maxDiff = None
             # Note: add \n to end of text because the file should be saved with \n
             self.assertEqual(text + '\n', f.read())
@@ -304,7 +303,7 @@ class SimpleTests(TestCase):
 
     def test_electionbuddy_data_is_sane(self):
         """ Validates some data about the electionbuddy file """
-        with open(filenames.ELECTIONBUDDY, 'r+') as f:
+        with open(filenames.ELECTIONBUDDY, 'r+', encoding='utf-8') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
         summary = graph.summarize()
         assert len(summary.rounds) == 3
@@ -393,7 +392,8 @@ class SimpleTests(TestCase):
                 "https://example.com/vb/city-of-eastpointe-macomb-county-mi"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
-                                               data=json.dumps(expectedData))
+                                               data=json.dumps(expectedData),
+                                               timeout=3)
 
     def test_homepage_real_world_examples(self):
         """
@@ -474,7 +474,7 @@ class SimpleTests(TestCase):
     def test_text_for_winner(self):
         """ Integration test: is basic test for TextForWinner shown? """
         def get_response_content_for_enum(textForWinnerVal):
-            with open(filenames.MULTIWINNER) as f:
+            with open(filenames.MULTIWINNER, encoding='utf-8') as f:
                 data = {'jsonFile': f, 'textForWinner': textForWinnerVal}
                 response = self.client.post('/upload.html', data)
             response = self.client.get('/' + response['location'])
@@ -494,7 +494,7 @@ class SimpleTests(TestCase):
         If "Inactive Ballots" is listed as a candidate, don't override that data
         with inactive ballot data computed from the transfers.
         """
-        with open(filenames.SOME_MISSING_TRANSFERS, 'r') as f:
+        with open(filenames.SOME_MISSING_TRANSFERS, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         # Baseline: this is directly from the file

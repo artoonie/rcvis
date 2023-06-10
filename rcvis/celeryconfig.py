@@ -18,7 +18,7 @@ task_annotations = {
 sqs_queue_name = os.environ.get('SQS_QUEUE_NAME')
 if not sqs_queue_name:
     # Otherwise we get a cryptic error message
-    raise Exception("No queue name set. Set SQS_QUEUE_NAME.")
+    raise NotImplementedError("No queue name set. Set SQS_QUEUE_NAME.")
 
 broker_transport_options = {
     'queue_name_prefix': sqs_queue_name

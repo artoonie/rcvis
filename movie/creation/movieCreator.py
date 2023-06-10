@@ -48,8 +48,7 @@ class SingleMovieCreator():
     def _delete_intermediate_clips(self):
         for clip in self.toDelete:
             clip.close()
-            del clip
-        self.toDelete = []
+        self.toDelete.clear()
 
     def _text_on_background(self, writtenText, spokenText, backgroundImageFn):
         """
@@ -287,7 +286,7 @@ class MovieCreationFactory():
         self.textToSpeechFactory = TextToSpeechFactory()
 
         path = reverse('movieGenerationView', args=(jsonconfig.slug,))
-        url = "%s%s" % (domain, path)
+        url = f"{domain}{path}"
 
         self.browser.get(url)
         self.browser.execute_script(get_script_to_disable_animations())

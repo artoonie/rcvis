@@ -75,7 +75,7 @@ class Index(TemplateView):
         return context
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class Upload(LoginRequiredMixin, CreateView):
     """ The upload page """
     login_url = 'login'
@@ -138,7 +138,7 @@ class Upload(LoginRequiredMixin, CreateView):
         return render(self.request, 'visualizer/errorBadJson.html', context=context)
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class UploadByDataTable(Upload):
     """ Upload form when using the datatables input """
     form_class = UploadByDataTableForm

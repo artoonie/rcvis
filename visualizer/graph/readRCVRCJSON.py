@@ -246,9 +246,9 @@ class FixRankitMissingWinners(JSONMigrateTask):
                 name = tallyResult['elected']
                 winnerNamesToLastNumVotes[name] = result['tally'][name]
 
-            for name in winnerNamesToLastNumVotes:
+            for name, lastNumVotes in winnerNamesToLastNumVotes.items():
                 if name not in result['tally']:
-                    result['tally'][name] = winnerNamesToLastNumVotes[name]
+                    result['tally'][name] = lastNumVotes
 
 
 class JSONReader:

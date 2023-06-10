@@ -111,7 +111,7 @@ class ScrapeAll(PermissionRequiredMixin, DetailView):
         return context
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 class PopulateScrapers(PermissionRequiredMixin, ModelFormSetView):
     """ A form allowing you to create a ScrapableElectionPage """
     login_url = 'login'
