@@ -104,11 +104,11 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self._go_to_tab("barchart-tab")
 
         # Test the smallest supported width we can
-        minimumResizeableWidth = 400 if self.isUsingSauceLabs else 300
+        minimumResizeableWidth = 516 if self.isUsingSauceLabs else 300
 
         # Multiwinner maxes out at 500px
         self._upload(filenames.MULTIWINNER)
-        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 450], 550)
+        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 525], 800)
 
         self._ensure_eventually_asserts(
             lambda: self.assertFalse(self._is_visible("sankey-body")))

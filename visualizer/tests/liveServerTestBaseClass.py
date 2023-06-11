@@ -24,6 +24,8 @@ TestHelpers.silence_logging_spam()
 
 class LiveServerTestBaseClass(StaticLiveServerTestCase):
     """ Tests that launch a selenium browser """
+    # TODO -- this used to work on any port, now saucelabs only works on 8000?
+    port = 8000
 
     def __init__(self, *args, **kwargs):
         self.isUsingSauceLabs = False
@@ -45,18 +47,18 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             sauceOptions['accessKey'] = accessKey
             sauceOptions['build'] = os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            sauceOptions["commandTimeout"] = 100
-            sauceOptions["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
+            sauceOptions["seleniumVersion"] = "4.10.0"
+            sauceOptions["tunnelName"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions["tags"] = ["CI"]
+            sauceOptions["idleTimeout"] = 60
             sauceOptions["maxDuration"] = 1200
             sauceOptions["screenResolution"] = "1280x1024"
-            sauceOptions["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
             sauceOptions["captureHtml"] = True
             sauceOptions["webdriverRemoteQuietExceptions"] = False
+            sauceOptions["videoUploadOnPass"] = False
             options.set_capability('sauce:options', sauceOptions)
 
             seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
-
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
@@ -95,7 +97,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             errors = self._outcome.errors
         else:
             # Python 3.11+
-            errors = self._outcome.result.errors
+            result = self._outcome.result
+            errors = result.errors + result.failures
 
         for _, error in errors:
             if error:
