@@ -5,7 +5,6 @@ It is tested to ensure that the example code works.
 
 import requests
 
-from django.contrib.auth import get_user_model
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from common.testUtils import TestHelpers
@@ -18,15 +17,7 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
     """ Tests for the Ballotpedia REST API """
 
     def setUp(self):
-        user = get_user_model().objects.create_user('demouser', 'notadmin@example.com', 'password')
-        user.is_staff = False
-        user.save()
-
-        # Note: while you may create an account yourself, you must ask team@rcvis.com to give you
-        # access to use the API.
-        user.userprofile.canUseApi = True
-        user.userprofile.save()
-
+        TestHelpers.create_non_admin_api_user()
         TestHelpers.setup_host_mocks(self)
 
     def get_api_key(self):
@@ -45,12 +36,12 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
 
         # Provide your username and password
         data = {
-            "username": "demouser",
+            "username": "notadmin",
             "password": "password"
         }
 
         # Make a POST request to the endpoint
-        response = requests.post(url, json=data)
+        response = requests.post(url, json=data, timeout=3)
 
         # Read the response as a JSON
         responseJson = response.json()
@@ -87,7 +78,7 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
             files = {'jsonFile': jsonFile}
 
             # POST the data to create a visualization
-            response = requests.post(url, files=files, headers=headers)
+            response = requests.post(url, files=files, headers=headers, timeout=3)
 
         # Read the response as a JSON
         responseJson = response.json()
@@ -142,7 +133,7 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
                          'candidateSidecarFile': sidecarFile}
 
                 # POST the data to create a visualization
-                response = requests.post(url, files=files, data=data, headers=headers)
+                response = requests.post(url, files=files, data=data, headers=headers, timeout=3)
 
         # Read the response as a JSON
         responseJson = response.json()
@@ -189,7 +180,7 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         data = {'dataSourceURL': 'https://www.example.com/a/different/url'}
 
         # POST the data to create a visualization
-        response = requests.post(url, data=data, headers=headers)
+        response = requests.post(url, data=data, headers=headers, timeout=3)
 
         # The response is the same as when you created the data, sans any changes you just made
         self.assertEqual(response.json()['slug'], 'favorite-ice-cream-flavors')

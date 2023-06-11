@@ -1,13 +1,13 @@
 """ Models for storing data about a movie """
 from django.conf import settings
 from django.core.cache import cache
-from django.core.files.storage import get_storage_class
+from django.core.files.storage import DefaultStorage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
 # pylint:disable=abstract-method,too-few-public-methods
-class SpeechSynthStorage(get_storage_class()):
+class SpeechSynthStorage(DefaultStorage):
     """ Speech synth is stored in a separate bucket. No-op when using offline mode."""
 
     def __init__(self, *args, **kwargs):
@@ -32,7 +32,7 @@ class Movie(models.Model):
     resolutionHeight = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(1920)])
 
-    #pylint: disable=signature-differs
+    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 

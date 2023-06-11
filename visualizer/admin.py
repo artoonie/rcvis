@@ -22,7 +22,7 @@ def make_movie(_, request, queryset):
             launch_big_dynos(jsonconfig.pk, domain)
             isFirstRun = False
         else:
-            create_movie_task.delay(jsonconfig.pk, domain)
+            create_movie_task.delay(jsonconfig.pk, domain)  # pylint: disable=no-member
 
 
 @admin.register(models.JsonConfig)

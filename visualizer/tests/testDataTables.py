@@ -23,7 +23,7 @@ class DataTablesTests(TestCase):
     @classmethod
     def _get_simplified_post_data(cls):
         """ The barebones data sent via POST - no extraneous options included """
-        with open(filenames.DATATABLES_OUTPUT, 'r') as f:
+        with open(filenames.DATATABLES_OUTPUT, 'r', encoding='utf-8') as f:
             data = json.dumps(json.load(f))
         formOutput = {'dataEntry': data,
                       'configElectionTitle': 'simpletitle',
@@ -36,7 +36,7 @@ class DataTablesTests(TestCase):
         """
         After a candidate is elected, remaining votes are optional
         """
-        with open(filenames.DATATABLES_OUTPUT, 'r') as f:
+        with open(filenames.DATATABLES_OUTPUT, 'r', encoding='utf-8') as f:
             data = json.load(f)
         func(data)
 

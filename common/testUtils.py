@@ -92,7 +92,7 @@ class TestHelpers():
             data = json.loads(f.read())
 
         data['config']['contest'] = newName
-        with open(tf.name, 'w') as f:
+        with open(tf.name, 'w', encoding='utf-8') as f:
             json.dump(data, f)
 
         return tf
@@ -100,19 +100,7 @@ class TestHelpers():
     @classmethod
     def silence_logging_spam(cls):
         """ Clean up output of misc libraries """
-        loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict]
-        for logger in loggers:
-            logger.setLevel(logging.CRITICAL)
-        logging.getLogger('boto').setLevel(logging.CRITICAL)
-        logging.getLogger('boto3').setLevel(logging.CRITICAL)
-        logging.getLogger('botocore').setLevel(logging.CRITICAL)
-        logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
-        logging.getLogger('matplotlib.pyplot').setLevel(logging.CRITICAL)
-        logging.getLogger('PIL').setLevel(logging.CRITICAL)
-        logging.getLogger('s3transfer').setLevel(logging.CRITICAL)
-        logging.getLogger('selenium').setLevel(logging.CRITICAL)
-        logging.getLogger('urllib3').setLevel(logging.CRITICAL)
-        logging.getLogger('scraper.scrapeWorkerFailed').setLevel(logging.ERROR)
+        logging.root.setLevel(logging.CRITICAL)
 
     @classmethod
     def modify_json_with(cls, jsonFilename, modifierFunc):
@@ -121,13 +109,13 @@ class TestHelpers():
         updates the json file and returns a Tempfile holding the new data
         """
         # Update the sidecar data
-        with open(jsonFilename, 'r+') as sidecarFile:
+        with open(jsonFilename, 'r+', encoding='utf-8') as sidecarFile:
             data = json.load(sidecarFile)
             modifierFunc(data)
 
         # Write it to a tempfile
         tf = tempfile.NamedTemporaryFile()
-        with open(tf.name, 'w') as tfObj:
+        with open(tf.name, 'w', encoding='utf-8') as tfObj:
             json.dump(data, tfObj)
         return tf
 
@@ -140,11 +128,20 @@ class TestHelpers():
 
     @classmethod
     def does_fieldfile_equal_file(cls, fsFilePath, fieldFile):
-        """ Does the FieldFile (django field) equal the file at fsFilePath?  """
+        """ Does the FieldFile (django field) equal the file at fsFilePath? """
         with open(fsFilePath, 'r', encoding='utf-8') as f:
             realFileData = f.read()
         fieldFileData = fieldFile.read()
         return realFileData == fieldFileData
+
+    @classmethod
+    def create_non_admin_api_user(cls):
+        """ Basic setup for tests: create a non-admin API user """
+        user = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
+        user.is_staff = False
+        user.save()
+        user.userprofile.canUseApi = True
+        user.userprofile.save()
 
     @classmethod
     def login(cls, client):

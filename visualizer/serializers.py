@@ -95,13 +95,14 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         """ Returns the graph, or raises an error if it cannot. """
         try:
             return try_to_load_jsons(jsonFile, candidateSidecarFile)
-        except BadJSONError as exception:
-            errorMessage = traceback.format_exc()
-            raise serializers.ValidationError({'jsonFile': ["JSON is not valid: " + errorMessage]})
-        except BadSidecarError as exception:
+        except BadJSONError as exc:
             errorMessage = traceback.format_exc()
             raise serializers.ValidationError(
-                {'candidateSidecarFile': ["Sidecar JSON is not valid: " + errorMessage]})
+                {'jsonFile': ["JSON is not valid: " + errorMessage]}) from exc
+        except BadSidecarError as exc:
+            errorMessage = traceback.format_exc()
+            raise serializers.ValidationError(
+                {'candidateSidecarFile': ["Sidecar JSON is not valid: " + errorMessage]}) from exc
         except Exception as exception:
             # Don't print full traceback here - we don't control this message as closely,
             # and it might (?) contain keys.

@@ -22,7 +22,7 @@ class ModelDeletionTests(TransactionTestCase):
     def test_file_deletion_on_model_deletion(self):
         """ Verify that when a model is deleted, the associated file is too """
         # Upload
-        with open(filenames.MULTIWINNER) as f:
+        with open(filenames.MULTIWINNER, encoding='utf-8') as f:
             self.client.post('/upload.html', {'jsonFile': f})
         uploadedObject = TestHelpers.get_latest_upload()
 

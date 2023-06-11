@@ -42,7 +42,7 @@ class ScrapeWorker():
         Downloads URL, limited to maxSizeBytes, and returns a tempfile
         file object of the resulting data
         """
-        r = requests.get(url, stream=True)
+        r = requests.get(url, stream=True, timeout=3)
 
         # Safety: check the headers
         contentLengthFromHeader = int(r.headers.get('Content-Length', 0))

@@ -3,7 +3,7 @@
 from visualizer.graph import rcvResult
 
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 class GraphSummary:
     """ A class which organizes a Graph into data that makes it easier to visualize """
 
@@ -56,7 +56,7 @@ class GraphSummary:
         self.linksByTargetNode = linksByTargetNode
         self.winnerNames = [i.name for i in alreadyWonInPreviousRound]
         self.numWinners = len(self.winnerNames)
-        self.numEliminated = sum([len(r.eliminatedNames) for r in rounds])
+        self.numEliminated = sum(len(r.eliminatedNames) for r in rounds)
 
 
 class RoundInfo:

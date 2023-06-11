@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-import django_heroku
+import django_on_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -61,7 +61,6 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsAppConfig',
     'storages',
     'compressor',
-    'django_nose',
     'extra_views',
     'rest_framework',
     'rest_framework.authtoken',
@@ -71,8 +70,6 @@ INSTALLED_APPS = [
     'django_social_share',
     'django_node_assets',
 ]
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -118,7 +115,7 @@ OFFLINE_MODE = os.environ['OFFLINE_MODE'] == "True"
 # for django.sites (and thus, sitemap)
 SITE_ID = 1
 
-# django_heroku will override this in production
+# django_on_heroku will override this in production
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -169,8 +166,6 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = True
 
 
@@ -188,7 +183,11 @@ STATICFILES_FINDERS = (
     'compressor.finders.CompressorFinder',
     'django_node_assets.finders.NodeModulesFinder',
 )
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    }
+}
 
 NODE_PACKAGE_JSON = './package.json'
 NODE_MODULES_ROOT = './node_modules'
@@ -207,7 +206,7 @@ COMPRESS_FILTERS = {
 }
 COMPRESS_OFFLINE = True
 
-# Logging: include INFO logs, and combine with django_heroku
+# Logging: include INFO logs, and combine with django_on_heroku
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -252,14 +251,14 @@ LOGGING = {
 
 # Uploaded media
 if not OFFLINE_MODE:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    STORAGES["default"] = {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"}
     AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
     AWS_S3_REGION_NAME = os.environ['AWS_S3_REGION_NAME']
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
     AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
     AWS_S3_FILE_OVERWRITE = False
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    STORAGES["default"] = {"BACKEND": "django.core.files.storage.FileSystemStorage"}
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, "media")
     MEDIAFILES_DIRS = [
@@ -327,4 +326,4 @@ MAILCHIMP_DC = os.environ.get("MAILCHIMP_DC")
 if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
     # Also ensure logging is output on remote
-    django_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
+    django_on_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)

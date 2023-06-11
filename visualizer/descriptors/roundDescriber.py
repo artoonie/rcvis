@@ -196,6 +196,7 @@ class Describer:
                    "perhaps because the results are still preliminary. "
 
         # Initial summary is always just text
+        originalSummarizeAsParagraph = ""
         try:
             originalSummarizeAsParagraph = self.summarizeAsParagraph
             self.summarizeAsParagraph = True

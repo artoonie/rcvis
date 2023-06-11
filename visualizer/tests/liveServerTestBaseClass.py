@@ -12,6 +12,7 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_script_to_disable_animations
@@ -23,6 +24,8 @@ TestHelpers.silence_logging_spam()
 
 class LiveServerTestBaseClass(StaticLiveServerTestCase):
     """ Tests that launch a selenium browser """
+    # TODO -- this used to work on any port, now saucelabs only works on 8000?
+    port = 8000
 
     def __init__(self, *args, **kwargs):
         self.isUsingSauceLabs = False
@@ -34,26 +37,29 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
             accessKey = os.environ["SAUCE_ACCESS_KEY"]
-            capabilities = {}
-            capabilities["platform"] = "Windows 10"
-            capabilities["browserName"] = "chrome"
-            capabilities["version"] = "70.0"
-            capabilities["build"] = os.environ["HEROKU_TEST_RUN_ID"]
-            capabilities["tags"] = ["CI"]
-            capabilities["tunnelIdentifier"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
-            capabilities["name"] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            capabilities["commandTimeout"] = 100
-            capabilities["maxDuration"] = 1200
-            capabilities["screenResolution"] = "1280x1024"
-            capabilities["sauceSeleniumAddress"] = "ondemand.saucelabs.com:443/wd/hub"
-            capabilities["captureHtml"] = True
-            capabilities["webdriverRemoteQuietExceptions"] = False
-            seleniumEndpoint = "https://{}:{}@ondemand.saucelabs.com:443/wd/hub".format(
-                username, accessKey)
 
-            self.browser = webdriver.Remote(
-                desired_capabilities=capabilities,
-                command_executor=seleniumEndpoint)
+            options = webdriver.ChromeOptions()
+            options.browser_version = '92'
+            options.platform_name = 'Windows 10'
+
+            sauceOptions = {}
+            sauceOptions['username'] = username
+            sauceOptions['accessKey'] = accessKey
+            sauceOptions['build'] = os.environ["HEROKU_TEST_RUN_ID"]
+            sauceOptions['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
+            sauceOptions["seleniumVersion"] = "4.10.0"
+            sauceOptions["tunnelName"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
+            sauceOptions["tags"] = ["CI"]
+            sauceOptions["idleTimeout"] = 60
+            sauceOptions["maxDuration"] = 1200
+            sauceOptions["screenResolution"] = "1280x1024"
+            sauceOptions["captureHtml"] = True
+            sauceOptions["webdriverRemoteQuietExceptions"] = False
+            sauceOptions["videoUploadOnPass"] = False
+            options.set_capability('sauce:options', sauceOptions)
+
+            seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
+            self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
 
@@ -70,7 +76,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         if self.isUsingSauceLabs:
             sauceResult = "passed" if not self._has_test_failed() else "failed"
-            self.browser.execute_script("sauce:job-result={}".format(sauceResult))
+            self.browser.execute_script(f"sauce:job-result={sauceResult}")
 
         TestHelpers.logout(self.client)
 
@@ -86,7 +92,15 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _has_test_failed(self):
         """ helper for tearDown to check if the test has failed """
-        for _, error in self._outcome.errors:
+        if hasattr(self._outcome, 'errors'):
+            # Python <3.11
+            errors = self._outcome.errors
+        else:
+            # Python 3.11+
+            result = self._outcome.result
+            errors = result.errors + result.failures
+
+        for _, error in errors:
             if error:
                 return True
         return False
@@ -139,7 +153,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """ Creates an absolute url using the current server URL """
         if not url.startswith('/'):
             url = '/' + url
-        return "%s%s" % (self.live_server_url, url)
+        return f"{self.live_server_url}{url}"
 
     def _disable_all_animations(self):
         """ Disables transitions on the current page """
@@ -209,7 +223,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             if sidecarFilename is None:
                 response = self.client.post('/upload.html', values)
             else:
-                with open(sidecarFilename, 'r') as sidecarFileObject:
+                with open(sidecarFilename, 'r', encoding='utf-8') as sidecarFileObject:
                     values['candidateSidecarFile'] = sidecarFileObject
                     response = self.client.post('/upload.html', values)
 
@@ -233,7 +247,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         self._assert_log_len(0)
 
     def _go_to_tab(self, tabId):
-        self.browser.find_elements_by_id(tabId)[0].click()
+        self.browser.find_elements(By.ID, tabId)[0].click()
 
     def _debug_screenshot(self):
         """ Saves a screenshot in the current directory for debugging """
@@ -251,8 +265,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         you need to trigger the cancel-animation behavior.
         """
         # Cancel animation by clicking on round_i'th element element
-        container = self.browser.find_element_by_id('bargraph-slider-container')
-        tick = container.find_elements_by_class_name('slider-item')[round_i]
+        container = self.browser.find_element(By.ID, 'bargraph-slider-container')
+        tick = container.find_elements(By.CLASS_NAME, 'slider-item')[round_i]
 
         # Note - need an action chain because the first tick isn't actually receiving the click,
         # the slider itself handles it, and selenium throws ElementClickInterceptedException

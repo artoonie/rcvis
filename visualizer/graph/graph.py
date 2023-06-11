@@ -9,7 +9,7 @@ from visualizer.graph import rcvResult
 from visualizer.graph.graphSummary import GraphSummary
 
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 class LinkData:
     """ Data about a single "link": a transfer from the source to target """
 
@@ -21,7 +21,7 @@ class LinkData:
 
 class NodeData:
     """ Data about a single "node": a candidate in a single round """
-    #pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments
 
     def __init__(self, item, label, count, roundNum):
         self.item = item
@@ -40,7 +40,7 @@ class NodeData:
         self.isWinner = True
 
 
-#pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes
 class Graph:
     """ Data about the entire graph, including nodes and links between thhem """
 

@@ -56,7 +56,7 @@ class RestAPITests(APITestCase):
             self.client.force_authenticate(user=user)   # pylint: disable=no-member
 
     def _upload_file_for_api(self, filename):
-        with open(filename) as f:
+        with open(filename, encoding='utf-8') as f:
             return self.client.post('/api/visualizations/', data={'jsonFile': f})
 
     # This test has a lot of helper functions, allow it to be longer
@@ -148,19 +148,18 @@ class RestAPITests(APITestCase):
             else:
                 # Special case: Upload a JSON here
                 # (because we want to contain the file pointer within the with statement)
-                with open(filenames.MULTIWINNER) as f:
+                with open(filenames.MULTIWINNER, encoding='utf-8') as f:
                     key = visModelToFileKey[model]
                     return command(url, data={key: f})
 
             return command(url, data=data, format="json")
 
         permissionMatrix = initialize_permission_matrix()
-        for user in permissionMatrix:
+        for user, models in permissionMatrix.items():
             authenticate_as(user)
-            for model in permissionMatrix[user]:
-                for action in permissionMatrix[user][model]:
+            for model, actions in models.items():
+                for action, expectedStatus in actions.items():
                     response = run_command(model, action)
-                    expectedStatus = permissionMatrix[user][model][action]
 
                     # If it's not, print out a more helpful message
                     try:
@@ -203,7 +202,7 @@ class RestAPITests(APITestCase):
         """ Checks that you can't try to create something without a jsonFile """
         self._authenticate_as('admin')
 
-        with open(filenames.MULTIWINNER) as f:
+        with open(filenames.MULTIWINNER, encoding='utf-8') as f:
             response = self.client.post('/api/visualizations/', data={'jsonFizzile': f})
             self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -211,7 +210,7 @@ class RestAPITests(APITestCase):
         """ Checks that no extra fields are allowed """
         self._authenticate_as('admin')
 
-        with open(filenames.MULTIWINNER) as f:
+        with open(filenames.MULTIWINNER, encoding='utf-8') as f:
             # The regular way
             response = self.client.post('/api/visualizations/', data={'jsonFile': f})
             self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -276,7 +275,7 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Patch should also succeed with a JSON change
-        with open(filenames.MULTIWINNER) as f:
+        with open(filenames.MULTIWINNER, encoding='utf-8') as f:
             response = self.client.patch(url, data={'jsonFile': f})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.get(url, format='json')
@@ -382,8 +381,8 @@ class RestAPITests(APITestCase):
         """ Ensure you can not include candidateSidecarFile on /visualizations/"""
         self._authenticate_as('notadmin')
 
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'jsonFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.post('/api/visualizations/', data=data)

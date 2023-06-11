@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from common.cloudflare import CloudflareAPI
 
@@ -143,19 +143,19 @@ class JsonConfig(models.Model):
         num = 1
         uniqueSlug = slug
         while JsonConfig.objects.filter(slug=uniqueSlug).exists():
-            uniqueSlug = '{}-{}'.format(slug, num)
+            uniqueSlug = f'{slug}-{num}'
             num += 1
 
         return uniqueSlug
 
     def __str__(self):
-        return '%s: %s' % (self.slug, self.title)
+        return f"{self.slug}: {self.title}"
 
     def get_absolute_url(self):
         """ Used in the admin panel to have a "Visit Site" link """
         return reverse('visualize', args=(self.slug,))
 
-    #pylint: disable=signature-differs
+    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = self._get_unique_slug()

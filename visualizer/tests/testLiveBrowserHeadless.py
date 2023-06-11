@@ -17,6 +17,7 @@ from django.core import mail as test_mailbox
 from django.urls import reverse
 from mock import patch
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -31,8 +32,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _get_each_bargraph_tag(self):
         """ Returns a list of candidate's tags in the interactive bargraph """
-        bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
-        return bargraph.find_elements_by_tag_name('tspan')
+        bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
+        return bargraph.find_elements(By.TAG_NAME, 'tspan')
 
     def _go_to_without_cache(self, url):
         """
@@ -65,13 +66,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Tests the upload page """
         self.open('/upload.html')
 
-        fileUpload = self.browser.find_element_by_id("jsonFile")
+        fileUpload = self.browser.find_element(By.ID, "jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), filenames.THREE_ROUND))
 
-        fileUpload = self.browser.find_element_by_id("candidateSidecarFile")
+        fileUpload = self.browser.find_element(By.ID, "candidateSidecarFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), filenames.THREE_ROUND_SIDECAR))
 
-        uploadButton = self.browser.find_element_by_id("uploadButton")
+        uploadButton = self.browser.find_element(By.ID, "uploadButton")
         uploadButton.click()
 
     def test_setting_eliminated_colors(self):
@@ -81,9 +82,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
 
             # Get an eliminated bar by its text
-            bargraph = self.browser.find_element_by_id('bargraph-interactive-body')
+            bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
             cssSelector = "path[data-original-title=\"On Round 1, has 64 votes (16%)\"]"
-            lastBarInLastRoundList = bargraph.find_elements_by_css_selector(cssSelector)
+            lastBarInLastRoundList = bargraph.find_elements(By.CSS_SELECTOR, cssSelector)
             self.assertEqual(len(lastBarInLastRoundList), 1)
             lastBarInLastRound = lastBarInLastRoundList[0]
 
@@ -97,10 +98,10 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Change option to show a dim version of the last-round color
         self._go_to_tab("settings-tab")
-        self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
-        options = Select(self.browser.find_element_by_id("eliminationBarColor"))
+        self.browser.find_elements(By.ID, "bargraphOptions")[0].click()  # Open the dropdown
+        options = Select(self.browser.find_element(By.ID, "eliminationBarColor"))
         options.select_by_index(2)
-        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+        self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
 
         notgray = "rgb(238, 237, 241)"
         self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), notgray))
@@ -117,7 +118,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Sanity check that a json exists
         uploadedPath = urlparse(self.browser.current_url).path
-        oembedJsonUrl = self.browser.find_element_by_id("oembed").get_attribute('href')
+        oembedJsonUrl = self.browser.find_element(By.ID, "oembed").get_attribute('href')
         embeddedUrl = uploadedPath.replace('v/', 'vo/')
 
         # Sanity check
@@ -134,7 +135,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._assert_log_len(0)
 
         # Verify the JSON is sane and has all required fields
-        responseText = self.browser.find_element_by_xpath("//pre").text
+        responseText = self.browser.find_element(By.XPATH, "//pre").text
 
         responseData = json.loads(responseText)
         assert responseData['version'] == "1.0"
@@ -177,20 +178,20 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             embeddedUrlWithVistype = embeddedUrl + "?vistype=" + vistype
             self.open(embeddedUrlWithVistype)
             # Try to avoid looking for elements that don't exist
-            # assert len(self.browser.find_elements_by_id("no-such-vistype-message")) == 0
+            # assert len(self.browser.find_elements(By.ID, "no-such-vistype-message")) == 0
             # Will throw exception if does not exist
-            self.browser.find_element_by_id("embedded-body")
+            self.browser.find_element(By.ID, "embedded-body")
 
         # And even an invalid URL does not have errors - but it does show the error message
         errorUrl = embeddedUrl + "?vistype=no_such_vistype"
         self.open(errorUrl)
         # Will throw exception if does not exist
-        self.browser.find_element_by_id("no-such-vistype-message")
+        self.browser.find_element(By.ID, "no-such-vistype-message")
 
         try:
             # Final sanity check - does getElementById do what we want? It
             # should throw an exception here.
-            self.browser.find_element_by_id("sankey")
+            self.browser.find_element(By.ID, "sankey")
             assert False
         except NoSuchElementException:
             pass
@@ -204,7 +205,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             localBrowser.get(self._make_url(url))
 
             WebDriverWait(localBrowser, timeout=5, poll_frequency=0.05).until(
-                lambda d: d.find_element_by_id("page-top"))
+                lambda d: d.find_element(By.ID, "page-top"))
 
             tic = localBrowser.execute_script('return performance.timing.fetchStart')
             toc = localBrowser.execute_script('return performance.timing.domLoading')
@@ -283,8 +284,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_tab("share-tab")
 
         # Now sanity check that each of the buttons have URLs
-        allLinks = self.browser.find_elements_by_css_selector('#sharecontainer a')
-        allImages = self.browser.find_elements_by_css_selector('#sharecontainer img')
+        allLinks = self.browser.find_elements(By.CSS_SELECTOR, '#sharecontainer a')
+        allImages = self.browser.find_elements(By.CSS_SELECTOR, '#sharecontainer img')
         self.assertEqual(len(allLinks), 6)
 
         # Make sure links are sane enough
@@ -316,11 +317,11 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_tab("share-tab")
 
         # On init, text area should have the initial URL
-        htmlTextarea = self.browser.find_element_by_id('htmlembedexport')
+        htmlTextarea = self.browser.find_element(By.ID, 'htmlembedexport')
         self.assertIn('/bar', htmlTextarea.get_attribute("value"))
 
         # Change to the tabular selector
-        selectElement = self.browser.find_element_by_id('exportVistypeSelector')
+        selectElement = self.browser.find_element(By.ID, 'exportVistypeSelector')
         selector = Select(selectElement)
         selector.select_by_index(3)
 
@@ -329,16 +330,16 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             TestHelpers.get_latest_upload().slug, 'table'))
 
         # URL should be somewhere in the text area
-        htmlTextarea = self.browser.find_element_by_id('htmlembedexport')
+        htmlTextarea = self.browser.find_element(By.ID, 'htmlembedexport')
         self.assertIn(expectedURL, htmlTextarea.get_attribute("value"))
 
         # Repeat for the plain URL
-        selectElement = self.browser.find_element_by_id('embedlyVistypeSelector')
+        selectElement = self.browser.find_element(By.ID, 'embedlyVistypeSelector')
         selector = Select(selectElement)
         selector.select_by_index(3)
 
         # But this time it should end with the URL, no extra code
-        htmlTextarea = self.browser.find_element_by_id('embedlyexport')
+        htmlTextarea = self.browser.find_element(By.ID, 'embedlyexport')
         assert htmlTextarea.get_attribute("value").endswith(expectedURL)
 
     def test_slider_animates_and_summary_shown(self):
@@ -351,7 +352,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
 
         # Ensure description is inital summary
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
             lambda: self.assertIn('what happened in each round', desc.text))
 
@@ -427,28 +428,28 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.MULTIWINNER)
 
         self._go_to_tab("sankey-tab")
-        labels = self.browser.find_elements_by_class_name('roundLabels')
+        labels = self.browser.find_elements(By.CLASS_NAME, 'roundLabels')
         self.assertEqual(len(labels), 5)
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")
 
         # Then, toggle on the sankey tab from the settings page
-        self.browser.find_element_by_id("sankeyOptions").click()  # Open the dropdown
+        self.browser.find_element(By.ID, "sankeyOptions").click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("showRoundNumbersOnSankey")[1].click()
-        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
+        self.browser.find_elements(By.NAME, "showRoundNumbersOnSankey")[1].click()
+        self.browser.find_element(By.ID, "updateSettings").click()  # Hit submit
 
         # Go to the bargraph, now it should be zero
         self._go_to_tab("sankey-tab")
-        labels = self.browser.find_elements_by_class_name('roundLabels')
+        labels = self.browser.find_elements(By.CLASS_NAME, 'roundLabels')
         self.assertEqual(len(labels), 0)
 
     def test_sidecar_file_elimination_order(self):
         """ Tests the elimination order of the sidecar file """
         self._upload(filenames.THREE_ROUND, filenames.THREE_ROUND_SIDECAR)
-        candidates = self.browser.find_element_by_id("candidateNamesWrapper")
-        elemsInOrder = candidates.find_elements_by_class_name("dataLabel")
+        candidates = self.browser.find_element(By.ID, "candidateNamesWrapper")
+        elemsInOrder = candidates.find_elements(By.CLASS_NAME, "dataLabel")
 
         self.assertEqual(len(elemsInOrder), 4)
         self.assertEqual(elemsInOrder[0].get_attribute('innerHTML'), "Banana")
@@ -467,17 +468,17 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         def register():
             self.open(reverse('django_registration_register'))
-            self.browser.find_element_by_id("id_username").send_keys(username)
-            self.browser.find_element_by_id("id_password1").send_keys(password)
-            self.browser.find_element_by_id("id_password2").send_keys(password)
-            self.browser.find_element_by_id("id_email").send_keys("test@example.com")
-            self.browser.find_element_by_xpath("//input[@type='submit']").click()
+            self.browser.find_element(By.ID, "id_username").send_keys(username)
+            self.browser.find_element(By.ID, "id_password1").send_keys(password)
+            self.browser.find_element(By.ID, "id_password2").send_keys(password)
+            self.browser.find_element(By.ID, "id_email").send_keys("test@example.com")
+            self.browser.find_element(By.XPATH, "//input[@type='submit']").click()
 
         def login_via_upload_redirect():
             self.open(reverse('upload'))
-            self.browser.find_element_by_id("id_username").send_keys(username)
-            self.browser.find_element_by_id("id_password").send_keys(password)
-            self.browser.find_element_by_xpath("//input[@type='submit']").click()
+            self.browser.find_element(By.ID, "id_username").send_keys(username)
+            self.browser.find_element(By.ID, "id_password").send_keys(password)
+            self.browser.find_element(By.XPATH, "//input[@type='submit']").click()
 
         def click_activation_link():
             emailBodyRelativeLink = TestHelpers.get_email_reg_link(test_mailbox.outbox)
@@ -491,7 +492,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Upload should redirect to a page with id_username
         self.open(reverse('upload'))
-        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 1)
+        self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 1)
 
         # Register - the user exists but is inactive
         register()
@@ -500,7 +501,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Try to login before activation: fails, and the username field is still there
         login_via_upload_redirect()
-        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 1)
+        self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 1)
 
         # Assert an email was sent
         self.assertEqual(len(test_mailbox.outbox), 1)
@@ -511,7 +512,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Now login should succeed, and upload has no username field
         login_via_upload_redirect()
-        self.assertEqual(len(self.browser.find_elements_by_id("id_username")), 0)
+        self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 0)
 
         # And for good measure, upload a file
         self._upload(filenames.ONE_ROUND)
@@ -525,7 +526,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(reverse('visualizeBallotpedia', args=(TestHelpers.get_latest_upload().slug,)))
 
         # Look at the description, ensure it shows the summary
-        span = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        span = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
             lambda: self.assertIn('Move the slider to see', span.get_attribute('innerHTML')))
 
@@ -534,7 +535,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Hit play button
         hackyXpathForPlayButton = '//*[@id="bargraph-interactive-why-button"]/a[2]'
-        playbutton = self.browser.find_element_by_xpath(hackyXpathForPlayButton)
+        playbutton = self.browser.find_element(By.XPATH, hackyXpathForPlayButton)
         playbutton.click()
 
         # Ensure animation has begun
@@ -552,8 +553,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Test that IRV shows no lines until the last round, and STV always shows """
         # Upload IRV results
         self._upload(filenames.THREE_ROUND)
-        thresholdInteractive = self.browser.find_element_by_id('thresholdbargraph-interactive-body')
-        thresholdStatic = self.browser.find_element_by_id('thresholdbargraph-fixed-body')
+        thresholdInteractive = self.browser.find_element(
+            By.ID, 'thresholdbargraph-interactive-body')
+        thresholdStatic = self.browser.find_element(By.ID, 'thresholdbargraph-fixed-body')
 
         self._disable_all_animations()
         self._disable_bargraph_slider_timer()
@@ -571,7 +573,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # STV has always-visible threshold
         self._upload(filenames.MULTIWINNER)
-        threshold = self.browser.find_element_by_id('thresholdbargraph-interactive-body')
+        threshold = self.browser.find_element(By.ID, 'thresholdbargraph-interactive-body')
         self._go_to_round_by_clicking(0)
         self.assertEqual(threshold.value_of_css_property("opacity"), "1")
 
@@ -583,12 +585,12 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Make sure it does exist when there is a threshold
         self._upload(filenames.ONE_ROUND)
         for xpath in xpathsOfLines:
-            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 1)
+            self.assertEqual(len(self.browser.find_elements(By.XPATH, xpath)), 1)
 
         # Make sure it does exist when there is a threshold
         self._upload(filenames.NO_THRESHOLD)
         for xpath in xpathsOfLines:
-            self.assertEqual(len(self.browser.find_elements_by_xpath(xpath)), 0)
+            self.assertEqual(len(self.browser.find_elements(By.XPATH, xpath)), 0)
 
     def test_dominion_strips_quotes(self):
         """

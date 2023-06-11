@@ -17,12 +17,7 @@ class BallotpediaRestAPITests(APITestCase):
     """ Tests for the Ballotpedia REST API """
 
     def setUp(self):
-        user = get_user_model().objects.create_user('notadmin', 'notadmin@example.com', 'password')
-        user.is_staff = False
-        user.save()
-        user.userprofile.canUseApi = True
-        user.userprofile.save()
-
+        TestHelpers.create_non_admin_api_user()
         TestHelpers.setup_host_mocks(self)
 
         user = get_user_model().objects.get(username='notadmin')
@@ -32,8 +27,8 @@ class BallotpediaRestAPITests(APITestCase):
         """
         Basic test: ensure that resultsSummaryFile and candidateSidecarFile are uploaded.
         """
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.post('/api/bp/', data=data)
@@ -41,7 +36,7 @@ class BallotpediaRestAPITests(APITestCase):
 
     def test_ballotpedia_sidecar_optional(self):
         """ Ensure candidateSidecarFile is optional """
-        with open(filenames.THREE_ROUND) as jsonFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
             data = {'resultsSummaryFile': jsonFile}
             response = self.client.post('/api/bp/', data=data)
 
@@ -52,8 +47,8 @@ class BallotpediaRestAPITests(APITestCase):
         BP uses resultsSummaryFile instead of jsonFile.
         Ensure jsonFile may not be specified.
         """
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'jsonFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.post('/api/bp/', data=data)
@@ -65,8 +60,8 @@ class BallotpediaRestAPITests(APITestCase):
         """ Ensure bp error messages are in the returned message """
         tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
                                           lambda d: d['order'].remove('Banana'))
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(tf.name) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(tf.name, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.post('/api/bp/', data=data)
@@ -76,8 +71,8 @@ class BallotpediaRestAPITests(APITestCase):
 
     def test_ballotpedia_defaults(self):
         """ Ensure all ballotpedia options are optional and set correct defaults """
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.post('/api/bp/', data=data)
@@ -89,8 +84,8 @@ class BallotpediaRestAPITests(APITestCase):
 
     def test_ballotpedia_options(self):
         """ Ensure all additional ballotpedia options can be specified and are respected """
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'dataSourceURL': 'http://example.com/test',
@@ -104,8 +99,8 @@ class BallotpediaRestAPITests(APITestCase):
 
     def test_ballotpedia_validates_url(self):
         """ Ensure a valid URL is required """
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'dataSourceURL': 'example.com/test'}
@@ -121,8 +116,8 @@ class BallotpediaRestAPITests(APITestCase):
         Any field not specified will be set to its default value.
         """
         # Upload initial
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'areResultsCertified': True}
@@ -137,8 +132,8 @@ class BallotpediaRestAPITests(APITestCase):
         # areResultsCertified is omitted, which sets it to the default: False
         tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
                                           lambda d: d['order'].reverse())
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(tf.name) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(tf.name, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.put(f'/api/bp/{obj.id}/', data=data)
@@ -155,8 +150,8 @@ class BallotpediaRestAPITests(APITestCase):
     def test_ballotpedia_edits_patch(self):
         """ Ensure bp data can be edited with PATCH - all fields are optional """
         # Upload initial
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'areResultsCertified': True}
@@ -171,8 +166,8 @@ class BallotpediaRestAPITests(APITestCase):
         # areResultsCertified is omitted, which leaves it unchanged
         tf = TestHelpers.modify_json_with(filenames.THREE_ROUND_SIDECAR,
                                           lambda d: d['order'].reverse())
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(tf.name) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(tf.name, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.patch(f'/api/bp/{obj.id}/', data=data)
@@ -200,8 +195,8 @@ class BallotpediaRestAPITests(APITestCase):
         a valid vis, then updating one file to be incompatible with the other.
         """
         # Upload initial
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'areResultsCertified': True}
@@ -210,7 +205,7 @@ class BallotpediaRestAPITests(APITestCase):
 
         # Change just the jsonfile, leaving the sidecar invalid
         obj = TestHelpers.get_latest_upload()
-        with open(filenames.ONE_ROUND) as jsonFile:
+        with open(filenames.ONE_ROUND, encoding='utf-8') as jsonFile:
             data = {'resultsSummaryFile': jsonFile}
             response = self.client.patch(f'/api/bp/{obj.id}/', data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -221,8 +216,8 @@ class BallotpediaRestAPITests(APITestCase):
         will not reset the data.
         """
         # Upload initial
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'areResultsCertified': True,
@@ -256,8 +251,8 @@ class BallotpediaRestAPITests(APITestCase):
         will not reset the data.
         """
         # Upload initial
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile,
                         'isPrimary': True}
@@ -266,8 +261,8 @@ class BallotpediaRestAPITests(APITestCase):
         objId = TestHelpers.get_latest_upload().id
 
         # Put, without isPrimary
-        with open(filenames.THREE_ROUND) as jsonFile:
-            with open(filenames.THREE_ROUND_SIDECAR) as sidecarFile:
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            with open(filenames.THREE_ROUND_SIDECAR, encoding='utf-8') as sidecarFile:
                 data = {'resultsSummaryFile': jsonFile,
                         'candidateSidecarFile': sidecarFile}
                 response = self.client.put(f'/api/bp/{objId}/', data=data)

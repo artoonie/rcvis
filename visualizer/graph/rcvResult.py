@@ -3,7 +3,7 @@
 from visualizer import common
 
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 class Item:
     """ A single Item, also known as a Candidate elsewhere in the Code. """
 
@@ -13,7 +13,7 @@ class Item:
         # Mark inactive (exhausted) ballots
         self.isActive = name != common.INACTIVE_TEXT
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 
 
 class Transfer:
@@ -23,19 +23,19 @@ class Transfer:
         self.item = item
         self.transfersByItem = transfersByItem
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 
 
 class Elimination(Transfer):
     """ Syntactic sugar for an Elimination, which is kind of like a transfer """
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 
 
 class WinTransfer(Transfer):
     """ Syntactic sugar for a Win, which is kind of like a transfer """
 
-#pylint: disable=too-few-public-methods
+# pylint: disable=too-few-public-methods
 
 
 class Round:

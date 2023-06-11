@@ -23,14 +23,7 @@ Visualize the results of ranked-choice voting elections.
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
 ## Installation
-Install python3 and virtualenv, then
-
-```bash
-virtualenv venv
-source venv/bin/activate
-pip3 install -e .
-pip3 install -r requirements.txt
-```
+Install `python3`, `virtualenv`, and `npm` with your favorite package manager, then run `./scripts/install.sh`.
 
 Create a .env file with your secrets and configuration options:
 
@@ -64,9 +57,9 @@ export OFFLINE_MODE=True
 export SAUCE_USERNAME=''
 export SAUCE_ACCESS_KEY=''
 
-# To generate videos, you need:
-# export SQS_QUEUE_NAME=''
-# export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
+# To generate videos (and to run movie tests), you will need:
+export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
+export SQS_QUEUE_NAME='default-queue'
 # export MOVIE_FONT_NAME="Roboto"
 # export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
 

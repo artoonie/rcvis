@@ -13,6 +13,7 @@ import platform
 
 from django.urls import reverse
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import WebDriverException
 
@@ -31,7 +32,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _get_width(self, elementId):
         """ Gets the width of the element """
-        elem = self.browser.find_elements_by_id(elementId)[0]
+        elem = self.browser.find_elements(By.ID, elementId)[0]
         try:
             ActionChains(self.browser).move_to_element(elem).perform()
         except WebDriverException:
@@ -40,11 +41,11 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _get_height(self, elementId):
         """ Gets the height of the element """
-        return self.browser.find_elements_by_id(elementId)[0].size['height']
+        return self.browser.find_elements(By.ID, elementId)[0].size['height']
 
     def _is_visible(self, elementId):
         """ Is the element ID visible? """
-        elem = self.browser.find_elements_by_id(elementId)[0]
+        elem = self.browser.find_elements(By.ID, elementId)[0]
         return self._is_elem_visible(elem)
 
     @classmethod
@@ -96,18 +97,18 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         def change_barchart_orientation():
             self._go_to_tab("settings-tab")
-            self.browser.find_elements_by_id("bargraphOptions")[0].click()  # Open the dropdown
+            self.browser.find_elements(By.ID, "bargraphOptions")[0].click()  # Open the dropdown
             # Check the box (the second one, which isn't hidden)
-            self.browser.find_elements_by_name("doUseHorizontalBarGraph")[1].click()
-            self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+            self.browser.find_elements(By.NAME, "doUseHorizontalBarGraph")[1].click()
+            self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
             self._go_to_tab("barchart-tab")
 
         # Test the smallest supported width we can
-        minimumResizeableWidth = 400 if self.isUsingSauceLabs else 300
+        minimumResizeableWidth = 516 if self.isUsingSauceLabs else 300
 
         # Multiwinner maxes out at 500px
         self._upload(filenames.MULTIWINNER)
-        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 450], 550)
+        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 525], 800)
 
         self._ensure_eventually_asserts(
             lambda: self.assertFalse(self._is_visible("sankey-body")))
@@ -142,30 +143,30 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Upload with non-default setting: hiding sankey tab.
         self.open('/upload.html')
-        fileUpload = self.browser.find_element_by_id("jsonFile")
+        fileUpload = self.browser.find_element(By.ID, "jsonFile")
         fileUpload.send_keys(os.path.join(os.getcwd(), filenames.ONE_ROUND))
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements(By.ID, "sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_element_by_id("uploadButton").click()  # Hit upload
+        self.browser.find_elements(By.NAME, "hideSankey")[1].click()
+        self.browser.find_element(By.ID, "uploadButton").click()  # Hit upload
         assert not self._is_visible("sankey-body")
 
         # Go to the settings tab
         self._go_to_tab("settings-tab")
 
         # Then, toggle on the sankey tab from the settings page
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements(By.ID, "sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+        self.browser.find_elements(By.NAME, "hideSankey")[1].click()
+        self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
         assert self._is_visible("sankey-tab")
 
         # Finally, toggle it back off
         self._go_to_tab("settings-tab")
-        self.browser.find_elements_by_id("sankeyOptions")[0].click()  # Open the dropdown
+        self.browser.find_elements(By.ID, "sankeyOptions")[0].click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("hideSankey")[1].click()
-        self.browser.find_elements_by_id("updateSettings")[0].click()  # Hit submit
+        self.browser.find_elements(By.NAME, "hideSankey")[1].click()
+        self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
         assert not self._is_visible("sankey-tab")
 
         self._assert_log_len(0)
@@ -177,11 +178,11 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._disable_all_animations()
 
         # The expand button is hidden
-        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
+        expandButton = self.browser.find_element(By.CLASS_NAME, 'expand-collapse-button')
         self.assertEqual(self._is_elem_visible(expandButton), False)
 
         # And longform description is visible
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
             lambda: self.assertEqual(self._is_elem_visible(desc), True))
 
@@ -200,31 +201,31 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_tab("settings-tab")
 
         # Then, toggle on the sankey tab from the settings page
-        self.browser.find_element_by_id("bargraphOptions").click()  # Open the dropdown
+        self.browser.find_element(By.ID, "bargraphOptions").click()  # Open the dropdown
         # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements_by_name("doUseDescriptionInsteadOfTimeline")[1].click()
-        self.browser.find_element_by_id("updateSettings").click()  # Hit submit
+        self.browser.find_elements(By.NAME, "doUseDescriptionInsteadOfTimeline")[1].click()
+        self.browser.find_element(By.ID, "updateSettings").click()  # Hit submit
 
         # Go to the bargraph
         self._go_to_tab("barchart-tab")
 
         # Now the the expand/collapse button is visible
-        expandButton = self.browser.find_element_by_class_name('expand-collapse-button')
+        expandButton = self.browser.find_element(By.CLASS_NAME, 'expand-collapse-button')
         self.assertEqual(self._is_elem_visible(expandButton), True)
         expandButton.click()
 
         # And longform description is hidden
-        desc = self.browser.find_element_by_id('bargraph-interactive-round-description')
+        desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self.assertEqual(self._is_elem_visible(desc), False)
 
         # Ensure the timeline has all expected data
-        elems = self.browser.find_elements_by_class_name('timeline-info-good')
+        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info-good')
         self.assertEqual(len(elems), 2 * 2)  # two elected, x2 graphs
 
-        elems = self.browser.find_elements_by_class_name('timeline-info-bad')
+        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info-bad')
         self.assertEqual(len(elems), 2 * 2)  # two eliminated, x2 graphs
 
-        elems = self.browser.find_elements_by_class_name('timeline-info')
+        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info')
         # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
         self.assertEqual(len(elems), 2 * 9)
 
@@ -237,8 +238,8 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Regression test: one round, zero-votes (NaN-checking)
         self._upload(filenames.ZERO_VOTE_ELECTION)
-        interactiveBargraph = self.browser.find_element_by_id("bargraph-interactive-body")
-        elemsInOrder = interactiveBargraph.find_elements_by_class_name("dataLabel")
+        interactiveBargraph = self.browser.find_element(By.ID, "bargraph-interactive-body")
+        elemsInOrder = interactiveBargraph.find_elements(By.CLASS_NAME, "dataLabel")
 
         # Be very sure there are no NaNs in the number of votes.
         # The specific text here isn't important, just that it doesn't say "0 (NaN%)"
@@ -259,12 +260,12 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.execute_script("showFaqButtonNow();")
 
         # Starts at 65px
-        div = self.browser.find_element_by_id('round-description-wrapper')
+        div = self.browser.find_element(By.ID, 'round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
         # Expands to fit the FAQs
         hackyXpathForWhyButton = '//*[@id="bargraph-interactive-why-button"]/a[1]'
-        whyButton = self.browser.find_element_by_xpath(hackyXpathForWhyButton)
+        whyButton = self.browser.find_element(By.XPATH, hackyXpathForWhyButton)
         self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
         whyButton.click()
         self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
@@ -326,7 +327,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.execute_script(f"document.getElementById('{elementId}').scrollIntoView();")
 
             # Grab the element and read its value
-            textarea = self.browser.find_element_by_id(elementId)
+            textarea = self.browser.find_element(By.ID, elementId)
             initialText = textarea.get_attribute('value')
             textAreaValues.append(initialText)
 

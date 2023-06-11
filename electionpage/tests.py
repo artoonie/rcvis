@@ -24,6 +24,7 @@ from django.core.files import File
 from django.urls import reverse
 from requests_mock import Mocker
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.by import By
 
 from common.testUtils import TestHelpers
 from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
@@ -36,7 +37,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests for the electionpage app - using a live browser """
     @classmethod
     def _create_json_config(cls):
-        with open(filenames.ONE_ROUND, 'r+') as f:
+        with open(filenames.ONE_ROUND, 'r+', encoding='utf-8') as f:
             return JsonConfig.objects.create(
                 jsonFile=File(f),
                 title='x',
@@ -82,16 +83,16 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _fill_in_create_form(self, slug):
         """ After you go to createScrapableElection page, call this to fill out the form """
-        self.browser.find_element_by_id("id_slug").send_keys(slug)
-        self.browser.find_element_by_id("id_title").send_keys("title")
-        self.browser.find_element_by_id("id_date").send_keys("2022-11-06")
-        self.browser.find_element_by_id("id_description").send_keys("desc")
-        self.browser.find_element_by_id("id_numElections").send_keys("1")
+        self.browser.find_element(By.ID, "id_slug").send_keys(slug)
+        self.browser.find_element(By.ID, "id_title").send_keys("title")
+        self.browser.find_element(By.ID, "id_date").send_keys("2022-11-06")
+        self.browser.find_element(By.ID, "id_description").send_keys("desc")
+        self.browser.find_element(By.ID, "id_numElections").send_keys("1")
 
     def test_index(self):
         """ The index page is publicly-viewable and contains the expected # of bullet points """
         self.open(reverse('electionPageHome'))
-        self.assertGreater(len(self.browser.find_elements_by_tag_name("li")), 14)
+        self.assertGreater(len(self.browser.find_elements(By.TAG_NAME, "li")), 14)
 
     def test_election_pages(self):
         """ The election pages are error-free for non-scrapable election pages.  """
@@ -99,15 +100,15 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(reverse('electionPage', args=(epModel.slug,)))
 
         # Two items
-        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 2)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "card")), 2)
 
         # The title is visible
-        h1s = self.browser.find_elements_by_tag_name("h1")
+        h1s = self.browser.find_elements(By.TAG_NAME, "h1")
         self.assertEqual(h1s[0].text, "Test Election")
 
         # Bargraph button is grayed out and the iframe is not loaded
-        bargraphIframe = self.browser.find_element_by_id('bargraph-iframe-1')
-        bargraphButton = self.browser.find_element_by_id('bargraph-button-1')
+        bargraphIframe = self.browser.find_element(By.ID, 'bargraph-iframe-1')
+        bargraphButton = self.browser.find_element(By.ID, 'bargraph-button-1')
         self.assertEqual(bargraphIframe.get_attribute('src'), 'about:blank')
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-secondary')
 
@@ -134,16 +135,16 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Results page shows one error, one success
         self.open(reverse('scrapeAll', args=(epModel.slug,)), expectedErrorCount=0)
-        self.assertEqual(len(self.browser.find_elements_by_class_name("alert-primary")), 1)
-        self.assertEqual(len(self.browser.find_elements_by_class_name("alert-warning")), 1)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "alert-primary")), 1)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "alert-warning")), 1)
 
         # And the results page should have real data for only one election
         self.open(reverse('electionPageScrapable', args=(epModel.slug,)))
         self._ensure_eventually_asserts(lambda: self.assertEqual(
-            len(self.browser.find_elements_by_class_name("card")), 1))
+            len(self.browser.find_elements(By.CLASS_NAME, "card")), 1))
 
         # The title is visible too
-        h1s = self.browser.find_elements_by_tag_name("h1")
+        h1s = self.browser.find_elements(By.TAG_NAME, "h1")
         self.assertEqual(h1s[0].text, "Test Scrapable Election")
 
     @Mocker()
@@ -164,10 +165,10 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # And the results page should have real data for 25 elections
         self.open(reverse('electionPageSingleSource', args=(epModel.slug,)))
         self._ensure_eventually_asserts(lambda: self.assertEqual(
-            len(self.browser.find_elements_by_class_name("card")), 25))
+            len(self.browser.find_elements(By.CLASS_NAME, "card")), 25))
 
         # The title is visible too
-        h1s = self.browser.find_elements_by_tag_name("h1")
+        h1s = self.browser.find_elements(By.TAG_NAME, "h1")
         self.assertEqual(h1s[0].text, "Test Single Source Scrapable Election")
 
     def test_create_scrapable_page_logged_out(self):
@@ -179,12 +180,12 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     def test_create_scrapable_page(self):
         """ With proper permissions, can create a scrapable election page """
         def submit_with_num_elections_and_get_error(num):
-            self.browser.find_element_by_id("id_numElections").clear()
-            self.browser.find_element_by_id("id_numElections").send_keys(num)
-            self.browser.find_element_by_id("submit").click()
+            self.browser.find_element(By.ID, "id_numElections").clear()
+            self.browser.find_element(By.ID, "id_numElections").send_keys(num)
+            self.browser.find_element(By.ID, "submit").click()
             try:
-                return self.browser.find_element_by_id(
-                    "id_numElections").get_attribute("validationMessage")
+                return self.browser.find_element(
+                    By.ID, "id_numElections").get_attribute("validationMessage")
             except NoSuchElementException:
                 return None
 
@@ -192,8 +193,9 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(reverse('createScrapableElection'))
 
         # Hitting submit before filling out the form fails
-        self.browser.find_element_by_id("submit").click()
-        errorMessage = self.browser.find_element_by_id("id_slug").get_attribute("validationMessage")
+        self.browser.find_element(By.ID, "submit").click()
+        errorMessage = self.browser.find_element(
+            By.ID, "id_slug").get_attribute("validationMessage")
         self.assertEqual(errorMessage, "Please fill out this field.")
 
         # Fill it out, too few elections
@@ -223,10 +225,10 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Use the same slug to fill out the form
         self._fill_in_create_form(epModel.slug)
-        self.browser.find_element_by_id("submit").click()
+        self.browser.find_element(By.ID, "submit").click()
 
         # It should fail with this error message
-        errorMessage = self.browser.find_elements_by_class_name("alert-warning")[0].text
+        errorMessage = self.browser.find_elements(By.CLASS_NAME, "alert-warning")[0].text
         self.assertIn('Scrapable election page with this Slug already exists.', errorMessage)
 
     def test_auth_forbidden(self):
@@ -253,31 +255,31 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open(url)
 
         # Change the second one to an invalid URL
-        self.browser.find_element_by_id("id_form-1-scrapableURL").clear()
-        self.browser.find_element_by_id("id_form-1-scrapableURL").send_keys("mock://bad-url")
+        self.browser.find_element(By.ID, "id_form-1-scrapableURL").clear()
+        self.browser.find_element(By.ID, "id_form-1-scrapableURL").send_keys("mock://bad-url")
 
         # After submitting, it should succeed and the page should be the same
-        self.browser.find_element_by_id("submit").click()
+        self.browser.find_element(By.ID, "submit").click()
         self.assertEqual(urlparse(self.browser.current_url).path, url)
 
         # But the live page should be empty
         self.open(reverse('electionPageScrapable', args=(epModel.slug,)))
-        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 0)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "card")), 0)
 
         # Until we hit rescrape, then there should be 2/3 valid scrapes
         self.open(reverse('populateScrapers', args=(epModel.slug,)))
-        self.browser.find_element_by_id("rescrape").click()
-        self.assertEqual(len(self.browser.find_elements_by_class_name("alert-primary")), 2)
-        self.assertEqual(len(self.browser.find_elements_by_class_name("alert-warning")), 1)
+        self.browser.find_element(By.ID, "rescrape").click()
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "alert-primary")), 2)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "alert-warning")), 1)
 
         # And the live page should have 2 valid elections shown
-        self.browser.find_element_by_id("viewlive").click()
+        self.browser.find_element(By.ID, "viewlive").click()
 
         # Refresh (not sure why it's needed)
         self.browser.execute_script("location.reload(true);")
 
         # There are two valid rows
-        self.assertEqual(len(self.browser.find_elements_by_class_name("card")), 2)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, "card")), 2)
 
     def test_are_results_certified_initializes_correctly(self):
         """ When initialized with areResultsCertified, it propagates to all scrapers """
@@ -286,8 +288,8 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Create with certified checked
         self._fill_in_create_form("cuteslug")
-        self.browser.find_element_by_id("id_areResultsCertified").click()
-        self.browser.find_element_by_id("submit").click()
+        self.browser.find_element(By.ID, "id_areResultsCertified").click()
+        self.browser.find_element(By.ID, "submit").click()
 
         for scraper in ScrapableElectionPage.objects.get(slug='cuteslug').listOfScrapers.all():
             self.assertTrue(scraper.areResultsCertified)

@@ -11,7 +11,7 @@ from visualizer.models import JsonConfig, MovieGenerationStatuses
 from movie.tasks import launch_big_dynos
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 @method_decorator(never_cache, name='dispatch')
 class MovieGenerationView(DetailView):
     """ The view used by movie generation - not intended to be user-facing,
@@ -44,7 +44,7 @@ class CreateMovie(LoginRequiredMixin, RedirectView):
         return reverse('movieOnlyView', args=(jsonconfig.slug,))
 
 
-#pylint: disable=too-many-ancestors
+# pylint: disable=too-many-ancestors
 @method_decorator(never_cache, name='dispatch')
 class VisualizeMovie(DetailView):
     """ Temporary view to see just the movie visualization.

@@ -65,7 +65,11 @@ class CloudflareAPI():
         data = {'files': rcvisUrls}
 
         # Send it off
-        response = requests.post(apiUrl, headers=cls._get_auth_headers(), data=json.dumps(data))
+        response = requests.post(
+            apiUrl,
+            headers=cls._get_auth_headers(),
+            data=json.dumps(data),
+            timeout=3)
 
         info = f"{len(paths)} starting with {paths[0]}"
         if response.status_code == 200:
