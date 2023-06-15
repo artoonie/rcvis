@@ -26,6 +26,7 @@ class DefaultConfig():  # pylint: disable=too-few-public-methods
         self.onlyShowWinnersTabular = False
         self.textForWinner = TextForWinner.ELECTED
         self.isPreferentialBlock = False
+        self.excludeFinalWinnerAndEliminatedCandidate = False
 
 
 def get_embed_html(embedlyUrl, maxwidth, maxheight):

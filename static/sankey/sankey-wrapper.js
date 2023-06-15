@@ -20,32 +20,23 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   // set the dimensions and margins of the graph
   // leftPadForHorizontalNames: guess how wide the longest name will be, knowing that the multiline
   // label means we divide it by two
-  const leftPadForHorizontalNames = config.horizontalSankey ? longestLabelApxWidth/2.0 * ESTIMATED_CHAR_WIDTH : 0;
+  const leftPadForHorizontalNames = longestLabelApxWidth/2.0 * ESTIMATED_CHAR_WIDTH;
   const cmargin = {top:  0, right: 10, bottom: 15, left: 50 + leftPadForHorizontalNames}, // content
         tmargin = {top:  0,                        left: 50}, // topbar
         bottomLabelPadding = 20;
-  let size0 = totalSize0;
-  let size1 = idealTotalSize1;
-  if (config.horizontalSankey) {
-      size0 += linkPadding;
-      size1 += avgNodeSize1;
-  } else {
-      // Extra padding to leave room for expansion (??) of something (???)
-      const hackExtraPadding = numCandidates*20;
-      size0 += bottomLabelPadding;
-      size1 += hackExtraPadding;
-  }
+  let size0 = totalSize0 + linkPadding;
+  let size1 = idealTotalSize1 + avgNodeSize1;
 
   let tmarginLength;
   let rotationOffset = 0;
   if (config.rotateNames)
   {
       tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH;
-      rotationOffset = config.horizontalSankey ? tmarginLength*.7071067/2.0 : tmarginLength*.7071067;
+      rotationOffset = tmarginLength*.7071067/2.0;
   }
   else
   {
-      tmarginLength = config.horizontalSankey ? leftPadForHorizontalNames : 40;
+      tmarginLength = leftPadForHorizontalNames;
   }
 
   const viewboxSize0 = size0 + size0margin(cmargin);
@@ -105,26 +96,13 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       .data(graph.nodes.filter(function(d){return dim1(d) == 0;}))
       .enter().append("text")
       .attr("class", 'roundLabels' );
-    if (config.horizontalSankey)
-    {
-      labels
-      .attr("x", function(d) {
-            return dim0(d) - roundSize0*0.4 - 50;
-       })
-      .attr("y", function(d) {
-            return 60
-       });
-    }
-    else
-    {
-      labels
-      .attr("x", function(d) {
-            return avgNodeSize1 * 1.5
-      })
-      .attr("y", function(d) {
-            return dim0(d) - roundSize0*0.2;
-      });
-    }
+    labels
+    .attr("x", function(d) {
+          return dim0(d) - roundSize0*0.4 - 50;
+     })
+    .attr("y", function(d) {
+          return 60
+     });
 
     labels.text(function(d) { return "Round " + (d.round+1) });
   }
@@ -214,22 +192,19 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
           })
           .on("drag", dragmove));
 
-      if (config.horizontalSankey)
-      {
-        // For horizontal sankey, labels go on the first-round nodes,
-        // not on the top bar
-        node
-          .filter(function(d) { return d.round == 0 })
-          .append("text")
-          .attr("x", -5)
-          .attr("y", textYPos)
-          .attr("dy", ".35em")
-          .attr("text-anchor", "end")
-          .attr("class", "dataLabel")
-          .text(getNodeLabelText);
-        node.selectAll(".dataLabel")
-          .call(magicWordWrap);
-      }
+      // For horizontal sankey, labels go on the first-round nodes,
+      // not on the top bar
+      node
+        .filter(function(d) { return d.round == 0 })
+        .append("text")
+        .attr("x", -5)
+        .attr("y", textYPos)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "end")
+        .attr("class", "dataLabel")
+        .text(getNodeLabelText);
+      node.selectAll(".dataLabel")
+        .call(magicWordWrap);
 
       if (config.showRoundNumbersOnSankey)
       {
@@ -284,15 +259,9 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
         append("text")
         .attr("class", 'roundLabels' );
 
-      if (config.horizontalSankey) {
-        round1Label
-          .attr("x", tmarginLength-roundSize0*.2 - 75)
-          .attr("y",  avgNodeSize1 * 1.5);
-      } else {
-        round1Label
-          .attr("x", avgNodeSize1 * 1.5)
-          .attr("y", tmarginLength-roundSize0*.2 );
-      }
+      round1Label
+        .attr("x", tmarginLength-roundSize0*.2 - 75)
+        .attr("y",  avgNodeSize1 * 1.5);
 
       round1Label.text("Round 1");
       return round1Label;
@@ -372,17 +341,6 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
   makeGraph(graph);
 
   const topbarG = makeTopBar(graph);
-  if (!config.horizontalSankey) {
-    if (config.showRoundNumbersOnSankey)
-    {
-      const round1SpecialLabel = makeRound1SpecialLabel(topbarG);
-      if (!disableMagicTopBar)
-      {
-        window.onscroll = function() {notifyScrolled(round1SpecialLabel)};
-      }
-    }
-    populateTopBarFor(topbarG, 0)
-  }
 }
 
 function fitSankeyViewboxToContents() {
