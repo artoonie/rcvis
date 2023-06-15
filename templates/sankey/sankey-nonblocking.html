@@ -5,13 +5,6 @@
     <link rel="stylesheet" href="{% static "sankey/style.css" %}">
 {% endcompress %}
 
-<script type="text/javascript">
-let style;
-if (config.horizontalSankey) style = "position: absolute; width: 0px;";
-else                         style = "width: 100%";
-$('#topbar').attr("style", style);
-</script>
-
 {% compress js file %}
 <script src="{% static 'sankey/sankey.js' %}"></script>
 <script src="{% static 'sankey/setup-by-orientation.js' %}"></script>
@@ -23,7 +16,7 @@ $('#topbar').attr("style", style);
 
 if (numRounds > 1)
 {
-  loadFunctions(config.horizontalSankey);
+  loadFunctions();
   makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound, config.colorTheme);
 }
 else

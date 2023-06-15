@@ -95,14 +95,6 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self._ensure_eventually_asserts(
                 lambda: self.assertLessEqual(self._get_width(elementId), widthsWithExtraRoom))
 
-        def change_barchart_orientation():
-            self._go_to_tab("settings-tab")
-            self.browser.find_elements(By.ID, "bargraphOptions")[0].click()  # Open the dropdown
-            # Check the box (the second one, which isn't hidden)
-            self.browser.find_elements(By.NAME, "doUseHorizontalBarGraph")[1].click()
-            self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
-            self._go_to_tab("barchart-tab")
-
         # Test the smallest supported width we can
         minimumResizeableWidth = 516 if self.isUsingSauceLabs else 300
 
@@ -122,11 +114,6 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Sankey no longer gets huge - it caps out at 960px wide
         self._go_to_tab("sankey-tab")
         test_sane_resizing_of("sankey-svg", [minimumResizeableWidth, 800], 1200)
-        # Make the barchart vertical
-        change_barchart_orientation()
-        # Should have the same max width here...:( (TODO: set the device pixel ratio
-        # such that this can get bigger...?)
-        test_sane_resizing_of("bargraph-interactive-body", [minimumResizeableWidth, 600], 800)
 
         # Now let's look at sankey and the tables
         self._upload(filenames.THREE_ROUND)

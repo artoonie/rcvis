@@ -61,10 +61,20 @@
               </select>
             </p>
         </div>
+
         <div class="container mt-3">
           <input type="hidden" name="areResultsCertified"/><!-- To be sent in GET/POST if unchecked -->
           <label>
               <input type="checkbox" name="areResultsCertified"/> Are these results certified?
+          </label>
+        </div>
+
+        <div class="container mt-3">
+          <input type="hidden" name="excludeFinalWinnerAndEliminatedCandidate"/><!-- To be sent in GET/POST if unchecked -->
+          <label>
+              <input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate"/> Hide winner because results are preliminary?
+              <br/>
+              <small>This will hide the final elected and eliminated candidate and mark the election as preliminary.</small>
           </label>
         </div>
 
@@ -96,12 +106,6 @@
         <br/>
         <small>By default, we'll show up to two decimal places.</small></label>
         <br/><br/>
-        <input type="hidden" name="excludeFinalWinnerAndEliminatedCandidate"/><!-- To be sent in GET/POST if unchecked -->
-        <label>
-            <input type="checkbox" name="excludeFinalWinnerAndEliminatedCandidate"/> Exclude the final elected and eliminated candidate
-            <br/>
-            <small>This is useful for in-progress elections to avoid bouncing back and forth</small>
-        </label>
       </p>
     </div>
 

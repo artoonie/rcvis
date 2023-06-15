@@ -375,7 +375,7 @@ class RestAPITests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         oneRoundObject = TestHelpers.get_latest_upload()
         self.assertEqual(oneRoundObject.hideSankey, False)
-        self.assertEqual(oneRoundObject.doUseHorizontalBarGraph, True)
+        self.assertEqual(oneRoundObject.excludeFinalWinnerAndEliminatedCandidate, False)
 
     def test_sidecar_not_allowed_on_simple_endpoint(self):
         """ Ensure you can not include candidateSidecarFile on /visualizations/"""

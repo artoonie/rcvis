@@ -191,6 +191,15 @@ class Describer:
         winners = [winner for round in summary.rounds for winner in round.winnerNames]
         numRounds = len(summary.rounds)
 
+        if self.config.excludeFinalWinnerAndEliminatedCandidate:
+            if numRounds > 1:
+                # Preliminary results + 1 round
+                return "These results are still preliminary. More votes are expected "\
+                    "to be added as results are tabulated, so there is not yet a winner."
+
+            # Preliminary results, first-round-only
+            return "This ranked-choice voting election does not have any winners, because the "\
+                "results are still preliminary. Only voters' first choices have been counted."
         if len(winners) == 0:
             return "This election does not have any winners, "\
                    "perhaps because the results are still preliminary. "
