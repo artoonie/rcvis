@@ -194,8 +194,8 @@ class Describer:
         if self.config.excludeFinalWinnerAndEliminatedCandidate:
             if numRounds > 1:
                 # Preliminary results + 1 round
-                return "These results are still preliminary. More votes are expected "\
-                    "to be added as results are tabulated, so there is not yet a winner."
+                return "This ranked-choice voting election does not have any winners "\
+                    "because the results are still incomplete. Votes are still being counted."
 
             # Preliminary results, first-round-only
             return "This ranked-choice voting election does not have any winners, because the "\
