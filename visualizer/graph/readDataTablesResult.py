@@ -1,6 +1,7 @@
 """ Converts DataTables JSON format to URCVT """
 
 import json
+import sys
 from rcvformats.conversions.ut_without_transfers import UTWithoutTransfersConverter
 
 
@@ -129,6 +130,18 @@ class ReadDataTableJSON():
         try:
             withTransfers = converter.convert_to_ut(withoutTransfers)
         except Exception as exc:
+            # Try to find a reason
+            totalVotesLastRound = sys.maxsize
+            for roundNum, result in enumerate(results):
+                totalVotesThisRound = sum(t for t in result['tally'].values())
+                if totalVotesThisRound > totalVotesLastRound:
+                    raise InvalidDataTableInput(
+                        f"Round {roundNum+1} has {totalVotesThisRound} votes, which is more " +
+                        f"than the previous round, which only has {totalVotesLastRound}. " +
+                        "This should not be possible.") from exc
+                totalVotesLastRound = totalVotesThisRound
+
+            # No reason found
             raise InvalidDataTableInput("Could not add transfers") from exc
 
         return withTransfers
