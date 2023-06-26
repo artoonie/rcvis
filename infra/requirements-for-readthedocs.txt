@@ -1,7 +1,7 @@
 -r requirements-core.txt
 
 # For docs
-sphinx==7.0.1
+sphinx<7
 sphinx-mdinclude==0.5.3
 sphinx-rtd-theme==1.2.2
-mistune==3.0.1
+mistune<3
