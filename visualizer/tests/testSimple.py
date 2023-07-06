@@ -291,12 +291,11 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4094
+        magicKnownTextLength = 4102
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r', encoding='utf-8') as f:
             self.maxDiff = None
-            # Note: add \n to end of text because the file should be saved with \n
-            self.assertEqual(text + '\n', f.read())
+            self.assertEqual(text, f.read())
 
         # Ensure at least the text closes correctly
         assert text[-2:] == "|}"

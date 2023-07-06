@@ -38,7 +38,7 @@
                         | {{won|}} 134
                         | {{won|}} 33.5%
                         | {{won|}} 134
-                        | {{won|}} 33.5%
+                        | {{won|}} 33.53%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Larry|Edwards}}
@@ -47,11 +47,11 @@
                         |  96
                         |  24.0%
                         |  104.88
-                        |  26.2%
+                        |  26.22%
                         | {{won|}} 184.88
-                        | {{won|}} 46.2%
+                        | {{won|}} 46.22%
                         | {{won|}} 134
-                        | {{won|}} 33.5%
+                        | {{won|}} 33.53%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Mary|Hall-Rayford}}
@@ -60,11 +60,11 @@
                         |  80
                         |  20.0%
                         |  81.11
-                        |  20.3%
+                        |  20.28%
                         |  81.11
-                        |  20.3%
+                        |  20.28%
                         |  131.67
-                        |  32.9%
+                        |  32.94%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Sarah|Lucido}}
@@ -93,7 +93,7 @@
                         |  0.01
                         |  0.0%
                         |  0.02
-                        |  0.0%
+                        |  0.01%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | [[Instant-runoff voting#Invalid ballots and incomplete ballots|Inactive Ballots]]

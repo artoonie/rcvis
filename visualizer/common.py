@@ -31,4 +31,4 @@ def percentify(numerator, denominator):
     if denominator == 0:
         return ""
     floatVal = numerator / denominator
-    return str(round(1000.0 * floatVal) / 10.0) + "%"
+    return str(round(10000.0 * floatVal) / 100.0) + "%"
