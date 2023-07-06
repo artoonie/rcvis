@@ -46,7 +46,7 @@ function percentToText(candidateName, numVotes, totalVotes)
   if (totalVotes == 0)
     return "";
 
-  const percentVotes = Math.round(1000.0*numVotes/totalVotes)/10.0;
+  const percentVotes = Math.round(10000.0*numVotes/totalVotes)/100.0;
   return "(" + percentVotes + "%)";
 }
 

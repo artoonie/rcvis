@@ -22,31 +22,31 @@ class TabulateByRoundInteractive:
         self.rounds = []
         lastRoundEliminated = []  # eliminated only show one round later
         alreadyWonInRound = {}  # Contains winners in previous rounds, 1-indexed
-        for i, r in enumerate(summary.rounds):
-            for winnerName in r.winnerNames:
-                alreadyWonInRound[winnerName] = (i + 1)
+        for roundNum, roundData in enumerate(summary.rounds):
+            for winnerName in roundData.winnerNames:
+                alreadyWonInRound[winnerName] = (roundNum + 1)
             rnd = []
             for item, cinfo in summary.candidates.items():
                 d = {}
-                isEliminatedThisRound = cinfo.name in r.eliminatedNames
-                isElectedThisRound = cinfo.name in r.winnerNames
+                isEliminatedThisRound = cinfo.name in roundData.eliminatedNames
+                isElectedThisRound = cinfo.name in roundData.winnerNames
                 isElectedPrevRound = cinfo.name in alreadyWonInRound
                 if isEliminatedThisRound:
                     d['change'] = "Eliminated: " + changify(-cinfo.totalVotesPerRound[-1])
                     d['primaryLabel'] = ""
                     d['secondaryLabel'] = ""
-                elif i >= len(cinfo.votesAddedPerRound):
+                elif roundNum >= len(cinfo.votesAddedPerRound):
                     continue
                 elif cinfo.name == INACTIVE_TEXT:
-                    if i == 0:
+                    if roundNum == 0:
                         d['change'] = "All ballots are active in the first round"
                     else:
-                        votesAddedThisRound = intify(cinfo.votesAddedPerRound[i])
+                        votesAddedThisRound = intify(cinfo.votesAddedPerRound[roundNum])
                         d['change'] = f"{votesAddedThisRound} ballots became inactive"
                 else:
-                    votesAddedThisRound = cinfo.votesAddedPerRound[i]
+                    votesAddedThisRound = cinfo.votesAddedPerRound[roundNum]
 
-                    if i == 0:
+                    if roundNum == 0:
                         num = intify(votesAddedThisRound)
                         d['change'] = f"{num} votes in the first round"
                     elif isElectedThisRound:
@@ -59,18 +59,18 @@ class TabulateByRoundInteractive:
                     else:
                         d['change'] = changify(votesAddedThisRound)
 
-                    myNumVotes = cinfo.totalVotesPerRound[i]
-                    allVotes = r.totalActiveVotes
+                    myNumVotes = cinfo.totalVotesPerRound[roundNum]
+                    allVotes = roundData.totalActiveVotes
                     d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(
                         myNumVotes, allVotes, item)
                 d['name'] = cinfo.name
-                d['wonThisRound'] = cinfo.name in r.winnerNames
+                d['wonThisRound'] = cinfo.name in roundData.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
                 d['isWinner'] = isElectedPrevRound
                 d['isEliminated'] = cinfo.name in lastRoundEliminated or \
                     d['eliminatedThisRound']
                 rnd.append(d)
-            lastRoundEliminated = r.eliminatedNames
+            lastRoundEliminated = roundData.eliminatedNames
             self.rounds.append(rnd)
 
 
@@ -202,9 +202,10 @@ class RoundTabulation:
     def __init__(self, config, totalActiveVotes, round_i, item, roundInfos, linksForThisNode):
         self.round_i = round_i + 1
 
+        myNumVotes = float(totalActiveVotes)
         allVotes = roundInfos[round_i].totalActiveVotes
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            allVotes, allVotes, item)
+            myNumVotes, allVotes, item)
 
         thisRoundWinners = roundInfos[round_i].winnerNames
         if round_i < len(roundInfos) - 1:
