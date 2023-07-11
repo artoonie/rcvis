@@ -161,6 +161,15 @@ class RenameCapitalizeResidualSurplus(JSONMigrateTask):
         self.rename('residual surplus', common.RESIDUAL_SURPLUS_TEXT)
 
 
+class RenameCapitalizeInactiveBallots(JSONMigrateTask):
+    """ s/[Ii]nactive [bB]allots/Inactive Ballots """
+
+    def do(self):
+        """ Run the migration """
+        self.rename('inactive ballots', common.INACTIVE_TEXT)
+        self.rename('Inactive ballots', common.INACTIVE_TEXT)
+
+
 class RenameExhaustedToInactive(JSONMigrateTask):
     """ s/exhausted/Inactive Ballots """
 
@@ -281,6 +290,7 @@ class JSONReader:
                     FixRankitCombinedTallyResults,
                     FixRankitNoElimOnLastRound,  # must come after FixRankitCombinedTallyResults
                     RenameCapitalizeResidualSurplus,
+                    RenameCapitalizeInactiveBallots,
                     RenameExhaustedToInactive,
                     MakeExhaustedAndSurplusACandidate]
 
