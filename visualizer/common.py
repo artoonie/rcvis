@@ -32,3 +32,13 @@ def percentify(numerator, denominator):
         return ""
     floatVal = numerator / denominator
     return str(round(10000.0 * floatVal) / 100.0) + "%"
+
+
+def candidate_renames():
+    """ A dictionary mapping how we should rename candidate names """
+    return {
+        'inactive ballots': INACTIVE_TEXT,
+        'Inactive ballots': INACTIVE_TEXT,
+        'exhausted': INACTIVE_TEXT,
+        'residual surplus': RESIDUAL_SURPLUS_TEXT,
+    }

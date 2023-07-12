@@ -5,6 +5,7 @@ and is used by Ballotpedia to generate Ballotpedia-style visualizations.
 """
 
 import json
+from visualizer import common
 
 
 class BadSidecarError(Exception):
@@ -21,6 +22,13 @@ class SidecarReader:
 
     def __init__(self, fileObject):
         self.data = json.load(fileObject)
+        for supportedName, normalizedName in common.candidate_renames().items():
+            if supportedName in self.data['info']:
+                self.data['info'][normalizedName] = self.data['info'][supportedName]
+                del self.data['info'][supportedName]
+            for index, name in enumerate(self.data['order']):
+                if name == supportedName:
+                    self.data['order'][index] = normalizedName
 
     def assert_valid(self, graph):
         """

@@ -38,10 +38,12 @@ class SimpleTests(TestCase):
         TestHelpers.logout(self.client)
 
     @classmethod
-    def _get_data_for_view(cls, fn):
+    def _get_data_for_view(cls, fn, sidecar=None):
         """ Opens the given file and creates a graph with it """
         with open(fn, 'rb+') as f:
             config = JsonConfig(jsonFile=File(f))
+            if sidecar:
+                config.candidateSidecarFile = File(sidecar)
             return get_data_for_view(config)
 
     def test_inactive_ballots_appears_later(self):
@@ -97,6 +99,13 @@ class SimpleTests(TestCase):
 
         # And that it loads fine
         self._get_data_for_view(filenames.SOME_MISSING_TRANSFERS)
+
+    def test_inactive_ballot_regression(self):
+        """ Inactive ballots without capital B doesn't fail """
+        # Ensure it loads fine
+        self._get_data_for_view(
+            filenames.INACTIVE_BALLOT_RENAME_DATA,
+            filenames.INACTIVE_BALLOT_RENAME_SIDECAR)
 
     def test_bad_json_fails(self):
         """ Opens the invalid file and asserts that it fails """

@@ -85,6 +85,8 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         # Then, try to load
         try:
             jsonReader = rcvrcJson.JSONReader(jsonData)
+        except rcvrcJson.MigrationError as exc:
+            raise BadJSONError("Invalid file: " + str(exc)) from exc
         except Exception as exc:  # pylint: disable=broad-except
             raise BadJSONError("File schema was valid, but we could not interpret it") from exc
 

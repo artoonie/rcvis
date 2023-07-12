@@ -17,6 +17,8 @@ NO_THRESHOLD = 'testData/no-threshold.json'
 SOME_MISSING_TRANSFERS = 'testData/some-xfers.json'
 DOMINION = 'testData/dominion-input.xlsx'
 INACTIVE_BALLOT_APPEARS_LATER = 'testData/inactive-ballots-appears-later.json'
+INACTIVE_BALLOT_RENAME_DATA = 'testData/inactive-ballot-rename.json'
+INACTIVE_BALLOT_RENAME_SIDECAR = 'testData/inactive-ballot-rename-sidecar.json'
 
 # Regression tests for commit c28d6a7 (fix-inactive-after-double-elim)
 RESIDUAL_SURPLUS_MAIN = 'testData/with-residual-surplus.json'
