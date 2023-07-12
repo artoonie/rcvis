@@ -9,6 +9,7 @@ from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.models import TextForWinner
 from visualizer.sankey.graphToD3 import D3Sankey
+from visualizer.sidecar.reader import SidecarReader
 from visualizer.tabular.tabular import TabulateByRoundInteractive,\
     TabulateByRound,\
     TabulateByCandidate,\
@@ -90,15 +91,16 @@ def get_data_for_view(config):
     graph = make_graph_with_file(config.jsonFile,
                                  config.excludeFinalWinnerAndEliminatedCandidate)
     if config.candidateSidecarFile:
-        candidateSidecarDataPyObj = json.load(config.candidateSidecarFile)
+        candidateSidecarDataPyObj = SidecarReader(config.candidateSidecarFile)
 
         # TODO this doesn't feel good - the graph should load this natively,
         # not have it snuck here.
-        orderedItems = graph.get_items_for_names(candidateSidecarDataPyObj['order'])
+        orderedItems = graph.get_items_for_names(candidateSidecarDataPyObj.data['order'])
         graph.set_elimination_order(orderedItems)
+        candidateSidecarData = json.dumps(candidateSidecarDataPyObj.data)
     else:
         candidateSidecarDataPyObj = None
-    candidateSidecarData = json.dumps(candidateSidecarDataPyObj)
+        candidateSidecarData = json.dumps(None)
 
     offlineMode = settings.OFFLINE_MODE
 
@@ -106,7 +108,6 @@ def get_data_for_view(config):
     additionalData = {
         'config': config,
         'offlineMode': offlineMode,
-        'candidateSidecarDataPyObj': candidateSidecarDataPyObj,
         'candidateSidecarData': candidateSidecarData
     }
     graphData.update(additionalData)

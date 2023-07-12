@@ -7,6 +7,10 @@ from . import rcvResult
 from .graph import Graph
 
 
+class MigrationError(Exception):
+    """ An error triggered during migration, with a message to be passed on to the user """
+
+
 class JSONMigrateTask():
     """ An abstract base class to "fix" JSONs. Each migration "task" should override this."""
 
@@ -26,17 +30,25 @@ class JSONMigrateTask():
         return self.data['config']['jurisdiction'] == 'RankIt Export'
 
     def rename(self, fromStr, toStr):
-        """ A helper function to rename a candidate s/fromStr/toStr throughout the JSON """
+        """
+        A helper function to rename a candidate s/fromStr/toStr throughout the JSON
+        Returns false if toStr already existed in the results -- will refuse to overwrite
+        """
         results = self.data['results']
         for result in results:
             if fromStr in result['tally']:
+                if toStr in result['tally']:
+                    return False
                 result['tally'][toStr] = result['tally'][fromStr]
                 del result['tally'][fromStr]
 
             for tallyResult in result['tallyResults']:
                 if fromStr in tallyResult['transfers']:
+                    if toStr in tallyResult['transfers']:
+                        return False
                     tallyResult['transfers'][toStr] = tallyResult['transfers'][fromStr]
                     del tallyResult['transfers'][fromStr]
+        return True
 
     @abc.abstractmethod
     def do(self):
@@ -153,29 +165,15 @@ class MakeExhaustedAndSurplusACandidate(JSONMigrateTask):
             self._make_it_a_candidate_if_in_transfers(common.RESIDUAL_SURPLUS_TEXT)
 
 
-class RenameCapitalizeResidualSurplus(JSONMigrateTask):
-    """ s/residual surplus/Residual Surplus """
+class NormalizeSpecialNames(JSONMigrateTask):
+    """ normalize names to their canonical, indexable names """
 
     def do(self):
         """ Run the migration """
-        self.rename('residual surplus', common.RESIDUAL_SURPLUS_TEXT)
-
-
-class RenameCapitalizeInactiveBallots(JSONMigrateTask):
-    """ s/[Ii]nactive [bB]allots/Inactive Ballots """
-
-    def do(self):
-        """ Run the migration """
-        self.rename('inactive ballots', common.INACTIVE_TEXT)
-        self.rename('Inactive ballots', common.INACTIVE_TEXT)
-
-
-class RenameExhaustedToInactive(JSONMigrateTask):
-    """ s/exhausted/Inactive Ballots """
-
-    def do(self):
-        """ Run the migration """
-        self.rename('exhausted', common.INACTIVE_TEXT)
+        for name, normalizedName in common.candidate_renames().items():
+            success = self.rename(name, normalizedName)
+            if not success:
+                raise MigrationError(f"JSON cannot have both \"{name}\" and \"{normalizedName}\"")
 
 
 class FixRankitMissingTransfers(JSONMigrateTask):
@@ -289,9 +287,7 @@ class JSONReader:
                     FixRankitMissingTransfers,  # must come after MakeTalliesANumber
                     FixRankitCombinedTallyResults,
                     FixRankitNoElimOnLastRound,  # must come after FixRankitCombinedTallyResults
-                    RenameCapitalizeResidualSurplus,
-                    RenameCapitalizeInactiveBallots,
-                    RenameExhaustedToInactive,
+                    NormalizeSpecialNames,
                     MakeExhaustedAndSurplusACandidate]
 
         def parse_date(date):

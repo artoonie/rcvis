@@ -1,0 +1,96 @@
+{
+  "config": {
+    "contest": "Municipal General Election",
+    "date": "2021-11-02",
+    "jurisdiction": "City of Minnetonka",
+    "office": "At-Large Councilmember, Seat B",
+    "threshold": "5096"
+  },
+  "results": [
+    {
+      "round": 1,
+      "tally": {
+        "Ash Patel": "1330",
+        "Daniel Kral": "1137",
+        "Jim Hadley": "1334",
+        "Kimberly Wilburn": "4139",
+        "Stacy Cranbrook": "2222",
+        "Undeclared Write-ins": "28",
+        "Inactive ballots": "0"
+      },
+      "tallyResults": [
+        {
+          "eliminated": "Undeclared Write-ins",
+          "transfers": {
+            "Jim Hadley": "1",
+            "Kimberly Wilburn": "1",
+            "Inactive ballots": "26"
+          }
+        },
+        {
+          "eliminated": "Daniel Kral",
+          "transfers": {
+            "Ash Patel": "83",
+            "Jim Hadley": "326",
+            "Kimberly Wilburn": "118",
+            "Stacy Cranbrook": "232",
+            "Inactive ballots": "378"
+          }
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "tally": {
+        "Ash Patel": "1413",
+        "Jim Hadley": "1661",
+        "Kimberly Wilburn": "4258",
+        "Stacy Cranbrook": "2454",
+        "Inactive ballots": "404"
+      },
+      "tallyResults": [
+        {
+          "eliminated": "Ash Patel",
+          "transfers": {
+            "Jim Hadley": "137",
+            "Kimberly Wilburn": "658",
+            "Stacy Cranbrook": "147",
+            "Inactive ballots": "471"
+          }
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "tally": {
+        "Jim Hadley": "1798",
+        "Kimberly Wilburn": "4916",
+        "Stacy Cranbrook": "2601",
+        "Inactive ballots": "875"
+      },
+      "tallyResults": [
+        {
+          "eliminated": "Jim Hadley",
+          "transfers": {
+            "Kimberly Wilburn": 289,
+            "Stacy Cranbrook": 690,
+            "Inactive ballots": 819
+          }
+        }
+      ]
+    },
+    {
+      "round": 4,
+      "tally": {
+        "Kimberly Wilburn": "5205",
+        "Stacy Cranbrook": "3291",
+        "Inactive ballots": "1694"
+      },
+      "tallyResults": [
+        {
+          "elected": "Kimberly Wilburn"
+        }
+      ]
+    }
+  ]
+}

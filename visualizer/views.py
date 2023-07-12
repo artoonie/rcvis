@@ -255,7 +255,7 @@ class VisualizeBallotpedia(DetailView):
         data = viewUtils.get_data_for_view(config['jsonconfig'])
         data['numVotesFirstRound'] = intify(data['graph'].summarize().rounds[0].totalActiveVotes)
 
-        sidecarData = data['candidateSidecarDataPyObj']
+        sidecarData = json.loads(data['candidateSidecarData'])
         if sidecarData is None:
             data['hasIncumbents'] = False
         else:
