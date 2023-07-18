@@ -147,7 +147,7 @@ class SimpleTests(TestCase):
 
     def test_various_configs(self):
         """ Tests toggling on/off each config option """
-        fieldsToIgnore = ('jsonFile', 'candidateSidecarFile')
+        fieldsToIgnore = ('jsonFile', 'candidateSidecarFile', 'dataSourceURL')
         configBoolsToToggle = [t for t in UploadForm.Meta.fields if t not in fieldsToIgnore]
         fn = filenames.MULTIWINNER
         for configBoolToToggle in configBoolsToToggle:
@@ -426,6 +426,25 @@ class SimpleTests(TestCase):
         indexResponse = self.client.get(reverse('index'))
         self.assertIn(columnTitle, indexResponse.content)
         self.assertIn(linkTitle, indexResponse.content)
+
+    def test_source_domain_listed(self):
+        """
+        Ensure that the data source URL shows the domain name in the Source link
+        """
+        def response_with_data_source(url):
+            with open(filenames.MULTIWINNER, 'rb+') as f:
+                response = self.client.post('/upload.html', {
+                    'jsonFile': f,
+                    'dataSourceURL': url
+                })
+                response = self.client.get('/' + response['location'])
+            return response
+
+        response = response_with_data_source('https://www.hello.com')
+        self.assertIn('Source [hello.com]', str(response.content))
+
+        response = response_with_data_source('https://base.hello.com/onetwo/3.html')
+        self.assertIn('Source [base.hello.com]', str(response.content))
 
     def test_slug_generation(self):
         """
