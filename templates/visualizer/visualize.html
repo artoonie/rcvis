@@ -97,7 +97,7 @@
 
         | <a href="{% url 'downloadRawData' config.slug %}">Download Raw Summary Data</a>
         {% if config.dataSourceURL %}
-        | <a href="{{ config.dataSourceURL }}">Source</a>
+        | <a href="{{ config.dataSourceURL }}">Source [{{ sourceDomain }}]</a>
         {% endif %}
       </h6>
   </div>

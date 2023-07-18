@@ -1,6 +1,7 @@
 """ Utility functions shared across views, in either movie or visualizer apps """
 
 import json
+from urllib.parse import urlparse
 
 from django.conf import settings
 from visualizer.bargraph.graphToD3 import D3Bargraph
@@ -105,8 +106,14 @@ def get_data_for_view(config):
     offlineMode = settings.OFFLINE_MODE
 
     graphData = get_data_for_graph(graph, config)
+    sourceDomain = None
+    if config.dataSourceURL:
+        sourceDomain = urlparse(config.dataSourceURL).netloc
+        if sourceDomain.startswith('www.'):
+            sourceDomain = sourceDomain[4:]
     additionalData = {
         'config': config,
+        'sourceDomain': sourceDomain,
         'offlineMode': offlineMode,
         'candidateSidecarData': candidateSidecarData
     }
