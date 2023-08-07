@@ -21,6 +21,7 @@ from django.urls import Resolver404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -147,6 +148,7 @@ class UploadByDataTable(Upload):
         self.model.jsonFile.save('datatablesfile.json', form.cleaned_data['jsonFile'])
 
 
+@method_decorator(vary_on_headers('increment',), name='get')
 class Visualize(DetailView):
     """ Visualizing a single JsonConfig """
     model = JsonConfig
@@ -185,6 +187,7 @@ class Visualize(DetailView):
         return data
 
 
+@method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeEmbedded(DetailView):
     """
@@ -244,6 +247,7 @@ class VisualizeEmbedly(RedirectView):
         return super().get_redirect_url(slug) + "?vistype=" + vistype
 
 
+@method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeBallotpedia(DetailView):
     """ The embedded ballotpedia visualization """
