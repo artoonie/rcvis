@@ -36,13 +36,13 @@ class GraphSummary:
             if node.isWinner:
                 # Only count winner the first time they win
                 if item not in alreadyWonInPreviousRound:
-                    rounds[currRound].add_winner(item.name)
+                    rounds[currRound].add_winner(item)
                     alreadyWonInPreviousRound.append(item)
             if node.isEliminated:
                 # Eliminate the next round: in the sankey representation,
                 # eliminated candidates are shown on the previous round
                 # so they don't ever show zero-vote bars. Account for that.
-                rounds[currRound + 1].add_eliminated(item.name)
+                rounds[currRound + 1].add_eliminated(item)
 
         # Create linksByNode
         linksByTargetNode = {}
@@ -64,6 +64,8 @@ class RoundInfo:
 
     def __init__(self, round_i):
         self.round_i = round_i
+        self.eliminatedItems = []
+        self.winnerItems = []
         self.eliminatedNames = []
         self.winnerNames = []
         self.totalActiveVotes = 0  # The total number of active ballots this round
@@ -72,13 +74,15 @@ class RoundInfo:
         """ Returns the "key" for this round (just the round number) """
         return self.round_i
 
-    def add_eliminated(self, name):
+    def add_eliminated(self, item):
         """ Adds the name to the list of names eliminated this round """
-        self.eliminatedNames.append(name)
+        self.eliminatedItems.append(item)
+        self.eliminatedNames.append(item.name)
 
-    def add_winner(self, name):
+    def add_winner(self, item):
         """ Adds the name to the list of names elected this round """
-        self.winnerNames.append(name)
+        self.winnerItems.append(item)
+        self.winnerNames.append(item.name)
 
     def add_votes(self, candidateItem, numVotes):
         """ Notes that the given Candidate received numVotes votes - unless they're

@@ -252,3 +252,25 @@ class FAQTests(TestCase):
             for desc in descList:
                 assert isinstance(desc['description'], str)
                 self.assertNotIn(searchFor, desc['description'])
+
+        # final round shouldn't have any threshold logic
+        desc = allRoundsDesc[-1][-1]
+        self.assertNotIn("is among the top vote-getters", desc['description'])
+        self.assertNotIn("reached the threshold", desc['description'])
+
+    def test_winner_didnt_meet_threshold(self):
+        """
+        If a winner doesn't meet the threshold, don't claim they did
+        """
+        tf = TestHelpers.modify_json_with(filenames.THREE_ROUND,
+                                          lambda d: d['config'].update({'threshold': 9999}))
+        with open(tf.name, 'r', encoding='utf-8') as f:
+            graph = make_graph_with_file(f, False)
+
+        describer = Describer(graph, self.config, False)
+        allRoundsDesc = describer.describe_all_rounds()
+
+        # final round shouldn't just say they were elected, not that they reached the threshold
+        desc = allRoundsDesc[-1][-1]
+        self.assertIn("is among the top vote-getters", desc['description'])
+        self.assertNotIn("reached the threshold", desc['description'])
