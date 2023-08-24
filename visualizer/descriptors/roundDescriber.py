@@ -147,7 +147,8 @@ class Describer:
         """ e.g. "Foo reached the threshold of X and was elected. "
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
-        winners = rounds[roundNum].winnerNames
+        winnerNames = rounds[roundNum].winnerNames
+        winnerItems = rounds[roundNum].winnerItems
 
         # Note: each event shows just one winner. If there are multiple winners,
         # there will be multiple sentences in the main vis. (Not true in the video...)
@@ -155,12 +156,22 @@ class Describer:
         event = textForWinnerUtils.as_event(self.config, 1)
 
         if self.graph.threshold is not None:
-            thresholdString = intify(self.graph.threshold)
-            whatHappened = "{name} reached the threshold of "\
-                f"{thresholdString} votes and {event}. "
+            # Did all candidates pass the threshold?
+            candidates = self.graph.summarize().candidates
+            thresh = self.graph.threshold
+            allOverThreshold = all(candidates[item].totalVotesPerRound[roundNum] > thresh
+                                   for item in winnerItems)
+
+            if allOverThreshold:
+                thresholdString = intify(self.graph.threshold)
+                whatHappened = "{name} reached the threshold of "\
+                    f"{thresholdString} votes and {event}. "
+            else:
+                whatHappened = "{name} is among the top vote-getters " \
+                    f" and {event}. "
         else:
             whatHappened = "{name} " + event + ". "
-        return self._describe_list_of_names(winners, " won", whatHappened)
+        return self._describe_list_of_names(winnerNames, " won", whatHappened)
 
     @classmethod
     def _describe_first_round(cls, roundNum):
@@ -215,7 +226,7 @@ class Describer:
             self.summarizeAsParagraph = originalSummarizeAsParagraph
 
         if len(winners) > 1:
-            electionType = "Proportional, Multi-Winner Ranked Choice Voting election"
+            electionType = "Multi-Winner Ranked Choice Voting election"
         else:
             electionType = "Ranked Choice Voting election"
 
