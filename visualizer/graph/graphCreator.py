@@ -7,6 +7,7 @@ from rcvformats.schemas.universaltabulator import SchemaV0
 from rcvformats.conversions.automatic import AutomaticConverter
 from rcvformats.conversions.base import CouldNotConvertException
 
+from visualizer.graph.rcvResult import Elimination
 import visualizer.graph.readRCVRCJSON as rcvrcJson
 
 logger = logging.getLogger(__name__)
@@ -33,20 +34,19 @@ def remove_last_winner_and_eliminated(graph, rounds):
         they just mark a winner. Figure out if that's happening, and don't
         remove an extra candidate. """
 
-    haveRemovedWinner = False
-    haveRemovedEliminated = False
-
-    if len(rounds[-1].transfers) == 0:
-        haveRemovedEliminated = True
+    numWinnersToRemove = len(rounds[-1].winners)
+    numWinners = 0
+    numEliminatedToRemove = len([t for t in rounds[-1].transfers if isinstance(t, Elimination)])
+    numEliminated = 0
 
     for node in graph.nodes:
-        if not haveRemovedWinner and node.isWinner:
+        if numWinners != numWinnersToRemove and node.isWinner:
             node.isWinner = False
-            haveRemovedWinner = True
-        if not haveRemovedEliminated and node.isEliminated:
+            numWinners += 1
+        if numEliminated != numEliminatedToRemove and node.isEliminated:
             node.isEliminated = False
-            haveRemovedEliminated = True
-        if haveRemovedEliminated and haveRemovedWinner:
+            numEliminated += 1
+        if numWinners == numWinnersToRemove and numEliminated == numEliminatedToRemove:
             break
 
 
