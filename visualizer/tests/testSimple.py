@@ -543,3 +543,18 @@ class SimpleTests(TestCase):
         # so it's smaller
         JSONReader(data)  # note: this happens to modify data in-place, but it may not always do so
         self.assertEqual(data['results'][-1]['tally']['Inactive Ballots'], 99186.0)
+
+    def test_batch_elimination_with_hide_winner(self):
+        """
+        Regression test: if "hide eliminated candidate on last round" is shown,
+        make sure it only hides the eliminated candidate if it's truly on the LAST round.
+        Previously, it would hide the most recently eliminated candidate, which we
+        do not want.
+        """
+        for isOn in (True, False):
+            with open(filenames.BATCH_ELIMINATION_TWO_FINAL, 'r', encoding='utf-8') as f:
+                graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=isOn)
+            summary = graph.summarize()
+            self.assertEqual(2, len(summary.rounds[-1].eliminatedNames))
+            self.assertEqual('Nicole Speer', summary.rounds[-1].eliminatedNames[0])
+            self.assertEqual('Paul Tweedlie', summary.rounds[-1].eliminatedNames[1])
