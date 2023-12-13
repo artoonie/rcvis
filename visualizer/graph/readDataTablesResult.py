@@ -126,7 +126,7 @@ class ReadDataTableJSON():
         results = self._parse_results()
         withoutTransfers = {'config': config, 'results': results}
 
-        converter = UTWithoutTransfersConverter()
+        converter = UTWithoutTransfersConverter(allow_guessing=False)
         try:
             withTransfers = converter.convert_to_ut(withoutTransfers)
         except Exception as exc:
