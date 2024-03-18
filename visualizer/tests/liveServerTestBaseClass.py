@@ -141,6 +141,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on the chromedriver used on 2023-05-18
         log = [l for l in log if 'ch-ua-form-factor' not in l['message']]
 
+        # This happens on the chromedriver used on 2024-03-18
+        log = [l for l in log if 'Third-party cookie will be blocked' not in l['message']]
+
         # This happens on saucelabs
         log = [l for l in log if 'favicon.ico - Failed to load resource' not in l['message']]
 
