@@ -136,7 +136,7 @@ class SingleMovieCreator():
             raise ProbablyFailedToLaunchBrowser(errorText) from exception
 
         self.browser.execute_script("flushAllD3Transitions();")
-        time.sleep(0.6)  # flushAllD3Transitions doesn't seem to work, so just sleep
+        time.sleep(1.5)  # flushAllD3Transitions doesn't seem to work, so just sleep
 
         with tempfile.NamedTemporaryFile(suffix=".png") as tf:
             self.browser.save_screenshot(tf.name)
