@@ -4,8 +4,8 @@
 This is the code repository for [rcvis.com](https://www.rcvis.com). Unless you're a programmer, you probably want to be there instead of here!
 
 RCVis has been used to visualize hundreds of polls and dozens of elections.
-It has been used as part of the official reporting of tabulation data in cities across Utah, as well as unofficially in New York City, Minnesota, Maine, California, and more.
-It is connected to both [Rankit.Vote](https://rankit.vote) and [RankedVote.co](https://rankedvote.co), the premier online-RCV websites.
+It has been used as part of the official reporting of tabulation data in Colorado and Utah, as well as unofficially in New York City, Minnesota, Maine, California, and more.
+It is connected to both [RankedChoices.com](https://RankedChoices.com) and [RankedVote.co](https://rankedvote.co).
 It can import data from Opavote, ElectionBuddy, Dominion software, RCTab, and more.
 It was featured on a [Ballotpedia page](https://ballotpedia.org/June_22,_2021,_election_results) during the 2020 NYC election cycle, as well as in the [Gothamist](https://gothamist.com/arts-entertainment/big-apple-book-ballot-results-best-nyc-book), [NBC New York](https://www.nbcnewyork.com/news/politics/adams-garcia-wnbc-poll-nyc-mayor/3104963/), [Fox 5 NY](https://www.fox5ny.com/video/940333), [JD Forward](https://www.google.com/url?q=https://forward.com/culture/471811/ranked-choice-jewish-bagels-new-york-mayoral-race-seinfeld-polls/&sa=D&source=editors&ust=1636685968994000&usg=AOvVaw0CQ7-NuULv3TeJCbp8wEv8), among others.
 
@@ -122,7 +122,7 @@ To get started with programmatic access to rcvis:
 
 1. Create an account on RCVis
 2. Email team@rcvis.com to enable API access
-3. Submit a GET request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `http GET https://www.rcvis.com/api/auth/get-token username='username' password="password"`.
+3. Submit a POST request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `POST https://www.rcvis.com/api/auth/get-token {"username": "username", "password": "password"}`.
 
 With your API key, you may access two endpoints:
 1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
