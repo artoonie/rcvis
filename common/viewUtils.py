@@ -137,16 +137,3 @@ def request_to_domain(request):
     relativeUrl = request.get_full_path()
     absoluteUrl = request.build_absolute_uri(relativeUrl)
     return absoluteUrl[:absoluteUrl.find(relativeUrl)]
-
-
-def default_iframe_height(numCandidates):
-    """ How tall should the iframe be for a vis with this # of candidates? """
-    # All iframes should be the same height, so go based off what
-    # we expect to see in the bargraph. This is pretty hacky,
-    # we should probably test that this doesn't create a scroll
-    # on several sizes of frames.
-    otherStuff = 230
-    maxBarSize = 100
-    height = maxBarSize * numCandidates
-    height = min(height, 800)
-    return height + otherStuff

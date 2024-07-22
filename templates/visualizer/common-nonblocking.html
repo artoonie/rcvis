@@ -5,6 +5,9 @@
 <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css">
 <link href="https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic" rel="stylesheet" type="text/css">
 
+{% compress js file %}
+    <script src="{% static "visualizer/common.js" %}" type="script/javascript">
+{% endcompress %}
 {% compress css file %}
     <link rel="stylesheet" href="{% static "visualizer/common.css" %}">
 {% endcompress %}

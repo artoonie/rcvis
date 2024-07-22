@@ -63,13 +63,11 @@
         </div>
 
         <div id="bargraph-{{ forloop.counter0 }}" class="collapse" aria-labelledby="contentheading-{{ forloop.counter0 }}" data-parent="#contest-{{ forloop.counter0 }}">
-          <div class="card-body">
-            <iframe id="bargraph-iframe-{{ forloop.counter0 }}" src="about:blank" data-src="{% url 'visualizeEmbedded' election.jsonConfig.slug %}?vistype=barchart-interactive" width="100%" height="{{ election.iframeHeight }}px"></iframe>
+          <div class="card-body" id="bargraph-iframe-{{ forloop.counter0 }}" data-src="{% get_reverse_as_complete_url 'visualizeEmbedded' election.jsonConfig.slug %}">
           </div>
         </div>
         <div id="tabular-{{ forloop.counter0 }}" class="collapse" aria-labelledby="contentheading-{{ forloop.counter0 }}" data-parent="#contest-{{ forloop.counter0 }}">
-          <div class="card-body">
-            <iframe id="tabular-iframe-{{ forloop.counter0 }}" src="about:blank" data-src="{% url 'visualizeEmbedded' election.jsonConfig.slug %}?vistype=tabular-candidate-by-round" width="100%" height="{{ election.iframeHeight }}px"></iframe>
+          <div class="card-body" id="tabular-iframe-{{ forloop.counter0 }}" data-src="{% get_reverse_as_complete_url 'visualizeEmbedded' election.jsonConfig.slug %}">
           </div>
         </div>
       </div>
@@ -121,23 +119,26 @@
             updateVisibility('{{ forloop.counter0 }}');
             isTabularVisible=$('#tabular-{{ forloop.counter0 }}').hasClass('show')
             isBargraphVisible=$('#bargraph-{{ forloop.counter0 }}').hasClass('show')
+            let wrapper, visType;
             if (isTabularVisible)
             {
-              iframe=$('#tabular-iframe-{{forloop.counter0}}');
+              wrapper=$('#tabular-iframe-{{forloop.counter0}}');
+              visType = "tabular-candidate-by-round";
             }
             else if (isBargraphVisible)
             {
-              iframe=$('#bargraph-iframe-{{forloop.counter0}}');
+              wrapper=$('#bargraph-iframe-{{forloop.counter0}}');
+              visType = "barchart-interactive";
             }
             else
             {
               console.log("Erorr - what's visible then?")
             }
 
-            if (iframe.attr('data-src') != iframe.attr('src'))
+            if (wrapper.attr('data-src') != null)
             {
-                // Set the src to the data-src
-                iframe.attr('src', iframe.attr('data-src'));
+                wrapper.html(makeEmbeddedIframeTag(wrapper.attr('data-src') + "?vistype=" + visType));
+                wrapper.attr('data-src', null);
             }
         })
     {% endfor %}

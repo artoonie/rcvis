@@ -59,7 +59,16 @@ path.domain {
 }
 
 #bargraph-interactive-body {
+  background-color: white;
   padding-top: 10px;
+}
+
+#bargraph-fixed-container {
+  background-color: white;
+}
+
+#bargraph-fixed-legend {
+  background-color: white;
 }
 
 #bargraph-interactive-why-button {
