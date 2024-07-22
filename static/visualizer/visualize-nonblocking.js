@@ -58,7 +58,6 @@ function setUpIframeMessageListener() {
         var height = document.getElementById("embedded-content").scrollHeight
                    + document.getElementById("embedded-footer").scrollHeight
                    + 10;
-        console.log("sending message" + height);
         parent.postMessage({rcvisHeight: height}, "*");
     }
   });
