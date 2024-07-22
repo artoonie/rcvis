@@ -38,10 +38,9 @@ function initializeOptions()
     }
 }
 
-function switchVisTypeHTML(iframeUrl, value, height)
+function switchVisTypeHTML(iframeUrl, value)
 {
-    const text = `<iframe width="100%" height="${height}px" src="${iframeUrl}/${value}" frameborder="0" allowfullscreen="allowfullscreen"></iframe>`
-    document.getElementById("htmlembedexport").value = text;
+    document.getElementById("htmlembedexport").value = makeEmbeddedIframeTag(iframeUrl + "/" + value);
 }
 
 function switchVisTypeEmbedly(iframeUrl, value)

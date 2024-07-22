@@ -79,6 +79,7 @@ svg {
 }
 
 #embedded-body {
+  background-color: transparent;
   height: 100vh;
   margin: 0;
 }

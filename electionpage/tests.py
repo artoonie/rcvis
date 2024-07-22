@@ -107,15 +107,19 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(h1s[0].text, "Test Election")
 
         # Bargraph button is grayed out and the iframe is not loaded
-        bargraphIframe = self.browser.find_element(By.ID, 'bargraph-iframe-1')
+        bargraphIframeWrapper = self.browser.find_element(By.ID, 'bargraph-iframe-1')
         bargraphButton = self.browser.find_element(By.ID, 'bargraph-button-1')
-        self.assertEqual(bargraphIframe.get_attribute('src'), 'about:blank')
+        self.assertIsNotNone(bargraphIframeWrapper.get_attribute('data-src'))
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-secondary')
 
         # Click on bargraph button, and the opposite is true
         bargraphButton.click()
-        self.assertIn('?vistype=barchart-inte', bargraphIframe.get_attribute('src'))
+        self.assertIsNone(bargraphIframeWrapper.get_attribute('data-src'))
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-primary')
+
+        # And the height was correctly set via PostMessages
+        self.assertEqual(bargraphIframeWrapper.find_element(
+            By.TAG_NAME, 'iframe').get_attribute('height'), '328px')
 
     @Mocker()
     def test_scrape_all(self, requestMock):

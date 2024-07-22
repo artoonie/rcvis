@@ -14,7 +14,6 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
 from extra_views import ModelFormSetView
 
-from common import viewUtils
 from common.cloudflare import CloudflareAPI
 from electionpage.forms import ScrapableElectionPageForm
 from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
@@ -28,8 +27,7 @@ def populate_election_context_data(context, jsonConfigs):
     context['elections'] = []
     for jsonConfig in jsonConfigs:
         context['elections'].append({
-            'jsonConfig': jsonConfig,
-            'iframeHeight': viewUtils.default_iframe_height(jsonConfig.numCandidates)
+            'jsonConfig': jsonConfig
         })
 
 

@@ -45,4 +45,5 @@
 #sankey-body {
   min-width: 300px;
   max-width: 95%;
+  background-color: white;
 }
