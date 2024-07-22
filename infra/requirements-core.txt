@@ -37,7 +37,7 @@ django-cleanup==7.0.0
 moviepy==1.0.3
 
 # For Heroku
-gunicorn==20.1.0
+gunicorn==22.0.0
 django-on-heroku==1.1.2
 
 # Workaround for https://stackoverflow.com/a/73934771/1057105
