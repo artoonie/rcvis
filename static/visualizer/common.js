@@ -10,7 +10,7 @@ function makeEmbeddedIframeTag(iframeUrl) {
          var height = parseInt(event.data.rcvisHeight);
          iframe.height = height + 'px';
        }, false);
-       contentWindow.postMessage({getSize: true}, '${iframeUrl}');
+       contentWindow.postMessage({getSize: true}, '*');
      ">
   `;
   return text;
