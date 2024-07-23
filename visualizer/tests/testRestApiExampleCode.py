@@ -178,7 +178,8 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
 
         # Modify the data with a PATCH.
         # PUT is also supported, but not shown here.
-        data = {'dataSourceURL': 'https://www.example.com/a/different/url'}
+        differentUrl = 'https://www.example.com/a/different/url'
+        data = {'dataSourceURL': differentUrl}
 
         # PATCH to update
         response = requests.patch(url, data=data, headers=headers, timeout=3)
@@ -186,4 +187,4 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         # Verify the change succeeded
         self.assertEqual(response.json()['slug'], 'favorite-ice-cream-flavors')
         self.assertEqual(response.json()['id'], visId)
-        self.assertEqual(response.json()['dataSourceURL'], 'https://www.example.com/a/different/url')
+        self.assertEqual(response.json()['dataSourceURL'], differentUrl)
