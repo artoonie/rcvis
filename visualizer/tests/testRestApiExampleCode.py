@@ -165,7 +165,8 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         # In our tests, we are not hitting the real server.
         # Your code will use https://www.rcvis.com as the live_server_url.
         # To modify existing data, supply the visId
-        url = self.live_server_url + "/api/bp/" + str(visId)
+        # Note: the trailing slash is mandatory. Without it, it will fail silently.
+        url = self.live_server_url + "/api/bp/" + str(visId) + "/"
 
         # API key should only be created as needed, and reused and kept secure
         apiKey = self.get_api_key()
@@ -179,9 +180,10 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         # PUT is also supported, but not shown here.
         data = {'dataSourceURL': 'https://www.example.com/a/different/url'}
 
-        # POST the data to create a visualization
-        response = requests.post(url, data=data, headers=headers, timeout=3)
+        # PATCH to update
+        response = requests.patch(url, data=data, headers=headers, timeout=3)
 
-        # The response is the same as when you created the data, sans any changes you just made
+        # Verify the change succeeded
         self.assertEqual(response.json()['slug'], 'favorite-ice-cream-flavors')
         self.assertEqual(response.json()['id'], visId)
+        self.assertEqual(response.json()['dataSourceURL'], 'https://www.example.com/a/different/url')
