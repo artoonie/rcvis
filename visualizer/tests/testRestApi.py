@@ -8,12 +8,14 @@ import re
 from mock import patch
 
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from django.core.cache import cache
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework_tracking.models import APIRequestLog
 
+from common.cloudflare import CloudflareAPI
 from common.testUtils import TestHelpers
 from visualizer.tests import filenames
 
@@ -424,3 +426,12 @@ class RestAPITests(APITestCase):
 
         # Ensure purge is called once edited
         purgeMock.assert_called_once()
+        purgeMock.assert_called_with('one-round')
+
+    def test_purge_paths(self):
+        """ Test that cloudflare cache clears both www and non-www addresses """
+        paths = CloudflareAPI.get_absolute_paths_for('/v/one-round')
+        firstPath = paths[0]
+        firstPathWithWWW = firstPath.replace("://", "://www.")
+        self.assertNotIn('www', Site.objects.get_current().domain)
+        self.assertIn(firstPathWithWWW, paths)
