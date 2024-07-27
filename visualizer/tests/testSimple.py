@@ -388,16 +388,23 @@ class SimpleTests(TestCase):
             "Authorization": "Bearer mytoken"
         }
 
-        expectedData = {
-            'files': [
-                "https://example.com/v/city-of-eastpointe-macomb-county-mi",
-                "https://example.com/ve/city-of-eastpointe-macomb-county-mi",
-                "https://example.com/vo/city-of-eastpointe-macomb-county-mi",
-                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
-                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
-                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
-                "https://example.com/vo/city-of-eastpointe-macomb-county-mi/table",
-                "https://example.com/vb/city-of-eastpointe-macomb-county-mi"]}
+        expectedData = {'files': [
+            "https://example.com/v/city-of-eastpointe-macomb-county-mi",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi",
+            "https://example.com/vo/city-of-eastpointe-macomb-county-mi",
+            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
+            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
+            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
+            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/table",
+            "https://example.com/vb/city-of-eastpointe-macomb-county-mi",
+            "https://www.example.com/v/city-of-eastpointe-macomb-county-mi",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi",
+            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi",
+            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
+            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
+            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
+            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/table",
+            "https://www.example.com/vb/city-of-eastpointe-macomb-county-mi"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),
