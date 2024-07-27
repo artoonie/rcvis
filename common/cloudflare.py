@@ -60,9 +60,7 @@ class CloudflareAPI():
         apiUrl = f"https://api.cloudflare.com/client/v4/zones/{zoneId}/purge_cache"
 
         # Absolute URLs
-        domain = Site.objects.get_current().domain
-        rcvisUrls = [f'https://{domain}{path}' for path in paths]
-        data = {'files': rcvisUrls}
+        data = {'files': cls.get_absolute_paths_for(paths)}
 
         # Send it off
         response = requests.post(
@@ -76,3 +74,12 @@ class CloudflareAPI():
             logger.info("Cleared cloudflare cache for %s: %s", info, response.json())
         else:
             logger.error("Received bad response from cloudflare for %s: %s", info, response.json())
+
+    @classmethod
+    def get_absolute_paths_for(cls, paths):
+        """ Get the absolute urls for these paths, both with and without "www." """
+        domain = Site.objects.get_current().domain
+        rcvisUrls = [f'https://{domain}{path}' for path in paths]
+        if not domain.startswith("www"):
+            rcvisUrls.extend([f'https://www.{domain}{path}' for path in paths])
+        return rcvisUrls
