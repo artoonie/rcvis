@@ -105,16 +105,19 @@ svg {
   text-align: center;
   padding-top: 5px;
   padding-bottom: 5px;
-  vertical-align: center;
+  vertical-align: top;
 }
 #embedded-footer a {
   color: white;
+}
+#embedded-footer img {
+  vertical-align: top;
 }
 
 .btn {
   font-size: 0.8rem;
 }
-.sendfeedback {
+.popout {
   position: fixed;
   right: 5px;
   font-size: .75em;
