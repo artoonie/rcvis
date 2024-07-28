@@ -368,12 +368,13 @@ class SimpleTests(TestCase):
         API connection with cloudflare to ensure you didn't break anything.
         Also ensures the logging output is what we expect, so it shows up in heroku logs.
         """
-        TestHelpers.get_multiwinner_upload_response(self.client)
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
         slug = TestHelpers.get_latest_upload().slug
 
         requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
         expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 15 starting with "\
-                            "/v/city-of-eastpointe-macomb-county-mi: {'a': 0}"
+                            "/v/one-round: {'a': 0}"
 
         with self.settings(
                 CLOUDFLARE_AUTH_TOKEN='mytoken',
@@ -389,36 +390,36 @@ class SimpleTests(TestCase):
         }
 
         expectedData = {'files': [
-            "https://example.com/v/city-of-eastpointe-macomb-county-mi",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi",
-            "https://example.com/vo/city-of-eastpointe-macomb-county-mi",
-            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
-            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
-            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
-            "https://example.com/vo/city-of-eastpointe-macomb-county-mi/table",
-            "https://example.com/vb/city-of-eastpointe-macomb-county-mi",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-interactive",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-fixed",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-candidate",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round-interactive",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=candidate-by-round",
-            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=sankey",
-            "https://www.example.com/v/city-of-eastpointe-macomb-county-mi",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi",
-            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi",
-            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/bar",
-            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
-            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
-            "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/table",
-            "https://www.example.com/vb/city-of-eastpointe-macomb-county-mi",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-interactive",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-fixed",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-candidate",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round-interactive",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=candidate-by-round",
-            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=sankey"]}
+            "https://example.com/v/one-round",
+            "https://example.com/ve/one-round",
+            "https://example.com/vo/one-round",
+            "https://example.com/vo/one-round/bar",
+            "https://example.com/vo/one-round/barchart-interactive",
+            "https://example.com/vo/one-round/sankey",
+            "https://example.com/vo/one-round/table",
+            "https://example.com/vb/one-round",
+            "https://example.com/ve/one-round?vistype=barchart-interactive",
+            "https://example.com/ve/one-round?vistype=barchart-fixed",
+            "https://example.com/ve/one-round?vistype=tabular-by-candidate",
+            "https://example.com/ve/one-round?vistype=tabular-by-round",
+            "https://example.com/ve/one-round?vistype=tabular-by-round-interactive",
+            "https://example.com/ve/one-round?vistype=candidate-by-round",
+            "https://example.com/ve/one-round?vistype=sankey",
+            "https://www.example.com/v/one-round",
+            "https://www.example.com/ve/one-round",
+            "https://www.example.com/vo/one-round",
+            "https://www.example.com/vo/one-round/bar",
+            "https://www.example.com/vo/one-round/barchart-interactive",
+            "https://www.example.com/vo/one-round/sankey",
+            "https://www.example.com/vo/one-round/table",
+            "https://www.example.com/vb/one-round",
+            "https://www.example.com/ve/one-round?vistype=barchart-interactive",
+            "https://www.example.com/ve/one-round?vistype=barchart-fixed",
+            "https://www.example.com/ve/one-round?vistype=tabular-by-candidate",
+            "https://www.example.com/ve/one-round?vistype=tabular-by-round",
+            "https://www.example.com/ve/one-round?vistype=tabular-by-round-interactive",
+            "https://www.example.com/ve/one-round?vistype=candidate-by-round",
+            "https://www.example.com/ve/one-round?vistype=sankey"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),
