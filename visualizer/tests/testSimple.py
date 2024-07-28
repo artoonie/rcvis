@@ -372,7 +372,7 @@ class SimpleTests(TestCase):
         slug = TestHelpers.get_latest_upload().slug
 
         requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
-        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 8 starting with "\
+        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 15 starting with "\
                             "/v/city-of-eastpointe-macomb-county-mi: {'a': 0}"
 
         with self.settings(
@@ -397,6 +397,13 @@ class SimpleTests(TestCase):
             "https://example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
             "https://example.com/vo/city-of-eastpointe-macomb-county-mi/table",
             "https://example.com/vb/city-of-eastpointe-macomb-county-mi",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-interactive",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-fixed",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-candidate",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round-interactive",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=candidate-by-round",
+            "https://example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=sankey",
             "https://www.example.com/v/city-of-eastpointe-macomb-county-mi",
             "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi",
             "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi",
@@ -404,7 +411,14 @@ class SimpleTests(TestCase):
             "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/barchart-interactive",
             "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/sankey",
             "https://www.example.com/vo/city-of-eastpointe-macomb-county-mi/table",
-            "https://www.example.com/vb/city-of-eastpointe-macomb-county-mi"]}
+            "https://www.example.com/vb/city-of-eastpointe-macomb-county-mi",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-interactive",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=barchart-fixed",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-candidate",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=tabular-by-round-interactive",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=candidate-by-round",
+            "https://www.example.com/ve/city-of-eastpointe-macomb-county-mi?vistype=sankey"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),

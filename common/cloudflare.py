@@ -40,7 +40,14 @@ class CloudflareAPI():
             reverse('visualizeEmbedly', args=(slug, 'barchart-interactive')),
             reverse('visualizeEmbedly', args=(slug, 'sankey')),
             reverse('visualizeEmbedly', args=(slug, 'table')),
-            reverse('visualizeBallotpedia', args=(slug,))
+            reverse('visualizeBallotpedia', args=(slug,)),
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=barchart-interactive',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=barchart-fixed',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=tabular-by-candidate',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=tabular-by-round',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=tabular-by-round-interactive',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=candidate-by-round',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=sankey'
         ]
         cls.purge_paths_cache(paths)
 
