@@ -13,7 +13,7 @@ function makeEmbeddedIframeTag(iframeUrl) {
          iframe.height = height + 'px';
        }, false);
        contentWindow.postMessage({getSize: true, key: key}, '*');
-     ">
+     "/>
   `;
   return text;
 }
