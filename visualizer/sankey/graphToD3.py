@@ -11,6 +11,7 @@ class D3Sankey:
         js = ''
         js += f'numRounds = {graph.numRounds};\n'
         js += f'numCandidates = {len(graph.nodesPerRound[0])} ;\n'
+        js += f'numWinners = {len(graph.nodesPerRound[0])} ;\n'
         js += f'longestLabelApxWidth = {longestLabelApxWidth};\n'
         js += f'totalVotesPerRound = {totalVotesPerRound};\n'
         js += 'graph = {"nodes" : [], "links" : []};\n'

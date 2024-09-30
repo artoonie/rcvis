@@ -326,14 +326,21 @@ function makeBarGraph(args) {
       }
       else
       {
-          return startText + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], false, false);
+          const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+          return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
   };
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
       }
-      return percentToText(d.data["candidate"], d[1], totalVotesPerRound[d.round]);
+      let percentDenominator;
+      if (lastRoundNumWinners > 1) {
+          percentDenominator = totalVotesPerRound[0];
+      } else {
+          percentDenominator = totalVotesPerRound[d.round];
+      }
+      return percentToText(d.data["candidate"], d[1], percentDenominator);
   };
   function rightRoundedRect(x, y, width, height, radius) {
       return "M" + x + "," + y
@@ -428,7 +435,8 @@ function makeBarGraph(args) {
   // Hover text helper
   function barTextFn(d) {
       const text = !isEliminatedThisRound(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
-      return text + votesAndPctToText(d.data["candidate"], d[1], totalVotesPerRound[d.round], true, false);
+      const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+      return text + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, true, false);
   };
 
   function addMetadataToEachBar() {
