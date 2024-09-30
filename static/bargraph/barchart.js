@@ -334,6 +334,7 @@ function makeBarGraph(args) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
       }
+      let percentDenominator;
       if (lastRoundNumWinners > 1) {
           percentDenominator = totalVotesPerRound[0];
       } else {

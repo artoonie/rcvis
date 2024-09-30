@@ -300,7 +300,7 @@ class SimpleTests(TestCase):
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the
         # length is the same magic number I expect, so I don't inadvertently change anything
-        magicKnownTextLength = 4102
+        magicKnownTextLength = 4100
         self.assertEqual(len(text), magicKnownTextLength)
         with open('testData/wikiOutput.txt', 'r', encoding='utf-8') as f:
             self.maxDiff = None

@@ -60,7 +60,7 @@ class TabulateByRoundInteractive:
                         d['change'] = changify(votesAddedThisRound)
 
                     myNumVotes = cinfo.totalVotesPerRound[roundNum]
-                    percentDenominator = summary.percentDenominator(roundNum)
+                    percentDenominator = summary.percent_denominator(roundNum)
                     d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(
                         myNumVotes, percentDenominator, item)
                 d['name'] = cinfo.name
@@ -117,7 +117,7 @@ class CandidateTabulationByRound:
         self.rounds = range(numRounds)
         for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
             thisRoundSummary = summary.rounds[i]
-            percentDenominator = summary.percentDenominator(i)
+            percentDenominator = summary.percent_denominator(i)
             self.eachRound.append(OneCandidateOneRound(
                 thisRoundSummary, myNumVotes, percentDenominator, item))
 
@@ -199,7 +199,7 @@ class RoundTabulation:
         self.round_i = round_i + 1
 
         myNumVotes = float(totalActiveVotes)
-        percentDenominator = summary.percentDenominator(round_i)
+        percentDenominator = summary.percent_denominator(round_i)
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
             myNumVotes, percentDenominator, item)
 

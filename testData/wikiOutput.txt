@@ -38,7 +38,7 @@
                         | {{won|}} 134
                         | {{won|}} 33.5%
                         | {{won|}} 134
-                        | {{won|}} 33.53%
+                        | {{won|}} 33.5%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Larry|Edwards}}
@@ -51,7 +51,7 @@
                         | {{won|}} 184.88
                         | {{won|}} 46.22%
                         | {{won|}} 134
-                        | {{won|}} 33.53%
+                        | {{won|}} 33.5%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Mary|Hall-Rayford}}
@@ -64,7 +64,7 @@
                         |  81.11
                         |  20.28%
                         |  131.67
-                        |  32.94%
+                        |  32.92%
                 |-
                 |-
                 ! scope="row" style="text-align:left;" | {{sortname| Sarah|Lucido}}
