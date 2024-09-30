@@ -58,6 +58,15 @@ class GraphSummary:
         self.numWinners = len(self.winnerNames)
         self.numEliminated = sum(len(r.eliminatedNames) for r in rounds)
 
+    # percentDenominator is either the current round total in IRV,
+    # and the first round total in STV
+    def percentDenominator(self, roundNum):
+        if self.numWinners <= 1:
+            return self.rounds[roundNum].totalActiveVotes
+        else:
+            return self.rounds[0].totalActiveVotes
+
+
 
 class RoundInfo:
     """ Summarizes a single round, with functions to build the round """

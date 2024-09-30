@@ -4,9 +4,9 @@ from visualizer.common import intify, percentify, INACTIVE_TEXT
 from visualizer.descriptors import textForWinnerUtils as TextForWinner
 
 
-def makePrimarySecondaryLabels(numVotes, allVotes, item):
+def makePrimarySecondaryLabels(numVotes, denominator, item):
     if item.isActive:
-        primaryLabel = percentify(numVotes, allVotes)
+        primaryLabel = percentify(numVotes, denominator)
         secondaryLabel = votify(numVotes)
     else:
         primaryLabel = intify(numVotes)
@@ -60,9 +60,9 @@ class TabulateByRoundInteractive:
                         d['change'] = changify(votesAddedThisRound)
 
                     myNumVotes = cinfo.totalVotesPerRound[roundNum]
-                    allVotes = roundData.totalActiveVotes
+                    percentDenominator = summary.percentDenominator(roundNum)
                     d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(
-                        myNumVotes, allVotes, item)
+                        myNumVotes, percentDenominator, item)
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in roundData.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
@@ -117,11 +117,9 @@ class CandidateTabulationByRound:
         self.rounds = range(numRounds)
         for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
             thisRoundSummary = summary.rounds[i]
-            self.eachRound.append(
-                OneCandidateOneRound(
-                    thisRoundSummary,
-                    myNumVotes,
-                    item))
+            percentDenominator = summary.percentDenominator(i)
+            self.eachRound.append(OneCandidateOneRound(
+                thisRoundSummary, myNumVotes, percentDenominator, item))
 
         # We want all rounds filled out - pad the remaining rounds
         numRoundsThisCandidate = len(candidateInfo.totalVotesPerRound)
@@ -138,14 +136,12 @@ class OneCandidateOneRound:
     numVotes: str
     pctVotes: str
 
-    def __init__(self, thisRoundSummary, myNumVotes, item):
-        allVotes = thisRoundSummary.totalActiveVotes
-
+    def __init__(self, thisRoundSummary, myNumVotes, percentDenominator, item):
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            myNumVotes, allVotes, item)
+            myNumVotes, percentDenominator, item)
 
         self.numVotes = intify(myNumVotes)
-        self.pctVotes = percentify(myNumVotes, allVotes)
+        self.pctVotes = percentify(myNumVotes, percentDenominator)
 
         self.isWinner = item.name in thisRoundSummary.winnerNames
         self.isEliminated = item.name in thisRoundSummary.eliminatedNames
@@ -189,7 +185,7 @@ class CandidateTabulation:
 
             self.rounds.append(
                 RoundTabulation(config, node.count, i,
-                                item, summary.rounds, linksForThisNode))
+                                item, summary, linksForThisNode))
 
 
 class RoundTabulation:
@@ -199,14 +195,15 @@ class RoundTabulation:
     # secondaryLabel:str
     # round_i:int, 1-indexed
 
-    def __init__(self, config, totalActiveVotes, round_i, item, roundInfos, linksForThisNode):
+    def __init__(self, config, totalActiveVotes, round_i, item, summary, linksForThisNode):
         self.round_i = round_i + 1
 
         myNumVotes = float(totalActiveVotes)
-        allVotes = roundInfos[round_i].totalActiveVotes
+        percentDenominator = summary.percentDenominator(round_i)
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            myNumVotes, allVotes, item)
+            myNumVotes, percentDenominator, item)
 
+        roundInfos = summary.rounds
         thisRoundWinners = roundInfos[round_i].winnerNames
         if round_i < len(roundInfos) - 1:
             thisRoundEliminations = roundInfos[round_i + 1].eliminatedNames

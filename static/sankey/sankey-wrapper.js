@@ -1,4 +1,4 @@
-function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, totalVotesPerRound, colorThemeIndex) {
+function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApxWidth, totalVotesPerRound, colorThemeIndex) {
   // Below are crazy heuristics to try to get the graph to look good
   // on a variety of sizes.
   const units = "Votes";
@@ -75,7 +75,8 @@ function makeSankey(graph, numRounds, numCandidates, longestLabelApxWidth, total
       return textForNode(d)
   }
   function getNodePercentText(d) {
-      return percentToText(d.name, d.value, totalVotesPerRound[d.round])
+      const percentDenominator = calculatePercentDenominator(numWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+      return percentToText(d.name, d.value, percentDenominator)
   }
 
   function makeViewboxSizeString(size0, size1) {

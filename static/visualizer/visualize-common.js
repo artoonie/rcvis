@@ -37,6 +37,15 @@ function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
   return fmt(numVotes) + " " + (includeWordVotes ? "votes" : "");
 }
 
+function calculatePercentDenominator(numWinners, firstRoundVoteTotal, currRoundVoteTotal)
+{
+    if (numWinners <= 1) {
+        return currRoundVoteTotal;
+    } else {
+        return firstRoundVoteTotal;
+    }
+}
+
 function percentToText(candidateName, numVotes, totalVotes)
 {
   // Inactive ballots should not show %
@@ -50,9 +59,9 @@ function percentToText(candidateName, numVotes, totalVotes)
   return "(" + percentVotes + "%)";
 }
 
-function votesAndPctToText(candidateName, numVotes, totalVotes, includeWordVotes, doSimplifyNumber)
+function votesAndPctToText(candidateName, numVotes, percentDenominator, includeWordVotes, doSimplifyNumber)
 {
-  return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, totalVotes);
+  return votesToText(numVotes, includeWordVotes, doSimplifyNumber) + " " + percentToText(candidateName, numVotes, percentDenominator);
 }
 
 function classNameForDescriptionVerb(verb) {
