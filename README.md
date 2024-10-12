@@ -25,6 +25,8 @@ Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](ht
 Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`.
 
 Create a .env file with your secrets and configuration options:
+You can generate a secret key using:
+python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 
 ```bash
 export RCVIS_SECRET_KEY=''
