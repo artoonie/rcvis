@@ -22,55 +22,7 @@ Visualize the results of ranked-choice voting elections.
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
 ## Installation
-Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`.
-
-Create a .env file with your secrets and configuration options:
-
-```bash
-export RCVIS_SECRET_KEY=''
-export RCVIS_DEBUG=True
-export RCVIS_HOST=localhost
-
-# Either have OFFLINE_MODE=True
-export OFFLINE_MODE=True
-
-# The following fields are optional, though you will
-# have limited functionality without them.
-
-# Or set up an AWS bucket and enter your credentials
-# export OFFLINE_MODE=False
-# export AWS_STORAGE_BUCKET_NAME=''
-# export AWS_S3_REGION_NAME=''
-# export AWS_ACCESS_KEY_ID=''
-# export AWS_SECRET_ACCESS_KEY=''
-
-# To send registration emails when OFFLINE_MODE is False:
-# export SENDGRID_USERNAME=''
-# export SENDGRID_PASSWORD=''
-
-# To clear cloudflare cache when models update:
-# export CLOUDFLARE_ZONE_ID=''
-# export CLOUDFLARE_AUTH_TOKEN=''
-
-# To run the SauceLabs integration tests, you will need
-export SAUCE_USERNAME=''
-export SAUCE_ACCESS_KEY=''
-
-# To generate videos (and to run movie tests), you will need:
-export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-export SQS_QUEUE_NAME='default-queue'
-# export MOVIE_FONT_NAME="Roboto"
-# export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
-
-# To subscribe users to mailchimp upon registration, you need:
-# export MAILCHIMP_API_KEY=''
-# export MAILCHIMP_LIST_ID=''
-# export MAILCHIMP_DC=''
-
-# If you are updating a template, you'll need to clear the cache every time or set:
-# export DISABLE_CACHE=True
-
-```
+Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root director for your secrets and configuration. You must supply a secret key and local host IP address before proceeding.
 
 To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
 ```xml
