@@ -22,7 +22,7 @@ Visualize the results of ranked-choice voting elections.
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
 ## Installation
-Install `python3`, `virtualenv`, and `npm` with your favorite package manager, then run `./scripts/install.sh`.
+Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`.
 
 Create a .env file with your secrets and configuration options:
 
