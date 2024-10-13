@@ -21,14 +21,24 @@ Visualize the results of ranked-choice voting elections.
 
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
+## Examples
+Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
+
+| Barchart | Round-by-Round |
+| --- | --- |
+| ![Barchart](static/visualizer/icon_interactivebar.gif "Interactive Barchart") | ![Round-by-Round](static/visualizer/icon_interactiveroundbyround.gif "Round-by-Round") |
+
+| Sankey | Tabular Summary |
+| --- | --- |
+| ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
+
+## oembed
+RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+
+
 ## Installation
 Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root director for your secrets and configuration. You must supply a secret key and local host IP address before proceeding.
 
-To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
-```xml
-<policy domain="path" rights="none" pattern="@*"/>
-```
-or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
 
 ## Running
 To begin serving the website at localhost:8000:
@@ -44,25 +54,6 @@ source venv/bin/activate
 npm install  # this works for me
 python3 manage.py npminstall  # this is purported to work but doesn't
 ```
-
-To run workers to generate movies (optional - only needed to use the movie generation flow):
-```bash
-source .env
-source venv/bin/activate
-export DISPLAY=":0" # if not already set
-celery -A rcvis worker --loglevel info
-```
-
-## Examples
-Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
-
-| Barchart | Round-by-Round |
-| --- | --- |
-| ![Barchart](static/visualizer/icon_interactivebar.gif "Interactive Barchart") | ![Round-by-Round](static/visualizer/icon_interactiveroundbyround.gif "Round-by-Round") |
-
-| Sankey | Tabular Summary |
-| --- | --- |
-| ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
 
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
@@ -81,5 +72,18 @@ With your API key, you may access two endpoints:
 
 For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 
-## oembed
-RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+## MOVIES
+
+To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
+```xml
+<policy domain="path" rights="none" pattern="@*"/>
+```
+or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
+
+To run workers to generate movies (optional - only needed to use the movie generation flow):
+```bash
+source .env
+source venv/bin/activate
+export DISPLAY=":0" # if not already set
+celery -A rcvis worker --loglevel info
+```
