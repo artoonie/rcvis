@@ -32,9 +32,10 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 | --- | --- |
 | ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
 
-## oembed
+## Embedding
 RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
 
+# Running RCVis Locally
 
 ## Installation
 Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root director for your secrets and configuration. You must supply a secret key and local host IP address before proceeding.
@@ -45,6 +46,7 @@ To begin serving the website at localhost:8000:
 ```bash
 ./scripts/serve.sh
 ```
+This website will display saved media from the `/static` directory only. To generate and edit live visualizations using supplied data, you will need to use the API (detailed below).
 
 You may also need to run this whenever the npm dependencies change:
 ```bash
@@ -72,7 +74,7 @@ With your API key, you may access two endpoints:
 
 For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 
-## MOVIES
+## Movies
 
 To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
 ```xml
