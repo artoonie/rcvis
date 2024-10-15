@@ -42,15 +42,19 @@ RCVis implements the [oembed protocol](http://www.oembed.com) with discoverabili
 # Running RCVis Locally
 
 ## Installation
-Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root director for your secrets and configuration. You must supply a secret key and local host IP address before proceeding.
+Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root directory for your secrets and configuration. You will need to supply a secret key and local host IP address before proceeding.
 
 
 ## Running
-To begin serving the website at localhost:8000:
+```
+To upload data and generate visuals, you will need to create a local user with credentials from your `.env` file using:
+```bash
+./scripts/create-user.sh
+```
+You can then begin serving the website at localhost:8000:
 ```bash
 ./scripts/serve.sh
 ```
-This website will display saved media from the `/static` directory only. To generate and edit live visualizations using supplied data, you will need to use the API (detailed below).
 
 You may also need to run this whenever the npm dependencies change:
 ```bash
@@ -60,6 +64,9 @@ source venv/bin/activate
 npm install  # this works for me
 python3 manage.py npminstall  # this is purported to work but doesn't
 ```
+
+## Test Data
+Test data with election results can be found in the `testData` directory.
 
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
