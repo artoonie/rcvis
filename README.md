@@ -46,7 +46,7 @@ Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite pack
 
 
 ## Running
-```
+
 To upload data and generate visuals, you will need to create a local user with credentials from your `.env` file using:
 ```bash
 ./scripts/create-user.sh
@@ -66,7 +66,7 @@ python3 manage.py npminstall  # this is purported to work but doesn't
 ```
 
 ## Test Data
-Test data with election results can be found in the `testData` directory.
+Test data with election  can be found in the `testData` directory.
 
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
@@ -77,10 +77,7 @@ To get started with programmatic access to rcvis:
 
 1. Create an account on RCVis
 2. Email team@rcvis.com to request API access
-3. Obtain an API key and store it in your `.env` file by running:
-```bash
-./scripts/get-api-key.sh
-```
+3. Submit a POST request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `curl -X POST https://www.rcvis.com/api/auth/get-token -d username=yourUserName -d password=yourAmazingPassword`
 
 With your API key, you may access two endpoints:
 1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
