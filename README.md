@@ -66,7 +66,9 @@ python3 manage.py npminstall  # this is purported to work but doesn't
 ```
 
 ## Test Data
-Test data with election  can be found in the `testData` directory.
+Test data, including real and mock elections, can be found in the `testData` directory.
+
+Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
 
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
