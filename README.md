@@ -42,7 +42,7 @@ RCVis implements the [oembed protocol](http://www.oembed.com) with discoverabili
 # Running RCVis Locally
 
 ## Installation
-Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root director for your secrets and configuration. You must supply a secret key and local host IP address before proceeding.
+Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root directory for your secrets and configuration. You will need to supply a secret key and local host IP address before proceeding.
 
 
 ## Running
@@ -50,7 +50,11 @@ To begin serving the website at localhost:8000:
 ```bash
 ./scripts/serve.sh
 ```
-This website will display saved media from the `/static` directory only. To generate and edit live visualizations using supplied data, you will need to use the API (detailed below).
+To upload data and generate visuals, you will also need to create a local user with credentials from your `.env` file using:
+```bash
+./scripts/create-user.sh
+```
+You'll find sample data files in the `testData` directory.
 
 You may also need to run this whenever the npm dependencies change:
 ```bash
