@@ -10,8 +10,6 @@ It has been published in the [Washington Post](https://www.washingtonpost.com/dc
 
 While you may fork and run this code to run it locally, almost all users find it sufficient to upload data directly to RCVis.com.
 
-<br>
-
 # Ranked Choice Voting Visualization
 Visualize the results of ranked-choice voting elections.
 
@@ -37,7 +35,6 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 ## Embedding
 RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
 
-<br>
 
 # Running RCVis Locally
 
@@ -87,7 +84,6 @@ With your API key, you may access two endpoints:
 
 For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 
-<br>
 
 ## Movies
 
