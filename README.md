@@ -39,7 +39,7 @@ RCVis implements the [oembed protocol](http://www.oembed.com) with discoverabili
 # Running RCVis Locally
 
 ## Installation
-Install `python3`, `virtualenv`, `npm`, and `postgresql` with your favorite package manager, then run `./scripts/install.sh`. This script will initalize a `.env` file in the root directory for your secrets and configuration. You will need to supply a secret key and local host IP address before proceeding.
+Install `python3`, `virtualenv`, and `npm` with your favorite package manager, then run `./scripts/install.sh`. This script will initialize a `.env` file in the root directory for your secrets and configuration. You will need to supply a secret key in `.env` before proceeding.
 
 
 ## Running
