@@ -8,9 +8,10 @@ source .env
 # Activate the virtual environment
 source venv/bin/activate
 
-# Check if the admin user with the specific email exists
+# Check if the admin user with the email specified in .env exists
 admin_exists=$(python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(email='$OFFLINE_ADMIN', is_superuser=True).exists())")
 
+# Prompt the user to create the admin if not
 if [ "$admin_exists" = "False" ]; then
     echo "Admin user with email $OFFLINE_ADMIN does not exist. Please create one."
     python manage.py createsuperuser --email $OFFLINE_ADMIN
