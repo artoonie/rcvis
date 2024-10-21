@@ -44,14 +44,11 @@ Install `python3`, `virtualenv`, and `npm` with your favorite package manager, t
 
 ## Running
 
-To upload data and generate visuals, you will need to create a local user with credentials from your `.env` file using:
-```bash
-./scripts/create-user.sh
-```
-You can then begin serving the website at localhost:8000:
+You can begin serving the website at localhost:8000 using:
 ```bash
 ./scripts/serve.sh
 ```
+The first time you execute this script, you will be prompted to create a new admin user. You can skip this step for future executions by storing the email of the admin user as `OFFLINE_ADMIN` in `.env`.
 
 You may also need to run this whenever the npm dependencies change:
 ```bash
@@ -63,9 +60,7 @@ python3 manage.py npminstall  # this is purported to work but doesn't
 ```
 
 ## Test Data
-Test data, including real and mock elections, can be found in the `testData` directory.
-
-Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
+Test data, including real and mock elections, can be found in the `testData` directory. Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
 
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
