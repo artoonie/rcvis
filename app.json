@@ -29,6 +29,7 @@
     "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
     "MOVIE_FONT_NAME": "AvantGarde-Book",
     "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+    "CHROMEDRIVER_PATH": "/app/.chrome-for-testing/chrome-linux64/chrome",
 
     "AWS_POLLY_STORAGE_BUCKET": {
       "description": "AWS bucket name for AWS Polly Speech Synth",
@@ -66,8 +67,7 @@
     }
   },
   "buildpacks": [
-    { "url": "heroku/chromedriver" },
-    { "url": "https://github.com/artoonie/heroku-buildpack-google-chrome" },
+    { "url": "heroku-community/chrome-for-testing" },
     { "url": "heroku/nodejs" },
     { "url": "heroku/python" },
     { "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest" },

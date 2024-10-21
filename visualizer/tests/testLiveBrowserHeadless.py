@@ -18,6 +18,7 @@ from django.urls import reverse
 from mock import patch
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
@@ -84,6 +85,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
             cssSelector = "path[data-original-title=\"On Round 1, has 64 votes (16%)\"]"
+            WebDriverWait(self.browser, 5).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, cssSelector)))
             lastBarInLastRoundList = bargraph.find_elements(By.CSS_SELECTOR, cssSelector)
             self.assertEqual(len(lastBarInLastRoundList), 1)
             lastBarInLastRound = lastBarInLastRoundList[0]
@@ -94,14 +97,22 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.MULTIWINNER)
 
         gray = "rgb(204, 204, 204)"
+        WebDriverWait(self.browser, 5).until(
+            EC.visibility_of_element_located((By.ID, "barchart-tab")))
         self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), gray))
 
         # Change option to show a dim version of the last-round color
         self._go_to_tab("settings-tab")
-        self.browser.find_elements(By.ID, "bargraphOptions")[0].click()  # Open the dropdown
+
+        # Open the dropdown and wait for the animation to complete
+        self.browser.find_elements(By.ID, "bargraphOptions")[0].click()
+
+        # Select the element and submit
         options = Select(self.browser.find_element(By.ID, "eliminationBarColor"))
         options.select_by_index(2)
-        self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
+        WebDriverWait(self.browser, 5).until(
+            EC.visibility_of_element_located((By.ID, "updateSettings")))
+        self.browser.find_elements(By.ID, "updateSettings")[0].submit()
 
         notgray = "rgb(238, 237, 241)"
         self._ensure_eventually_asserts(lambda: self.assertEqual(_get_eliminated_color(), notgray))
@@ -439,6 +450,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements(By.NAME, "showRoundNumbersOnSankey")[1].click()
         self.browser.find_element(By.ID, "updateSettings").click()  # Hit submit
+        WebDriverWait(self.browser, 5).until(
+            EC.visibility_of_element_located((By.ID, "sankey-tab")))
 
         # Go to the bargraph, now it should be zero
         self._go_to_tab("sankey-tab")
@@ -501,7 +514,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Try to login before activation: fails, and the username field is still there
         login_via_upload_redirect()
-        self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 1)
+        usernameFields = self.browser.find_elements(By.ID, "id_username")
+        self.assertEqual(len(usernameFields), 1)
 
         # Assert an email was sent
         self.assertEqual(len(test_mailbox.outbox), 1)
@@ -512,6 +526,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Now login should succeed, and upload has no username field
         login_via_upload_redirect()
+        WebDriverWait(self.browser, 5).until(EC.staleness_of(usernameFields[0]))
         self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 0)
 
         # And for good measure, upload a file

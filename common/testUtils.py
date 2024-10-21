@@ -4,6 +4,7 @@ Helper functions for unit and integration tests
 
 import logging
 import json
+import os
 import tempfile
 import uuid
 from urllib.parse import urlparse
@@ -13,6 +14,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from scraper.models import MultiScraper, Scraper
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
@@ -66,6 +68,15 @@ class TestHelpers():
         """ Returns a headless browser """
         chromeOptions = webdriver.chrome.options.Options()
         chromeOptions.add_argument("--headless")
+        chromeOptions.add_argument("--no-sandbox")
+        chromeOptions.add_argument("--disable-dev-shm-usage")
+        chromeOptions.add_argument("--shm-size=512m")
+
+        if 'CHROMEDRIVER_PATH' in os.environ:
+            chromeOptions.add_argument("--remote-debugging-port=9222")
+            service = ChromeService(executable_path=os.environ["CHROMEDRIVER_PATH"])
+            return webdriver.Chrome(service=service, options=chromeOptions)
+
         return webdriver.Chrome(options=chromeOptions)
 
         # Or, Firefox
