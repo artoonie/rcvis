@@ -9,6 +9,7 @@ from celery import shared_task
 from django.conf import settings
 import requests
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 
 from movie.creation.movieCreator import MovieCreationFactory
 from visualizer.models import JsonConfig, MovieGenerationStatuses
@@ -54,8 +55,14 @@ def create_movie_task(pk, domain):
     chromeOptions.add_argument("--headless")
     chromeOptions.add_argument("--disable-dev-shm-usage")
     chromeOptions.add_argument("--shm-size=512m")
+    chromeOptions.add_argument("--no-sandbox")
+    if 'CHROMEDRIVER_PATH' in os.environ:
+        chromeOptions.add_argument("--remote-debugging-port=9222")
+        service = ChromeService(executable_path=os.environ["CHROMEDRIVER_PATH"])
+        browser = webdriver.Chrome(service=service, options=chromeOptions)
+    else:
+        browser = webdriver.Chrome(options=chromeOptions)
 
-    browser = webdriver.Chrome(options=chromeOptions)
     browser.implicitly_wait(10)
 
     try:
