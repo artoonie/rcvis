@@ -21,86 +21,6 @@ Visualize the results of ranked-choice voting elections.
 
 Learn more on our Medium post: [An Illustrated Guide to Ranked-Choice Voting](https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9).
 
-## Installation
-Install `python3`, `virtualenv`, and `npm` with your favorite package manager, then run `./scripts/install.sh`.
-
-Create a .env file with your secrets and configuration options:
-
-```bash
-export RCVIS_SECRET_KEY=''
-export RCVIS_DEBUG=True
-export RCVIS_HOST=localhost
-
-# Either have OFFLINE_MODE=True
-export OFFLINE_MODE=True
-
-# The following fields are optional, though you will
-# have limited functionality without them.
-
-# Or set up an AWS bucket and enter your credentials
-# export OFFLINE_MODE=False
-# export AWS_STORAGE_BUCKET_NAME=''
-# export AWS_S3_REGION_NAME=''
-# export AWS_ACCESS_KEY_ID=''
-# export AWS_SECRET_ACCESS_KEY=''
-
-# To send registration emails when OFFLINE_MODE is False:
-# export SENDGRID_USERNAME=''
-# export SENDGRID_PASSWORD=''
-
-# To clear cloudflare cache when models update:
-# export CLOUDFLARE_ZONE_ID=''
-# export CLOUDFLARE_AUTH_TOKEN=''
-
-# To run the SauceLabs integration tests, you will need
-export SAUCE_USERNAME=''
-export SAUCE_ACCESS_KEY=''
-
-# To generate videos (and to run movie tests), you will need:
-export IMAGEIO_FFMPEG_EXE='/usr/bin/ffmpeg'
-export SQS_QUEUE_NAME='default-queue'
-# export MOVIE_FONT_NAME="Roboto"
-# export AWS_POLLY_STORAGE_BUCKET_NAME="bucket-name-on-s3"
-
-# To subscribe users to mailchimp upon registration, you need:
-# export MAILCHIMP_API_KEY=''
-# export MAILCHIMP_LIST_ID=''
-# export MAILCHIMP_DC=''
-
-# If you are updating a template, you'll need to clear the cache every time or set:
-# export DISABLE_CACHE=True
-
-```
-
-To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
-```xml
-<policy domain="path" rights="none" pattern="@*"/>
-```
-or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
-
-## Running
-To begin serving the website at localhost:8000:
-```bash
-./scripts/serve.sh
-```
-
-You may also need to run this whenever the npm dependencies change:
-```bash
-source .env
-source venv/bin/activate
-
-npm install  # this works for me
-python3 manage.py npminstall  # this is purported to work but doesn't
-```
-
-To run workers to generate movies (optional - only needed to use the movie generation flow):
-```bash
-source .env
-source venv/bin/activate
-export DISPLAY=":0" # if not already set
-celery -A rcvis worker --loglevel info
-```
-
 ## Examples
 Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 
@@ -112,6 +32,36 @@ Check out [rcvis.com](https://www.rcvis.com) for live examples, including:
 | --- | --- |
 | ![Sankey](static/visualizer/icon_sankey.jpg "Sankey") | ![Tabular Summaries](static/visualizer/icon_singletable.png "Tabular Summaries") |
 
+## Embedding
+RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+
+
+# Running RCVis Locally
+
+## Installation
+Install `python3`, `virtualenv`, and `npm` with your favorite package manager, then run `./scripts/install.sh`. This script will initialize a `.env` file in the root directory for your secrets and configuration. You will need to supply a secret key in `.env` before proceeding.
+
+
+## Running
+
+You can begin serving the website at localhost:8000 using:
+```bash
+./scripts/serve.sh
+```
+The first time you execute this script, you will be prompted to create a new admin user. You can skip this step for future executions by storing the email of the admin user as `OFFLINE_ADMIN` in `.env`.
+
+You may also need to run this whenever the npm dependencies change:
+```bash
+source .env
+source venv/bin/activate
+
+npm install  # this works for me
+python3 manage.py npminstall  # this is purported to work but doesn't
+```
+
+## Test Data
+Test data, including real and mock elections, can be found in the `testData` directory. Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
+
 ## REST API
 The primary API documentation is in the form of [example code](visualizer/tests/testRestApiExampleCode.py), which is documented line-by-line.
 We recommend you start by looking over the example code.
@@ -120,7 +70,7 @@ Addition documentation is available at [rcvis.com/api/](https://www.rcvis.com/ap
 To get started with programmatic access to rcvis:
 
 1. Create an account on RCVis
-2. Email team@rcvis.com to enable API access
+2. Email team@rcvis.com to request API access
 3. Submit a POST request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `curl -X POST https://www.rcvis.com/api/auth/get-token -d username=yourUserName -d password=yourAmazingPassword`
 
 With your API key, you may access two endpoints:
@@ -129,5 +79,19 @@ With your API key, you may access two endpoints:
 
 For both endpoints, upload with POST and modify with PUT or PATCH. Authenticated users are limited to 1000 requests per hour.
 
-## oembed
-RCVis implements the [oembed protocol](http://www.oembed.com) with discoverability, allowing you to embed files into your website with an iframe.
+
+## Movies
+
+To get moviepy working for Ubuntu 16.04 LTS users, comment out the following statement in `/etc/ImageMagick-6/policy.xml`:
+```xml
+<policy domain="path" rights="none" pattern="@*"/>
+```
+or, simply run `sudo ./scripts/fix-moviepy-on-ubuntu-1604.sh`
+
+To run workers to generate movies (optional - only needed to use the movie generation flow):
+```bash
+source .env
+source venv/bin/activate
+export DISPLAY=":0" # if not already set
+celery -A rcvis worker --loglevel info
+```
