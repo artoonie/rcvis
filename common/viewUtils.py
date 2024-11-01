@@ -11,9 +11,9 @@ from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.models import TextForWinner
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.sidecar.reader import SidecarReader
-from visualizer.tabular.tabular import TabulateByRoundInteractive,\
-    TabulateByRound,\
-    TabulateByCandidate,\
+from visualizer.tabular.tabular import TabulateByRoundInteractive, \
+    TabulateByRound, \
+    TabulateByCandidate, \
     SingleTableSummary
 
 
