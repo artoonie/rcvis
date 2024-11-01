@@ -12,7 +12,7 @@ source venv/bin/activate
 admin_exists=$(python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); print(User.objects.filter(email='$OFFLINE_ADMIN', is_superuser=True).exists())")
 
 # Prompt the user to create the admin if not
-if [ "$admin_exists" = "False" ]; then
+if [ "$admin_exists" = "False" && "$OFFLINE_MODE" = "True" ]; then
     echo "Admin user with email $OFFLINE_ADMIN does not exist. Please create one."
     python manage.py createsuperuser --email $OFFLINE_ADMIN
 else
