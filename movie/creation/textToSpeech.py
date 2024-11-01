@@ -56,12 +56,12 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
     def _spawn_task(self, text):
         """ Spawns the AWS job """
         return self.pollyClient.start_speech_synthesis_task(
-            VoiceId='Joanna',
+            VoiceId='Danielle',
             OutputS3BucketName=settings.AWS_POLLY_STORAGE_BUCKET_NAME,
             OutputS3KeyPrefix=self.prefix,
             OutputFormat='mp3',
             Text=text,
-            Engine="neural")
+            Engine="generative")
 
     def _get_task_status(self):
         """ Poll Polly for the task status """
@@ -132,7 +132,7 @@ class GeneratedAudioWrapper():  # pylint: disable=too-few-public-methods
 
         return True
 
-    def download_synchronously(self, timeoutSeconds=20):
+    def download_synchronously(self, timeoutSeconds=30):
         """ Wait up to timeoutSeconds, waiting for the task to complete.
             @return a tempfile object: the file will be deleted once the object is destructed. """
         pollIntervalSeconds = 1

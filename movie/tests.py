@@ -185,8 +185,8 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         slug = "slug"
         assert self._num_movies() == 0
 
-        with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4Tf,\
-                tempfile.NamedTemporaryFile(suffix=".gif") as gifTf,\
+        with tempfile.NamedTemporaryFile(suffix=".mp4") as mp4Tf, \
+                tempfile.NamedTemporaryFile(suffix=".gif") as gifTf, \
                 tempfile.NamedTemporaryFile(suffix=".png") as imageTf:
             movie = Movie()
             movie.resolutionWidth = 1

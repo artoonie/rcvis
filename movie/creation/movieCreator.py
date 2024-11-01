@@ -11,7 +11,7 @@ from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from moviepy.config import change_settings
-from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip,\
+from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, \
     concatenate_videoclips
 import selenium
 

@@ -23,8 +23,9 @@ from urllib.parse import urlparse
 from django.core.files import File
 from django.urls import reverse
 from requests_mock import Mocker
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 
 from common.testUtils import TestHelpers
 from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
@@ -183,14 +184,20 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_create_scrapable_page(self):
         """ With proper permissions, can create a scrapable election page """
-        def submit_with_num_elections_and_get_error(num):
-            self.browser.find_element(By.ID, "id_numElections").clear()
-            self.browser.find_element(By.ID, "id_numElections").send_keys(num)
+        def submit_with_num_elections_and_get_error(num, expectReload):
+            numElectionsElement = self.browser.find_element(By.ID, "id_numElections")
+            numElectionsElement.clear()
+            numElectionsElement.send_keys(num)
             self.browser.find_element(By.ID, "submit").click()
+
+            if expectReload:
+                self._ensure_eventually_asserts(
+                    lambda: EC.staleness_of(numElectionsElement))
+
             try:
                 return self.browser.find_element(
                     By.ID, "id_numElections").get_attribute("validationMessage")
-            except NoSuchElementException:
+            except (NoSuchElementException, StaleElementReferenceException):
                 return None
 
         self._provide_all_credentials()
@@ -207,16 +214,16 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Hitting submit should fail with 0 numElections
         self.assertEqual(
-            submit_with_num_elections_and_get_error('0'),
+            submit_with_num_elections_and_get_error('0', False),
             "Value must be greater than or equal to 1.")
 
         # Hitting submit should fail with >60 numElections
         self.assertEqual(
-            submit_with_num_elections_and_get_error('65'),
+            submit_with_num_elections_and_get_error('65', False),
             "Value must be less than or equal to 60.")
 
         # Finally, should succeed with 2
-        self.assertIsNone(submit_with_num_elections_and_get_error('2'))
+        self.assertIsNone(submit_with_num_elections_and_get_error('2', True))
         self.assertEqual(urlparse(self.browser.current_url).path, '/pPopulate/cuteslug')
 
     def test_scrapable_page_slug_must_be_unique(self):
@@ -295,7 +302,14 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.find_element(By.ID, "id_areResultsCertified").click()
         self.browser.find_element(By.ID, "submit").click()
 
-        for scraper in ScrapableElectionPage.objects.get(slug='cuteslug').listOfScrapers.all():
+        # Wait for the object to be loaded
+        self._ensure_eventually_asserts(
+            ScrapableElectionPage.objects.filter(slug='cuteslug').exists
+        )
+
+        # Then ensure all scrapers have areResultsCertified
+        scrapableElectionPage = ScrapableElectionPage.objects.get(slug='cuteslug')
+        for scraper in scrapableElectionPage.listOfScrapers.all():
             self.assertTrue(scraper.areResultsCertified)
 
     @Mocker()
