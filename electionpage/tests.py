@@ -304,8 +304,9 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Wait for the object to be loaded
         self._ensure_eventually_asserts(
-            ScrapableElectionPage.objects.filter(slug='cuteslug').exists
-        )
+            lambda: self.assertTrue(
+                ScrapableElectionPage.objects.filter(
+                    slug='cuteslug').exists()))
 
         # Then ensure all scrapers have areResultsCertified
         scrapableElectionPage = ScrapableElectionPage.objects.get(slug='cuteslug')
