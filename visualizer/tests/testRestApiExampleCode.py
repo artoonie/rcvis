@@ -1,8 +1,12 @@
 """
 This file shows an example of how to use the REST API.
 It is tested to ensure that the example code works.
+
+If you are getting started using the API, we recommend you start by referencing this file
+or the corresponding shell script, ./scripts/api-curl-demo.sh.
 """
 
+import subprocess
 import requests
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -14,7 +18,7 @@ TestHelpers.silence_logging_spam()
 
 
 class RestAPIExampleCode(StaticLiveServerTestCase):
-    """ Tests for the Ballotpedia REST API """
+    """ Example code for the REST API """
 
     def setUp(self):
         TestHelpers.create_non_admin_api_user()
@@ -188,3 +192,20 @@ class RestAPIExampleCode(StaticLiveServerTestCase):
         self.assertEqual(response.json()['slug'], 'favorite-ice-cream-flavors')
         self.assertEqual(response.json()['id'], visId)
         self.assertEqual(response.json()['dataSourceURL'], differentUrl)
+
+    def test_with_curl(self):
+        """
+        Example code:
+        Using curl instead of python. See the example shell script, which is tested here.
+        """
+
+        proc = subprocess.Popen([
+            './scripts/api-curl-demo.sh',
+            self.live_server_url,
+            filenames.THREE_ROUND,
+            "notadmin",
+            "password"
+        ],
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        output = proc.stdout.readlines()
+        self.assertIn(b'Visualization created with slug: favorite-ice-cream-flavors\n', output)
