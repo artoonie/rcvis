@@ -28,7 +28,7 @@
 
     "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
     "MOVIE_FONT_NAME": "AvantGarde-Book",
-    "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+    "FFMPEG_BINARY": "/app/vendor/ffmpeg/ffmpeg",
     "CHROMEDRIVER_PATH": "/app/.chrome-for-testing/chrome-linux64/chrome",
 
     "AWS_POLLY_STORAGE_BUCKET": {
@@ -98,7 +98,7 @@
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
-        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+        "FFMPEG_BINARY": "/app/vendor/ffmpeg/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
       }
     },
@@ -117,7 +117,7 @@
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
         "MOVIE_FONT_NAME": "AvantGarde-Book",
-        "IMAGEIO_FFMPEG_EXE": "/app/vendor/ffmpeg/ffmpeg",
+        "FFMPEG_BINARY": "/app/vendor/ffmpeg/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
       },
       "formation": {
