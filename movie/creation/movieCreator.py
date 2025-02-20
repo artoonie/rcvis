@@ -3,11 +3,9 @@ Movie generation entry point.
 Allows creation of movies from a jsonConfig at various resolutions.
 """
 
-import os
 import tempfile
 import time
 
-from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from moviepy import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, \
@@ -91,12 +89,12 @@ class SingleMovieCreator():
 
         url = f"rcvis.com/v/{self.config.slug}\n\n\n"
         urlText = TextClip(text=url,
-                            font=self.font,
-                            font_size=35,
-                            color="black",
-                            size=self.size,
-                            method="caption",
-                            vertical_align="bottom")
+                           font=self.font,
+                           font_size=35,
+                           color="black",
+                           size=self.size,
+                           method="caption",
+                           vertical_align="bottom")
 
         combined = CompositeVideoClip([primary, urlText])
         combined.duration = primary.duration
