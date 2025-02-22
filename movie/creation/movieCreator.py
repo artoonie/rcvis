@@ -36,7 +36,7 @@ class SingleMovieCreator():
         self.config = jsonconfig
         self.size = size
 
-        self.font = "Arial.ttf"
+        self.font = "./static/movie/Arial Rounded Bold.ttf"
 
         self.toDelete = []
 
