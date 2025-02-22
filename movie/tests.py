@@ -85,14 +85,14 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
         TestHelpers.get_multiwinner_upload_response(self.client)
 
         # Make sure nothing is cached
-        assert TextToSpeechCachedFile.objects.count() == 0
+        self.assertEqual(TextToSpeechCachedFile.objects.count(), 0)
 
         # Create the movie
         jsonConfig = TestHelpers.get_latest_upload()
         create_movie_task(jsonConfig.pk, self.live_server_url)
 
         # Make sure some things are cached
-        assert TextToSpeechCachedFile.objects.count() == 4
+        self.assertEqual(TextToSpeechCachedFile.objects.count(), 4)
 
         # TODO - why does this not work with .delay()? With celery running,
         # and the correct live_server_url, it accesses my localhost database
@@ -218,7 +218,7 @@ class MovieCreationTestsMocked(StaticLiveServerTestCase):
 
         # Mock the video generation to make it faster
         mockWriteVideoFile.return_value = None
-        mockGenerateImage.return_value = moviepy.editor.ImageClip(FILENAME_ARBITRARY_IMAGE)
+        mockGenerateImage.return_value = moviepy.ImageClip(FILENAME_ARBITRARY_IMAGE)
 
         create_movie_task(jsonConfig.pk, self.live_server_url)
 

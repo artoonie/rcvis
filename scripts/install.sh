@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Install python deps in a virtualenv
 virtualenv venv
 source venv/bin/activate

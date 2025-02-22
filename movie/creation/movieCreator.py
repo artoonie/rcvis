@@ -3,16 +3,14 @@ Movie generation entry point.
 Allows creation of movies from a jsonConfig at various resolutions.
 """
 
-import os
 import tempfile
 import time
 
-from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
-from moviepy.config import change_settings
-from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, \
+from moviepy import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, \
     concatenate_videoclips
+from moviepy.video.fx.Resize import Resize
 import selenium
 
 from common.viewUtils import get_script_to_disable_animations
@@ -20,9 +18,6 @@ from visualizer.descriptors.roundDescriber import Describer
 from visualizer.graph.graphCreator import make_graph_with_file
 from movie import models
 from movie.creation.textToSpeech import TextToSpeechFactory
-
-
-change_settings({"FFMPEG_BINARY": os.environ.get("IMAGEIO_FFMPEG_EXE", "/usr/bin/ffmpeg")})
 
 
 class ProbablyFailedToLaunchBrowser(Exception):
@@ -41,7 +36,7 @@ class SingleMovieCreator():
         self.config = jsonconfig
         self.size = size
 
-        self.fontName = settings.MOVIE_FONT_NAME
+        self.font = "./static/movie/Arial Rounded Bold.ttf"
 
         self.toDelete = []
 
@@ -58,27 +53,24 @@ class SingleMovieCreator():
         """
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(spokenText)
 
-        title = TextClip(writtenText,
-                         font=self.fontName,
-                         fontsize=70,
+        title = TextClip(text=writtenText,
+                         font=self.font,
+                         font_size=70,
                          color="black",
                          size=self.size,
                          method="caption",
-                         align="center")
+                         text_align="center")
 
         background0 = ImageClip(backgroundImageFn)
-        background = background0.resize(self.size)  # pylint: disable=no-member
+        background = background0.with_effects([Resize(self.size)])
 
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
-        duration = audioClip.duration
 
-        combined0 = CompositeVideoClip([background, title])
-        combined1 = combined0.set_duration(duration)
-        combined = combined1.set_audio(audioClip)
+        combined = CompositeVideoClip([background, title]).with_audio(audioClip)
+        combined.duration = audioClip.duration
 
-        self.toDelete.extend([title, background0, background, audioClip,
-                              combined0, combined1, combined])
+        self.toDelete.extend([title, background0, background, audioClip, combined])
 
         return combined
 
@@ -96,17 +88,17 @@ class SingleMovieCreator():
         primary = self._text_on_background(writtenText, spokenText, backgroundImageFn)
 
         url = f"rcvis.com/v/{self.config.slug}\n\n\n"
-        urlText0 = TextClip(url,
-                            font=self.fontName,
-                            fontsize=35,
-                            color="black",
-                            size=self.size,
-                            method="caption",
-                            align="South")
-        urlText = urlText0.set_duration(primary.duration)
+        urlText = TextClip(text=url,
+                           font=self.font,
+                           font_size=35,
+                           color="black",
+                           size=self.size,
+                           method="caption",
+                           vertical_align="bottom")
 
         combined = CompositeVideoClip([primary, urlText])
-        self.toDelete.extend([primary, urlText, urlText0, combined])
+        combined.duration = primary.duration
+        self.toDelete.extend([primary, urlText, combined])
 
         return combined
 
@@ -161,10 +153,10 @@ class SingleMovieCreator():
         imageClip0 = self._generate_image_for_round_synchronously(roundNum)
 
         # 1s
-        imageClip1 = imageClip0.set_duration(duration)
-        imageClip = imageClip1.resize(self.size)
+        imageClip = imageClip0.with_effects([Resize(self.size)])
+        imageClip.duration = duration
 
-        self.toDelete.extend([imageClip0, imageClip1, imageClip])
+        self.toDelete.extend([imageClip0, imageClip])
 
         return imageClip
 
@@ -185,25 +177,19 @@ class SingleMovieCreator():
         generatedAudioWrapper = self._spawn_audio_creation_with_caption(caption)
 
         # Create background image
-        imageClip0 = self._generate_image_for_round_synchronously(roundNum)
+        imageClip = self._generate_image_for_round_synchronously(roundNum)
 
         # Download audio
         audioFile = generatedAudioWrapper.download_synchronously()
         audioClip = AudioFileClip(audioFile.name)
-        audioDuration = audioClip.duration
-
-        # Set audio durations
-        imageClip = imageClip0.set_duration(audioDuration)
 
         # Combine everything
-        combined0 = CompositeVideoClip([imageClip])
-        combined1 = combined0.set_duration(audioDuration)
-        combined2 = combined1.set_audio(audioClip)
-        combined = combined2.resize(self.size)
+        combined = CompositeVideoClip([imageClip]) \
+            .with_audio(audioClip) \
+            .with_effects([Resize(self.size)])
+        combined.duration = audioClip.duration
 
-        self.toDelete.extend([audioClip,
-                              combined0, combined1, combined2, combined,
-                              imageClip0, imageClip])
+        self.toDelete.extend([audioClip, combined, imageClip])
 
         return combined
 
