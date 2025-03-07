@@ -12,6 +12,7 @@ from visualizer import views
 router = routers.DefaultRouter()
 router.register('bp', views.BallotpediaViewSet, 'bp')
 router.register('visualizations', views.JsonOnlyViewSet, 'visualizations')
+router.register('verbose', views.VerboseViewSet, 'verbose')
 router.register('users', views.UserViewSet)
 
 sitemaps = {
