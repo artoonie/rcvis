@@ -149,6 +149,16 @@ class JsonOnlySerializer(BaseVisualizationSerializer):
         fields = BaseVisualizationSerializer.Meta.fields + writeable_fields
 
 
+class VerboseSerializer(BaseVisualizationSerializer):
+    """
+    A serializer that allows setting any value.
+    No sane defaults are used -- you must specify all values.
+    """
+    class Meta(BaseVisualizationSerializer.Meta):
+        writeable_fields = JsonConfig.get_all_non_auto_fields()
+        fields = BaseVisualizationSerializer.Meta.fields + writeable_fields
+
+
 class BallotpediaSerializer(BaseVisualizationSerializer):
     """
     A serializer for specifying the Ballotpedia data.

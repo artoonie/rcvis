@@ -101,7 +101,7 @@ class JsonConfig(models.Model):
     def get_all_non_auto_fields(cls):
         """ All editable fields of JsonConfig - must be kept up to date with the list
             of fields above. (I'm sure there's a way to do this automatically...) """
-        return ['jsonFile',
+        return ('jsonFile',
                 'candidateSidecarFile',
                 'rotateNames',
                 'showRoundNumbersOnSankey',
@@ -117,7 +117,7 @@ class JsonConfig(models.Model):
                 'eliminationBarColor',
                 'dataSourceURL',
                 'areResultsCertified',
-                'textForWinner']
+                'textForWinner')
 
     @classmethod
     def get_all_public(cls):

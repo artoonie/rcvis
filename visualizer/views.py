@@ -39,7 +39,8 @@ from visualizer.graph.graphCreator import BadJSONError
 from visualizer.serializers import BaseVisualizationSerializer
 from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
-from visualizer.serializers import JsonOnlySerializer, BallotpediaSerializer, UserSerializer
+from visualizer.serializers import JsonOnlySerializer, VerboseSerializer, \
+    BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 logger = logging.getLogger(__name__)
@@ -418,6 +419,16 @@ class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonOnlySerializer
+    permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+class VerboseViewSet(LoggingMixin, viewsets.ModelViewSet):
+    """ API endpoint that expects all arguments to be supplied. """
+    queryset = JsonConfig.objects.all().order_by('-uploadedAt')
+    serializer_class = VerboseSerializer
     permission_classes = [HasAPIAccess, IsOwnerOrReadOnly]
 
     def perform_create(self, serializer):

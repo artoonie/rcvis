@@ -57,6 +57,31 @@ create_visualization() {
     echo "  - Table: $EMBED_TABLE_URL"
 }
 
+# Function to create a visualization while specifying all options
+# No sane defaults are used, so expect to set all or most options.
+create_visualization_verbose_api() {
+    echo "Creating visualization with verbose endpoint..."
+    
+    RESPONSE=$(curl -s -X POST "$BASE_URL/api/verbose/" \
+        -H "Authorization: Token $API_KEY" \
+        -F "jsonFile=@$JSON_FILE_PATH" \
+        -F "colorTheme=2" \
+        -F "doUseDescriptionInsteadOfTimeline=false")
+    # NOTE: for a complete list of options, see visualizer/models.py:get_all_non_auto_fields
+    
+    SLUG=$(echo "$RESPONSE" | jq -r '.slug')
+    
+    if [ -z "$SLUG" ] || [ "$SLUG" == "null" ]; then
+        echo "Failed to create visualization. Response: $RESPONSE"
+        exit 1
+    fi
+    
+    VISUALIZE_URL=$(echo "$RESPONSE" | jq -r '.visualizeUrl')
+    echo "Visualization created with slug: $SLUG"
+    echo "View it here: $VISUALIZE_URL"
+}
+
 # Run the functions
 get_api_key
 create_visualization
+create_visualization_verbose_api
