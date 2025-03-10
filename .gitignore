@@ -1,7 +1,7 @@
 venv
 __pycache__
 rcvis.egg-info
-.env
+rcvis/.env
 db.sqlite3
 docs/build
 .coverage
@@ -10,6 +10,7 @@ static/CACHE/
 node_modules/
 staticfiles/
 .DS_Store
+.local_settings.py
 
 # Elastic Beanstalk Files
 .elasticbeanstalk/*

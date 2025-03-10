@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 import django_on_heroku
+from dotenv import load_dotenv  # for decouple-based environment variable handling
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,21 +22,49 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
+# =======================
+# Security Settings
+# =======================
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ['RCVIS_SECRET_KEY']
+
+# Load environment variables from .env
+load_dotenv()
+
+# SECRET_KEY Configuration
+# Now, you can access the variables like this
+RCVIS_SECRET_KEY = os.getenv('RCVIS_SECRET_KEY')
+
+if not RCVIS_SECRET_KEY:
+    raise ValueError("The RCVIS_SECRET_KEY environment variable is not set!")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ['RCVIS_DEBUG'] == "True"
+
+# =======================
+# Rate Limiting
+# =======================
+# Toggle rate limiting for AJAX requests.
+# This setting is useful to disable during tests.
 
 # Only useful to disable in tests
 RATE_LIMIT_AJAX = True
 
 # I'm not proud of this. Add hosts - one per environment variable
+
+# Dynamically set ALLOWED_HOSTS based on environment variables
 ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
+# Add an alias host if defined
 if 'RCVIS_HOST_ALIAS' in os.environ:
     ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
+# Add Heroku app hostname if running on Heroku
 if 'HEROKU_APP_NAME' in os.environ:
     ALLOWED_HOSTS.append(os.environ['HEROKU_APP_NAME'] + '.heroku.com')
+# Add localhost and 127.0.0.1 for development
+if os.environ.get(
+        'DJANGO_ENV') == 'development':  # Optional: check for a development environment flag
+    ALLOWED_HOSTS.extend(['127.0.0.1', 'localhost'])
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -177,6 +207,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static/'),
 )
+
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -327,3 +358,9 @@ if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
     # Also ensure logging is output on remote
     django_on_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
+
+# Load additional settings from local_settings.py
+try:
+    from .local_settings import *
+except ImportError:
+    raise ImportError("local_settings.py file is missing!")

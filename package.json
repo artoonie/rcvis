@@ -4,7 +4,7 @@
     "usfca-data-table": "^0.1.0"
   },
   "devDependencies": {
-    "bootstrap": "^3.3.5",
+    "bootstrap": "^5.3.3",
     "jquery": "^3.2.1"
   }
 }
