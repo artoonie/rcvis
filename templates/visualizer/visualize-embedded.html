@@ -13,6 +13,8 @@
     <div id="embedded-content">
       {% if vistype == "sankey" %}
           {% include "sankey/sankey.html" %}
+      {% elif vistype == "pie" %}
+          {% include "pie/pie.html" %}
       {% elif vistype == "barchart-fixed" %}
           {% include "bargraph/barchart-fixed.html" %}
       {% elif vistype == "barchart-interactive" %}
@@ -45,6 +47,8 @@
   {% include "visualizer/common-visualizer-nonblocking.html" %}
   {% if vistype == "sankey" %}
       {% include "sankey/sankey-nonblocking.html" %}
+  {% elif vistype == "pie" %}
+      {% include "pie/pie-nonblocking.html" %}
   {% elif vistype == "barchart-fixed" %}
       {% include "bargraph/barchart-common-nonblocking.html" %}
       {% include "bargraph/barchart-fixed-nonblocking.html" %}
