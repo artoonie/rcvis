@@ -105,6 +105,54 @@ function statusCallback(status, row, col) {
     }
 }
 
+const table = new Tabulator("#" + wrapperDivId + "1", {
+  data: [
+    {id: 1, candidate: new Candidate("Candidate 1")},
+    {id: 2, candidate: new Candidate("Candidate 2")},
+    {id: 3, candidate: new Candidate("Candidate 3")}
+  ],
+  addRowPos:"bottom",
+  layout:"fitColumns",
+  debugInvalidOptions:false,
+  columns: [
+    {
+      title: "Candidates", field: "candidate", width: 200,
+      formatter: Candidate.customCandidateFormatter,
+      editor: Candidate.customCandidateEditor,
+      variableHeight: true,
+    },
+  ],
+});
+
+function addRound() {
+  const cols = table.getColumns();
+  const lastCol = table.getColumn(cols[cols.length - 1]);
+  const colNr = table.getColumnDefinitions().length;
+  const colDef = {
+    title: `Round ${colNr}`, columns: [
+      {
+        title: `# Votes`,
+        editorParams: {text: 0},
+        field: `votes-${colNr}`, hozAlign: "center",
+        editor: "number"
+      },
+      {
+        title: `Status`,
+        field: `status-${colNr}`, hozAlign: "center",
+        editorParams: {selected: 0, values: ["Active", "Eliminated", "Elected"]},
+        editor: "list"
+      }]
+  }
+  for(let i = 1; i <= table.getRows(); i++) {
+    const obj = {id : i}
+    obj[`votes-${colNr}`] = 0;
+    obj[`status-${colNr}`] = "Active";
+    table.setData([obj]);
+  }
+  return table.addColumn(colDef, false, lastCol ? lastCol.getField() : null);
+}
+
+
 function validateDataEntry() {
    // Serialize data, add it to the hidden input
    const serializedData = dtToJSON(wrapperDivId);
@@ -129,14 +177,39 @@ function validateDataEntry() {
    });
 }
 
-dtCreateDataTable({
-  wrapperDivId,
-  rowsName: "Candidate",
-  columnsName: "Round",
 
-  /* Datum Config */
-  names: ["# Votes", "Status"],
-  types: [Number, Array],
-  values: [0, ["Active", "Eliminated", "Elected"]],
-  callbacks: [voteCountCallback, statusCallback]
+table.on("tableBuilt", () => {
+  // const p = addRound();
+  for (let i = 0; i < 3; i++) {
+    // console.log("Adding columns")
+    // p.then(() => {table.addColumn(table)})
+    addRound();
+  }
 });
+
+document.getElementById("add-row").addEventListener("click", function(){
+  table.addRow({});
+});
+
+document.getElementById("del-row").addEventListener("click", function(){
+  table.deleteRow(1);
+});
+
+document.getElementById("add-col").addEventListener("click", function(){
+});
+
+document.getElementById("del-col").addEventListener("click", function(){
+  // table.deleteColumn();
+});
+
+// dtCreateDataTable({
+//   wrapperDivId,
+//   rowsName: "Candidate",
+//   columnsName: "Round",
+//
+//   /* Datum Config */
+//   names: ["# Votes", "Status"],
+//   types: [Number, Array],
+//   values: [0, ["Active", "Eliminated", "Elected"]],
+//   callbacks: [voteCountCallback, statusCallback]
+// });
