@@ -100,10 +100,9 @@ class Candidate {
   static customCandidateFormatter(cell, formatterParams, onRendered) {
     const candidate = cell.getData().candidate;
     const editor = document.createElement("div");
-    if (!candidate.isDefault) {
+    if (Candidate.isAdvancedSelected()) {
       Candidate.createSpanElement(editor, "Candidate Name:",
           candidate.candidateName);
-      ;
       const incumbent = document.createElement("checkbox")
       incumbent.selected = candidate.incumbent;
       incumbent.onclick = function() {
@@ -112,13 +111,11 @@ class Candidate {
       Candidate.createElement(editor, incumbent, "Incumbent:",
           candidate.incumbent);
       Candidate.createSpanElement(editor, "Photo URL:", candidate.photo_url);
-      ;
       Candidate.createSpanElement(editor, "More Info URL:",
           candidate.moreinfo_url);
       Candidate.createSpanElement(editor, "Party:", candidate.party);
     } else {
       Candidate.createSpanElement(editor, "", candidate.candidateName);
-      ;
     }
     onRendered(function() {
       cell.getRow().normalizeHeight();
@@ -129,21 +126,28 @@ class Candidate {
 
   static createSpanElement(editor, labelText, value) {
     const elem = document.createElement("span");
+    elem.id = Candidate.randstr("candidate-span-")
     elem.textContent = value;
     return Candidate.createElement(editor, elem, labelText, value)
   }
 
   static createInputElement(editor, labelText, value) {
     const elem = document.createElement("input");
+    elem.id = Candidate.randstr("candidate-input-")
     return Candidate.createElement(editor, elem, labelText, value)
   }
 
   static createElement(editor, elem, labelText, value) {
     const label = document.createElement("LABEL");
+    label.className = "upload-candidate-label";
     label.htmlFor = elem.id;
-    label.textContent = labelText.endsWith(" ") ? labelText : labelText + " ";
+    label.textContent = labelText;
+    label.style.marginRight = "5px";
+    label.appendChild(document.createElement("br"))
+    label.appendChild(elem);
+
     editor.appendChild(label);
-    editor.appendChild(elem);
+    // editor.appendChild(elem);
     editor.appendChild(document.createElement("br"));
     elem.value = value;
     return elem;
@@ -153,43 +157,43 @@ class Candidate {
       editorParams) {
     const candidate = cell.getData().candidate;
     const editor = document.createElement("div");
+    const candidateInfo = document.createElement("div");
     const candidateName = Candidate.createInputElement(editor,
         "Candidate Name:", candidate.candidateName);
-    var elem = document.createElement("input");
+    const elem = document.createElement("input");
     elem.type = "checkbox";
-    const incumbent = Candidate.createElement(editor, elem, "Incumbent:",
+    const incumbent = Candidate.createElement(candidateInfo, elem, "Incumbent:",
         candidate.incumbent);
-    ;
-    const photoUrl = Candidate.createInputElement(editor, "Photo URL:",
+    const photoUrl = Candidate.createInputElement(candidateInfo, "Photo URL:",
         candidate.photo_url);
-    const moreInfoUrl = Candidate.createInputElement(editor, "More Info URL:",
+    const moreInfoUrl = Candidate.createInputElement(candidateInfo,
+        "More Info URL:",
         candidate.moreinfo_url);
-    const party = Candidate.createInputElement(editor, "Party:",
+    const party = Candidate.createInputElement(candidateInfo, "Party:",
         candidate.party);
+    editor.appendChild(candidateInfo);
+    candidateInfo.hidden = !Candidate.isAdvancedSelected();
 
-    //Set value of editor to the current value of the cell
-    // editor.value = luxon.DateTime.fromFormat(cell.getValue(), "dd/MM/yyyy").toFormat("yyyy-MM-dd")
-
-    //set focus on the select box when the editor is selected
     onRendered(function() {
       cell.getRow().normalizeHeight();
       cell.getTable().rowManager.adjustTableSize();
-
-      incumbent.focus();
       editor.style.css = "100%";
     });
 
     //when the value has been set, trigger the cell to update
     function successFunc() {
       const candidateClone = cell.getData().candidate.clone();
-      console.log("pre: " + JSON.stringify(candidate.toJSON()));
       candidateClone.candidateName = candidateName.value
           || candidate.candidateName;
-      candidateClone.incumbent = incumbent.selected === undefined
-          ? candidate.incumbent : incumbent.selected;
-      candidateClone.photo_url = photoUrl.value || candidate.photo_url;
-      candidateClone.moreinfo_url = moreInfoUrl.value || candidate.moreinfo_url;
-      candidateClone.party = party.value || candidate.party;
+      if (Candidate.isAdvancedSelected()) {
+        candidateClone.incumbent = (!incumbent || incumbent.selected
+            === undefined)
+            ? candidate.incumbent : incumbent.selected;
+        candidateClone.photo_url = photoUrl.value || candidate.photo_url;
+        candidateClone.moreinfo_url = moreInfoUrl.value
+            || candidate.moreinfo_url;
+        candidateClone.party = party.value || candidate.party;
+      }
 
       // const data = structuredClone(cell.getData());
       // data.candidate = candidateClone;
@@ -203,4 +207,12 @@ class Candidate {
     //return the editor element
     return editor;
   };
+
+  static isAdvancedSelected() {
+    return document.getElementById("upload-show-advanced-options").checked;
+  }
+  static  randstr(prefix) {
+    return Math.random().toString(36).replace('0.',prefix || '');
+  }
+
 }
