@@ -1,9 +1,8 @@
 {% load static %}
 {% load compress %}
-
+<link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
 {% compress css file %}
-<link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator.css' %}">
-<link rel="stylesheet" href="{% static 'usfca-data-table/data-table/table.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'settings/tabulator-custom.css' %}">
 {% endcompress %}
 
 
@@ -24,12 +23,14 @@
   </div>
 <!--  <div id="dataTableWrapper">-->
   <div>
-    <button id="add-row">Add Blank Row to bottom</button>
-    <button id="del-row">Remove Row "Oli Bob"</button>
-    <button id="add-col">Empty the table</button>
-    <button id="del-col">Reset</button>
+    <button id="add-row">Add New Candidate</button>
+    <button id="del-row">Delete Last Candidate</button>
+    <button id="add-col">Add Round</button>
+    <button id="del-col">Delete Last Round</button>
+    <br />
+    Show advanced options? <input type="checkbox" id="upload-show-advanced-options" />
   </div>
-  <div id="dataTableWrapper1">
+  <div id="dataTableWrapper">
   </div>
   <div class="text-center">
     <div id="dataEntryValidationMessage"></div>

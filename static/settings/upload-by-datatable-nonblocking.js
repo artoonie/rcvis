@@ -105,14 +105,14 @@ function statusCallback(status, row, col) {
     }
 }
 
-const table = new Tabulator("#" + wrapperDivId + "1", {
+const table = new Tabulator("#" + wrapperDivId, {
   data: [
     {id: 1, candidate: new Candidate("Candidate 1")},
     {id: 2, candidate: new Candidate("Candidate 2")},
     {id: 3, candidate: new Candidate("Candidate 3")}
   ],
   addRowPos:"bottom",
-  layout:"fitColumns",
+  layout:"fitDataFill",
   debugInvalidOptions:false,
   columns: [
     {
@@ -143,13 +143,27 @@ function addRound() {
         editor: "list"
       }]
   }
-  for(let i = 1; i <= table.getRows(); i++) {
+  const rows = table.getRows();
+  for(let i = 1; i <= rows.length; i++) {
     const obj = {id : i}
     obj[`votes-${colNr}`] = 0;
     obj[`status-${colNr}`] = "Active";
-    table.setData([obj]);
+    rows[i - 1].update(obj);
   }
   return table.addColumn(colDef, false, lastCol ? lastCol.getField() : null);
+}
+
+function addRow() {
+  const rows = table.getRows();
+  const rowNr = rows.length + 1;
+  const candidate = {id: rowNr, candidate: new Candidate(`Candidate ${rowNr}`)}
+
+  for(let i = 1; i <= table.getColumnDefinitions().length; i++) {
+    candidate[`votes-${i}`] = 0;
+    candidate[`status-${i}`] = "Active";
+  }
+  // table.setData([candidate]);
+  return table.addRow(candidate, false);
 }
 
 
@@ -187,29 +201,37 @@ table.on("tableBuilt", () => {
   }
 });
 
-document.getElementById("add-row").addEventListener("click", function(){
-  table.addRow({});
+document.getElementById("add-row")
+.addEventListener("click", function(e){
+  e.preventDefault();
+  addRow();
 });
 
-document.getElementById("del-row").addEventListener("click", function(){
-  table.deleteRow(1);
+document.getElementById("del-row").addEventListener("click", function(e){
+  e.preventDefault();
+  var rows = table.getRows();
+  if(rows.length > 0) {
+    rows[rows.length - 1].delete();
+  }
 });
 
-document.getElementById("add-col").addEventListener("click", function(){
+document.getElementById("add-col").addEventListener("click", function(e){
+  e.preventDefault();
+  addRound();
 });
 
-document.getElementById("del-col").addEventListener("click", function(){
-  // table.deleteColumn();
+document.getElementById("del-col").addEventListener("click", function(e) {
+  e.preventDefault();
+  var columns = table.getColumns();
+  const length = columns.length;
+  if (length >= 3) {
+    const field = columns[length - 1].getField();
+    const field2 = columns[length - 2].getField();
+    table.deleteColumn(field);
+    table.deleteColumn(field2);
+  }
 });
 
-// dtCreateDataTable({
-//   wrapperDivId,
-//   rowsName: "Candidate",
-//   columnsName: "Round",
-//
-//   /* Datum Config */
-//   names: ["# Votes", "Status"],
-//   types: [Number, Array],
-//   values: [0, ["Active", "Eliminated", "Elected"]],
-//   callbacks: [voteCountCallback, statusCallback]
-// });
+document.getElementById("upload-show-advanced-options").addEventListener("click", function(e){
+  table.redraw(true);
+});

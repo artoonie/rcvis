@@ -59,7 +59,7 @@ svg {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  background-color: ##00060c;
+  background-color: #00060c;
 }
 .uploaddescriptor {
  padding: 30px;
@@ -87,9 +87,12 @@ svg {
   margin: 15px;
   overflow-x: scroll;
 }
-.dt_cell {
-  vertical-align: top;
+
+.upload-candidate-label  {
+  font-weight: bold;
 }
-.dt_cell input:disabled {
-  opacity: 5%;
+
+.upload-candidate-label input,
+.upload-candidate-label span {
+  font-weight: normal;
 }

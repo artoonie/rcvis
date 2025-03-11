@@ -1,0 +1,12 @@
+
+.tabulator-cell {
+  vertical-align: top;
+}
+
+/*.tabulator-cell.tabulator-editing {*/
+/*  opacity: 5%;*/
+/*}*/
+
+.tabulator-row .tabulator-cell.tabulator-editing input, .tabulator-row .tabulator-cell.tabulator-editing select {
+  border: 1px solid black;
+}
