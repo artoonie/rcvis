@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@artoonie/timeline-range-slider": "^0.1.12",
-    "usfca-data-table": "^0.1.0"
+    "usfca-data-table": "^0.1.0",
+    "tabulator-tables": "6.3.1"
   },
   "devDependencies": {
     "bootstrap": "^3.3.5",
