@@ -55,7 +55,7 @@ function voteCountCallback(cell, value, parameters) {
     }
 
     if (value < 0) {
-      cell.getRow().popup(lessThanZeroError, "top")
+      cell.getRow().popup(lessThanZeroError, "bottom")
       return false;
     }
 
@@ -82,7 +82,7 @@ function voteCountCallback(cell, value, parameters) {
             cells[c].clearValidation();
         } else {
             if (c === cellIndex) {
-              cell.popup(errorPopupFormatter, "top")
+              cell.popup(errorPopupFormatter, "bottom")
               return false;
             } else {
               cells[c].validate();
@@ -94,6 +94,89 @@ function voteCountCallback(cell, value, parameters) {
     }
 
     return true;
+}
+
+// Checks if this cell is after an Eliminated cell, and if so,
+// it cannot be edited.
+const editCheck = function(cell) {
+  const cells = cell.getRow().getCells();
+  const value = cell.getValue();
+  if (value !== null) {
+    return true;
+  }
+  for (let i = 0; i < cells.length; i++) {
+    const curCell = cells[i];
+    if (curCell.getField() === cell.getField()) {
+      return true;
+    }
+    if (curCell.getValue() === "Eliminated" || (curCell.getValue() === "Elected"
+        && curCell.getColumn().getField() === "Status")) {
+      return false;
+    }
+  }
+  return true;
+};
+
+function updateStatusCell(cell) {
+  console.log("Updating status cell:")
+  updateElectedCell(cell);
+  updateEliminatedCell(cell);
+}
+
+function updateElectedCell(cell) {
+  const cells = cell.getRow().getCells();
+  const value = cell.getValue();
+  const oldValue = cell.getOldValue();
+  if (value === null || (value !== "Elected" && oldValue !== "Elected")) {
+    return;
+  }
+  let afterEditedCell = false;
+  for (let i = 0; i < cells.length; i++) {
+    console.log(`Checking cell: ${i}`);
+    const curCell = cells[i];
+    console.log(`Checking title: ${curCell.getColumn().getDefinition().title}`);
+    if (afterEditedCell) {
+      if (value === "Elected") {
+        if (curCell.getColumn().getDefinition().title === "Status") {
+          curCell.setValue(null, false);
+        }
+      } else if (oldValue === "Elected") {
+        if (curCell.getColumn().getDefinition().title === "Status") {
+          if (curCell.getValue() === null) {
+            curCell.restoreOldValue();
+          }
+        }
+      }
+    }
+    if (curCell.getField() === cell.getField()) {
+      afterEditedCell = true;
+    }
+  }
+}
+
+function updateEliminatedCell(cell) {
+    const cells = cell.getRow().getCells();
+    const value = cell.getValue();
+    const oldValue = cell.getOldValue();
+    if (value === null || !(value === "Eliminated" || oldValue === "Eliminated")) {
+      return;
+    }
+    let afterEditedCell = false;
+    for (let i = 0; i < cells.length; i++) {
+      const curCell = cells[i];
+      if (afterEditedCell) {
+        if (value === "Eliminated") {
+          curCell.setValue(null, false);
+        } else if (oldValue === "Eliminated") {
+          if (curCell.getValue() === null) {
+            curCell.restoreOldValue();
+          }
+        }
+      }
+      if (curCell.getField() === cell.getField()) {
+        afterEditedCell = true;
+      }
+    }
 }
 
 function setEnabled(row, col, fieldNum, enable) {
@@ -154,12 +237,15 @@ const table = new Tabulator("#" + wrapperDivId, {
   addRowPos:"bottom",
   layout:"fitDataFill",
   debugInvalidOptions:false,
+  layoutColumnsOnNewData:true,
   validationMode: "highlight",
   columns: [
     {
-      title: "Candidates", field: "candidate", width: 200,
+      title: "Candidates",
+      field: "candidate",
       formatter: Candidate.customCandidateFormatter,
       editor: Candidate.customCandidateEditor,
+      sorter: Candidate.customCandidateSorter,
       variableHeight: true,
     },
   ],
@@ -176,6 +262,7 @@ function addRound() {
         editorParams: {selectContents: true},
         field: `votes-${colNr}`, hozAlign: "center",
         editor: "number",
+        editable: editCheck,
         validator: [{type: voteCountCallback}],
       },
       {
@@ -184,6 +271,8 @@ function addRound() {
         editorParams: {selected: 0, values: ["Active", "Eliminated", "Elected"]},
         editor: "list",
         validator: [{type: voteCountCallback}],
+        cellEdited: updateStatusCell,
+        editable: editCheck,
       }]
   }
   const rows = table.getRows();

@@ -108,3 +108,7 @@ svg {
 .upload-hoverable:hover + .upload-hover {
   display: block;
 }
+
+.candidate-name-default {
+  color: lightgrey;
+}

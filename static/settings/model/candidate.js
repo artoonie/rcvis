@@ -97,6 +97,44 @@ class Candidate {
     );
   }
 
+  static customCandidateSorter(aCandidate, bCandidate, aRow, bRow, column, dir, params) {
+    const a = aCandidate.candidateName;
+    const b = bCandidate.candidateName;
+    var alignEmptyValues = params.alignEmptyValues;
+    var emptyAlign = 0;
+    var locale;
+
+    //handle empty values
+    if (!a) {
+      emptyAlign = !b ? 0 : -1;
+    } else if (!b) {
+      emptyAlign = 1;
+    } else {
+      //compare valid values
+      switch (typeof params.locale) {
+        case "boolean":
+          if (params.locale) {
+            locale = this.langLocale();
+          }
+          break;
+        case "string":
+          locale = params.locale;
+          break;
+      }
+
+      return String(a).toLowerCase().localeCompare(String(b).toLowerCase(),
+          locale);
+    }
+
+    //fix empty values in position
+    if ((alignEmptyValues === "top" && dir === "desc") || (alignEmptyValues
+        === "bottom" && dir === "asc")) {
+      emptyAlign *= -1;
+    }
+
+    return emptyAlign;
+  }
+
   static customCandidateFormatter(cell, formatterParams, onRendered) {
     const candidate = cell.getData().candidate;
     const editor = document.createElement("div");
@@ -117,6 +155,9 @@ class Candidate {
     } else {
       const elem = document.createElement("span");
       elem.id = Candidate.randstr("candidate-span-")
+      if (!cell.isEdited()) {
+        elem.classList.add("candidate-name-default");
+      }
       elem.textContent = candidate.candidateName;
       editor.appendChild(elem);
     }
