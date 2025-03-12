@@ -104,10 +104,24 @@ const editCheck = function(cell) {
   if (value !== null) {
     return true;
   }
+  let seenElected = false;
+  let seenVotesAfterElected = 0;
   for (let i = 0; i < cells.length; i++) {
     const curCell = cells[i];
     if (curCell.getField() === cell.getField()) {
       return true;
+    }
+    if (curCell.getValue() === "Elected") {
+      seenElected = true;
+    }
+    if (seenElected && curCell.getColumn().getDefinition().title === "# Votes") {
+      if (seenVotesAfterElected > 0) {
+        return false;
+      }
+      seenVotesAfterElected++;
+    }
+    if (seenElected && curCell.getColumn().getDefinition().title === "Status") {
+        return false;
     }
     if (curCell.getValue() === "Eliminated" || (curCell.getValue() === "Elected"
         && curCell.getColumn().getField() === "Status")) {
@@ -118,7 +132,6 @@ const editCheck = function(cell) {
 };
 
 function updateStatusCell(cell) {
-  console.log("Updating status cell:")
   updateElectedCell(cell);
   updateEliminatedCell(cell);
 }
@@ -130,21 +143,25 @@ function updateElectedCell(cell) {
   if (value === null || (value !== "Elected" && oldValue !== "Elected")) {
     return;
   }
+  let nullifyVotes = false;
   let afterEditedCell = false;
   for (let i = 0; i < cells.length; i++) {
-    console.log(`Checking cell: ${i}`);
     const curCell = cells[i];
-    console.log(`Checking title: ${curCell.getColumn().getDefinition().title}`);
     if (afterEditedCell) {
       if (value === "Elected") {
+        if (nullifyVotes) {
+          if (curCell.getColumn().getDefinition().title === "# Votes") {
+            curCell.setValue(null, false);
+          }
+        }
         if (curCell.getColumn().getDefinition().title === "Status") {
+          // After we see our first status to null, we will start nullifying votes too.
+          nullifyVotes = true;
           curCell.setValue(null, false);
         }
       } else if (oldValue === "Elected") {
-        if (curCell.getColumn().getDefinition().title === "Status") {
-          if (curCell.getValue() === null) {
-            curCell.restoreOldValue();
-          }
+        if (curCell.getValue() === null) {
+          curCell.restoreOldValue();
         }
       }
     }
