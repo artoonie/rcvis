@@ -115,7 +115,10 @@ class Candidate {
           candidate.moreinfo_url);
       Candidate.createSpanElement(editor, "Party:", candidate.party);
     } else {
-      Candidate.createSpanElement(editor, "", candidate.candidateName);
+      const elem = document.createElement("span");
+      elem.id = Candidate.randstr("candidate-span-")
+      elem.textContent = candidate.candidateName;
+      editor.appendChild(elem);
     }
     onRendered(function() {
       cell.getRow().normalizeHeight();
@@ -157,9 +160,13 @@ class Candidate {
       editorParams) {
     const candidate = cell.getData().candidate;
     const editor = document.createElement("div");
+    editor.id = Candidate.randstr("candidate-editor-")
+    editor.tabIndex = -1;
+
     const candidateInfo = document.createElement("div");
     const candidateName = Candidate.createInputElement(editor,
         "Candidate Name:", candidate.candidateName);
+    candidateName.tabIndex = 1;
     const elem = document.createElement("input");
     elem.type = "checkbox";
     const incumbent = Candidate.createElement(candidateInfo, elem, "Incumbent:",
@@ -174,14 +181,22 @@ class Candidate {
     editor.appendChild(candidateInfo);
     candidateInfo.hidden = !Candidate.isAdvancedSelected();
 
+    const handleClickOutside = (e) => {
+      if (!editor.contains(e.target)) {
+        successFunc();
+      }
+    };
+
     onRendered(function() {
       cell.getRow().normalizeHeight();
       cell.getTable().rowManager.adjustTableSize();
       editor.style.css = "100%";
+      editor.focus()
     });
 
     //when the value has been set, trigger the cell to update
     function successFunc() {
+      console.log("successFunc");
       const candidateClone = cell.getData().candidate.clone();
       candidateClone.candidateName = candidateName.value
           || candidate.candidateName;
@@ -194,15 +209,20 @@ class Candidate {
             || candidate.moreinfo_url;
         candidateClone.party = party.value || candidate.party;
       }
-
-      // const data = structuredClone(cell.getData());
-      // data.candidate = candidateClone;
-      // cell.getTable().updateData([{id: data.id, candidate: candidateClone}])
+      document.removeEventListener("click", handleClickOutside);
       success(candidateClone);
     }
 
-    editor.addEventListener("change", successFunc);
-    editor.addEventListener("blur", successFunc);
+    editor.onfocus = () => {
+      document.addEventListener("click", handleClickOutside);
+    };
+    // editor.addEventListener("change", successFunc);
+    editor.onblur = successFunc;
+    editor.onchange = successFunc;
+
+
+    // editor.addEventListener("blur", successFunc);
+    // editor.addEventListener("focusout", successFunc);
 
     //return the editor element
     return editor;
