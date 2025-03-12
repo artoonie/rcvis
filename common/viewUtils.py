@@ -63,7 +63,8 @@ def get_data_for_graph(graph, config):
         'singleTableSummary': singleTableSummary,
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
-        'graph': graph
+        'graph': graph,
+        'rawData': graph._debug_temporary_raw_JSON
     }
     roundDescriberData = get_data_for_round_describer(graph, config)
     graphData.update(roundDescriberData)

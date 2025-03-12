@@ -275,6 +275,7 @@ class JSONReader:
         self.parse_data(data)
         self.graph.create_graph_from_rounds(self.rounds)
         self.set_elimination_order(self.rounds, self.graph.items)
+        self.graph._debug_temporary_raw_JSON = data
 
     def parse_data(self, data):
         """ Parses the JSON data, or raises an exception on failure """
