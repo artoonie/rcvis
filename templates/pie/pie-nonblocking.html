@@ -1,10 +1,4 @@
 {% load static %}
-{% load compress %}
 
-{% compress css file %}
-    <link rel="stylesheet" href="{% static "pie/pie.css" %}">
-{% endcompress %}
-
-{% compress js file %}
 <script type="module" src="{% static 'pie/pie.js' %}"></script>
-{% endcompress %}
+
