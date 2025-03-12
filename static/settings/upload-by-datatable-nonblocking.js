@@ -1,6 +1,7 @@
 const wrapperDivId = 'dataTableWrapper';
 const VOTES_FIELD_NUM = 0;
 const STATUS_FIELD_NUM = 1;
+const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
 const VOTE_ERROR_MESSAGE = "Vote count cannot decrease unless this is a surplus transfer," +
                            " i.e., the candidate must have been elected in the previous round";
 
@@ -17,43 +18,82 @@ function requireRevalidation() {
     $("#validateButton").prop("disabled", false);
 }
 
-function voteCountCallback(value, row, col) {
-    requireRevalidation();
+const errorPopupFormatter = function(e, row, onRendered) {
+  let container = document.createElement("div"),
+      contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
+  contents += `<span class="upload-hoverable">${VOTE_ERROR_SIMPLE_MESSAGE}</span>`;
+  contents += `<div class="upload-hover">${VOTE_ERROR_MESSAGE}</div>`
+  container.innerHTML = contents;
+  return container;
+};
 
-    if (value < 0) {
-        return "Vote counts must be positive";
+const lessThanZeroError = function(e, row, onRendered) {
+  let container = document.createElement("div"),
+      contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
+  contents += `<span>Must be a positive number</span>`;
+  container.innerHTML = contents;
+  return container;
+};
+
+function voteCountCallback(cell, value, parameters) {
+    requireRevalidation();
+    const cells = cell.getRow().getCells();
+    cell.setValue(value);
+    if (cells.length <= 3) {
+      return true;
+    }
+    let cellIndex = 0;
+    for(let i = 0; i < cells.length; i++ ) {
+      if(cells[i] === cell) {
+        cellIndex = i;
+        break;
+      }
+    }
+    if(cellIndex < 1) {
+      console.log("Invalid cell index")
+      return false;
     }
 
-    let thisCellErrorMessage = null;
-    const numCols = dtGetNumColumns(wrapperDivId);
-    let prevCellData = dtGetCellData(wrapperDivId, row, 0);
-    for (let c = 1; c < numCols; ++c) {
-        const cellData = dtGetCellData(wrapperDivId, row, c);
-        const numVotes = cellData['# Votes'];
+    if (value < 0) {
+      cell.getRow().popup(lessThanZeroError, "top")
+      return false;
+    }
 
-        if (isNaN(numVotes) || numVotes == null) {
+    const numCols = cell.getTable().getColumns().length;
+    let prevRoundVotes = cells[1].getValue();
+    if(cells[1].getField() === cell.getField()) {
+      prevRoundVotes = value;
+    }
+    let prevRoundStatus = cells[2].getValue();
+    for (let c = 1; c < numCols; c+=2) {
+        const numVotes = cells[c].getField() === cell.getField() ? value : cells[c].getValue();
+        const status = cells[c + 1].getValue();
+
+        if (isNaN(numVotes) || numVotes == null ||
+            // If it hasn't been edited and isn't currently being edited.
+            (!cells[c].isEdited() && cells[c].getField() !== cell.getField())) {
             // User hasn't entered data here yet - no error
-            clearVoteCountError(row, c);
-        } else if (numVotes >= prevCellData['# Votes']) {
+            cells[c].clearValidation();
+        } else if (numVotes >= prevRoundVotes) {
             // Number of votes has stayed the same or increased - no error
-            clearVoteCountError(row, c);
-        } else if (prevCellData['Status'] == 'Elected') {
+            cells[c].clearValidation();
+        } else if (prevRoundStatus === 'Elected') {
             // Last round, the candidate was elected - no error, it's allowed to decrease
-            clearVoteCountError(row, c);
+            cells[c].clearValidation();
         } else {
-            if (c == col) {
-                // Let the callback set the message
-                thisCellErrorMessage = VOTE_ERROR_MESSAGE;
+            if (c === cellIndex) {
+              cell.popup(errorPopupFormatter, "top")
+              return false;
             } else {
-                // We will set the message
-                setVoteCountErrorError(row, c);
+              cells[c].validate();
             }
         }
 
-        prevCellData = cellData;
+        prevRoundVotes = numVotes;
+        prevRoundStatus = status;
     }
 
-    return thisCellErrorMessage;
+    return true;
 }
 
 function setEnabled(row, col, fieldNum, enable) {
@@ -114,6 +154,7 @@ const table = new Tabulator("#" + wrapperDivId, {
   addRowPos:"bottom",
   layout:"fitDataFill",
   debugInvalidOptions:false,
+  validationMode: "highlight",
   columns: [
     {
       title: "Candidates", field: "candidate", width: 200,
@@ -132,15 +173,17 @@ function addRound() {
     title: `Round ${colNr}`, columns: [
       {
         title: `# Votes`,
-        editorParams: {text: 0},
+        editorParams: {selectContents: true},
         field: `votes-${colNr}`, hozAlign: "center",
-        editor: "number"
+        editor: "number",
+        validator: [{type: voteCountCallback}],
       },
       {
         title: `Status`,
         field: `status-${colNr}`, hozAlign: "center",
         editorParams: {selected: 0, values: ["Active", "Eliminated", "Elected"]},
-        editor: "list"
+        editor: "list",
+        validator: [{type: voteCountCallback}],
       }]
   }
   const rows = table.getRows();
@@ -169,7 +212,7 @@ function addRow() {
 
 function validateDataEntry() {
    // Serialize data, add it to the hidden input
-   const serializedData = dtToJSON(wrapperDivId);
+   const serializedData = JSON.stringify(table.getData());
    document.getElementById('dataEntry').value = serializedData;
 
    // Prepare the mock form
@@ -199,15 +242,16 @@ table.on("tableBuilt", () => {
     // p.then(() => {table.addColumn(table)})
     addRound();
   }
+
 });
 
-document.getElementById("add-row")
+document.getElementById("upload-add-row")
 .addEventListener("click", function(e){
   e.preventDefault();
   addRow();
 });
 
-document.getElementById("del-row").addEventListener("click", function(e){
+document.getElementById("upload-del-row").addEventListener("click", function(e){
   e.preventDefault();
   var rows = table.getRows();
   if(rows.length > 0) {
@@ -215,12 +259,12 @@ document.getElementById("del-row").addEventListener("click", function(e){
   }
 });
 
-document.getElementById("add-col").addEventListener("click", function(e){
+document.getElementById("upload-add-col").addEventListener("click", function(e){
   e.preventDefault();
   addRound();
 });
 
-document.getElementById("del-col").addEventListener("click", function(e) {
+document.getElementById("upload-del-col").addEventListener("click", function(e) {
   e.preventDefault();
   var columns = table.getColumns();
   const length = columns.length;
