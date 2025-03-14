@@ -788,44 +788,22 @@ function makeBarGraph(args) {
         .each(function () {
           // Get the HTML text content of the current tspan element
         const tspanText = d3.select(this).text();
-       // const tspan2Number = parseInt(ts);
-        //const candidateKeys = Object.keys(numRoundsTilWin);
-        //console.log("tspan2Number: ", tspan2Number);
-       // console.log("Type OF: ", typeof(tspanText));
-
         function findKeysRoundsTilWin(obj, value){
           for(const key of Object.keys(obj)){
             if(obj[key] === value){
-              return {key, value: obj[key]};
+              return key;
             }
           }
-          // return Object.keys(obj).find(key => 
-          //   {
-          //     console.log(`Checking key: ${key}, value: ${obj[key]}`);
-          //     return obj[key] === value;
-          //   });
         }
-
-           // Compare with candidateNames[currRound] and ONLY iterating over the rounds until we reach the last round of winners
-            // if (tspanText === numRoundsTilWin[currRound]) {
-            //     d3.select(this).attr("font-weight", "bold");
-            //     console.log("Winner should be bolded!");
-            // }
-              //console.log("Current Round: ", typeof currRound);
-              //console.log("Number Rounds Until Win: ", typeof numRoundsTilWin);
-              //console.log("Candidate Name: ", candidateNames);
-              //console.log("tspanText: ", tspanText);
-
-              //consider making a map function of numRounds TilWin to get the key
-            const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound);
-            console.log("CandidateMatch: ", candidateMatch);
-
-            if(candidateMatch && candidateMatch[currRound] === tspanText){
-            //if (numRoundsTilWin[currRound] === tspanText){
-              d3.select(this).attr("font-weight", "bold");
-            //};
-          };
-            
+        const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound);
+        if (candidateMatch === tspanText){
+          console.log('candidateMatch:', JSON.stringify(candidateMatch));
+          console.log('tspanText:', JSON.stringify(tspanText));
+          return this.attr("font-weight", "bold");
+          }
+        else {
+          console.error("Mismatch or undefined values:", { candidateMatch, tspanText });
+        }
     });
 
     // Create starting position and color for the just-eliminated candidate
