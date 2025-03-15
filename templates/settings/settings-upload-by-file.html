@@ -1,8 +1,23 @@
-  <div class="mb-2 mt-2" id="fileselection">
+{% load static %}
+{% load compress %}
+<link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
+{% compress css file %}
+  <link rel="stylesheet" type="text/css" href="{% static 'settings/tabulator-custom.css' %}">
+{% endcompress %}
+
+<div class="mb-2 mt-2" id="fileselection">
     <div class="selectFileButtonWrapper">
       <button id="selectResultsFileButton" class="btn btn-primary btn-xl mr-3">Click to select a file</button>
       <input id="jsonFile" type="file" class="selectFileDefaultInput" name="jsonFile" accept="application/json, .csv, .xlsx, .txt"  onchange="summaryFileSelected(this.files)"/>
     </div>
+    <div id="manuallyEditUpload" hidden="hidden">
+      <button style="align-content: center" id="manuallyEditUploadButton" class="btn btn-primary btn mr-3" onclick="manuallyEditUpload(event, this.files)">Manually Edit Upload</button>
+    </div>
+  <div class="mt-3 container" style="overflow-x: auto">
+    <div id="dataTableWrapperUpload">
+    </div>
+  </div>
 
     {% include "settings/settings-help-filetype.html" %}
   </div>
+<script type="text/javascript" src="{% static 'tabulator-tables/dist/js/tabulator.min.js' %}"></script>
