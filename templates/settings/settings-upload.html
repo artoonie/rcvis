@@ -5,6 +5,8 @@
 {% block beforeOptions %}
 {% compress js file %}
 <script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
+  <script type="text/javascript" src="{% static 'settings/model/candidate.js' %}" defer></script>
+  <script type="text/javascript" src="{% static 'settings/upload-datatable.js' %}" defer></script>
 {% endcompress %}
 
   <div class="mb-2 mt-2" id="header">
