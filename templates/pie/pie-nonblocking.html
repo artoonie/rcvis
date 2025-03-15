@@ -1,4 +1,48 @@
 {% load static %}
+{% load compress %}
 
+{% compress js file %}
 <script type="module" src="{% static 'pie/pie.js' %}"></script>
+{% endcompress %}
 
+<script>
+    const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
+
+    // Create the pie-chart element
+    const pieChart = document.createElement("pie-chart");
+    pieChart.setAttribute("electionSummary", JSON.stringify(electionSummary));
+
+    // Append it to the div
+    document.getElementById("pie-body").appendChild(pieChart);
+
+    // Hide the original slider and replace it with our trs_ slider
+    // TODO Both steps need to be done after the pie chart loads.
+    // We should await an actual signal.
+    // We should also just hide the other slider by default or by config.
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelector("#pie-body > pie-chart").shadowRoot.querySelector("div > div.round-selector-container.svelte-9ymq70").style = "display: none";
+        document.querySelector("#pie-body > pie-chart").shadowRoot.querySelector("div > div.animation-button-container.svelte-9ymq70").style = "display: none";
+
+    });
+
+    trs_createSliderAndTimeline({
+      wrapperDivId: 'pie-slider-container',
+      numTicks: numRounds,
+      tickText: generateTickTexts(numRounds),
+      hideActiveTickText: doHideActiveTickText(numRounds),
+      sliderValueChanged: goToRoundSvelte,
+      timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+      timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
+      timeBetweenStepsMs: 3000
+    });
+
+    // Create a callback which simulates a click on the hidden slider
+    function goToRoundSvelte(roundNum) {
+        const svelteTabs = document.querySelector("#pie-body > pie-chart").shadowRoot.querySelector("div > div.round-selector-container.svelte-9ymq70 > div > div > span");
+        if (!svelteTabs) {
+            console.log("Pie chart not yet loaded");
+            return;
+        }
+        svelteTabs.children[roundNum].click();
+    }
+</script>

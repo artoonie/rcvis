@@ -3,17 +3,7 @@
 {{ rawData|json_script:"rawDataId" }}
 
 
-<div id="pie-body" class="shadow-wrapper"></div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
-
-        // Create the pie-chart element
-        const pieChart = document.createElement("pie-chart");
-        pieChart.setAttribute("electionSummary", JSON.stringify(electionSummary));
-
-        // Append it to the div
-        document.getElementById("pie-body").appendChild(pieChart);
-    });
-</script>
+<div id="pie-wrapper" class="shadow-wrapper">
+    <div id="pie-slider-container"></div>
+    <div id="pie-body"></div>
+</div>
