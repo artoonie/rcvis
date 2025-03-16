@@ -282,7 +282,6 @@ class RcvisDataTable {
           editor: "number",
           editable: editableFunc,
           validator: [{type: RcvisDataTable.voteCountCallback}],
-          minWidth: 55,
           resizable: true,
         },
         {
@@ -292,12 +291,12 @@ class RcvisDataTable {
             selected: 0, values: ["Active", "Eliminated", "Elected"]
           },
           editor: "list",
-          minWidth: 50,
           formatter: RcvisDataTable.statusFormatter,
           validator: [{type: RcvisDataTable.voteCountCallback}],
           cellEdited: RcvisDataTable.updateStatusCell,
           editable: editableFunc,
           resizable: true,
+          headerSort: false,
         }]
     }
     const rows = this.table.getRows();

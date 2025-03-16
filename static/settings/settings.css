@@ -10,7 +10,7 @@ form div.formArea {
   position: relative;
   overflow: hidden;
   display: inline-block;
-  height: 100px;
+  height: 75px;
   width: 100%;
 }
 
@@ -19,7 +19,8 @@ form div.formArea {
   position: relative;
   overflow: hidden;
   display: inline-block;
-  height: 100px;
+  height: 75px;
+  line-height: 75px;
   width: 100%;
 }
 
@@ -69,7 +70,7 @@ svg {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  background-color: #00060c;
+  background-color: ##00060c;
 }
 .uploaddescriptor {
  padding: 30px;

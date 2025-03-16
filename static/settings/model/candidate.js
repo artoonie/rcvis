@@ -144,7 +144,9 @@ class Candidate {
       label.htmlFor = elem.id;
       label.textContent = labelText;
       label.style.marginRight = "5px";
-      label.appendChild(document.createElement("br"))
+      if(elem.type !== "checkbox") {
+        label.appendChild(document.createElement("br"))
+      }
       label.appendChild(elem);
 
       editor.appendChild(label);
@@ -177,34 +179,26 @@ class Candidate {
     const handleClickOutside = (e) => {
       if (!editor.contains(e.target) &&
           !document.getElementById("datatable-modal").contains(e.target)) {
-        cancel();
+        successFunc();
       }
     };
+    const candidateInfo = document.createElement("div");
+    candidateInfo.id = candidateInfoId;
+    candidateInfo.classList.add("candidate-info", "input-group", "mb-3");
+    const candidateTitle = document.createElement("h3");
+    candidateTitle.id = candidateTitleId;
+    candidateTitle.textContent = candidate.candidateName;
+    modalTitleWrapper.appendChild(candidateTitle)
+    modalWrapper.appendChild(candidateInfo);
+    const successFunc = Candidate.attachModalElements(candidateInfo, candidateTitle, candidate, editor,
+        cell, candidateName, success, handleClickOutside);
 
     moreInfoButton.classList.add("btn", "btn-primary");
     moreInfoButton.dataset.candidateName = candidate.candidateName;
     moreInfoButton.textContent = "Manage Candidate"
     moreInfoButton.onclick = function(e) {
       e.preventDefault();
-      MicroModal.show('datatable-modal', {
-        awaitCloseAnimation: true,
-        onShow: function(modal) {
-          const candidateInfo = document.createElement("div");
-          candidateInfo.id = candidateInfoId;
-          candidateInfo.classList.add("candidate-info", "input-group", "mb-3");
-          const candidateTitle = document.createElement("h3");
-          candidateTitle.id = candidateTitleId;
-          candidateTitle.textContent = candidate.candidateName;
-          modalTitleWrapper.appendChild(candidateTitle)
-          modalWrapper.appendChild(candidateInfo);
-          Candidate.attachModalElements(candidateInfo, candidate, editor,
-              cell, candidateName, success, handleClickOutside);
-        },
-        onClose: function(modal) {
-          document.getElementById(candidateInfoId).remove();
-          document.getElementById(candidateTitleId).remove();
-        }
-      })
+      MicroModal.show('datatable-modal');
     }
 
     editor.appendChild(moreInfoButton);
@@ -220,12 +214,8 @@ class Candidate {
       MicroModal.init();
     });
 
-    const cancelFunc = () => {
-      console.log("cancelled")
-      cancel();
-    }
-    editor.onblur = cancelFunc;
-    editor.onchange = cancelFunc;
+    editor.onblur = successFunc;
+    editor.onchange = successFunc;
     editor.onfocus = () => {
       console.log("focused")
       document.addEventListener("click", handleClickOutside);
@@ -233,7 +223,7 @@ class Candidate {
     return editor;
   };
 
-  static attachModalElements(candidateInfo, candidate, editor, cell,
+  static attachModalElements(candidateInfo, candidateTitle, candidate, editor, cell,
       candidateName, success, handleClickOutside) {
     const continueButton = document.getElementById("datatable-modal-submit");
     const elem = document.createElement("input");
@@ -261,14 +251,22 @@ class Candidate {
       candidateClone.moreinfo_url = moreInfoUrl.value
           || candidate.moreinfo_url;
       candidateClone.party = party.value || candidate.party;
-      document.removeEventListener("click", handleClickOutside);
       console.log(JSON.stringify(candidateClone));
+      const candidateInfoElem = document.getElementById(candidateInfo.id);
+      if (candidateInfoElem) {
+        candidateInfoElem.remove();
+      }
+      const candidateTitleElem = document.getElementById(candidateTitle.id);
+      if(candidateTitleElem) {
+        candidateTitleElem.remove();
+      }
       success(candidateClone);
     }
     continueButton.onclick = e => {
       successFunc();
       MicroModal.close('datatable-modal');
     };
+    return successFunc;
   }
 
   static randstr(prefix) {

@@ -1,9 +1,32 @@
 const uploadWrapperDivId = "dataTableWrapperUpload";
 let uploadDataTable = null;
 let uploadDataTableEdited = false;
+let manualSidecarSelectedLast = false;
 function enableDataOptionsAndSubmitButton() {
   document.getElementById("options").style.opacity = '100%'
   document.getElementById("uploadButton").disabled = false;
+}
+
+function hideManualOptionsShowTable() {
+  document.getElementById('manual-sidecar-options').style.display = 'none';
+  document.getElementById('datatable-outer-wrapper').style.display = 'block';
+  redrawOptions();
+}
+
+function showManualOptionsHideTable(redraw = true) {
+  document.getElementById('manual-sidecar-options').style.display = 'block';
+  document.getElementById('datatable-outer-wrapper').style.display = 'none';
+  document.removeEventListener('formdata', formListener);
+  if (redraw) {
+    redrawOptions();
+  }
+}
+
+function redrawOptions() {
+  setTimeout(() => {
+    const content = document.getElementById('dataOptions');
+    content.style.maxHeight = content.scrollHeight + "px";
+  }, 10);
 }
 
 function disableDataOptionsAndSubmitButton() {
@@ -14,10 +37,18 @@ function disableDataOptionsAndSubmitButton() {
 function summaryFileSelected(files) {
   $("#selectResultsFileButton").text(files[0].name)
   enableDataOptionsAndSubmitButton();
+  showManualOptionsHideTable(false);
+  manualSidecarSelectedLast = false;
+  uploadDataTable = null;
 }
 
 function manuallyEditUpload(e) {
   e.preventDefault();
+  manualSidecarSelectedLast = true;
+  if(uploadDataTable) {
+    hideManualOptionsShowTable();
+    return;
+  }
   const form = document.getElementById('form')
   const formData = new FormData(form);
   const file = formData.getAll("jsonFile")[0];
@@ -32,6 +63,13 @@ function manuallyEditUpload(e) {
   }
 }
 
+function formListener(e) {
+  if (uploadDataTable && uploadDataTableEdited && manualSidecarSelectedLast) {
+    const data = e.formData;
+    attachSidecarJson(transformTableDataToSidecarJson(), data)
+  }
+}
+
 function standardizeFormatAjax(formData) {
   $.ajax({
     url: '/standardizeData',
@@ -41,34 +79,26 @@ function standardizeFormatAjax(formData) {
     processData: false,
     contentType: false,
     success: function(data) {
-      uploadDataTableEdited = true;
       const form = document.getElementById('form')
-      form.addEventListener('formdata', (e) => {
-        if (uploadDataTableEdited) {
-          const data = e.formData;
-          attachSidecarJson(transformTableDataToSidecarJson(), data)
-        }
-      });
-      uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
-          transformJsonToTableData(data), true);
-      uploadDataTable.table.on("cellEdited", function() {
-        uploadDataTableEdited = true;
-      });
-      uploadDataTable.table.on("tableBuilt", function() {
-        uploadDataTable.table.validate();
-      })
-      form.addEventListener('formdata', (e) => {
-        if (uploadDataTableEdited) {
-          const data = e.formData;
-          attachSidecarJson(transformTableDataToSidecarJson(), data)
-        }
-      });
+      if (uploadDataTable) {
+        uploadDataTable.table.replaceData(transformJsonToTableData(data));
+      } else {
+        uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
+            transformJsonToTableData(data), true);
+        uploadDataTable.table.on("cellEdited", function() {
+          uploadDataTableEdited = true;
+        });
+        uploadDataTable.table.on("dataProcessed", function(){
+          uploadDataTable.table.validate();
+          hideManualOptionsShowTable();
+        });
+      }
+      form.addEventListener('formdata', formListener);
     }
   })
 }
 
 function attachSidecarJson(jsonData, formData) {
-  console.log("Attaching sidecar json");
   const jsonString = JSON.stringify(jsonData);
   const blob = new Blob([jsonString], {type: "application/json"});
   const file = new File([blob], "sidecar.json", {type: "application/json"});
@@ -89,11 +119,12 @@ function transformJsonToTableData(json) {
       const roundResults = json.results[j];
       const roundNr = roundResults.round;
       candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
-      const lost = roundResults.tallyResults.map(n => n.eliminated === candidates[i]).some(n => n)
+      const anyWon = roundResults.tallyResults.map(n => n.elected).some(n => n)
       const won = roundResults.tallyResults.map(n => n.elected === candidates[i]).some(n => n)
+      const lost = roundResults.tallyResults.map(n => n.eliminated === candidates[i]).some(n => n)
       if (won) {
         status = "Elected";
-      } else if (lost) {
+      } else if (lost || (anyWon && status !== null)) {
         status = "Eliminated"
       }
       candidate["status-" + roundNr] = status;
@@ -124,12 +155,8 @@ function transformTableDataToSidecarJson() {
 
 function sidecarFileSelected(files) {
   $("#selectSidecarFileButton").text(files[0].name)
-}
-
-function showUploadDataTable() {
-  uploadByDataTableInit();
-  document.getElementById('form').action = 'uploadByDataTable.html';
-
+  showManualOptionsHideTable();
+  manualSidecarSelectedLast = false;
 }
 
 function showDataTable(doShow) {
