@@ -7,7 +7,7 @@
               
 {% block beforeOptions %}
 {% endblock %}
-
+<body>
      <div class="container formArea">
         {% block additionalOptions %}
         {% endblock %}
@@ -86,3 +86,6 @@
 
 {% block afterOptions %}
 {% endblock %}
+
+     {% include "settings/settings-candidate-modal.html" %}
+</body>

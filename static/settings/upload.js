@@ -1,79 +1,148 @@
 const uploadWrapperDivId = "dataTableWrapperUpload";
-function enableDataOptionsAndSubmitButton()
-{
+let uploadDataTable = null;
+let uploadDataTableEdited = false;
+function enableDataOptionsAndSubmitButton() {
   document.getElementById("options").style.opacity = '100%'
   document.getElementById("uploadButton").disabled = false;
 }
 
-function disableDataOptionsAndSubmitButton()
-{
+function disableDataOptionsAndSubmitButton() {
   document.getElementById("options").style.opacity = '10%'
   document.getElementById("uploadButton").disabled = true;
 }
 
-function summaryFileSelected(files)
-{
+function summaryFileSelected(files) {
   $("#selectResultsFileButton").text(files[0].name)
-  $("#manuallyEditUpload").removeAttr("hidden");
   enableDataOptionsAndSubmitButton();
 }
 
-function manuallyEditUpload(e)
-{
+function manuallyEditUpload(e) {
   e.preventDefault();
-  document.getElementById('form')
+  const form = document.getElementById('form')
   const formData = new FormData(form);
   const file = formData.getAll("jsonFile")[0];
-  console.log("Got files: ", file.name);
   if (file) {
     const reader = new FileReader();
-
     reader.onload = (e) => {
       const fileContent = e.target.result;
-      // Process fileContent (e.g., display it, parse it, etc.)
-      console.log(fileContent)
-      createDataTable(uploadWrapperDivId,
-          transformJson(JSON.parse(fileContent)), false);
-    };
-    reader.readAsText(file);
+      formData.set("jsonFile", fileContent);
+      standardizeFormatAjax(formData);
+    }
+    reader.readAsText(file)
   }
 }
 
-function transformJson(json) {
+function standardizeFormatAjax(formData) {
+  $.ajax({
+    url: '/standardizeData',
+    method: 'POST',
+    dataTypes: 'json',
+    data: formData,
+    processData: false,
+    contentType: false,
+    success: function(data) {
+      uploadDataTableEdited = true;
+      const form = document.getElementById('form')
+      form.addEventListener('formdata', (e) => {
+        if (uploadDataTableEdited) {
+          const data = e.formData;
+          attachSidecarJson(transformTableDataToSidecarJson(), data)
+        }
+      });
+      uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
+          transformJsonToTableData(data), true);
+      uploadDataTable.table.on("cellEdited", function() {
+        uploadDataTableEdited = true;
+      });
+      uploadDataTable.table.on("tableBuilt", function() {
+        uploadDataTable.table.validate();
+      })
+      form.addEventListener('formdata', (e) => {
+        if (uploadDataTableEdited) {
+          const data = e.formData;
+          attachSidecarJson(transformTableDataToSidecarJson(), data)
+        }
+      });
+    }
+  })
+}
+
+function attachSidecarJson(jsonData, formData) {
+  console.log("Attaching sidecar json");
+  const jsonString = JSON.stringify(jsonData);
+  const blob = new Blob([jsonString], {type: "application/json"});
+  const file = new File([blob], "sidecar.json", {type: "application/json"});
+
+  formData.set("candidateSidecarFile", file);
+}
+
+function transformJsonToTableData(json) {
   const data = []
-  for (let i = 0; i < json.candidates.length; i++) {
-    const candidate = {id: i+1, candidate:
-          new Candidate(json.candidates[i])};
+  const candidates = Object.keys(json.results[0].tally)
+  for (let i = 0; i < candidates.length; i++) {
+    const candidate = {
+      id: i + 1, candidate:
+          new Candidate(candidates[i])
+    };
     let status = "Active"
-    for (let j = 0; j < json.rounds.length; j++) {
-      const roundNr = j + 1
-      candidate["votes-" + roundNr] = json.rounds[j].count[i];
-      const won = json.rounds[j].winners.map(n => json.candidates[n]).includes(candidate.candidate.candidateName)
-      const lost = json.rounds[j].losers.map(n => json.candidates[n]).includes(candidate.candidate.candidateName)
-      if(won) {
+    for (let j = 0; j < json.results.length; j++) {
+      const roundResults = json.results[j];
+      const roundNr = roundResults.round;
+      candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
+      const lost = roundResults.tallyResults.map(n => n.eliminated === candidates[i]).some(n => n)
+      const won = roundResults.tallyResults.map(n => n.elected === candidates[i]).some(n => n)
+      if (won) {
         status = "Elected";
-      } else if(lost) {
+      } else if (lost) {
         status = "Eliminated"
       }
       candidate["status-" + roundNr] = status;
+      if (status !== "Active") {
+        status = null;
+      }
     }
     data.push(candidate);
   }
   return data;
 }
 
-function sidecarFileSelected(files)
-{
+function transformTableDataToSidecarJson() {
+  const info = {};
+  const sidecar = {version: "1.0", order: [], info: info};
+  uploadDataTable.table.getData().map(row => {
+    const obj = {
+      incumbent: row.candidate.incumbent,
+      photo_url: row.candidate.photo_url,
+      moreinfo_url: row.candidate.moreinfo_url,
+      party: row.candidate.party,
+    }
+    info[row.candidate.candidateName] = obj;
+    sidecar.order.push(row.candidate.candidateName);
+  })
+  return sidecar;
+}
+
+function sidecarFileSelected(files) {
   $("#selectSidecarFileButton").text(files[0].name)
 }
 
-function showDataTable(doShow)
-{
-  document.getElementById("file-upload-box").style.display = doShow ? "none" : "block";
-  document.getElementById("datatable-upload-box").style.display = doShow ? "block" : "none";
+function showUploadDataTable() {
+  uploadByDataTableInit();
+  document.getElementById('form').action = 'uploadByDataTable.html';
+
+}
+
+function showDataTable(doShow) {
+  document.getElementById("file-upload-box").style.display = doShow ? "none"
+      : "block";
+  document.getElementById("datatable-upload-box").style.display = doShow
+      ? "block" : "none";
   if (doShow) {
+    // destroyDataTableFromUpload();
+    uploadByDataTableInit();
     document.getElementById('form').action = 'uploadByDataTable.html';
   } else {
+    // destroyUploadByDataTable();
     document.getElementById('form').action = 'upload.html';
   }
 }
