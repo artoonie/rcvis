@@ -426,6 +426,7 @@ class StandardizeFormat(ValidateDataEntry):
             with tempfile.TemporaryFile(mode='w+b') as tf:
                 # json.dump(jsonData.encode(), tf)
                 tf.write(jsonData.encode())
+                tf.seek(0)
                 try:
                     resp = AutomaticConverter().convert_to_ut(tf)
                     return JsonResponse(resp)
