@@ -4,9 +4,16 @@
 
 {% block beforeOptions %}
 {% compress js file %}
-<script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
-  <script type="text/javascript" src="{% static 'settings/model/candidate.js' %}" defer></script>
+  <script type="text/javascript" src="{% static 'micromodal/dist/micromodal.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'tabulator-tables/dist/js/tabulator.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
   <script type="text/javascript" src="{% static 'settings/upload-datatable.js' %}" defer></script>
+  <script type="text/javascript" src="{% static 'settings/model/candidate.js' %}" defer></script>
+{% endcompress %}
+  {% compress css file %}
+    <link rel="stylesheet" type="text/css" href="{% static 'settings/tabulator-custom.css' %}">
+    <link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'settings/custom-modal.css' %}">
 {% endcompress %}
 
   <div class="mb-2 mt-2" id="header">
@@ -92,6 +99,23 @@
               A sidecar file can provide additional information about candidates.<br/>This feature is not yet documented - email team@rcvis for more info.
               </p>
             </label>
+          </div>
+        </div>
+        <div class="container row mt-3">
+          <div id="manuallyEditUpload" class="manuallyEditButtonWrapper col-sm">
+            <button id="manuallyEditUploadButton" class="btn btn-primary"
+                    onclick="manuallyEditUpload(event, this.files)">Edit Uploaded Data</button>
+          </div>
+          <div class="col-sm">
+            <label for="manuallyEditUploadButton">
+              <p>
+                Manually edit your uploaded data. Currently limited to adding candidate information only, but future updates will allow for more customization.
+              </p>
+            </label>
+          </div>
+        </div>
+        <div class="mt-3 container" style="overflow-x: auto">
+          <div id="dataTableWrapperUpload">
           </div>
         </div>
       </p>

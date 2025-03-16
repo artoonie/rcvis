@@ -42,6 +42,7 @@ from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
 from visualizer.serializers import JsonOnlySerializer, VerboseSerializer, \
     BallotpediaSerializer, UserSerializer
 from visualizer.wikipedia.wikipedia import WikipediaExport
+from rcvformats.conversions.automatic import AutomaticConverter
 
 logger = logging.getLogger(__name__)
 
@@ -347,7 +348,6 @@ class Oembed(View):
 
         return JsonResponse(jsonData)
 
-
 class ValidateDataEntry(LoginRequiredMixin, View):
     """ Validation AJAX view: would the current input succeed in creating a graph? """
 
@@ -411,6 +411,37 @@ class ValidateDataEntry(LoginRequiredMixin, View):
                 return self._make_failure(40, 'Unknown error')
             return JsonResponse({'message': "Data is valid!", 'success': True})
 
+
+class StandardizeFormat(ValidateDataEntry):
+    def post(self, request):
+        """ Doesn't render a webpage - just text """
+        secsToWait = self._check_rate_limit()
+        if secsToWait > 0:
+            secsToWait = int(secsToWait) + 1
+            message = f"Please wait {secsToWait} seconds before trying again"
+            return JsonResponse({'message': message, 'success': False})
+
+        jsonData = request.POST['jsonFile']
+        try:
+            with tempfile.TemporaryFile(mode='w+b') as tf:
+                # json.dump(jsonData.encode(), tf)
+                tf.write(jsonData.encode())
+                try:
+                    resp = AutomaticConverter().convert_to_ut(tf)
+                    return JsonResponse(resp)
+                except BadJSONError as exc:
+                    logger.warning(exc)
+                    return self._make_failure(30,
+                                              'Could not generate a visualization: ' + str(
+                                                  exc))
+                except BaseException as exc:  # pylint: disable=broad-except
+                    logger.warning(exc)
+                    return self._make_failure(40, 'Unknown error')
+        except readDataTablesResult.InvalidDataTableInput as exc:
+            return self._make_failure(10, 'Data is not valid: ' + str(exc))
+        except BaseException as exc:  # pylint: disable=broad-except
+            logger.warning(exc)
+            return self._make_failure(20, 'Unknown error')
 
 # For django REST
 

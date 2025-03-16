@@ -1,2 +1,6 @@
 const wrapperDivId = 'dataTableWrapper';
-createDataTable(wrapperDivId);
+let uploadByDataTableTable = null;
+
+function uploadByDataTableInit() {
+  uploadByDataTableTable = new RcvisDataTable(wrapperDivId);
+}
