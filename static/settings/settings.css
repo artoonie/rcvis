@@ -70,7 +70,6 @@ svg {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  background-color: ##00060c;
 }
 .uploaddescriptor {
  padding: 30px;
@@ -135,6 +134,10 @@ svg {
 .candidate-name-default {
   color: #6c757d;
   opacity: 1;
+}
+
+.candidate-input {
+  line-height: 100%;
 }
 
 .upload-status-active {

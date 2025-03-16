@@ -6,6 +6,8 @@ class Candidate {
     this._photo_url = photo_url;
     this._moreinfo_url = moreinfo_url;
     this._party = party;
+    const regex = /Candidate [\d]+/;
+    this._isDefault = candidateName.match(regex) !== null && !incumbent && !photo_url && !moreinfo_url && !party;
   }
 
   get candidateName() {
@@ -13,6 +15,9 @@ class Candidate {
   }
 
   set candidateName(value) {
+    if (value !== this._candidateName) {
+      this._isDefault = false;
+    }
     this._candidateName = value;
   }
 
@@ -60,6 +65,10 @@ class Candidate {
     this._party = value;
   }
 
+  get default() {
+    return this._isDefault;
+  }
+
   clone() {
     return new Candidate(
         this._candidateName,
@@ -75,9 +84,9 @@ class Candidate {
       params) {
     const a = aCandidate.candidateName;
     const b = bCandidate.candidateName;
-    var alignEmptyValues = params.alignEmptyValues;
-    var emptyAlign = 0;
-    var locale;
+    const alignEmptyValues = params.alignEmptyValues;
+    let emptyAlign = 0;
+    let locale;
 
     //handle empty values
     if (!a) {
@@ -113,31 +122,30 @@ class Candidate {
   static customCandidateFormatter(cell, formatterParams, onRendered) {
     const candidate = cell.getData().candidate;
     const editor = document.createElement("div");
-    editor.classList.add("form-group")
-    const elem = Candidate.createInputElement(editor, "", candidate.candidateName, true)
-    // elem.textContent = candidate.candidateName;
-    // elem.classList.add("candidate-name");
-    const regex = /Candididate [\d]+/;
-    if (!cell.isEdited() && cell.getValue().candidateName.match(regex)) {
+    const elem = Candidate.createInputElement(editor, null, candidate.candidateName, true)
+    const regex = /Candidate [\d]+/;
+    var match = cell.getValue().candidateName.match(regex);
+    if (!cell.isEdited() && match && match.length > 0) {
       elem.classList.add("candidate-name-default");
     }
     onRendered(function() {
       cell.getRow().normalizeHeight();
       cell.getTable().rowManager.adjustTableSize();
     })
-    editor.appendChild(elem);
     return editor;
   }
 
-  static createInputElement(editor, labelText, value, readOnly = false) {
+  static createInputElement(editor, labelText, value, readOnly = false, placeholder = false) {
     const elem = readOnly ?
         document.createElement("span")
         : document.createElement("input");
     elem.id = Candidate.randstr("candidate-input-")
-    return Candidate.createElement(editor, elem, labelText, value)
+    elem.classList.add("candidate-input");
+    elem.type = "text";
+    return Candidate.createElement(editor, elem, labelText, value, placeholder)
   }
 
-  static createElement(editor, elem, labelText, value) {
+  static createElement(editor, elem, labelText, value, placeholder = false) {
     if(labelText) {
       const label = document.createElement("LABEL");
       label.className = "upload-candidate-label";
@@ -147,13 +155,16 @@ class Candidate {
       if(elem.type !== "checkbox") {
         label.appendChild(document.createElement("br"))
       }
-      label.appendChild(elem);
-
       editor.appendChild(label);
-      editor.appendChild(document.createElement("br"));
     }
-    elem.value = value;
-    elem.textContent = value;
+    editor.appendChild(elem);
+    editor.appendChild(document.createElement("br"));
+    if (!placeholder) {
+      elem.value = value;
+      elem.textContent = value;
+    } else {
+      elem.placeholder = value;
+    }
     return elem;
   }
 
@@ -164,12 +175,11 @@ class Candidate {
     editor.id = Candidate.randstr("candidate-editor-")
     editor.tabIndex = 1;
 
+    const regex = /Candidate [\d]+/;
+    const match = cell.getValue().candidateName.match(regex);
+    const placeholder = !cell.isEdited() && match && match.length > 0;
     const candidateName = Candidate.createInputElement(editor,
-        "Candidate Name:", candidate.candidateName, editorParams.sidecarOnly);
-    const regex = /Candididate [\d]+/;
-    if (!cell.isEdited() && cell.getValue().candidateName.match(regex)) {
-      candidateName.placeholder = candidate.candidateName;
-    }
+        null, candidate.candidateName, editorParams.sidecarOnly, placeholder);
     const moreInfoButton = document.createElement("button");
     const modalWrapper = document.getElementById("datatable-modal-content");
     const modalTitleWrapper = document.getElementById("datatable-modal-title");
@@ -191,7 +201,7 @@ class Candidate {
     modalTitleWrapper.appendChild(candidateTitle)
     modalWrapper.appendChild(candidateInfo);
     const successFunc = Candidate.attachModalElements(candidateInfo, candidateTitle, candidate, editor,
-        cell, candidateName, success, handleClickOutside);
+        cell, candidateName, success, cancel);
 
     moreInfoButton.classList.add("btn", "btn-primary");
     moreInfoButton.dataset.candidateName = candidate.candidateName;
@@ -216,6 +226,8 @@ class Candidate {
 
     editor.onblur = successFunc;
     editor.onchange = successFunc;
+    candidateName.onblur = successFunc;
+    candidateName.onchange = successFunc;
     editor.onfocus = () => {
       console.log("focused")
       document.addEventListener("click", handleClickOutside);
@@ -224,7 +236,7 @@ class Candidate {
   };
 
   static attachModalElements(candidateInfo, candidateTitle, candidate, editor, cell,
-      candidateName, success, handleClickOutside) {
+      candidateName, success, cancel) {
     const continueButton = document.getElementById("datatable-modal-submit");
     const elem = document.createElement("input");
     elem.type = "checkbox";
@@ -259,6 +271,9 @@ class Candidate {
       const candidateTitleElem = document.getElementById(candidateTitle.id);
       if(candidateTitleElem) {
         candidateTitleElem.remove();
+      }
+      if(candidateClone.default) {
+        cancel()
       }
       success(candidateClone);
     }
