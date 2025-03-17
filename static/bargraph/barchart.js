@@ -800,7 +800,7 @@ function makeBarGraph(args) {
         if (candidateMatch === tspanText){
           console.log('candidateMatch:', candidateMatch);
           console.log('tspanText:', tspanText);
-          d3.select(this).style("font-weight", "bold");
+          d3.select(this).attr("font-weight", "bold");
           }
         else {
           console.error("Mismatch or undefined values:", { candidateMatch, tspanText });
