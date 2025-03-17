@@ -795,11 +795,12 @@ function makeBarGraph(args) {
             }
           }
         }
-        const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound);
+        // remove the trailing space in candidateMatch
+        const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
         if (candidateMatch === tspanText){
-          console.log('candidateMatch:', JSON.stringify(candidateMatch));
-          console.log('tspanText:', JSON.stringify(tspanText));
-          return this.attr("font-weight", "bold");
+          console.log('candidateMatch:', candidateMatch);
+          console.log('tspanText:', tspanText);
+          d3.select(this).style("font-weight", "bold");
           }
         else {
           console.error("Mismatch or undefined values:", { candidateMatch, tspanText });
