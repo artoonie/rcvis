@@ -12,7 +12,7 @@
     // Create the pie-chart element
     const pieChart = document.createElement("pie-chart");
     pieChart.setAttribute("electionSummary", JSON.stringify(electionSummary));
-    pieChart.setAttribute('onRoundChanged', updateSliderRound);
+    pieChart.requestRoundChange = updateRound;
 
     // Append it to the div
     document.getElementById("pie-body").appendChild(pieChart);
@@ -32,7 +32,11 @@
         pieChart.setAttribute("currentRound", roundNum+1);
     }
 
-    function updateSliderRound(roundNum) {
+    // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
+    // loops it requests to be told the new currentRound rather than using 2-way binding.
+    // And we also update the slider state while we're at it.
+    function updateRound(roundNum) {
+        pieChart.setAttribute("currentRound", roundNum);
         document.getElementById('pie-slider-container').setAttribute('value', roundNum-1);
     }
 
