@@ -9,10 +9,20 @@
 
     const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
 
+    const candidateColors = 
+        ["#e6194b","#3cb44b","#ffe119","#4363d8","#f58231","#911eb4","#46f0f0","#f032e6","#bcf60c","#fabebe",
+        "#008080","#e6beff","#9a6324","#fffac8","#800000","#aaffc3","#808000","#ffd8b1","#000075","#808080",
+        "#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2","#7f7f7f","#bcbd22","#17becf"];
+
     // Create the pie-chart element
     const pieChart = document.createElement("pie-chart");
-    pieChart.setAttribute("electionSummary", JSON.stringify(electionSummary));
+
+    // Functions *must* be added as properties; anything added as an attribute must be a string.
+    // So we don't have to re-stringify the JSON object, which will be immediately parsed again,
+    // we can just bind it in object form here.
     pieChart.requestRoundChange = updateRound;
+    pieChart.electionSummary = electionSummary;
+    pieChart.candidateColors = candidateColors;
 
     // Append it to the div
     document.getElementById("pie-body").appendChild(pieChart);
@@ -25,19 +35,28 @@
       sliderValueChanged: updatePieChartRound,
       timelineData: generateTimelineData(humanFriendlyEventsPerRound),
       timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-      timeBetweenStepsMs: 3000
+      timeBetweenStepsMs: 3000,
+      animateOnLoad: false,
     });
 
-    function updatePieChartRound(roundNum) {
-        pieChart.setAttribute("currentRound", roundNum+1);
+    function updatePieChartRound(sliderIndex) {
+        pieChart.currentRound = sliderIndex+1;
     }
 
     // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
     // loops it requests to be told the new currentRound rather than using 2-way binding.
     // And we also update the slider state while we're at it.
     function updateRound(roundNum) {
-        pieChart.setAttribute("currentRound", roundNum);
-        document.getElementById('pie-slider-container').setAttribute('value', roundNum-1);
+
+        pieChart.currentRound = roundNum;
+
+        // Having trouble making the slider update when the pie chart is animating.
+        //document.getElementById('pie-slider-container').setAttribute('value', roundNum-1);
+        //document.getElementById('pie-slider-container').value = roundNum-1;
+        //document.getElementById('pie-slider-container').setSliderValue('slide', roundNum-1);
+        //trs_setSliderValue('pie-slider-container', roundNum-1);
+        //trs_moveSliderTo('pie-slider-container', roundNum - 1);
+
     }
 
 </script>
