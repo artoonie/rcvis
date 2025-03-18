@@ -303,8 +303,8 @@ function makeBarGraph(args) {
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
       for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
-        // TODO here should be the memoizeeee
-        // why does the data format suckeeeeee
+        // TODO here should be the memoize
+        // why does the data format suck
       }
     }
   }
@@ -319,7 +319,7 @@ function makeBarGraph(args) {
       }
       let startText = "";
       if (d.isWinner){
-          startText = "✔️ " ;
+          startText = "✔️" ;
       }
       if (isVertical)
       {
@@ -776,18 +776,18 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+
   function transitionDataLabelsForRound() {
     // Set all labels to correct display
     svg.selectAll("text.dataLabel")
         .attr("display", dataLabelDisplayFor);
-    
     // grabbing candidate's name to manipulate
-    
     d3.select("#candidateNamesWrapper")
         .selectAll("tspan")
         .each(function () {
-          // Get the HTML text content of the current tspan element
-        const tspanText = d3.select(this).text();
+          // Get the HTML text content of the current tspan element & remove possible trailing space
+        const tspanText = d3.select(this).text().trim();
+        // findKeyRoundTilWin function starts
         function findKeysRoundsTilWin(obj, value){
           for(const key of Object.keys(obj)){
             if(obj[key] === value){
@@ -795,16 +795,13 @@ function makeBarGraph(args) {
             }
           }
         }
-        // remove the trailing space in candidateMatch
+          
+        // remove the possible trailing space in candidateMatch
         const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
         if (candidateMatch === tspanText){
-          console.log('candidateMatch:', candidateMatch);
-          console.log('tspanText:', tspanText);
-          d3.select(this).attr("font-weight", "bold");
+          d3.select(this).attr("font-weight", "700");
+          //console.log("Computed font-weight:", window.getComputedStyle(this).fontWeight);
           }
-        else {
-          console.error("Mismatch or undefined values:", { candidateMatch, tspanText });
-        }
     });
 
     // Create starting position and color for the just-eliminated candidate
