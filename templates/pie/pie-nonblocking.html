@@ -54,16 +54,8 @@
     // loops it requests to be told the new currentRound rather than using 2-way binding.
     // And we also update the slider state while we're at it.
     function updateRound(roundNum) {
-
         pieChart.currentRound = roundNum;
-
-        // Having trouble making the slider update when the pie chart is animating.
-        //document.getElementById('pie-slider-container').setAttribute('value', roundNum-1);
-        //document.getElementById('pie-slider-container').value = roundNum-1;
-        //document.getElementById('pie-slider-container').setSliderValue('slide', roundNum-1);
-        //trs_setSliderValue('pie-slider-container', roundNum-1);
-        //trs_moveSliderTo('pie-slider-container', roundNum - 1);
-
+        trs_moveSliderTo('pie-slider-container', roundNum - 1);
     }
 
 </script>
