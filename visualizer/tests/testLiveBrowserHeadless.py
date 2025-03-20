@@ -183,7 +183,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
                          "tabular-by-round",
                          "tabular-by-round-interactive",
                          "tabular-candidate-by-round",
-                         "pie-chart"
+                         "pie"
                          ]
 
         # None of the valid vistypes have errors

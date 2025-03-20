@@ -27,9 +27,9 @@
 
     trs_createSliderAndTimeline({
       wrapperDivId: 'pie-slider-container',
-      numTicks: numRounds,
-      tickText: generateTickTexts(numRounds),
-      hideActiveTickText: doHideActiveTickText(numRounds),
+      numTicks: {{ config.numRounds }},
+      tickText: generateTickTexts({{ config.numRounds }}),
+      hideActiveTickText: doHideActiveTickText({{ config.numRounds }}),
       sliderValueChanged: goToRoundSvelte,
       timelineData: generateTimelineData(humanFriendlyEventsPerRound),
       timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,

@@ -21,7 +21,7 @@ function initializeOptions()
         ["Table, By Round (Interactive)", "table-by-round"],
         ["Table, By Round (Static)", "table-by-round-static"],
         ["Table, By Candidate", "table-by-candidate"],
-        ["Pie Chart", "pie-chart"]
+        ["Pie Chart", "pie"]
     ];
 
     for (const selector of ["exportVistypeSelector", "embedlyVistypeSelector"])
