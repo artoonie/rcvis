@@ -59,6 +59,17 @@ npm install  # this works for me
 python3 manage.py npminstall  # this is purported to work but doesn't
 ```
 
+## Running on PyCharm
+
+Running on PyCharm should be simple as the .idea folder is included at the VCS root. Follow the prompts to install
+Django and NPM and then do a one time setup by running the script
+```bash
+./scripts/serv.sh
+```
+
+This is needed to create the new admin user interactively. Following this, you can kill the server and start it
+with the run configuration provided - 'RCVis', a Django server configuration.
+
 ## Test Data
 Test data, including real and mock elections, can be found in the `testData` directory. Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
 

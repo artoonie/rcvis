@@ -261,7 +261,7 @@ class RcvisDataTable {
 
   static statusFormatter(cell, formatterParams, onRendered) {
     const elem = document.createElement("span");
-    if(cell.getValue()) {
+    if (cell.getValue()) {
       elem.classList.add(`upload-status-${cell.getValue().toLowerCase()}`);
       elem.textContent = cell.getValue();
     }
@@ -295,6 +295,7 @@ class RcvisDataTable {
           validator: [{type: RcvisDataTable.voteCountCallback}],
           cellEdited: RcvisDataTable.updateStatusCell,
           editable: editableFunc,
+          minWidth: 75,
           resizable: true,
           headerSort: false,
         }]
