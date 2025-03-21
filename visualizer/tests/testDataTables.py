@@ -20,6 +20,14 @@ class DataTablesTests(TestCase):
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
 
+    def _upload_file_to_standardize(self, filename):
+        with open(filename, encoding='utf-8') as f:
+            return self.client.post('/standardizeData', {'dataEntry': {},
+                                                         'configElectionTitle': '',
+                                                         'configElectionDate': '',
+                                                         'configThreshold': '',
+                                                             'jsonFile': f.read()})
+
     @classmethod
     def _get_simplified_post_data(cls):
         """ The barebones data sent via POST - no extraneous options included """
@@ -75,6 +83,16 @@ class DataTablesTests(TestCase):
         urcvtData = reader.convert_to_urcvt()
         schema = universaltabulator.SchemaV0()
         self.assertTrue(schema.validate(urcvtData))
+
+    def test_output_standardization(self):
+        """ Ensures the output of a generic json is standardized """
+        TestHelpers.login(self.client)
+        response = self._upload_file_to_standardize(filenames.ONE_ROUND)
+        json = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json['config']['contest'], "One round")
+        self.assertEqual(len(json['results']), 1)
+
 
     def test_data_conversion_and_post(self):
         """
