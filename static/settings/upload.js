@@ -3,173 +3,197 @@ let uploadDataTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
 function enableDataOptionsAndSubmitButton() {
-  document.getElementById("options").style.opacity = '100%'
-  document.getElementById("uploadButton").disabled = false;
+    document.getElementById("options").style.opacity = '100%'
+    document.getElementById("uploadButton").disabled = false;
 }
 
 function hideManualOptionsShowTable() {
-  document.getElementById('manual-sidecar-options').style.display = 'none';
-  document.getElementById('datatable-outer-wrapper').style.display = 'block';
-  redrawOptions();
+    document.getElementById('manual-sidecar-options').style.display = 'none';
+    document.getElementById('datatable-outer-wrapper').style.display = 'block';
+    redrawOptions();
+}
+
+function hideManualEntryShowError() {
+    const uploadButton  = document.getElementById("manuallyEditUploadButton");
+    const uploadButtonError  = document.getElementById("manuallyEditUploadButtonError");
+    uploadButton.style.display = "none";
+    uploadButtonError.style.display = "inline";
+}
+
+function hideManualEntryErrorShowMainButton() {
+    const uploadButton  = document.getElementById("manuallyEditUploadButton");
+    const uploadButtonError  = document.getElementById("manuallyEditUploadButtonError");
+    uploadButton.style.display = "inline";
+    uploadButtonError.style.display = "none";
 }
 
 function showManualOptionsHideTable(redraw = true) {
-  document.getElementById('manual-sidecar-options').style.display = 'block';
-  document.getElementById('datatable-outer-wrapper').style.display = 'none';
-  document.removeEventListener('formdata', formListener);
-  if (redraw) {
-    redrawOptions();
-  }
+    document.getElementById('manual-sidecar-options').style.display = 'block';
+    document.getElementById('datatable-outer-wrapper').style.display = 'none';
+    document.removeEventListener('formdata', formListener);
+    if (redraw) {
+        redrawOptions();
+    }
 }
 
 function redrawOptions() {
-  setTimeout(() => {
-    const content = document.getElementById('dataOptions');
-    content.style.maxHeight = content.scrollHeight + "px";
-  }, 10);
+    setTimeout(() => {
+        console.log("redrawing options");
+        const content = document.getElementById('dataOptions');
+        content.style.maxHeight = content.scrollHeight + "px";
+    }, 100);
 }
 
 function disableDataOptionsAndSubmitButton() {
-  document.getElementById("options").style.opacity = '10%'
-  document.getElementById("uploadButton").disabled = true;
+    document.getElementById("options").style.opacity = '10%'
+    document.getElementById("uploadButton").disabled = true;
 }
 
 function summaryFileSelected(files) {
-  $("#selectResultsFileButton").text(files[0].name)
-  enableDataOptionsAndSubmitButton();
-  showManualOptionsHideTable(false);
-  manualSidecarSelectedLast = false;
-  uploadDataTable = null;
+    $("#selectResultsFileButton").text(files[0].name)
+    enableDataOptionsAndSubmitButton();
+    hideManualEntryErrorShowMainButton();
+    showManualOptionsHideTable(false);
+    manualSidecarSelectedLast = false;
+    uploadDataTable = null;
 }
 
 function manuallyEditUpload(e) {
-  e.preventDefault();
-  manualSidecarSelectedLast = true;
-  if(uploadDataTable) {
-    hideManualOptionsShowTable();
-    return;
-  }
-  const form = document.getElementById('form')
-  const formData = new FormData(form);
-  const file = formData.getAll("jsonFile")[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const fileContent = e.target.result;
-      formData.set("jsonFile", fileContent);
-      standardizeFormatAjax(formData);
+    e.preventDefault();
+    manualSidecarSelectedLast = true;
+    if (uploadDataTable) {
+        hideManualOptionsShowTable();
+        return;
     }
-    reader.readAsText(file)
-  }
+    const form = document.getElementById('form')
+    const formData = new FormData(form);
+    const file = formData.getAll("jsonFile")[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const fileContent = e.target.result;
+            formData.set("jsonFile", fileContent);
+            standardizeFormatAjax(formData);
+        }
+        reader.readAsText(file)
+    }
 }
 
 function formListener(e) {
-  if (uploadDataTable && uploadDataTableEdited && manualSidecarSelectedLast) {
-    const data = e.formData;
-    attachSidecarJson(transformTableDataToSidecarJson(), data)
-  }
+    if (uploadDataTable && uploadDataTableEdited && manualSidecarSelectedLast) {
+        const data = e.formData;
+        attachSidecarJson(transformTableDataToSidecarJson(), data)
+    }
 }
 
 function standardizeFormatAjax(formData) {
-  $.ajax({
-    url: '/standardizeData',
-    method: 'POST',
-    dataTypes: 'json',
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function(data) {
-      const form = document.getElementById('form')
-      if (uploadDataTable) {
-        uploadDataTable.table.replaceData(transformJsonToTableData(data));
-      } else {
-        uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
-            transformJsonToTableData(data), true);
-        uploadDataTable.table.on("cellEdited", function() {
-          uploadDataTableEdited = true;
-        });
-        uploadDataTable.table.on("dataProcessed", function(){
-          uploadDataTable.table.validate();
-          hideManualOptionsShowTable();
-        });
-      }
-      form.addEventListener('formdata', formListener);
-    }
-  })
+    $.ajax({
+        url: '/standardizeData',
+        method: 'POST',
+        dataTypes: 'json',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(data) {
+            const form = document.getElementById('form')
+            if (data.success !== null && data.success === false ) {
+                hideManualEntryShowError();
+                return;
+            }
+            if (uploadDataTable) {
+                uploadDataTable.table.replaceData(
+                    transformJsonToTableData(data));
+            } else {
+                uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
+                    transformJsonToTableData(data), true);
+                uploadDataTable.table.on("cellEdited", function() {
+                    uploadDataTableEdited = true;
+                });
+                uploadDataTable.table.on("dataProcessed", function() {
+                    uploadDataTable.table.validate();
+                    hideManualOptionsShowTable();
+                });
+            }
+            form.addEventListener('formdata', formListener);
+        }
+    })
 }
 
 function attachSidecarJson(jsonData, formData) {
-  const jsonString = JSON.stringify(jsonData);
-  const blob = new Blob([jsonString], {type: "application/json"});
-  const file = new File([blob], "sidecar.json", {type: "application/json"});
+    const jsonString = JSON.stringify(jsonData);
+    const blob = new Blob([jsonString], {type: "application/json"});
+    const file = new File([blob], "sidecar.json", {type: "application/json"});
 
-  formData.set("candidateSidecarFile", file);
+    formData.set("candidateSidecarFile", file);
 }
 
 function transformJsonToTableData(json) {
-  const data = []
-  const candidates = Object.keys(json.results[0].tally)
-  for (let i = 0; i < candidates.length; i++) {
-    const candidate = {
-      id: i + 1, candidate:
-          new Candidate(candidates[i])
-    };
-    let status = "Active"
-    for (let j = 0; j < json.results.length; j++) {
-      const roundResults = json.results[j];
-      const roundNr = roundResults.round;
-      candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
-      const anyWon = roundResults.tallyResults.map(n => n.elected).some(n => n)
-      const won = roundResults.tallyResults.map(n => n.elected === candidates[i]).some(n => n)
-      const lost = roundResults.tallyResults.map(n => n.eliminated === candidates[i]).some(n => n)
-      if (won) {
-        status = "Elected";
-      } else if (lost || (anyWon && status !== null)) {
-        status = "Eliminated"
-      }
-      candidate["status-" + roundNr] = status;
-      if (status !== "Active") {
-        status = null;
-      }
+    const data = []
+    const candidates = Object.keys(json.results[0].tally)
+    for (let i = 0; i < candidates.length; i++) {
+        const candidate = {
+            id: i + 1, candidate:
+                new Candidate(candidates[i])
+        };
+        let status = "Active"
+        for (let j = 0; j < json.results.length; j++) {
+            const roundResults = json.results[j];
+            const roundNr = roundResults.round;
+            candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
+            const anyWon = roundResults.tallyResults.map(n => n.elected).some(
+                n => n)
+            const won = roundResults.tallyResults.map(
+                n => n.elected === candidates[i]).some(n => n)
+            const lost = roundResults.tallyResults.map(
+                n => n.eliminated === candidates[i]).some(n => n)
+            if (won) {
+                status = "Elected";
+            } else if (lost || (anyWon && status !== null)) {
+                status = "Eliminated"
+            }
+            candidate["status-" + roundNr] = status;
+            if (status !== "Active") {
+                status = null;
+            }
+        }
+        data.push(candidate);
     }
-    data.push(candidate);
-  }
-  return data;
+    return data;
 }
 
 function transformTableDataToSidecarJson() {
-  const info = {};
-  const sidecar = {version: "1.0", order: [], info: info};
-  uploadDataTable.table.getData().map(row => {
-    const obj = {
-      incumbent: row.candidate.incumbent,
-      photo_url: row.candidate.photo_url,
-      moreinfo_url: row.candidate.moreinfo_url,
-      party: row.candidate.party,
-    }
-    info[row.candidate.candidateName] = obj;
-    sidecar.order.push(row.candidate.candidateName);
-  })
-  return sidecar;
+    const info = {};
+    const sidecar = {version: "1.0", order: [], info: info};
+    uploadDataTable.table.getData().map(row => {
+        const obj = {
+            incumbent: row.candidate.incumbent,
+            photo_url: row.candidate.photo_url,
+            moreinfo_url: row.candidate.moreinfo_url,
+            party: row.candidate.party,
+        }
+        info[row.candidate.candidateName] = obj;
+        sidecar.order.push(row.candidate.candidateName);
+    })
+    return sidecar;
 }
 
 function sidecarFileSelected(files) {
-  $("#selectSidecarFileButton").text(files[0].name)
-  showManualOptionsHideTable();
-  manualSidecarSelectedLast = false;
+    $("#selectSidecarFileButton").text(files[0].name)
+    showManualOptionsHideTable();
+    manualSidecarSelectedLast = false;
 }
 
 function showDataTable(doShow) {
-  document.getElementById("file-upload-box").style.display = doShow ? "none"
-      : "block";
-  document.getElementById("datatable-upload-box").style.display = doShow
-      ? "block" : "none";
-  if (doShow) {
-    // destroyDataTableFromUpload();
-    uploadByDataTableInit();
-    document.getElementById('form').action = 'uploadByDataTable.html';
-  } else {
-    // destroyUploadByDataTable();
-    document.getElementById('form').action = 'upload.html';
-  }
+    document.getElementById("file-upload-box").style.display = doShow ? "none"
+        : "block";
+    document.getElementById("datatable-upload-box").style.display = doShow
+        ? "block" : "none";
+    if (doShow) {
+        // destroyDataTableFromUpload();
+        uploadByDataTableInit();
+        document.getElementById('form').action = 'uploadByDataTable.html';
+    } else {
+        // destroyUploadByDataTable();
+        document.getElementById('form').action = 'upload.html';
+    }
 }

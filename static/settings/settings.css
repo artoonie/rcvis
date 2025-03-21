@@ -22,6 +22,10 @@ form div.formArea {
   line-height: 75px;
   width: 100%;
 }
+.manuallyEditUploadButton {
+  display: inline;
+  text-align: center;
+}
 #submitDiv {
   text-align: center;
   margin-top: 20px;
