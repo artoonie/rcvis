@@ -13,7 +13,6 @@ form div.formArea {
   height: 75px;
   width: 100%;
 }
-
 .manuallyEditButtonWrapper {
   text-align: center;
   position: relative;
@@ -23,7 +22,6 @@ form div.formArea {
   line-height: 75px;
   width: 100%;
 }
-
 #submitDiv {
   text-align: center;
   margin-top: 20px;
@@ -97,58 +95,54 @@ svg {
   margin: 15px;
   overflow-x: scroll;
 }
-
 .upload-tableoptions {
   margin: 15px;
 }
-
 .upload-candidate-label  {
   font-weight: bold;
+  margin: 5px;
 }
-
 .upload-candidate-label input,
 .upload-candidate-label span {
   font-weight: normal;
   width: 80%;
 }
-
 .candidate-name {
   border: 1px solid black;
   width: 80%;
   display: block;
 }
-
 .upload-candidate-label input {
   color: #6c757d;
   opacity: 1;
 }
-
 .upload-hover {
   display: none;
 }
-
 .upload-hoverable:hover + .upload-hover {
   display: block;
 }
-
+.candidate-input-wrapper {
+  width: 100%;
+  display: inline-block;
+}
 .candidate-name-default {
   color: #6c757d;
   opacity: 1;
 }
-
 .candidate-input {
   line-height: 100%;
+  width: 100%;
+  margin-left: 5px;
+  margin-right: 5px;
 }
-
 .upload-status-active {
   color: lightgray;
 }
-
 .upload-status-eliminated {
   text-decoration: line-through;
   color: red;
 }
-
 .upload-status-elected {
   font-weight: bold;
   color: green;
