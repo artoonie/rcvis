@@ -138,48 +138,6 @@ class Candidate {
         return editor;
     }
 
-    static createInputElement(editor, labelText, value, readOnly = false,
-        placeholder = false) {
-        const elem = readOnly ?
-            document.createElement("span")
-            : document.createElement("input");
-        elem.id = Candidate.randstr("candidate-input-")
-        elem.classList.add("candidate-input");
-        elem.type = "text";
-        return Candidate.createElement(editor, elem, labelText, value,
-            placeholder)
-    }
-
-    static createElement(editor, elem, labelText, value, placeholder = false) {
-        const span = document.createElement("span");
-        span.className = "candidate-input-wrapper";
-        if (labelText) {
-            const label = document.createElement("LABEL");
-            label.className = "upload-candidate-label";
-            label.htmlFor = elem.id;
-            label.textContent = labelText;
-            label.style.marginRight = "5px";
-            if (elem.type !== "checkbox") {
-                // label.appendChild(document.createElement("br"))
-            }
-            span.appendChild(label);
-        }
-        span.appendChild(elem);
-        if (!placeholder) {
-            elem.value = value;
-            elem.textContent = value;
-        } else {
-            elem.placeholder = value;
-        }
-        if (elem.type === "checkbox") {
-            elem.classList.add("form-check-input")
-        } else {
-            elem.classList.add("form-control")
-        }
-        editor.appendChild(span);
-        return elem;
-    }
-
     static customCandidateEditor(cell, onRendered, success, cancel,
         editorParams) {
         const candidate = cell.getData().candidate;
@@ -250,6 +208,48 @@ class Candidate {
         };
         return editor;
     };
+
+    static createInputElement(editor, labelText, value, readOnly = false,
+        placeholder = false) {
+        const elem = readOnly ?
+            document.createElement("span")
+            : document.createElement("input");
+        elem.id = Candidate.randstr("candidate-input-")
+        elem.classList.add("candidate-input");
+        elem.type = "text";
+        return Candidate.createElement(editor, elem, labelText, value,
+            placeholder)
+    }
+
+    static createElement(editor, elem, labelText, value, placeholder = false) {
+        const span = document.createElement("span");
+        span.className = "candidate-input-wrapper";
+        if (labelText) {
+            const label = document.createElement("LABEL");
+            label.className = "upload-candidate-label";
+            label.htmlFor = elem.id;
+            label.textContent = labelText;
+            label.style.marginRight = "5px";
+            if (elem.type !== "checkbox") {
+                // label.appendChild(document.createElement("br"))
+            }
+            span.appendChild(label);
+        }
+        span.appendChild(elem);
+        if (!placeholder) {
+            elem.value = value;
+            elem.textContent = value;
+        } else {
+            elem.placeholder = value;
+        }
+        if (elem.type === "checkbox") {
+            elem.classList.add("form-check-input")
+        } else {
+            elem.classList.add("form-control")
+        }
+        editor.appendChild(span);
+        return elem;
+    }
 
     static attachModalElements(candidateInfo, candidateTitle, candidate, cell,
         candidateName, success, cancel) {

@@ -43,7 +43,7 @@ function getManuallyEditSidecarErrorButton() {
 }
 
 function getEntireOptionsWrapper() {
-    return document.getElementById("options").style.opacity;
+    return document.getElementById("options");
 }
 
 function getUploadSubmitButton() {
