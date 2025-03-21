@@ -35,9 +35,9 @@
 
     trs_createSliderAndTimeline({
       wrapperDivId: 'pie-slider-container',
-      numTicks: {{config.numRounds}},
-      tickText: generateTickTexts({{config.numRounds}}),
-      hideActiveTickText: doHideActiveTickText({{config.numRounds}}),
+      numTicks: {{ config.numRounds }},
+      tickText: generateTickTexts({{ config.numRounds }}),
+      hideActiveTickText: doHideActiveTickText({{ config.numRounds }}),
       sliderValueChanged: updatePieChartRound,
       timelineData: generateTimelineData(humanFriendlyEventsPerRound),
       timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
