@@ -76,8 +76,7 @@ class Candidate {
             this._incumbent,
             this._photo_url,
             this._moreinfo_url,
-            this._party,
-            this._isDefault
+            this._party
         );
     }
 
@@ -294,7 +293,7 @@ class Candidate {
                 candidateTitleElem.remove();
             }
             if (candidateClone.default) {
-                cancel()
+                cancel();
             }
             success(candidateClone);
         }

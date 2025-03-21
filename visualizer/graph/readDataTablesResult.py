@@ -2,8 +2,6 @@
 
 import json
 import sys
-from ftplib import print_line
-
 from rcvformats.conversions.ut_without_transfers import UTWithoutTransfersConverter
 
 

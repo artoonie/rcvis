@@ -30,7 +30,7 @@ DEBUG = os.environ['RCVIS_DEBUG'] == "True"
 RATE_LIMIT_AJAX = True
 
 # I'm not proud of this. Add hosts - one per environment variable
-ALLOWED_HOSTS = [os.environ['RCVIS_HOST'], '55ea-76-167-67-162.ngrok-free.app', "127.0.0.1"]
+ALLOWED_HOSTS = [os.environ['RCVIS_HOST']]
 if 'RCVIS_HOST_ALIAS' in os.environ:
     ALLOWED_HOSTS.append(os.environ['RCVIS_HOST_ALIAS'])
 if 'HEROKU_APP_NAME' in os.environ:
@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'django_social_share',
     'django_node_assets',
-    'bootstrap5'
 ]
 
 MIDDLEWARE = [
