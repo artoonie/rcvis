@@ -84,7 +84,7 @@ class RcvisDataTable {
     }
 
     if (value < 0) {
-      cell.getRow().popup(lessThanZeroError, "bottom")
+        cell.getRow().popup(lessThanZeroError, "bottom");
       return false;
     }
 
@@ -329,7 +329,7 @@ class RcvisDataTable {
     let data = []
     let rowNames = [];
     for (let i = 0; i < tableData.length; i++) {
-      rowNames[i] = tableData[i].candidate;
+      rowNames[i] = tableData[i].candidate.candidateName;
       let rounds = [];
       for (let j = 1; j < this.table.getColumnDefinitions().length; j++) {
         let obj = {}
