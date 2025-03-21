@@ -103,7 +103,7 @@ class ReadDataTableJSON():
         self.numRounds = len(dataTableData['data'][0])
         results = [{"round": i + 1, "tally": {}, "tallyResults": []} for i in range(self.numRounds)]
 
-        names = list(map(lambda x : x["candidateName"], dataTableData['rowNames']))
+        names = dataTableData['rowNames']
         if len(set(names)) != len(names):
             raise InvalidDataTableInput("All candidate names must be unique")
         if any(n == "" or n is None for n in names):

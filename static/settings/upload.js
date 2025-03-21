@@ -3,8 +3,19 @@ let uploadDataTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
 function enableDataOptionsAndSubmitButton() {
-    getEntireOptionsWrapper().style.opacity = '100%'
+    const entireOptionsWrapper = getEntireOptionsWrapper();
+    if(entireOptionsWrapper) {
+        entireOptionsWrapper.style.opacity = '100%';
+    }
     getUploadSubmitButton().disabled = false;
+}
+
+function disableDataOptionsAndSubmitButton() {
+    const entireOptionsWrapper = getEntireOptionsWrapper();
+    if (entireOptionsWrapper) {
+        entireOptionsWrapper.style.opacity = '10%';
+    }
+    getUploadSubmitButton().disabled = true;
 }
 
 function hideManualOptionsShowTable() {
@@ -37,11 +48,6 @@ function redrawOptions() {
         const content = getDatatableOptions();
         content.style.maxHeight = content.scrollHeight + "px";
     }, 100);
-}
-
-function disableDataOptionsAndSubmitButton() {
-    getEntireOptionsWrapper().style.opacity = '10%'
-    getUploadSubmitButton().disabled = true;
 }
 
 function summaryFileSelected(files) {
