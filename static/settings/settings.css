@@ -13,7 +13,7 @@ form div.formArea {
   height: 75px;
   width: 100%;
 }
-.manuallyEditButtonWrapper {
+.manually-edit-upload-button-wrapper {
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -22,7 +22,7 @@ form div.formArea {
   line-height: 75px;
   width: 100%;
 }
-.manuallyEditUploadButton {
+.manually-edit-upload-button {
   display: inline;
   text-align: center;
 }
