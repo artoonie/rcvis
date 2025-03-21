@@ -80,7 +80,6 @@ class RcvisDataTable {
       }
     }
     if (cellIndex < 1) {
-      console.log("Invalid cell index")
       return false;
     }
 
@@ -295,8 +294,7 @@ class RcvisDataTable {
           validator: [{type: RcvisDataTable.voteCountCallback}],
           cellEdited: RcvisDataTable.updateStatusCell,
           editable: editableFunc,
-          minWidth: 75,
-          resizable: true,
+          minWidth: 100,
           headerSort: false,
         }]
     }

@@ -6,6 +6,7 @@
 {% compress js file %}
   <script type="text/javascript" src="{% static 'micromodal/dist/micromodal.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'tabulator-tables/dist/js/tabulator.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'settings/settings-page-elements.js' %}"></script>
   <script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
   <script type="text/javascript" src="{% static 'settings/upload-datatable.js' %}" defer></script>
   <script type="text/javascript" src="{% static 'settings/model/candidate.js' %}" defer></script>
@@ -105,23 +106,23 @@
           </div>
         <div id="manual-sidecar-options">
           <div class="container row mb-3">
-            <div class="manuallyEditButtonWrapper col-sm">
+            <div class="manually-edit-upload-button-wrapper col-sm">
               OR
             </div>
             <div class="col-sm">
             </div>
           </div>
           <div class="container row mt-3">
-            <div id="manuallyEditUpload" class="manuallyEditButtonWrapper col-sm">
-              <button id="manuallyEditUploadButton" class="btn btn-primary manuallyEditUploadButton"
+            <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper col-sm">
+              <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
                       onclick="manuallyEditUpload(event)">Edit Uploaded Data
               </button>
-              <button id="manuallyEditUploadButtonError" class="btn btn-danger manuallyEditUploadButton" disabled="true" style="display: none">
+              <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button" disabled="true" style="display: none">
                       Could not parse JSON.
               </button>
             </div>
             <div class="col-sm">
-              <label for="manuallyEditUploadButton">
+              <label for="manually-edit-upload-button">
                 <p>
                   Manually edit your uploaded data. This is currently limited to adding candidate information only,
                   but future updates will allow for more customization.

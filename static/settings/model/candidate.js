@@ -246,7 +246,6 @@ class Candidate {
         candidateName.onblur = successFunc;
         candidateName.onchange = successFunc;
         editor.onfocus = () => {
-            console.log("focused")
             document.addEventListener("click", handleClickOutside);
         };
         return editor;
@@ -282,7 +281,6 @@ class Candidate {
             candidateClone.moreinfo_url = moreInfoUrl.value
                 || candidate.moreinfo_url;
             candidateClone.party = party.value || candidate.party;
-            console.log(JSON.stringify(candidateClone));
             const candidateInfoElem = document.getElementById(candidateInfo.id);
             if (candidateInfoElem) {
                 candidateInfoElem.remove();

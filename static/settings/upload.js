@@ -3,33 +3,29 @@ let uploadDataTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
 function enableDataOptionsAndSubmitButton() {
-    document.getElementById("options").style.opacity = '100%'
-    document.getElementById("uploadButton").disabled = false;
+    getEntireOptionsWrapper().style.opacity = '100%'
+    getUploadSubmitButton().disabled = false;
 }
 
 function hideManualOptionsShowTable() {
-    document.getElementById('manual-sidecar-options').style.display = 'none';
-    document.getElementById('datatable-outer-wrapper').style.display = 'block';
+    getOptionsForManualSidecarEntry().style.display = 'none';
+    getDatatableOuterWrapper().style.display = 'block';
     redrawOptions();
 }
 
 function hideManualEntryShowError() {
-    const uploadButton  = document.getElementById("manuallyEditUploadButton");
-    const uploadButtonError  = document.getElementById("manuallyEditUploadButtonError");
-    uploadButton.style.display = "none";
-    uploadButtonError.style.display = "inline";
+    getManuallyEditSidecarButton().style.display = "none";
+    getManuallyEditSidecarErrorButton().style.display = "inline";
 }
 
 function hideManualEntryErrorShowMainButton() {
-    const uploadButton  = document.getElementById("manuallyEditUploadButton");
-    const uploadButtonError  = document.getElementById("manuallyEditUploadButtonError");
-    uploadButton.style.display = "inline";
-    uploadButtonError.style.display = "none";
+    getManuallyEditSidecarButton().style.display = "inline";
+    getManuallyEditSidecarErrorButton().style.display = "none";
 }
 
 function showManualOptionsHideTable(redraw = true) {
-    document.getElementById('manual-sidecar-options').style.display = 'block';
-    document.getElementById('datatable-outer-wrapper').style.display = 'none';
+    getOptionsForManualSidecarEntry().style.display = 'block';
+    getDatatableOuterWrapper().style.display = 'none';
     document.removeEventListener('formdata', formListener);
     if (redraw) {
         redrawOptions();
@@ -38,15 +34,14 @@ function showManualOptionsHideTable(redraw = true) {
 
 function redrawOptions() {
     setTimeout(() => {
-        console.log("redrawing options");
-        const content = document.getElementById('dataOptions');
+        const content = getDatatableOptions();
         content.style.maxHeight = content.scrollHeight + "px";
     }, 100);
 }
 
 function disableDataOptionsAndSubmitButton() {
-    document.getElementById("options").style.opacity = '10%'
-    document.getElementById("uploadButton").disabled = true;
+    getEntireOptionsWrapper().style.opacity = '10%'
+    getUploadSubmitButton().disabled = true;
 }
 
 function summaryFileSelected(files) {
@@ -65,7 +60,7 @@ function manuallyEditUpload(e) {
         hideManualOptionsShowTable();
         return;
     }
-    const form = document.getElementById('form')
+    const form = getEntireForm();
     const formData = new FormData(form);
     const file = formData.getAll("jsonFile")[0];
     if (file) {
@@ -184,16 +179,16 @@ function sidecarFileSelected(files) {
 }
 
 function showDataTable(doShow) {
-    document.getElementById("file-upload-box").style.display = doShow ? "none"
+    getFileUploadBox().style.display = doShow ? "none"
         : "block";
-    document.getElementById("datatable-upload-box").style.display = doShow
+    getDatatableUploadBox().style.display = doShow
         ? "block" : "none";
     if (doShow) {
         // destroyDataTableFromUpload();
         uploadByDataTableInit();
-        document.getElementById('form').action = 'uploadByDataTable.html';
+        getEntireForm().action = 'uploadByDataTable.html';
     } else {
         // destroyUploadByDataTable();
-        document.getElementById('form').action = 'upload.html';
+        getEntireForm().action = 'upload.html';
     }
 }
