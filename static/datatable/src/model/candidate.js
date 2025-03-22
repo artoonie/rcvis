@@ -297,7 +297,7 @@ export default class Candidate {
             }
             success(candidateClone);
         }
-        continueButton.onclick = e => {
+        continueButton.onclick = () => {
             successFunc();
             MicroModal.close('datatable-modal');
         };
