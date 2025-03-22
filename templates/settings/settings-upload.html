@@ -6,9 +6,9 @@
 {% compress js file %}
   <script type="text/javascript" src="{% static 'settings/dist/upload.js' %}"></script>
 {% endcompress %}
-  {% compress css file %}
+{% compress css file %}
     <link rel="stylesheet" type="text/css" href="{% static 'settings/src/tabulator-custom.css' %}">
-    <link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'settings/src/custom-modal.css' %}">
 {% endcompress %}
 
