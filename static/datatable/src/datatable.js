@@ -1,7 +1,7 @@
 // noinspection JSUnusedLocalSymbols
 import Candidate from "./model/candidate.js";
 import $ from "jquery";
-import {Tabulator} from "tabulator-tables";
+import {TabulatorFull as Tabulator} from "tabulator-tables";
 import {disableDataOptionsAndSubmitButton, enableDataOptionsAndSubmitButton} from "rcvis-settings";
 
 const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
