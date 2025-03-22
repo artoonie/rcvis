@@ -13,15 +13,15 @@ form div.formArea {
   height: 75px;
   width: 100%;
 }
-.manually-edit-upload-button-wrapper {
+.candidate-column-wrapper {
   text-align: center;
   position: relative;
   overflow: hidden;
   display: inline-block;
-  height: 75px;
-  line-height: 75px;
-  width: 100%;
+  height: 150px;
+  max-width: 45%;
 }
+
 .manually-edit-upload-button {
   display: inline;
   text-align: center;
@@ -29,6 +29,22 @@ form div.formArea {
 #submitDiv {
   text-align: center;
   margin-top: 20px;
+}
+.candidate-button-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+}
+.candidate-options-content {
+  margin: 10px;
+  text-align: center;
+}
+.candidate-options-label {
+  height: 50%;
 }
 .selectFileButtonWrapper input[type=file] {
   font-size: 100px;
@@ -39,7 +55,6 @@ form div.formArea {
   width: 100%;
   height: 100%;
 }
-
 svg {
   shape-rendering: crispEdges;
 }
@@ -151,3 +166,4 @@ svg {
   font-weight: bold;
   color: green;
 }
+

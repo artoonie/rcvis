@@ -24,7 +24,7 @@ export function getDatatableUploadBox() {
 }
 
 export function getDatatableOptions() {
-    return document.getElementById("data-options");
+    return document.getElementById("candidate-options");
 }
 
 // Options Manipulation

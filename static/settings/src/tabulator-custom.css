@@ -1,12 +1,8 @@
-
-.tabulator-cell {
-  vertical-align: top;
-}
-
-/*.tabulator-cell.tabulator-editing {*/
-/*  opacity: 5%;*/
-/*}*/
-
-.tabulator-row .tabulator-cell.tabulator-editing input, .tabulator-row .tabulator-cell.tabulator-editing select {
-  border: 1px solid black;
+.link-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  color: dimgrey;
+  display: inline-block;  /* For IE11/ MS Edge bug */
+  pointer-events: none;
+  text-decoration: none;
 }
