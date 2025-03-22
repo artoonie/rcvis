@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'django_social_share',
     'django_node_assets',
+
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -194,7 +196,7 @@ NODE_MODULES_ROOT = './node_modules'
 NODE_PACKAGE_MANAGER_EXECUTABLE = os.environ.get('NODE_PACKAGE_MANAGER_EXECUTABLE', '/usr/bin/npm')
 
 COMPRESS_ROOT = "static/"
-COMPRESS_ENABLED = True
+# COMPRESS_ENABLED = True
 COMPRESS_FILTERS = {
     'css': [
         'compressor.filters.css_default.CssAbsoluteFilter',
