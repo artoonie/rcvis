@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "exports": {
     ".": "./src/datatable.js",
-    "./candidate": "./src/model/candidate.js"
+    "./candidate": "./src/model/candidate.js",
+    "./candidate-datatable": "./src/candidate/candidate-datatable.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\"",

@@ -7,8 +7,8 @@
   <script type="text/javascript" src="{% static 'settings/dist/upload.js' %}"></script>
 {% endcompress %}
 {% compress css file %}
+    <link rel="stylesheet" type="text/css" href="{% static 'tabulator-tables/dist/css/tabulator_modern.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'settings/src/tabulator-custom.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'settings/src/custom-modal.css' %}">
 {% endcompress %}
 
@@ -23,7 +23,7 @@
     {% include "settings/settings-upload-by-file.html" %}
 
     <p class="masthead-subheading font-weight-light mt-3 narrowbox">
-     You may also choose to: 
+     You may also choose to:
      <button id="swapDataTables" class="btn btn-link" onclick="upload.showDataTable(true)" type="button">
        enter round-by-round results manually
      </button>
@@ -33,7 +33,7 @@
     {% include "settings/settings-upload-by-datatable.html" %}
 
     <p class="masthead-subheading font-weight-light mt-3 narrowbox">
-     You may also choose to: 
+     You may also choose to:
      <button class="btn btn-link" onclick="upload.showDataTable(false)" type="button">
        upload a Results Summary File
      </button>
@@ -84,40 +84,36 @@
         </div>
 
 
-          <div class="container row mt-3">
-            <div class="selectFileButtonWrapper col-sm">
-              <button id="selectSidecarFileButton" class="btn btn-primary">Click to select a sidecar file</button>
-              <input id="candidateSidecarFile" type="file" class="selectFileDefaultInput" name="candidateSidecarFile"
-                     accept="application/json" onchange="upload.sidecarFileSelected(this.files)"/>
-            </div>
-            <div class="col-sm">
-              <label for="candidateSidecarFile">
-                <p>
-                  A sidecar file can provide additional information about candidates.<br/>This feature is not yet
-                  documented - email team@rcvis for more info.
-                </p>
-              </label>
-            </div>
+
+      </p>
+    </div>
+  <button class="collapsible">▶ Candidate Details</button>
+  <div class="container optionscontent" id="candidate-options">
+    <div class="candidate-options-content">
+      <div class="col-sm candidate-column-wrapper">
+        <div class="row candidate-options-label">
+          <div class="candidate-button-wrapper">
+            <label class="candidate-options-label" for="candidateSidecarFile">
+              <p>
+                A sidecar file can provide additional information about candidates.<br/>This feature is not yet
+                documented - email team@rcvis for more info.
+              </p>
+            </label>
           </div>
+        </div>
+        <div class="row">
+          <div class="candidate-button-wrapper col-sm">
+            <button id="selectSidecarFileButton" class="btn btn-primary">Click to select a sidecar file</button>
+            <input id="candidateSidecarFile" type="file" class="selectFileDefaultInput" name="candidateSidecarFile"
+                   accept="application/json" onchange="upload.sidecarFileSelected(this.files)"/>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm candidate-column-wrapper">
         <div id="manual-sidecar-options">
-          <div class="container row mb-3">
-            <div class="manually-edit-upload-button-wrapper col-sm">
-              OR
-            </div>
-            <div class="col-sm">
-            </div>
-          </div>
-          <div class="container row mt-3">
-            <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper col-sm">
-              <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
-                      onclick="upload.manuallyEditUpload(event)">Edit Uploaded Data
-              </button>
-              <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button" disabled="true" style="display: none">
-                      Could not parse JSON.
-              </button>
-            </div>
-            <div class="col-sm">
-              <label for="manually-edit-upload-button">
+          <div class="row candidate-options-label">
+            <div class="candidate-button-wrapper">
+              <label class="manually-edit-upload-button">
                 <p>
                   Manually edit your uploaded data. This is currently limited to adding candidate information only,
                   but future updates will allow for more customization.
@@ -125,32 +121,43 @@
               </label>
             </div>
           </div>
-        </div>
-        <div class="mt-3 container" style="overflow-x: auto">
-          <div id="datatable-outer-wrapper" style="display: none">
-            <h3>Modify data from uploaded file</h3>
-            <p>Select a candidate to add additional information to.</p>
-            <div id="dataTableWrapperUpload">
+          <div class="row">
+            <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper candidate-button-wrapper col-sm">
+              <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
+                      onclick="upload.manuallyEditUpload(event)">Edit Uploaded Data
+              </button>
+              <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button"
+                      disabled="true" style="display: none">
+                Could not parse JSON.
+              </button>
             </div>
           </div>
         </div>
-
-      </p>
+      </div>
+      <div class="mt-3 container" style="overflow-x: auto">
+        <div id="datatable-outer-wrapper" style="display: none">
+          <h3>Modify data from uploaded file</h3>
+          <p>Select a candidate to add additional information to.</p>
+          <div id="dataTableWrapperUpload">
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <button class="collapsible">▶ Global visualization options</button>
+  <button class="collapsible">▶ Global visualization options</button>
 
-    <div class="optionscontent" id="globalOptions">
-      <p class="mt-3">
-        <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
-        <label>
-            <input type="checkbox" name="hideDecimals"/> Hide decimal places
-        </label>
-        <br/>
-        <small>By default, we'll show up to two decimal places.</small></label>
-        <br/><br/>
-      </p>
-    </div>
+  <div class="optionscontent" id="globalOptions">
+    <p class="mt-3">
+      <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
+      <label>
+        <input type="checkbox" name="hideDecimals"/> Hide decimal places
+      </label>
+      <br/>
+      <small>By default, we'll show up to two decimal places.</small></label>
+      <br/><br/>
+    </p>
+  </div>
 
 {% endblock %}
 

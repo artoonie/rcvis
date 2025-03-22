@@ -129,7 +129,7 @@ export default class Candidate {
         const elem = Candidate.createInputElement(editor, null,
             candidate.candidateName, true)
         const regex = /Candidate [\d]+/;
-        var match = cell.getValue().candidateName.match(regex);
+        const match = candidate.candidateName.match(regex);
         if (!cell.isEdited() && match && match.length > 0) {
             elem.classList.add("candidate-name-default");
         }
@@ -142,31 +142,64 @@ export default class Candidate {
 
     static customCandidateEditor(cell, onRendered, success, cancel,
         editorParams) {
-        const candidate = cell.getData().candidate;
+        const candidate = cell.getData().candidate || cell.getData();
         const editor = document.createElement("div");
         editor.id = Candidate.randstr("candidate-editor-")
         editor.tabIndex = 1;
 
         const regex = /Candidate [\d]+/;
-        const match = cell.getValue().candidateName.match(regex);
+        const match = candidate.candidateName.match(regex);
         const placeholder = !cell.isEdited() && match && match.length > 0;
         const candidateName = Candidate.createInputElement(editor,
             null, candidate.candidateName, editorParams.sidecarOnly,
             placeholder);
+        const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
+            cell, candidateName, success, cancel,
+            onRendered, editorParams);
+        editor.appendChild(moreInfoButton);
+        return editor;
+    };
+
+    static getMoreInfoButton(editor, candidate, cell, candidateName, success,
+        cancel, onRendered, editorParams, showModalNow) {
         const moreInfoButton = document.createElement("button");
+        const successFunc = Candidate.createModal(editor,
+            candidate, cell, candidateName, success, cancel, onRendered);
+
+        moreInfoButton.classList.add("btn", "btn-primary");
+        moreInfoButton.dataset.candidateName = candidate.candidateName;
+        moreInfoButton.textContent = "Manage Candidate";
+        moreInfoButton.onclick = function(e) {
+            e.preventDefault();
+            MicroModal.show('datatable-modal');
+        }
+
+        // editor.appendChild(document.createElement("br"));
+        candidateName.tabIndex = -1;
+        if (editorParams.sidecarOnly) {
+            candidateName.readOnly = true;
+        }
+
+        editor.onblur = successFunc;
+        editor.onchange = successFunc;
+        candidateName.onblur = successFunc;
+        candidateName.onchange = successFunc;
+        if (showModalNow) {
+            MicroModal.show('datatable-modal', {
+                onClose: () => { successFunc(); }
+            });
+        }
+        return moreInfoButton;
+    }
+
+    static createModal(editor, candidate, cell, candidateName, success, cancel,
+        onRendered) {
         const modalWrapper = document.getElementById("datatable-modal-content");
         const modalTitleWrapper = document.getElementById(
             "datatable-modal-title");
         const candidateInfoId = Candidate.randstr("candidate-info-")
         const candidateTitleId = Candidate.randstr("candidate-title-")
 
-        const handleClickOutside = (e) => {
-            if (!editor.contains(e.target) &&
-                !document.getElementById("datatable-modal").contains(
-                    e.target)) {
-                successFunc();
-            }
-        };
         const candidateInfo = document.createElement("div");
         candidateInfo.id = candidateInfoId;
         candidateInfo.classList.add("candidate-info", "input-group", "mb-3");
@@ -178,21 +211,13 @@ export default class Candidate {
         const successFunc = Candidate.attachModalElements(candidateInfo,
             candidateTitle, candidate,
             cell, candidateName, success, cancel);
-
-        moreInfoButton.classList.add("btn", "btn-primary");
-        moreInfoButton.dataset.candidateName = candidate.candidateName;
-        moreInfoButton.textContent = "Manage Candidate"
-        moreInfoButton.onclick = function(e) {
-            e.preventDefault();
-            MicroModal.show('datatable-modal');
-        }
-
-        editor.appendChild(document.createElement("br"));
-        editor.appendChild(moreInfoButton);
-        candidateName.tabIndex = 1;
-        if (editorParams.sidecarOnly) {
-            candidateName.readOnly = true;
-        }
+        const handleClickOutside = (e) => {
+            if (!editor.contains(e.target) &&
+                !document.getElementById("datatable-modal").contains(
+                    e.target)) {
+                successFunc();
+            }
+        };
         onRendered(function() {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
@@ -200,16 +225,11 @@ export default class Candidate {
             editor.focus()
             MicroModal.init();
         });
-
-        editor.onblur = successFunc;
-        editor.onchange = successFunc;
-        candidateName.onblur = successFunc;
-        candidateName.onchange = successFunc;
         editor.onfocus = () => {
             document.addEventListener("click", handleClickOutside);
         };
-        return editor;
-    };
+        return successFunc;
+    }
 
     static createInputElement(editor, labelText, value, readOnly = false,
         placeholder = false) {
@@ -239,8 +259,10 @@ export default class Candidate {
         }
         span.appendChild(elem);
         if (!placeholder) {
-            elem.value = value;
-            elem.textContent = value;
+            if (value) {
+                elem.value = value;
+                elem.textContent = value;
+            }
         } else {
             elem.placeholder = value;
         }
@@ -273,16 +295,20 @@ export default class Candidate {
 
         //when the value has been set, trigger the cell to update
         function successFunc() {
-            const candidateClone = cell.getData().candidate.clone();
-            candidateClone.candidateName = candidateName.value
-                || candidate.candidateName;
-            candidateClone.incumbent = (!incumbent || incumbent.selected
+            console.log("success");
+            const originalCandidate = cell.getData().candidate
+                || cell.getData();
+            const candidateClone = structuredClone(originalCandidate);
+            candidateClone.candidateName = (candidateName.value || candidateName.textContent)
+                || originalCandidate.candidateName;
+            candidateClone.incumbent = (!incumbent || incumbent.checked
                 === undefined)
-                ? candidate.incumbent : incumbent.selected;
-            candidateClone.photo_url = photoUrl.value || candidate.photo_url;
+                ? originalCandidate.incumbent : incumbent.checked;
+            candidateClone.photo_url = photoUrl.value
+                || originalCandidate.photo_url;
             candidateClone.moreinfo_url = moreInfoUrl.value
                 || candidate.moreinfo_url;
-            candidateClone.party = party.value || candidate.party;
+            candidateClone.party = party.value || originalCandidate.party;
             const candidateInfoElem = document.getElementById(candidateInfo.id);
             if (candidateInfoElem) {
                 candidateInfoElem.remove();
@@ -294,11 +320,21 @@ export default class Candidate {
             }
             if (candidateClone.default) {
                 cancel();
+                return;
             }
+            cell.getRow().update(candidateClone);
             success(candidateClone);
         }
         continueButton.onclick = () => {
-            successFunc();
+            const modalWrapper = document.getElementById(
+                "datatable-modal-content");
+            const modalTitle = document.getElementById("datatable-modal-title");
+            while (modalWrapper.firstChild) {
+                modalWrapper.removeChild(modalWrapper.firstChild);
+            }
+            while (modalTitle.firstChild) {
+                modalTitle.removeChild(modalTitle.firstChild);
+            }
             MicroModal.close('datatable-modal');
         };
         return successFunc;

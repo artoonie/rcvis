@@ -12,6 +12,7 @@ import {
 } from "./settings-page-elements";
 import RcvisDataTable from "rcvis-datatable";
 import Candidate from "rcvis-datatable/candidate";
+import CandidateDatatable from "rcvis-datatable/candidate-datatable";
 import $ from "jquery";
 
 const uploadWrapperDivId = "dataTableWrapperUpload";
@@ -132,14 +133,21 @@ function standardizeFormatAjax(formData) {
                 uploadDataTable.table.replaceData(
                     transformJsonToTableData(data));
             } else {
-                uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
-                    transformJsonToTableData(data), true);
+                uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
+                     Object.keys(data.results[0].tally), true);
                 uploadDataTable.table.on("cellEdited", function() {
                     uploadDataTableEdited = true;
                 });
                 uploadDataTable.table.on("dataProcessed", function() {
                     uploadDataTable.table.validate();
+                    // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();
+                });
+                uploadDataTable.table.on("tableBuilt", function() {
+                    uploadDataTable.table.redraw(true);
+                });
+                uploadDataTable.table.on("rowHeight", function(){
+                    redrawOptions();
                 });
             }
             form.addEventListener('formdata', formListener);
