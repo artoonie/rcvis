@@ -1,4 +1,5 @@
 // noinspection JSUnusedLocalSymbols
+import Candidate from "./model/candidate.js";
 
 const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
 const VOTE_ERROR_MESSAGE = "Vote count cannot decrease unless this is a surplus transfer,"
@@ -26,7 +27,7 @@ const lessThanZeroError = function() {
   return container;
 };
 
-class RcvisDataTable {
+export default class RcvisDataTable {
 
   constructor(id, data = null, sidecarOnly = false) {
     this._sidecarOnly = sidecarOnly;

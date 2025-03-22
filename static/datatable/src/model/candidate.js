@@ -1,4 +1,6 @@
-class Candidate {
+import MicroModal from 'micromodal';
+
+export default class Candidate {
     constructor(candidateName, incumbent = false, photo_url = "",
         moreinfo_url = "", party = "") {
         this._candidateName = candidateName;

@@ -4,17 +4,12 @@
 
 {% block beforeOptions %}
 {% compress js file %}
-  <script type="text/javascript" src="{% static 'micromodal/dist/micromodal.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'tabulator-tables/dist/js/tabulator.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'settings/settings-page-elements.js' %}"></script>
-  <script type="text/javascript" src="{% static 'settings/upload.js' %}"></script>
-  <script type="text/javascript" src="{% static 'settings/upload-datatable.js' %}" defer></script>
-  <script type="text/javascript" src="{% static 'settings/model/candidate.js' %}" defer></script>
+  <script type="text/javascript" src="{% static 'settings/dist/upload.js' %}"></script>
 {% endcompress %}
   {% compress css file %}
-    <link rel="stylesheet" type="text/css" href="{% static 'settings/tabulator-custom.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'settings/src/tabulator-custom.css' %}">
     <link rel="stylesheet" href="{% static 'tabulator-tables/dist/css/tabulator_bootstrap5.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'settings/custom-modal.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'settings/src/custom-modal.css' %}">
 {% endcompress %}
 
   <div class="mb-2 mt-2" id="header">
@@ -29,7 +24,7 @@
 
     <p class="masthead-subheading font-weight-light mt-3 narrowbox">
      You may also choose to: 
-     <button id="swapDataTables" class="btn btn-link" onclick="showDataTable(true)" type="button">
+     <button id="swapDataTables" class="btn btn-link" onclick="upload.showDataTable(true)" type="button">
        enter round-by-round results manually
      </button>
     </p>
@@ -39,7 +34,7 @@
 
     <p class="masthead-subheading font-weight-light mt-3 narrowbox">
      You may also choose to: 
-     <button class="btn btn-link" onclick="showDataTable(false)" type="button">
+     <button class="btn btn-link" onclick="upload.showDataTable(false)" type="button">
        upload a Results Summary File
      </button>
     </p>
@@ -93,7 +88,7 @@
             <div class="selectFileButtonWrapper col-sm">
               <button id="selectSidecarFileButton" class="btn btn-primary">Click to select a sidecar file</button>
               <input id="candidateSidecarFile" type="file" class="selectFileDefaultInput" name="candidateSidecarFile"
-                     accept="application/json" onchange="sidecarFileSelected(this.files)"/>
+                     accept="application/json" onchange="upload.sidecarFileSelected(this.files)"/>
             </div>
             <div class="col-sm">
               <label for="candidateSidecarFile">
@@ -115,7 +110,7 @@
           <div class="container row mt-3">
             <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper col-sm">
               <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
-                      onclick="manuallyEditUpload(event)">Edit Uploaded Data
+                      onclick="upload.manuallyEditUpload(event)">Edit Uploaded Data
               </button>
               <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button" disabled="true" style="display: none">
                       Could not parse JSON.

@@ -1,59 +1,58 @@
-
 // Datatable Manipulation
-function getDatatableModal() {
+export function getDatatableModal() {
     return document.getElementById('datatable-modal');
 }
 
-function getDatatableModalContent() {
+export function getDatatableModalContent() {
     return document.getElementById('datatable-modal-content');
 }
 
-function getDatatableModalTitle() {
+export function getDatatableModalTitle() {
     return document.getElementById('datatable-modal-title');
 }
 
-function getDatatableModalSubmit() {
+export function getDatatableModalSubmit() {
     return document.getElementById('datatable-modal-submit');
 }
 
-function getDatatableOuterWrapper() {
+export function getDatatableOuterWrapper() {
     return document.getElementById('datatable-outer-wrapper');
 }
 
-function getDatatableUploadBox() {
+export function getDatatableUploadBox() {
     return document.getElementById("datatable-upload-box");
 }
 
-function getDatatableOptions() {
+export function getDatatableOptions() {
     return document.getElementById("data-options");
 }
 
 // Options Manipulation
 
-function getOptionsForManualSidecarEntry() {
+export function getOptionsForManualSidecarEntry() {
     return document.getElementById('manual-sidecar-options');
 }
 
-function getManuallyEditSidecarButton() {
+export function getManuallyEditSidecarButton() {
     return document.getElementById("manually-edit-upload-button");
 }
 
-function getManuallyEditSidecarErrorButton() {
+export function getManuallyEditSidecarErrorButton() {
     return document.getElementById("manually-edit-upload-button-error");
 }
 
-function getEntireOptionsWrapper() {
+export function getEntireOptionsWrapper() {
     return document.getElementById("options");
 }
 
-function getUploadSubmitButton() {
+export function getUploadSubmitButton() {
     return document.getElementById("uploadButton");
 }
 
-function getEntireForm() {
+export function getEntireForm() {
     return document.getElementById('form');
 }
 
-function getFileUploadBox() {
+export function getFileUploadBox() {
     return document.getElementById("file-upload-box");
 }
