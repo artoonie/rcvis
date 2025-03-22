@@ -116,7 +116,7 @@ function uploadByDataTableInit() {
 
 function standardizeFormatAjax(formData) {
     $.ajax({
-        url: '/standardizeDataIsITFalse23443',
+        url: '/standardizeData',
         method: 'POST',
         dataTypes: 'json',
         data: formData,
