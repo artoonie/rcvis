@@ -13,10 +13,11 @@
     "static/settings",
     "static/datatable"
   ],
+  "type": "module",
   "devDependencies": {
     "@eslint/js": "^9.23.0",
     "bootstrap": "^3.3.5",
-    "eslint": "^9.23.0",
+    "eslint": "9.23.0",
     "globals": "^16.0.0",
     "jquery": "^3.2.1",
     "webpack": "^5.98.0",

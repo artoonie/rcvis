@@ -12,6 +12,7 @@ import {
 } from "./settings-page-elements";
 import RcvisDataTable from "rcvis-datatable";
 import Candidate from "rcvis-datatable/candidate";
+import $ from "jquery";
 
 const uploadWrapperDivId = "dataTableWrapperUpload";
 const wrapperDivId = 'dataTableWrapper';
@@ -20,8 +21,11 @@ let uploadByDataTableTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
 
+export function getUploadByDataTableTable() {
+    return uploadByDataTableTable;
+}
 
-function enableDataOptionsAndSubmitButton() {
+export function enableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
     if(entireOptionsWrapper) {
         entireOptionsWrapper.style.opacity = '100%';
@@ -112,7 +116,7 @@ function uploadByDataTableInit() {
 
 function standardizeFormatAjax(formData) {
     $.ajax({
-        url: '/standardizeData',
+        url: '/standardizeDataIsITFalse23443',
         method: 'POST',
         dataTypes: 'json',
         data: formData,
