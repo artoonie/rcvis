@@ -1,0 +1,21 @@
+{
+  "name": "rcvis-settings",
+  "version": "1.0.0",
+  "main": "src/upload.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "build-dev": "npx webpack --mode=development --watch --config ./webpack.config.js",
+    "build": "npx webpack --mode=production --config ./webpack.config.js",
+    "lint": "npx eslint"
+  },
+  "dependencies": {
+    "rcvis-datatable": "../datatable"
+  },
+  "devDependencies": {
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

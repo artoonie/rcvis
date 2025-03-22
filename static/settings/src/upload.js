@@ -1,7 +1,26 @@
+import {
+    getDatatableOptions,
+    getDatatableOuterWrapper,
+    getDatatableUploadBox,
+    getEntireForm,
+    getEntireOptionsWrapper,
+    getFileUploadBox,
+    getManuallyEditSidecarButton,
+    getManuallyEditSidecarErrorButton,
+    getOptionsForManualSidecarEntry,
+    getUploadSubmitButton
+} from "./settings-page-elements";
+import RcvisDataTable from "rcvis-datatable";
+import Candidate from "rcvis-datatable/candidate";
+
 const uploadWrapperDivId = "dataTableWrapperUpload";
+const wrapperDivId = 'dataTableWrapper';
 let uploadDataTable = null;
+let uploadByDataTableTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
+
+
 function enableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
     if(entireOptionsWrapper) {
@@ -10,7 +29,7 @@ function enableDataOptionsAndSubmitButton() {
     getUploadSubmitButton().disabled = false;
 }
 
-function disableDataOptionsAndSubmitButton() {
+export function disableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
     if (entireOptionsWrapper) {
         entireOptionsWrapper.style.opacity = '10%';
@@ -50,7 +69,7 @@ function redrawOptions() {
     }, 100);
 }
 
-function summaryFileSelected(files) {
+export function summaryFileSelected(files) {
     $("#selectResultsFileButton").text(files[0].name)
     enableDataOptionsAndSubmitButton();
     hideManualEntryErrorShowMainButton();
@@ -59,7 +78,7 @@ function summaryFileSelected(files) {
     uploadDataTable = null;
 }
 
-function manuallyEditUpload(e) {
+export function manuallyEditUpload(e) {
     e.preventDefault();
     manualSidecarSelectedLast = true;
     if (uploadDataTable) {
@@ -85,6 +104,10 @@ function formListener(e) {
         const data = e.formData;
         attachSidecarJson(transformTableDataToSidecarJson(), data)
     }
+}
+
+function uploadByDataTableInit() {
+    uploadByDataTableTable = new RcvisDataTable(wrapperDivId);
 }
 
 function standardizeFormatAjax(formData) {
@@ -178,13 +201,13 @@ function transformTableDataToSidecarJson() {
     return sidecar;
 }
 
-function sidecarFileSelected(files) {
+export function sidecarFileSelected(files) {
     $("#selectSidecarFileButton").text(files[0].name)
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }
 
-function showDataTable(doShow) {
+export function showDataTable(doShow) {
     getFileUploadBox().style.display = doShow ? "none"
         : "block";
     getDatatableUploadBox().style.display = doShow

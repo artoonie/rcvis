@@ -1,12 +1,26 @@
 {
+  "name": "rcvis",
   "dependencies": {
-    "@artoonie/timeline-range-slider": "^0.1.12",
-    "micromodal": "^0.4.10",
-    "tabulator-tables": "^6.3.1",
-    "usfca-data-table": "^0.1.0"
+    "@artoonie/timeline-range-slider": "^0.1.12"
   },
+  "scripts": {
+    "test": "npm run test --workspaces",
+    "build-dev": "npm run build-dev --workspaces",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces"
+  },
+  "workspaces": [
+    "static/settings",
+    "static/datatable"
+  ],
   "devDependencies": {
+    "@eslint/js": "^9.23.0",
     "bootstrap": "^3.3.5",
-    "jquery": "^3.2.1"
+    "eslint": "^9.23.0",
+    "globals": "^16.0.0",
+    "jquery": "^3.2.1",
+    "webpack": "^5.98.0",
+    "webpack-bundle-tracker": "^3.1.1",
+    "webpack-cli": "^6.0.1"
   }
 }
