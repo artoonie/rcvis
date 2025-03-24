@@ -30,7 +30,7 @@ export function getDatatableOptions() {
 // Options Manipulation
 
 export function getOptionsForManualSidecarEntry() {
-    return document.getElementById('manual-sidecar-options');
+    return document.getElementById('candidate-options-content');
 }
 
 export function getManuallyEditSidecarButton() {

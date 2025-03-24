@@ -67,11 +67,11 @@ function showManualOptionsHideTable(redraw = true) {
     }
 }
 
-function redrawOptions() {
+function redrawOptions(delay = 100) {
     setTimeout(() => {
         const content = getDatatableOptions();
-        content.style.maxHeight = content.scrollHeight + "px";
-    }, 100);
+        content.style.maxHeight = (content.scrollHeight + 20) + "px";
+    }, delay);
 }
 
 export function summaryFileSelected(files) {
@@ -135,8 +135,19 @@ function standardizeFormatAjax(formData) {
             } else {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
                      Object.keys(data.results[0].tally), true);
-                uploadDataTable.table.on("cellEdited", function() {
+                uploadDataTable.table.on("cellEdited", function(c) {
                     uploadDataTableEdited = true;
+                    const img = c.getElement().getElementsByClassName("candidate-img-thumbnail");
+                    if(img && img.length > 0) {
+                        img[0].addEventListener("load", () => {
+                            c.getRow().normalizeHeight();
+                            setTimeout(() => {
+                                c.getRow().reformat()
+                                c.getTable().redraw(true);
+                                redrawOptions();
+                            }, 100)
+                        }, {once: true});
+                    }
                 });
                 uploadDataTable.table.on("dataProcessed", function() {
                     uploadDataTable.table.validate();
@@ -145,9 +156,6 @@ function standardizeFormatAjax(formData) {
                 });
                 uploadDataTable.table.on("tableBuilt", function() {
                     uploadDataTable.table.redraw(true);
-                });
-                uploadDataTable.table.on("rowHeight", function(){
-                    redrawOptions();
                 });
             }
             form.addEventListener('formdata', formListener);

@@ -156,6 +156,7 @@ export default class Candidate {
         const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
             cell, candidateName, success, cancel,
             onRendered, editorParams);
+        editor.appendChild(document.createElement("br"));
         editor.appendChild(moreInfoButton);
         return editor;
     };
