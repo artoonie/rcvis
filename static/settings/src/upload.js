@@ -1,8 +1,32 @@
+import {
+    getDatatableOptions,
+    getDatatableOuterWrapper,
+    getDatatableUploadBox,
+    getEntireForm,
+    getEntireOptionsWrapper,
+    getFileUploadBox,
+    getManuallyEditSidecarButton,
+    getManuallyEditSidecarErrorButton,
+    getOptionsForManualSidecarEntry,
+    getUploadSubmitButton
+} from "./settings-page-elements";
+import RcvisDataTable from "rcvis-datatable";
+import Candidate from "rcvis-datatable/candidate";
+import CandidateDatatable from "rcvis-datatable/candidate-datatable";
+import $ from "jquery";
+
 const uploadWrapperDivId = "dataTableWrapperUpload";
+const wrapperDivId = 'dataTableWrapper';
 let uploadDataTable = null;
+let uploadByDataTableTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
-function enableDataOptionsAndSubmitButton() {
+
+export function getUploadByDataTableTable() {
+    return uploadByDataTableTable;
+}
+
+export function enableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
     if(entireOptionsWrapper) {
         entireOptionsWrapper.style.opacity = '100%';
@@ -10,7 +34,7 @@ function enableDataOptionsAndSubmitButton() {
     getUploadSubmitButton().disabled = false;
 }
 
-function disableDataOptionsAndSubmitButton() {
+export function disableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
     if (entireOptionsWrapper) {
         entireOptionsWrapper.style.opacity = '10%';
@@ -43,14 +67,14 @@ function showManualOptionsHideTable(redraw = true) {
     }
 }
 
-function redrawOptions() {
+function redrawOptions(delay = 100) {
     setTimeout(() => {
         const content = getDatatableOptions();
-        content.style.maxHeight = content.scrollHeight + "px";
-    }, 100);
+        content.style.maxHeight = (content.scrollHeight + 20) + "px";
+    }, delay);
 }
 
-function summaryFileSelected(files) {
+export function summaryFileSelected(files) {
     $("#selectResultsFileButton").text(files[0].name)
     enableDataOptionsAndSubmitButton();
     hideManualEntryErrorShowMainButton();
@@ -59,7 +83,7 @@ function summaryFileSelected(files) {
     uploadDataTable = null;
 }
 
-function manuallyEditUpload(e) {
+export function manuallyEditUpload(e) {
     e.preventDefault();
     manualSidecarSelectedLast = true;
     if (uploadDataTable) {
@@ -87,6 +111,10 @@ function formListener(e) {
     }
 }
 
+function uploadByDataTableInit() {
+    uploadByDataTableTable = new RcvisDataTable(wrapperDivId);
+}
+
 function standardizeFormatAjax(formData) {
     $.ajax({
         url: '/standardizeData',
@@ -105,14 +133,29 @@ function standardizeFormatAjax(formData) {
                 uploadDataTable.table.replaceData(
                     transformJsonToTableData(data));
             } else {
-                uploadDataTable = new RcvisDataTable(uploadWrapperDivId,
-                    transformJsonToTableData(data), true);
-                uploadDataTable.table.on("cellEdited", function() {
+                uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
+                     Object.keys(data.results[0].tally), true);
+                uploadDataTable.table.on("cellEdited", function(c) {
                     uploadDataTableEdited = true;
+                    const img = c.getElement().getElementsByClassName("candidate-img-thumbnail");
+                    if(img && img.length > 0) {
+                        img[0].addEventListener("load", () => {
+                            c.getRow().normalizeHeight();
+                            setTimeout(() => {
+                                c.getRow().reformat()
+                                c.getTable().redraw(true);
+                                redrawOptions();
+                            }, 100)
+                        }, {once: true});
+                    }
                 });
                 uploadDataTable.table.on("dataProcessed", function() {
                     uploadDataTable.table.validate();
+                    // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();
+                });
+                uploadDataTable.table.on("tableBuilt", function() {
+                    uploadDataTable.table.redraw(true);
                 });
             }
             form.addEventListener('formdata', formListener);
@@ -178,13 +221,13 @@ function transformTableDataToSidecarJson() {
     return sidecar;
 }
 
-function sidecarFileSelected(files) {
+export function sidecarFileSelected(files) {
     $("#selectSidecarFileButton").text(files[0].name)
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }
 
-function showDataTable(doShow) {
+export function showDataTable(doShow) {
     getFileUploadBox().style.display = doShow ? "none"
         : "block";
     getDatatableUploadBox().style.display = doShow

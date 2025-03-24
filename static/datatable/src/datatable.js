@@ -1,4 +1,8 @@
 // noinspection JSUnusedLocalSymbols
+import Candidate from "./model/candidate.js";
+import $ from "jquery";
+import {TabulatorFull as Tabulator} from "tabulator-tables";
+import {disableDataOptionsAndSubmitButton, enableDataOptionsAndSubmitButton} from "rcvis-settings";
 
 const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
 const VOTE_ERROR_MESSAGE = "Vote count cannot decrease unless this is a surplus transfer,"
@@ -26,7 +30,7 @@ const lessThanZeroError = function() {
   return container;
 };
 
-class RcvisDataTable {
+export default class RcvisDataTable {
 
   constructor(id, data = null, sidecarOnly = false) {
     this._sidecarOnly = sidecarOnly;
@@ -258,7 +262,7 @@ class RcvisDataTable {
     });
   }
 
-  static statusFormatter(cell, formatterParams, onRendered) {
+  static statusFormatter(cell) {
     const elem = document.createElement("span");
     if (cell.getValue()) {
       elem.classList.add(`upload-status-${cell.getValue().toLowerCase()}`);
@@ -271,7 +275,7 @@ class RcvisDataTable {
     const cols = this.table.getColumns();
     const lastCol = this.table.getColumn(cols[cols.length - 1]);
     const colNr = this.table.getColumnDefinitions().length;
-    const editableFunc = readOnly ? (e) => false : this.editCheck;
+    const editableFunc = readOnly ? () => false : this.editCheck;
     const colDef = {
       title: `Round ${colNr}`, columns: [
         {
