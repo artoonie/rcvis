@@ -40,8 +40,13 @@ form div.formArea {
   height: 100%;
 }
 .candidate-options-content {
-  margin: 10px;
   text-align: center;
+}
+#hide-datatable-button {
+  margin-bottom: 10px;
+}
+#candidate-options {
+  overflow-x: auto;
 }
 .candidate-options-label {
   height: 50%;

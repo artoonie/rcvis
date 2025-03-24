@@ -88,48 +88,50 @@
       </p>
     </div>
   <button class="collapsible">▶ Candidate Details</button>
-  <div class="container optionscontent" id="candidate-options">
-    <div class="candidate-options-content">
-      <div class="col-sm candidate-column-wrapper">
-        <div class="row candidate-options-label">
-          <div class="candidate-button-wrapper">
-            <label class="candidate-options-label" for="candidateSidecarFile">
-              <p>
-                A sidecar file can provide additional information about candidates.<br/>This feature is not yet
-                documented - email team@rcvis for more info.
-              </p>
-            </label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="candidate-button-wrapper col-sm">
-            <button id="selectSidecarFileButton" class="btn btn-primary">Click to select a sidecar file</button>
-            <input id="candidateSidecarFile" type="file" class="selectFileDefaultInput" name="candidateSidecarFile"
-                   accept="application/json" onchange="upload.sidecarFileSelected(this.files)"/>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm candidate-column-wrapper">
-        <div id="manual-sidecar-options">
+  <div class="optionscontent" id="candidate-options">
+    <div class="container">
+      <div id="candidate-options-content" class="candidate-options-content">
+        <div class="col-sm candidate-column-wrapper">
           <div class="row candidate-options-label">
             <div class="candidate-button-wrapper">
-              <label class="manually-edit-upload-button">
+              <label class="candidate-options-label" for="candidateSidecarFile">
                 <p>
-                  Manually edit your uploaded data. This is currently limited to adding candidate information only,
-                  but future updates will allow for more customization.
+                  A sidecar file can provide additional information about candidates.<br/>This feature is not yet
+                  documented - email team@rcvis for more info.
                 </p>
               </label>
             </div>
           </div>
           <div class="row">
-            <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper candidate-button-wrapper col-sm">
-              <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
-                      onclick="upload.manuallyEditUpload(event)">Edit Uploaded Data
-              </button>
-              <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button"
-                      disabled="true" style="display: none">
-                Could not parse JSON.
-              </button>
+            <div class="candidate-button-wrapper col-sm">
+              <button id="selectSidecarFileButton" class="btn btn-primary">Click to select a sidecar file</button>
+              <input id="candidateSidecarFile" type="file" class="selectFileDefaultInput" name="candidateSidecarFile"
+                     accept="application/json" onchange="upload.sidecarFileSelected(this.files)"/>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm candidate-column-wrapper">
+          <div id="manual-sidecar-options">
+            <div class="row candidate-options-label">
+              <div class="candidate-button-wrapper">
+                <label class="manually-edit-upload-button">
+                  <p>
+                    Manually edit your uploaded data. This is currently limited to adding candidate information only,
+                    but future updates will allow for more customization.
+                  </p>
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div id="manuallyEditUpload" class="manually-edit-upload-button-wrapper candidate-button-wrapper col-sm">
+                <button id="manually-edit-upload-button" class="btn btn-primary manually-edit-upload-button"
+                        onclick="upload.manuallyEditUpload(event)">Edit Uploaded Data
+                </button>
+                <button id="manually-edit-upload-button-error" class="btn btn-danger manually-edit-upload-button"
+                        disabled="true" style="display: none">
+                  Could not parse JSON.
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -139,6 +141,11 @@
           <h3>Modify data from uploaded file</h3>
           <p>Select a candidate to add additional information to.</p>
           <div id="dataTableWrapperUpload">
+          </div>
+          <div id="hide-datatable-wrapper">
+            <button id="hide-datatable-button" class="btn btn-secondary" onclick="upload.showManualOptionsHideTable">
+              Upload a sidecar instead
+            </button>
           </div>
         </div>
       </div>

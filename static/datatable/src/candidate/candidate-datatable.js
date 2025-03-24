@@ -13,12 +13,11 @@ export default class CandidateDatatable extends DataTable {
         const editor = document.createElement("div");
         const {element, nameDiv} = CandidateDatatable.getCustomFormatElement(
             cell, editorParams, onRendered);
-        Candidate.getMoreInfoButton(editor,
-            cell.getValue(), cell, nameDiv, success, cancel, onRendered,
-            editorParams, true);
         editor.appendChild(element);
         onRendered(function() {
-            cell.getRow().normalizeHeight();
+            Candidate.getMoreInfoButton(editor,
+                cell.getValue(), cell, nameDiv, success, cancel, onRendered,
+                editorParams, true);
         });
         return editor;
     }
@@ -39,35 +38,17 @@ export default class CandidateDatatable extends DataTable {
             }
         }));
         const columnDef = {
-            title: "Candidate1",
+            title: "Candidate",
             headerSort: false,
-            field: "candidate1",
             resizableColumnFit: true,
-            resizable: 'header',
-            editor: CandidateDatatable.candidateTableEditor,
-            formatter: (c, p, r) => CandidateDatatable.getCustomFormatElement(c,
-                p, r).element,
             editable: true
         }
-        const columnDef2 = {
-            title: "Candidate",
-            headerSort: false,
-            // minWidth: 200,
-            field: "candidate2",
-            resizable: 'header',
-            editor: CandidateDatatable.candidateTableEditor,
-            formatter: (c, p, r) => CandidateDatatable.getCustomFormatElement(c, p, r).element,
-            editable: true
-        }
-        const columnDef3 = {
-            title: "Candidate",
-            headerSort: false,
-            field: "candidate3",
-            resizable: 'header',
-            editor: CandidateDatatable.candidateTableEditor,
-            formatter: (c, p, r) => CandidateDatatable.getCustomFormatElement(c,
-                p, r).element,
-            editable: true
+        function getColumnDefinition(field) {
+            const clone = structuredClone(columnDef);
+            clone.editor = CandidateDatatable.candidateTableEditor;
+            clone.formatter = CandidateDatatable.getFormatter;
+            clone.field = field;
+            return clone;
         }
         return new Tabulator("#" + id, {
             data: candidateData,
@@ -75,15 +56,23 @@ export default class CandidateDatatable extends DataTable {
             layout: "fitColumns",
             debugInvalidOptions: false,
             layoutColumnsOnNewData: true,
-            columns: [columnDef, columnDef2, columnDef3],
+            columns: [getColumnDefinition("candidate1"),
+                getColumnDefinition("candidate2"),
+                getColumnDefinition("candidate3")],
         });
     }
 
-    static getCustomFormatElement(cell, formatterParams, onRendered) {
+    static getFormatter(c, p, r) {
+        return CandidateDatatable.getCustomFormatElement(c, p, r).element;
+    }
+
+    static getCustomFormatElement(cell) {
+        console.log("Getting custom format element")
         let element = document.createElement("div"),
             cellElement = cell.getElement(),
             data = cell.getValue(),
             rowTable;
+        element.style.height = "100%";
         //clear current row data
         while (cellElement.firstChild) {
             cellElement.removeChild(
@@ -91,12 +80,15 @@ export default class CandidateDatatable extends DataTable {
         }
 
         rowTable = document.createElement("table")
+        rowTable.style.height = "inherit";
         const rowTabletr = document.createElement("tr");
 
         const content = document.createElement("td");
         const img = document.createElement("img");
+        img.classList.add("candidate-img-thumbnail");
+        content.style.marginRight = "10px";
         content.style.width = "50%";
-        content.style.height = "100%";
+        content.style.height = "inherit"
         //add image on left of row
         if (data && data.photo_url) {
             img.src = data.photo_url;
@@ -112,7 +104,7 @@ export default class CandidateDatatable extends DataTable {
         //add row data on right hand side
         const mainTd = document.createElement("td");
         const nameDiv = document.createElement("div");
-        nameDiv.innerHTML = `<strong>${(data && data.candidateName) ? data.candidateName : ""}</strong>`
+        nameDiv.innerHTML = `<h3>${(data && data.candidateName) ? data.candidateName : ""}</h3>`
 
         const incumbentDiv = document.createElement("div");
         const incumbentSpan = document.createElement("span");
@@ -142,13 +134,6 @@ export default class CandidateDatatable extends DataTable {
         rowTabletr.appendChild(mainTd);
 
         rowTable.appendChild(rowTabletr);
-
-        onRendered(function() {
-            cell.getRow().normalizeHeight();
-            img.onload = function() {
-                cell.getRow().normalizeHeight();
-            }
-        });
 
         if (!data) {
             element.style.visibility = "hidden";
