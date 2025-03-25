@@ -364,3 +364,17 @@ try:
     from .local_settings import *
 except ImportError:
     raise ImportError("local_settings.py file is missing!")
+    raise ImportError("local_settings.py file is missing!")
+SECURE_HSTS_SECONDS = 3600
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT_ENABLED') != 'False'
+
+SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE_ENABLED') != 'False'
+
+CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE_ENABLED') != 'False'
+
+SECURE_HSTS_PRELOAD = True
