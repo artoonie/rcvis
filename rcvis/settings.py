@@ -364,7 +364,7 @@ try:
     from .local_settings import *
 except ImportError:
     raise ImportError("local_settings.py file is missing!")
-    raise ImportError("local_settings.py file is missing!")
+
 SECURE_HSTS_SECONDS = 3600
 
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
