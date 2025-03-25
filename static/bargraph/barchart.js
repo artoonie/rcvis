@@ -799,8 +799,6 @@ function makeBarGraph(args) {
         // remove the possible trailing space in candidateMatch
         const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
         if (candidateMatch === tspanText){
-          //d3.select(this).attr("font-weight", "700");
-          //console.log("Computed font-weight:", window.getComputedStyle(this).fontWeight);
           d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
           }
     });
