@@ -1,5 +1,9 @@
-<div id="pie-body" class="shadow-wrapper">
-    <!-- TODO -- SHEL -- PIE HTML GOES HERE -->
-    <i class="fa-solid fa-chart-pie"></i>
-    Pie chart goes here
+
+<!-- Embed JSON Data -->
+{{ rawData|json_script:"rawDataId" }}
+
+
+<div id="pie-wrapper" class="shadow-wrapper">
+    <div id="pie-slider-container"></div>
+    <div id="pie-body"></div>
 </div>

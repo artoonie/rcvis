@@ -1,10 +1,60 @@
 {% load static %}
 {% load compress %}
 
-{% compress css file %}
-    <link rel="stylesheet" href="{% static "pie/pie.css" %}">
+{% compress js file %}
+<script type="module" src="{% static 'pie/pie-chart.es.js' %}"></script>
 {% endcompress %}
 
-{% compress js file %}
-<script src="{% static 'pie/pie.js' %}"></script>
-{% endcompress %}
+<script>
+
+    // const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
+    //
+    // We might as well leave this as a string, because it has to be serialized to send to the
+    // client browser anyway, and the pie chart component can handle it in string form.
+    const electionSummary = document.getElementById("rawDataId").textContent;
+
+    const candidateColors = [
+        "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f",
+        "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94",
+        "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5", "#3366cc", "#dc3912", "#ff9900", "#109618",
+        "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395"
+    ];    
+
+    // Create the pie-chart element
+    const pieChart = document.createElement("pie-chart");
+
+    // Functions *must* be added as properties; anything added as an attribute must be a string.
+    // So we don't have to re-stringify the JSON object, which will be immediately parsed again,
+    // we can just bind it in object form here.
+    pieChart.requestRoundChange = updateRound;
+    pieChart.electionSummary = electionSummary;
+    pieChart.candidateColors = candidateColors;
+
+    // Append it to the div
+    document.getElementById("pie-body").appendChild(pieChart);
+
+    trs_createSliderAndTimeline({
+      wrapperDivId: 'pie-slider-container',
+      numTicks: {{ config.numRounds }},
+      tickText: generateTickTexts({{ config.numRounds }}),
+      hideActiveTickText: doHideActiveTickText({{ config.numRounds }}),
+      sliderValueChanged: updatePieChartRound,
+      timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+      timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
+      timeBetweenStepsMs: 3000,
+      animateOnLoad: false,
+    });
+
+    function updatePieChartRound(sliderIndex) {
+        pieChart.currentRound = sliderIndex+1;
+    }
+
+    // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
+    // loops it requests to be told the new currentRound rather than using 2-way binding.
+    // And we also update the slider state while we're at it.
+    function updateRound(roundNum) {
+        pieChart.currentRound = roundNum;
+        trs_moveSliderTo('pie-slider-container', roundNum - 1);
+    }
+
+</script>

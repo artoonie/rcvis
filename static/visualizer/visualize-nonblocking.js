@@ -26,6 +26,9 @@ function animateNow(newTabName) {
   } else if (newTabName == 'round-by-round') {
     trs_animate('tabular-by-round-slider-container');
     hasAnimatedSlider = true;
+  } else if (newTabName == 'pie') {
+    trs_animate('pie-slider-container');
+    hasAnimatedSlider = true;
   }
 }
 
