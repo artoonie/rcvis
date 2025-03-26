@@ -1,0 +1,19 @@
+venv
+__pycache__
+rcvis.egg-info
+rcvis/.env
+db.sqlite3
+docs/build
+.coverage
+media/
+static/CACHE/
+node_modules/
+staticfiles/
+.DS_Store
+.local_settings.py
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
