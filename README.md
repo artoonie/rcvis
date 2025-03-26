@@ -56,7 +56,7 @@ source .env
 source venv/bin/activate
 
 npm install  # this works for me
-python3 manage.py npminstall  # this is purported to work but doesn't
+python3 manage.py install  # run this every time changes are made to files
 ```
 
 ## Test Data
@@ -71,7 +71,11 @@ To get started with programmatic access to rcvis:
 
 1. Create an account on RCVis
 2. Email team@rcvis.com to request API access
-3. Submit a POST request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. `curl -X POST https://www.rcvis.com/api/auth/get-token -d username=yourUserName -d password=yourAmazingPassword`
+3. Submit a POST request to [https://www.rcvis.com/api/auth/get-token](https://www.rcvis.com/api/auth/get-token) to obtain an API Key, e.g. 
+
+```bash
+curl -X POST https://www.rcvis.com/api/auth/get-token -d username=yourUserName -d password=yourAmazingPassword
+```
 
 With your API key, you may access two endpoints:
 1. [https://www.rcvis.com/api/visualizations/](https://www.rcvis.com/api/visualizations/) requires field `jsonFile` with the body of a valid summary JSON.
