@@ -51,5 +51,5 @@ def user_activated_slot(sender, user, request, **kwargs):
                       "status": "subscribed",
                       "ip_signup": request.META.get('REMOTE_ADDR'),
                       "tags": ['autosignup']
-    },
-        timeout=3)
+                  },
+                  timeout=3)
