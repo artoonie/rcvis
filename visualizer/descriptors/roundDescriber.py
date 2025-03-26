@@ -233,9 +233,9 @@ class Describer:
         if isForVideo:
             wereOrWas = "was" if numRounds == 1 else "were"
             text = f"In this {electionType}, there {wereOrWas} {numRounds} rounds, "\
-                f"after which {winnerText}. Here's what happened in each round. "
+                   f"after which {winnerText}. Here's what happened in each round. "
         else:
             text = f"After {numRounds} rounds of this {electionType}, "\
-                f"{winnerText}. Move the slider to see what happened in each round."
+                   f"{winnerText}. Move the slider to see what happened in each round."
 
         return text
