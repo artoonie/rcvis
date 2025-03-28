@@ -781,27 +781,44 @@ function makeBarGraph(args) {
     // Set all labels to correct display
     svg.selectAll("text.dataLabel")
         .attr("display", dataLabelDisplayFor);
+        
     // grabbing candidate's name to manipulate
     d3.select("#candidateNamesWrapper")
         .selectAll("tspan")
         .each(function () {
-          // Get the HTML text content of the current tspan element & remove possible trailing space
-        const tspanText = d3.select(this).text().trim();
-        // findKeyRoundTilWin function starts
-        function findKeysRoundsTilWin(obj, value){
-          for(const key of Object.keys(obj)){
-            if(obj[key] === value){
-              return key;
+              // Get the HTML text content of the current tspan element & remove possible trailing space
+            //const tspanText = d3.select(this).text().trim();
+            //const candidateName = tspanText.text().trim();
+            // findCandidateRoundWinner function starts
+              // Get the HTML text content of the current tspan element & remove possible trailing space
+            const tspanText = d3.select(this).text().trim();
+            
+            // findKeyRoundTilWin function starts
+            function findKeysRoundsTilWin(obj, value){
+              for(const key of Object.keys(obj)){
+                if(obj[key] === value){
+                  console.log("findKeysRoundsTilWin: ", key, value);
+                  return key;
+                }
+              }
             }
-          }
+            // function findCandidateWinner(obj, round){
+            //   return Object.keys(obj).find(key => obj[key] === round);
+            // }
+
+            // remove the possible trailing space in candidateMatch
+            const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
+            
+            if (candidateMatch === tspanText){
+              d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
+              }
+            }
+            // const candidateMatch = findCandidateWinner(numRoundsTilWin, currRound)?.trim();
+            // console.log(candidateMatch);
+            // d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
+              //d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTillWin[d] <= currRound ? "bold" : "normal");
         }
-          
-        // remove the possible trailing space in candidateMatch
-        const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
-        if (candidateMatch === tspanText){
-          d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
-          }
-    });
+    );  
 
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
