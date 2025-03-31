@@ -809,6 +809,7 @@ function makeBarGraph(args) {
             // remove the possible trailing space in candidateMatch
             const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
             
+            
             if (candidateMatch === tspanText){
               d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
               }
@@ -817,7 +818,6 @@ function makeBarGraph(args) {
             // console.log(candidateMatch);
             // d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
               //d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTillWin[d] <= currRound ? "bold" : "normal");
-        }
     );  
 
     // Create starting position and color for the just-eliminated candidate
