@@ -802,9 +802,7 @@ function makeBarGraph(args) {
                 }
               }
             }
-            // function findCandidateWinner(obj, round){
-            //   return Object.keys(obj).find(key => obj[key] === round);
-            // }
+            
 
             // remove the possible trailing space in candidateMatch
             const candidateMatch = findKeysRoundsTilWin(numRoundsTilWin, currRound)?.trim();
@@ -814,10 +812,6 @@ function makeBarGraph(args) {
               d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
               }
             }
-            // const candidateMatch = findCandidateWinner(numRoundsTilWin, currRound)?.trim();
-            // console.log(candidateMatch);
-            // d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTilWin[d] <= currRound ? "bold" : "normal");
-              //d3.selectAll("#candidateNamesWrapper").selectAll("text").attr("font-weight", d => numRoundsTillWin[d] <= currRound ? "bold" : "normal");
     );  
 
     // Create starting position and color for the just-eliminated candidate

@@ -656,7 +656,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         for tspan in tspan_elements:
             font_weight = tspan.value_of_css_property("font-weight")
 
-            # Convert font weight to integer if it's a digit
+            # Convert font weight to integer if it's a number
             if font_weight.isdigit():
                 font_weight = int(font_weight)
 
