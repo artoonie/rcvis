@@ -123,16 +123,14 @@ function makeInteractiveGraph() {
     updateFaqText(round);
   }
 
-  trs_createSliderAndTimeline({
-    wrapperDivId: 'bargraph-slider-container',
-    numTicks: numRounds,
-    color: colorsPerRound,
-    tickText: generateTickTexts(numRounds),
-    hideActiveTickText: doHideActiveTickText(numRounds),
-    sliderValueChanged: sliderValueChangedCallback,
-    timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-    timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-    timeBetweenStepsMs: getTimeBetweenAnimationStepsMs(numRounds)
+  const roundPlayer = RoundPlayer({
+    container: document.getElementById("bargraph-slider-container"),
+    totalRounds: numRounds,
+    onChange: sliderValueChangedCallback,
+  });
+
+  document.getElementById("barchart-play-link").addEventListener("click", function () {
+    roundPlayer.play();
   });
 
   // After creating the slider, make the default text the summary
