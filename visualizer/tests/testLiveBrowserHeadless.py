@@ -80,7 +80,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Ensure eliminated color setting can be changed """
         def _get_eliminated_color():
             # Move the slider to stop animation
-            self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
+            self.browser.find_element(
+                By.CSS_SELECTOR, '#bargraph-slider-container [data-round="3"]').click()
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
@@ -358,30 +359,12 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Upload something with few rounds so the animation doesn't take too long
         self._upload(filenames.THREE_ROUND)
 
-        # Ensure the animation started
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+        # Start the animation
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
+        playbutton.click()
 
-        # Ensure description is inital summary
         desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
-
-        # Now disable animations to speed them up
-        self._disable_all_animations()
-        self._disable_bargraph_slider_timer()
-
-        # Wait for animation to complete
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return !isBargraphAnimationInProgress;"))
-
-        # Check that the text hasn't changed
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
-
-        # Now move the slider
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 0)")
-
         # Check that the text updates now
         self._ensure_eventually_asserts(
             lambda: self.assertNotIn('what happened in each round', desc.text))
@@ -542,20 +525,15 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Look at the description, ensure it shows the summary
         span = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Move the slider to see', span.get_attribute('innerHTML')))
-
-        # Ensure animation has not begun
-        self.assertFalse(self.browser.execute_script("return hasAnimatedSlider;"))
 
         # Hit play button
-        hackyXpathForPlayButton = '//*[@id="bargraph-interactive-why-button"]/a[2]'
-        playbutton = self.browser.find_element(By.XPATH, hackyXpathForPlayButton)
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
         playbutton.click()
 
         # Ensure animation has begun
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('Round 2', span.get_attribute('innerHTML')))
 
         # Ensure animation stops and new text appears, and that new text starts with
         # the round number. Click twice in case we were already on the first round.
@@ -573,7 +551,6 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         thresholdStatic = self.browser.find_element(By.ID, 'thresholdbargraph-fixed-body')
 
         self._disable_all_animations()
-        self._disable_bargraph_slider_timer()
 
         # Round 1: Static is visible, interactive isn't
         self._go_to_round_by_clicking(0)
