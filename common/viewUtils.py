@@ -128,8 +128,8 @@ def get_script_to_disable_animations():
                                       transition-property: none !important; }';\
             document.head.appendChild(animDisabler);\
             \
-            let fakeTime = 0;\
-            window.requestAnimationFrame = function(f) { fakeTime += 300; f(fakeTime); }"
+            if (barchartRoundPlayer) { barchartRoundPlayer.setTimeBetweenStepsMs(0); };\
+            if (roundPlayer) { roundPlayer.setTimeBetweenStepsMs(0); };"
 
 
 def request_to_domain(request):
