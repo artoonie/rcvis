@@ -1,4 +1,10 @@
-function RoundPlayer({ container, onChange, onChangeWhilePlaying, totalRounds, timeBetweenStepsMs }) {
+function RoundPlayer({
+  container,
+  onChange,
+  onChangeWhilePlaying,
+  totalRounds,
+  timeBetweenStepsMs,
+}) {
   let isPlaying = false;
   let currentStep = totalRounds - 1;
   // Imported from visualize-common.js
@@ -7,9 +13,9 @@ function RoundPlayer({ container, onChange, onChangeWhilePlaying, totalRounds, t
   let timer = null;
   const svgNS = "http://www.w3.org/2000/svg";
   const MIN_ROUNDS_FOR_NAV = 3;
-  const ARROW_SVG_VIEWBOX = "0 0 185.343 185.343";
+  const ARROW_SVG_VIEWBOX = "0 0 24 28";
   const ARROW_SVG_PATH =
-    "M51.707,185.343c-2.741,0-5.493-1.044-7.593-3.149c-4.194-4.194-4.194-10.981,0-15.175    l74.352-74.347L44.114,18.32c-4.194-4.194-4.194-10.987,0-15.175c4.194-4.194,10.987-4.194,15.18,0l81.934,81.934    c4.194,4.194,4.194,10.987,0,15.175l-81.934,81.939C57.201,184.293,54.454,185.343,51.707,185.343z";
+    "M21.981 16.5981C23.981 15.4434 23.981 12.5566 21.981 11.4019L3.22017 0.570383C2.01129 -0.127565 0.500193 0.744867 0.500193 2.14076C0.500193 2.81278 0.871843 3.42969 1.46593 3.7438L15.7356 11.2887C17.8878 12.4266 17.8597 15.5191 15.6872 16.6179L1.59932 23.7428C0.925186 24.0837 0.500193 24.7749 0.500193 25.5304C0.500193 27.0724 2.16952 28.0362 3.50498 27.2652L21.981 16.5981Z";
 
   function createNavButton(isNext) {
     const navBtn = document.createElement("button");
@@ -123,9 +129,9 @@ function RoundPlayer({ container, onChange, onChangeWhilePlaying, totalRounds, t
     }
 
     if (isPlaying && onChangeWhilePlaying) {
-      onChangeWhilePlaying(step) ;
+      onChangeWhilePlaying(step);
     } else {
-      onChange(step)
+      onChange(step);
     }
   }
 
