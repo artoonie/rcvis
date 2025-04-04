@@ -242,7 +242,6 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Move the slider and complete all other animations
         self._disable_all_animations()
-        self._disable_bargraph_slider_timer()
         self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 3);")
         self.browser.execute_script("showFaqButtonNow();")
 

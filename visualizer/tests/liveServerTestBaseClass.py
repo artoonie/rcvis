@@ -11,7 +11,6 @@ from django.db.models import BooleanField
 from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 
 from common.testUtils import TestHelpers
@@ -163,21 +162,6 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """ Disables transitions on the current page """
         self.browser.execute_script(get_script_to_disable_animations())
 
-    def _disable_bargraph_slider_timer(self):
-        """
-        Changes the timeBetweenStepsMs to 1ms.
-        Note that this does not change the barchart's time between each step,
-        just the timeline. You still need to cancel the animation using trs_moveSliderTo.
-        """
-        key = "_sliderDiv_bargraph-slider-container"
-
-        # Ensure we're touching the right thing: 1200ms
-        oldTime = self.browser.execute_script(f"return sliders['{key}']['timeBetweenStepsMs'];")
-        self.assertEqual(oldTime, 1200)  # note: 1200 is only true if <= 7 rounds
-
-        # Change
-        self.browser.execute_script(f"sliders['{key}']['timeBetweenStepsMs'] = 1;")
-
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
         """ Waits up to waitTimeSeconds for the assertion to be true """
@@ -265,18 +249,11 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _go_to_round_by_clicking(self, round_i):
         """
-        trs_moveSliderTo does not cancel the animation, so this can be used if
-        you need to trigger the cancel-animation behavior.
+        Helper to trigger going to a specific round in the player
         """
         # Cancel animation by clicking on round_i'th element element
         container = self.browser.find_element(By.ID, 'bargraph-slider-container')
-        tick = container.find_elements(By.CLASS_NAME, 'slider-item')[round_i]
-
-        # Note - need an action chain because the first tick isn't actually receiving the click,
-        # the slider itself handles it, and selenium throws ElementClickInterceptedException
-        ActionChains(self.browser).move_to_element(tick)\
-            .click(tick)\
-            .perform()
+        container.find_elements(By.CLASS_NAME, 'round-player-step-btn')[round_i].click()
 
     def _set_input_to(self, inputId, value):
         """
