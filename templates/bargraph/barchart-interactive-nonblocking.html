@@ -4,6 +4,8 @@
 
 var isBargraphAnimationInProgress = false;
 const idOfWhyButton = "#bargraph-interactive-why-button";
+// Raising the scope to give tests easier access
+let barchartRoundPlayer = null;
 
 function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
   if (isBargraphAnimationInProgress) {
@@ -123,14 +125,20 @@ function makeInteractiveGraph() {
     updateFaqText(round);
   }
 
-  const roundPlayer = RoundPlayer({
+  barchartRoundPlayer = RoundPlayer({
     container: document.getElementById("bargraph-slider-container"),
     totalRounds: numRounds,
     onChange: sliderValueChangedCallback,
+    // While playing, don't update the description text for the round
+    onChangeWhilePlaying: function (round) {
+      hideFaqs();
+      transitionEachBarForRound(round);
+      updateFaqText(round);
+    },
   });
 
   document.getElementById("barchart-play-link").addEventListener("click", function () {
-    roundPlayer.play();
+    barchartRoundPlayer.play();
   });
 
   // After creating the slider, make the default text the summary
