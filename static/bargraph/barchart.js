@@ -303,8 +303,8 @@ function makeBarGraph(args) {
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
       for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
-        // TODO here should be the memoizeeee
-        // why does the data format suckeeeeee
+        // TODO here should be the memoize
+        // why does the data format suck
       }
     }
   }
@@ -318,8 +318,9 @@ function makeBarGraph(args) {
           return isVertical ? "❌ "  :  "eliminated";
       }
       let startText = "";
-      if (d.isWinner)
-          startText = "✔️ " ;
+      if (d.isWinner){
+          startText = "✔️" ;
+      }
       if (isVertical)
       {
           return startText + votesToText(d[1], false, true);
@@ -330,6 +331,7 @@ function makeBarGraph(args) {
           return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
   };
+
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
@@ -774,10 +776,11 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+
   function transitionDataLabelsForRound() {
-    // Set all labels to correct display
-    svg.selectAll("text.dataLabel")
-        .attr("display", dataLabelDisplayFor);
+    // Set all labels to correct display and styling names bold on the round won
+    svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", (_, i) => stackSeries[currRound][i].isWinner ? "bold" : null); 
 
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")

@@ -1,3 +1,4 @@
+
 """
 Integration tests with a headless browser.
 Place StaticLiveServerTestCase tests here when you want them to be faster on CI,
@@ -613,3 +614,64 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         This is a rRegression test to make sure we handle it right.
         """
         self._upload(filenames.DOMINION)
+
+    def test_bolding_winners(self):
+        """Test that no candidate names are bolded until the end of the round and that winners are bolded correctly in subsequent rounds."""
+        # Upload file
+        self._upload(filenames.MULTIWINNER)
+        self._execute_transition_data_labels() 
+        # Round 1: Winners are not bolded on round 1
+        self.assertFalse(self._check_boldness_in_round(0),
+                        "Candidate names should not be bold in round 1.")
+        self._debug_screenshot()
+
+        # Round 2: Move to round 2 and check boldness
+        self._go_to_round_by_clicking(1)  # Click to go to round 2
+        self._execute_transition_data_labels()  # Execute the JS function
+        self._debug_screenshot()
+        self.assertTrue(self._check_boldness_in_round(1),
+                    "Winner's name should still be bold in round 2.")
+
+        # Round 3: Move to round 3 and check boldness
+        self._go_to_round_by_clicking(2)  # Click to go to round 3
+        self._execute_transition_data_labels()  # Execute the JS function
+        self._debug_screenshot()
+        self.assertTrue(self._check_boldness_in_round(2),
+                    "Winner's name should still be bold in round 3.")
+
+        # Check for winner boldness with sidecar file
+        # Only test sidecar behavior if sidecar is enabled
+        if self._is_sidecar_enabled():
+            self._upload(filenames.MULTIWINNER)
+            self._go_to_round_by_clicking(0)  # Go back to the first round after upload
+            self._execute_transition_data_labels()
+            self.assertTrue(self._check_boldness_in_round(0),
+                            "Winner's name should be bold even after uploading a sidecar file.")
+
+    def _check_boldness_in_round(self, round_number):
+        """Helper method to check if the winner's name is bold in the specified round."""
+        self._go_to_round_by_clicking(round_number)
+        tspan_elements = self.browser.find_elements(By.CSS_SELECTOR, "#candidateNamesWrapper tspan")
+        self._debug_screenshot()
+
+        for tspan in tspan_elements:
+            font_weight = tspan.value_of_css_property("font-weight")
+
+            # Convert font weight to integer if it's a number
+            if font_weight.isdigit():
+                font_weight = int(font_weight)
+
+            # Convert for boldness
+            if font_weight in ["bold", "bolder", 700]:
+                return True
+                
+        return False
+
+    def _execute_transition_data_labels(self):
+        """Helper method to execute the JavaScript function that updates boldness based on the current round. """
+        self.browser.execute_script('return typeof transitionDataLabelsForRound;')  # Execute JS function
+
+    def _is_sidecar_enabled(self):
+        """Helper method to check if sidecar functionality is enabled."""
+        return self.browser.execute_script(
+            "return window.sidecarEnabled === true;")  # Modify as needed
