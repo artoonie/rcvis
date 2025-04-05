@@ -15,13 +15,13 @@ def get_round_background_color(context, candidateName, round_item):
         }
     if round_item is None and not context[candidateKey]["wasEliminated"]:
         context[candidateKey]["wasEliminated"] = True
-        return "#FFBFBF"
+        return "#FFBEBE"
     if context[candidateKey]["wasEliminated"]:
-        return "pink"
+        return "#FAD7D7"
     if round_item and round_item.isWinner:
         context[candidateKey]["wasWinner"] = True
-        return "#BFFFCC"
+        return "#A0FFB5"
     if context[candidateKey]["wasWinner"]:
-        return "limegreen"
+        return "#BFFFCC"
 
     return "rgba(0,0,0,0)"
