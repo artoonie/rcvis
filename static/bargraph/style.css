@@ -37,9 +37,12 @@ path.domain {
   height: 65px;  /* Note: sync with hideFaqs() */
   font-size: 0.9em;
   background-color: #fafdff;
+  margin-left: auto;
+  margin-right: auto;
   margin-top: 15px;
   display: none; /* Disable for now */
   overflow-y: auto;
+  max-width: 750px;
 }
 .round-description-text {
   line-height: normal;

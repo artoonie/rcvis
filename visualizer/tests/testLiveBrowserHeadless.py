@@ -80,7 +80,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Ensure eliminated color setting can be changed """
         def _get_eliminated_color():
             # Move the slider to stop animation
-            self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
+            self.browser.find_element(
+                By.CSS_SELECTOR, '#bargraph-slider-container [data-round="3"]').click()
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
@@ -358,33 +359,35 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Upload something with few rounds so the animation doesn't take too long
         self._upload(filenames.THREE_ROUND)
 
-        # Ensure the animation started
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+        # Start the animation
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
+        playbutton.click()
 
         # Ensure description is inital summary
         desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
+            lambda: self.assertIn('Ranked Choice Voting election', desc.text))
 
         # Now disable animations to speed them up
         self._disable_all_animations()
         self._disable_bargraph_slider_timer()
 
         # Wait for animation to complete
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return !isBargraphAnimationInProgress;"))
+        WebDriverWait(self.browser, timeout=10, poll_frequency=1).until(
+            lambda d: self.browser.execute_script("return !barchartRoundPlayer.playing();"))
 
         # Check that the text hasn't changed
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
+            lambda: self.assertIn('Ranked Choice Voting election', desc.text))
 
-        # Now move the slider
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 0)")
+        # Now move the player
+        self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container [data-round="0"]').click()
 
         # Check that the text updates now
         self._ensure_eventually_asserts(
-            lambda: self.assertNotIn('what happened in each round', desc.text))
+            lambda: self.assertNotIn('Ranked Choice Voting election', desc.text))
 
     def test_crazy_names(self):
         """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
@@ -542,20 +545,18 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Look at the description, ensure it shows the summary
         span = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Move the slider to see', span.get_attribute('innerHTML')))
 
         # Ensure animation has not begun
-        self.assertFalse(self.browser.execute_script("return hasAnimatedSlider;"))
+        self.assertFalse(self.browser.execute_script("return barchartRoundPlayer.playing();"))
 
         # Hit play button
-        hackyXpathForPlayButton = '//*[@id="bargraph-interactive-why-button"]/a[2]'
-        playbutton = self.browser.find_element(By.XPATH, hackyXpathForPlayButton)
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
         playbutton.click()
 
         # Ensure animation has begun
         WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+            lambda d: self.browser.execute_script("return barchartRoundPlayer.playing();"))
 
         # Ensure animation stops and new text appears, and that new text starts with
         # the round number. Click twice in case we were already on the first round.
