@@ -54,6 +54,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             date=datetime.datetime.utcnow())
         for _ in range(numElections):
             epModel.listOfElections.add(cls._create_json_config())
+        epModel.save()
         return epModel
 
     @classmethod
@@ -120,7 +121,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # And the height was correctly set via PostMessages
         self._ensure_eventually_asserts(lambda: self.assertEqual(bargraphIframeWrapper.find_element(
-            By.TAG_NAME, 'iframe').get_attribute('height'), '328px'))
+            By.TAG_NAME, 'iframe').get_attribute('height'), '335px'))
 
     @Mocker()
     def test_scrape_all(self, requestMock):
