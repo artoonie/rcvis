@@ -162,6 +162,14 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """ Disables transitions on the current page """
         self.browser.execute_script(get_script_to_disable_animations())
 
+    def _disable_bargraph_slider_timer(self):
+        """
+        Changes the timeBetweenStepsMs to 0 to run through animation.
+        """
+        self.browser.execute_script(
+            "if (barchartRoundPlayer) { barchartRoundPlayer.setTimeBetweenStepsMs(0); };\
+             if (roundPlayer) { roundPlayer.setTimeBetweenStepsMs(0); };")
+
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
         """ Waits up to waitTimeSeconds for the assertion to be true """
