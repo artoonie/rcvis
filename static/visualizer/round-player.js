@@ -143,7 +143,6 @@ function RoundPlayer({
   function nextStep() {
     if (!isPlaying) return;
 
-    console.log(stepTimeMs);
     timer = window.setTimeout(() => {
       changeStep(currentStep + 1);
       nextStep();
