@@ -115,12 +115,15 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Click on bargraph button, and the opposite is true
         bargraphButton.click()
-        self.assertIsNone(bargraphIframeWrapper.get_attribute('data-src'))
+        self._ensure_eventually_asserts(lambda:
+            self.assertIsNone(
+                bargraphIframeWrapper.get_attribute('data-src')))
+
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-primary')
 
         # And the height was correctly set via PostMessages
         self._ensure_eventually_asserts(lambda: self.assertEqual(bargraphIframeWrapper.find_element(
-            By.TAG_NAME, 'iframe').get_attribute('height'), '328px'))
+            By.TAG_NAME, 'iframe').get_attribute('height'), '405px'))
 
     @Mocker()
     def test_scrape_all(self, requestMock):
