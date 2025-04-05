@@ -371,6 +371,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Now disable animations to speed them up
         self._disable_all_animations()
+        self._disable_bargraph_slider_timer()
 
         # Wait for animation to complete
         WebDriverWait(self.browser, timeout=10, poll_frequency=1).until(
@@ -572,6 +573,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         thresholdStatic = self.browser.find_element(By.ID, 'thresholdbargraph-fixed-body')
 
         self._disable_all_animations()
+        self._disable_bargraph_slider_timer()
 
         # Round 1: Static is visible, interactive isn't
         self._go_to_round_by_clicking(0)
