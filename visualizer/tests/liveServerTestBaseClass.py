@@ -62,6 +62,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
+            self.browser.set_window_size(1280, 1024)
 
         self.browser.implicitly_wait(10)
         self._screenshotCount = 0
@@ -254,7 +255,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _debug_screenshot(self):
         """ Saves a screenshot in the current directory for debugging """
-        # First, ensure we're not on Travis. This is only for local debugging.
+        # First, ensure we're not connected to SauceLabs: this is only for local debugging.
         assert not self.isUsingSauceLabs
 
         # Save a screenshot
