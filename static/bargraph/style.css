@@ -86,6 +86,10 @@ path.domain {
   color: white;
 }
 
+.flex-column {
+  flex-direction: column;
+}
+
 @media only screen and (max-width: 1024px) {
   /* first reduce font size */
   .round-description-wrapper {

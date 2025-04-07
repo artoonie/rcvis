@@ -1,7 +1,7 @@
 function RoundPlayer({
   container,
   onChange,
-  onChangeWhilePlaying,
+  onPlay,
   totalRounds,
   timeBetweenStepsMs,
 }) {
@@ -128,11 +128,7 @@ function RoundPlayer({
         .classList.toggle("range-player-hidden", currentStep <= 0);
     }
 
-    if (isPlaying && onChangeWhilePlaying) {
-      onChangeWhilePlaying(step);
-    } else {
-      onChange(step);
-    }
+    onChange(step);
   }
 
   function setStep(step) {
@@ -150,6 +146,7 @@ function RoundPlayer({
   }
 
   function play() {
+    if (onPlay) onPlay();
     isPlaying = true;
     container.querySelector(".round-player-play-btn").innerText = "Stop";
     changeStep(0);
