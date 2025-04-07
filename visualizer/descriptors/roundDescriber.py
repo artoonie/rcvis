@@ -3,8 +3,7 @@ Describes what happened in each round of an RCV Election in plain English.
 """
 
 from visualizer.common import intify
-from visualizer.descriptors import common
-from visualizer.descriptors import textForWinnerUtils
+from visualizer.descriptors import common, textForWinnerUtils
 
 
 class Describer:
@@ -236,6 +235,6 @@ class Describer:
                    f"after which {winnerText}. Here's what happened in each round. "
         else:
             text = f"After {numRounds} rounds of this {electionType}, "\
-                   f"{winnerText}. Move the slider to see what happened in each round."
+                   f"{winnerText}."
 
         return text

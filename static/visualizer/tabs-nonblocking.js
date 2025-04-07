@@ -37,8 +37,6 @@ function goToTab(newTabName) {
   const canBeDynamic = newTabName == 'barchart' || newTabName == 'round-by-round';
   document.getElementById('toggle-dynamic').style.display = canBeDynamic ? 'block' : 'none';
 
-  animateIfNeeded(newTabName);
-
   // Sankey wants a special resize
   if (newTabName == 'sankey') {
     fitSankeyViewboxToContents();
