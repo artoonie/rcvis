@@ -2,17 +2,22 @@
 
 <script type="text/javascript">
 
-var isBargraphAnimationInProgress = false;
 const idOfWhyButton = "#bargraph-interactive-why-button";
-// Raising the scope to give tests easier access
+// Raising the scope for other methods to access
 let barchartRoundPlayer = null;
 
 function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
-  if (isBargraphAnimationInProgress) {
+  // While playing, don't update the description text for the round
+  if (barchartRoundPlayer.playing()) {
     return;
   }
 
   const idOfLegendOrRoundDescriber = "#bargraph-interactive-round-description";
+
+  // Don't re-render and transition if text already matches
+  if (d3.select(idOfLegendOrRoundDescriber).text() === description) {
+    return;
+  }
 
   d3.select(idOfLegendOrRoundDescriber)
   .transition()
@@ -73,7 +78,7 @@ function showFaqs() {
 }
 
 function hideFaqs() {
-  if (isBargraphAnimationInProgress) {
+  if (barchartRoundPlayer.playing()) {
     return;
   }
 
@@ -129,16 +134,9 @@ function makeInteractiveGraph() {
     container: document.getElementById("bargraph-slider-container"),
     totalRounds: numRounds,
     onChange: sliderValueChangedCallback,
-    // While playing, don't update the description text for the round
-    onChangeWhilePlaying: function (round) {
-      hideFaqs();
-      transitionEachBarForRound(round);
-      updateFaqText(round);
-    },
-  });
-
-  document.getElementById("barchart-play-link").addEventListener("click", function () {
-    barchartRoundPlayer.play();
+    onPlay: function() {
+      showTextOnRoundDescriber(humanFriendlySummary, false);
+    }
   });
 
   // After creating the slider, make the default text the summary
