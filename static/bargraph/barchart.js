@@ -319,15 +319,15 @@ function makeBarGraph(args) {
       }
       let startText = "";
       if (d.isWinner)
-          startText = "✔️ " ;
+          return startText = "✔️ elected";
       if (isVertical)
       {
           return startText + votesToText(d[1], false, true);
       }
       else
       {
-          const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-          return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+       return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator); //false, false);
       }
   };
   function secondaryDataLabelTextFn(d) {
