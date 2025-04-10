@@ -87,12 +87,9 @@ export default class CandidateDatatable extends DataTable {
 
         const content = document.createElement("div");
         content.classList.add("col-sm");
-        content.style.maxWidth = "50%";
         const img = document.createElement("img");
         img.classList.add("candidate-img-thumbnail");
         content.style.marginRight = "10px";
-        content.style.width = "50%";
-        content.style.height = "inherit"
         //add image on left of row
         if (data && data.photo_url) {
             img.src = data.photo_url;
@@ -108,9 +105,9 @@ export default class CandidateDatatable extends DataTable {
         //add row data on right hand side
         const mainTd = document.createElement("div");
         mainTd.classList.add("col-sm");
-        mainTd.style.maxWidth = "50%";
+        // mainTd.style.maxWidth = "50%";
         const nameDiv = document.createElement("div");
-        nameDiv.innerHTML = `<strong style="white-space: normal; color: cadetblue">${(data && data.candidateName) ? data.candidateName : ""}</strong>`
+        nameDiv.innerHTML = `<strong style="white-space: normal; overflow-wrap: break-word  color: cadetblue">${(data && data.candidateName) ? data.candidateName : ""}</strong>`
 
         const incumbentDiv = document.createElement("div");
         const incumbentSpan = document.createElement("span");
