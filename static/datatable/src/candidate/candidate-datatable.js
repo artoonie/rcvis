@@ -71,17 +71,23 @@ export default class CandidateDatatable extends DataTable {
             cellElement = cell.getElement(),
             data = cell.getValue(),
             rowTable;
+        element.style.className = "container";
         element.style.height = "100%";
+        // element.classList.add("container");
         //clear current row data
         while (cellElement.firstChild) {
             cellElement.removeChild(cellElement.firstChild);
         }
 
-        rowTable = document.createElement("table")
+        rowTable = document.createElement("div")
+        rowTable.classList.add("row");
         rowTable.style.height = "inherit";
-        const rowTabletr = document.createElement("tr");
+        // const rowTabletr = document.createElement("div");
+        // rowTabletr.classList.add("col-sm");
 
-        const content = document.createElement("td");
+        const content = document.createElement("div");
+        content.classList.add("col-sm");
+        content.style.maxWidth = "50%";
         const img = document.createElement("img");
         img.classList.add("candidate-img-thumbnail");
         content.style.marginRight = "10px";
@@ -94,15 +100,17 @@ export default class CandidateDatatable extends DataTable {
             img.style.maxHeight = "100%";
             content.appendChild(img);
         } else {
-            content.innerHTML = "Add Candidate Image";
+            content.innerHTML = "<span class='add-candidate-image'>Add Candidate Image</span>";
         }
 
         content.style.border = "1px solid #ddd";
 
         //add row data on right hand side
-        const mainTd = document.createElement("td");
+        const mainTd = document.createElement("div");
+        mainTd.classList.add("col-sm");
+        mainTd.style.maxWidth = "50%";
         const nameDiv = document.createElement("div");
-        nameDiv.innerHTML = `<strong>${(data && data.candidateName) ? data.candidateName : ""}</strong>`
+        nameDiv.innerHTML = `<strong style="white-space: normal; color: cadetblue">${(data && data.candidateName) ? data.candidateName : ""}</strong>`
 
         const incumbentDiv = document.createElement("div");
         const incumbentSpan = document.createElement("span");
@@ -124,14 +132,16 @@ export default class CandidateDatatable extends DataTable {
         const partyDiv = document.createElement("div");
         partyDiv.innerHTML = "<strong>Party:</strong> " + (data && data.party ? data.party : CandidateDatatable.getUnderlinedSpace());
         mainTd.appendChild(nameDiv);
+        mainTd.appendChild(document.createElement("br"));
         mainTd.appendChild(incumbentDiv);
         mainTd.appendChild(moreInfoDiv);
         mainTd.appendChild(partyDiv);
 
-        rowTabletr.appendChild(content);
-        rowTabletr.appendChild(mainTd);
+        // rowTabletr.appendChild(content);
+        // rowTabletr.appendChild(mainTd);
 
-        rowTable.appendChild(rowTabletr);
+        rowTable.appendChild(content);
+        rowTable.appendChild(mainTd);
 
         if (!data) {
             element.style.visibility = "hidden";

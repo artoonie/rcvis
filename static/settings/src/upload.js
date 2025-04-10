@@ -237,6 +237,7 @@ export function showDataTable(doShow) {
         : "block";
     getDatatableUploadBox().style.display = doShow
         ? "block" : "none";
+    disableDataOptionsAndSubmitButton();
     if (doShow) {
         // destroyDataTableFromUpload();
         uploadByDataTableInit();

@@ -21,7 +21,9 @@ form div.formArea {
   /*max-height: 150px;*/
   max-width: 45%;
 }
-
+.add-candidate-image {
+  white-space: normal;
+}
 .manually-edit-upload-button {
   display: inline;
   text-align: center;
