@@ -67,6 +67,11 @@ function showManualOptionsHideTable(redraw = true) {
     }
 }
 
+export function uploadSidecarInstead(e) {
+  e.preventDefault();
+  showManualOptionsHideTable();
+}
+
 function redrawOptions(delay = 100) {
     setTimeout(() => {
         const content = getDatatableOptions();
@@ -117,7 +122,7 @@ function uploadByDataTableInit() {
 
 function standardizeFormatAjax(formData) {
     $.ajax({
-        url: '/standardizeData',
+        url: '/convertToUTFormat',
         method: 'POST',
         dataTypes: 'json',
         data: formData,
@@ -222,7 +227,7 @@ function transformTableDataToSidecarJson() {
 }
 
 export function sidecarFileSelected(files) {
-    $("#selectSidecarFileButton").text(files[0].name)
+    $("#select-sidecar-file-button").text(files[0].name)
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }

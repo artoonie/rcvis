@@ -18,7 +18,7 @@ form div.formArea {
   position: relative;
   overflow: hidden;
   display: inline-block;
-  height: 150px;
+  /*max-height: 150px;*/
   max-width: 45%;
 }
 
@@ -29,6 +29,9 @@ form div.formArea {
 #submitDiv {
   text-align: center;
   margin-top: 20px;
+}
+.candidate-button-wrapper {
+  margin: 5px;
 }
 .candidate-button-wrapper input[type=file] {
   font-size: 100px;
@@ -48,9 +51,9 @@ form div.formArea {
 #candidate-options {
   overflow-x: auto;
 }
-.candidate-options-label {
-  height: 50%;
-}
+/*.candidate-options-label {*/
+/*  height: 50%;*/
+/*}*/
 .selectFileButtonWrapper input[type=file] {
   font-size: 100px;
   position: absolute;

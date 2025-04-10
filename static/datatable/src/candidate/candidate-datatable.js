@@ -66,8 +66,7 @@ export default class CandidateDatatable extends DataTable {
         return CandidateDatatable.getCustomFormatElement(c, p, r).element;
     }
 
-    static getCustomFormatElement(cell) {
-        console.log("Getting custom format element")
+    static getCustomFormatElement(cell, editorParams, onRendered) {
         let element = document.createElement("div"),
             cellElement = cell.getElement(),
             data = cell.getValue(),
@@ -75,8 +74,7 @@ export default class CandidateDatatable extends DataTable {
         element.style.height = "100%";
         //clear current row data
         while (cellElement.firstChild) {
-            cellElement.removeChild(
-                cellElement.firstChild);
+            cellElement.removeChild(cellElement.firstChild);
         }
 
         rowTable = document.createElement("table")
@@ -104,7 +102,7 @@ export default class CandidateDatatable extends DataTable {
         //add row data on right hand side
         const mainTd = document.createElement("td");
         const nameDiv = document.createElement("div");
-        nameDiv.innerHTML = `<h3>${(data && data.candidateName) ? data.candidateName : ""}</h3>`
+        nameDiv.innerHTML = `<strong>${(data && data.candidateName) ? data.candidateName : ""}</strong>`
 
         const incumbentDiv = document.createElement("div");
         const incumbentSpan = document.createElement("span");
@@ -141,6 +139,12 @@ export default class CandidateDatatable extends DataTable {
 
         //append newly formatted contents to the row
         element.append(rowTable);
+
+        onRendered(function() {
+            cell.getRow().normalizeHeight();
+            cell.getTable().rowManager.adjustTableSize();
+        })
+
         return {element, nameDiv};
     };
 

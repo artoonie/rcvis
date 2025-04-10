@@ -144,7 +144,7 @@ export default class Candidate {
         editorParams) {
         const candidate = cell.getData().candidate || cell.getData();
         const editor = document.createElement("div");
-        editor.id = Candidate.randstr("candidate-editor-")
+        editor.id = Candidate.randstr("candidate-editor-");
         editor.tabIndex = 1;
 
         const regex = /Candidate [\d]+/;
@@ -173,7 +173,7 @@ export default class Candidate {
         moreInfoButton.onclick = function(e) {
             e.preventDefault();
             MicroModal.show('datatable-modal');
-        }
+        };
 
         // editor.appendChild(document.createElement("br"));
         candidateName.tabIndex = -1;
@@ -223,7 +223,7 @@ export default class Candidate {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
             editor.style.css = "100%";
-            editor.focus()
+            // editor.focus()
             MicroModal.init();
         });
         editor.onfocus = () => {
@@ -298,9 +298,10 @@ export default class Candidate {
         function successFunc() {
             console.log("success");
             const originalCandidate = cell.getData().candidate
-                || cell.getData();
+                || cell.getValue();
             const candidateClone = structuredClone(originalCandidate);
-            candidateClone.candidateName = (candidateName.value || candidateName.textContent)
+            candidateClone.candidateName = (candidateName.value
+                    || candidateName.textContent)
                 || originalCandidate.candidateName;
             candidateClone.incumbent = (!incumbent || incumbent.checked
                 === undefined)

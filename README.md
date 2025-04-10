@@ -64,7 +64,7 @@ python3 manage.py npminstall  # this is purported to work but doesn't
 Running on PyCharm should be simple as the .idea folder is included at the VCS root. Follow the prompts to install
 Django and NPM and then do a one time setup by running the script
 ```bash
-./scripts/serv.sh
+./scripts/serve.sh
 ```
 
 This is needed to create the new admin user interactively. Following this, you can kill the server and start it

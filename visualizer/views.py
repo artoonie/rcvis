@@ -412,7 +412,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
             return JsonResponse({'message': "Data is valid!", 'success': True})
 
 
-class StandardizeFormat(ValidateDataEntry):
+class ConvertToUTFormat(ValidateDataEntry):
     def post(self, request):
         """ Doesn't render a webpage - just text """
         secsToWait = self._check_rate_limit()

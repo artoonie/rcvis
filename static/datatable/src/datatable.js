@@ -88,7 +88,7 @@ export default class RcvisDataTable {
     }
 
     if (value < 0) {
-        cell.getRow().popup(lessThanZeroError, "bottom");
+      cell.getRow().popup(lessThanZeroError, "bottom");
       return false;
     }
 
@@ -116,7 +116,7 @@ export default class RcvisDataTable {
         cells[c].clearValidation();
       } else {
         if (c === cellIndex) {
-          cell.popup(errorPopupFormatter, "bottom")
+          cell.popup(errorPopupFormatter, "bottom");
           return false;
         } else {
           cells[c].validate();
