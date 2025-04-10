@@ -319,7 +319,7 @@ function makeBarGraph(args) {
       }
       let startText = "";
       if (d.isWinner){
-          startText = "✔️" ;
+          startText = "✔️ " ;
       }
       if (isVertical)
       {
@@ -778,9 +778,12 @@ function makeBarGraph(args) {
   };
 
   function transitionDataLabelsForRound() {
-    // Set all labels to correct display and styling names bold on the round won
     svg.selectAll("#candidateNamesWrapper tspan")
-      .style("font-weight", (_, i) => stackSeries[currRound][i].isWinner ? "bold" : null); 
+    .style("font-weight",
+          function boldWinnerFont(_, i){
+                    return stackSeries[currRound][i].isWinner ? "bold" : null;
+                  }
+        );
 
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
