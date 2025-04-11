@@ -776,14 +776,14 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+  /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names */
+  function boldWinnerFont(_, i){
+    return stackSeries[currRound][i].isWinner ? "bold" : null; 
+  }
 
   function transitionDataLabelsForRound() {
     svg.selectAll("#candidateNamesWrapper tspan")
-    .style("font-weight",
-          function boldWinnerFont(_, i){
-                    return stackSeries[currRound][i].isWinner ? "bold" : null;
-                  }
-        );
+       .style("font-weight", boldWinnerFont);
 
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
