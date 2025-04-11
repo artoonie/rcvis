@@ -22,7 +22,7 @@ export default defineConfig([
         rules: {
             "@/semi": ["error", "always"],
             "@typescript-eslint/no-explicit-any": ["off"],
-             "@typescript-eslint/no-unsafe-function-type": ["warn"],
+            "@typescript-eslint/no-unsafe-function-type": ["warn"],
             "@typescript-eslint/no-this-alias": ["warn"]
         }
     }

@@ -21,12 +21,12 @@ requests-mock==1.11.0
 django_extensions==3.2.3
 
 # For coverage
-autopep8==2.0.2
+autopep8==2.3.2
 coverage==7.2.7
 pytest-django==4.5.2
 pylint==2.17.4
 pylint-django==2.5.3
-pycodestyle==2.12.1
+pycodestyle==2.13.0
 
 # For django-rest
 djangorestframework==3.15.2

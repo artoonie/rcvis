@@ -62,7 +62,7 @@ class ReadDataTableJSON():
             try:
                 numVotes = float(numVotes)
             except (TypeError, ValueError) as exc:
-                raise InvalidDataTableInput(f"On Round {roundNum+1}, \"{candidateName}\" " +
+                raise InvalidDataTableInput(f"On Round {roundNum + 1}, \"{candidateName}\" " +
                                             "has an invalid number of votes") from exc
 
             if numVotes < 0:
@@ -136,7 +136,7 @@ class ReadDataTableJSON():
                 totalVotesThisRound = sum(t for t in result['tally'].values())
                 if totalVotesThisRound > totalVotesLastRound:
                     raise InvalidDataTableInput(
-                        f"Round {roundNum+1} has {totalVotesThisRound} votes, which is more " +
+                        f"Round {roundNum + 1} has {totalVotesThisRound} votes, which is more " +
                         f"than the previous round, which only has {totalVotesLastRound}. " +
                         "This should not be possible.") from exc
                 totalVotesLastRound = totalVotesThisRound

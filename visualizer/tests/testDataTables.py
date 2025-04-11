@@ -26,7 +26,7 @@ class DataTablesTests(TestCase):
                                                          'configElectionTitle': '',
                                                          'configElectionDate': '',
                                                          'configThreshold': '',
-                                                             'jsonFile': f.read()})
+                                                         'jsonFile': f.read()})
 
     @classmethod
     def _get_simplified_post_data(cls):
@@ -92,7 +92,6 @@ class DataTablesTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json['config']['contest'], "One round")
         self.assertEqual(len(json['results']), 1)
-
 
     def test_data_conversion_and_post(self):
         """

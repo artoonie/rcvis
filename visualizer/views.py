@@ -348,6 +348,7 @@ class Oembed(View):
 
         return JsonResponse(jsonData)
 
+
 class ValidateDataEntry(LoginRequiredMixin, View):
     """ Validation AJAX view: would the current input succeed in creating a graph? """
 
@@ -414,6 +415,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
 
 class ConvertToUTFormat(ValidateDataEntry):
     """ Converts to Universal Tabulator Format """
+
     def post(self, request):
         """ Converts to Universal Tabulator Format """
         secsToWait = self._check_rate_limit()
