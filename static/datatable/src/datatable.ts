@@ -12,11 +12,6 @@ function requireRevalidation() {
     $("#validateButton").prop("disabled", false);
 }
 
-interface DataTableData {
-    id: number;
-    candidate: Candidate;
-}
-
 const errorPopupFormatter = function () {
     let container = document.createElement("div"),
         contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
@@ -26,11 +21,19 @@ const errorPopupFormatter = function () {
     return container;
 };
 
-const lessThanZeroError = function () {
+const lessThanZeroError = function (table: Tabulator) {
     let container = document.createElement("div"),
         contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
     contents += `<span>Must be a positive number</span>`;
     container.innerHTML = contents;
+    let closeAlert = document.createElement("button");
+    closeAlert.textContent = "Ok";
+    closeAlert.style.textAlign = "center";
+    closeAlert.onclick = function (e) {
+        e.preventDefault();
+        table.clearAlert();
+    }
+    container.appendChild(closeAlert);
     return container;
 };
 
@@ -76,7 +79,7 @@ export default class RcvisDataTable {
         return this._includeModifiers;
     }
 
-    static voteCountCallback(cell: any, value: number) {
+    static voteCountCallback(cell: CellComponent, value: number) {
         requireRevalidation();
         const cells = cell.getRow().getCells();
         cell.setValue(value);
@@ -95,7 +98,8 @@ export default class RcvisDataTable {
         }
 
         if (value < 0) {
-            cell.getRow().popup(lessThanZeroError, "bottom");
+            console.log("alert");
+            (cell.getTable() as any).alert(lessThanZeroError(cell.getTable()), "error");
             return false;
         }
 
@@ -124,7 +128,7 @@ export default class RcvisDataTable {
                 cells[c].clearValidation();
             } else {
                 if (c === cellIndex) {
-                    cell.popup(errorPopupFormatter, "bottom");
+                    (cell as any).popup(errorPopupFormatter, "bottom");
                     return false;
                 } else {
                     cells[c].validate();

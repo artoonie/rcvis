@@ -140,7 +140,7 @@ export default class Candidate {
         const editor = document.createElement("div");
         const elem = Candidate.createInputElement(editor, null,
             candidate.candidateName, true);
-        const regex = /Candidate [\d]+/;
+        const regex = /Candidate \d+/;
         const match = candidate.candidateName.match(regex);
         if (!cell.isEdited() && match && match.length > 0) {
             elem.classList.add("candidate-name-default");
@@ -305,6 +305,8 @@ export default class Candidate {
             } else {
                 elem.classList.add("form-control");
             }
+        } else {
+            elem.textContent = value;
         }
         editor.appendChild(span);
         return elem;
