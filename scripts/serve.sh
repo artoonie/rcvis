@@ -20,7 +20,6 @@ else
 fi
 
 # Clear cache, compress and run the server
-npm run build
 python3 manage.py clearCache
 python3 manage.py compress
 python3 manage.py runserver
