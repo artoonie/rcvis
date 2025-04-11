@@ -5,8 +5,7 @@ import Candidate from "../model/candidate";
 export default class CandidateDatatable extends DataTable {
 
     initTable() {
-        console.log("Initializing table")
-
+        console.log("Initializing table");
     }
 
     static candidateTableEditor(cell, onRendered, success, cancel, editorParams) {
@@ -42,7 +41,7 @@ export default class CandidateDatatable extends DataTable {
             headerSort: false,
             resizableColumnFit: true,
             editable: true
-        }
+        };
         function getColumnDefinition(field) {
             const clone = structuredClone(columnDef);
             clone.editor = CandidateDatatable.candidateTableEditor;
@@ -79,7 +78,7 @@ export default class CandidateDatatable extends DataTable {
             cellElement.removeChild(cellElement.firstChild);
         }
 
-        rowTable = document.createElement("div")
+        rowTable = document.createElement("div");
         rowTable.classList.add("row");
         rowTable.style.height = "inherit";
         // const rowTabletr = document.createElement("div");
@@ -107,7 +106,9 @@ export default class CandidateDatatable extends DataTable {
         mainTd.classList.add("col-sm");
         // mainTd.style.maxWidth = "50%";
         const nameDiv = document.createElement("div");
-        nameDiv.innerHTML = `<strong style="white-space: normal; overflow-wrap: break-word  color: cadetblue">${(data && data.candidateName) ? data.candidateName : ""}</strong>`
+        nameDiv.innerHTML = `<strong style="white-space: normal; 
+          overflow-wrap: break-word  color: cadetblue">
+          ${(data && data.candidateName) ? data.candidateName : ""}</strong>`;
 
         const incumbentDiv = document.createElement("div");
         const incumbentSpan = document.createElement("span");
@@ -124,10 +125,11 @@ export default class CandidateDatatable extends DataTable {
         if (data) {
             moreInfoDiv.innerHTML = `<strong><a class="badge ${data.moreinfo_url
                 ? 'badge-primary' : 'link-disabled'}" 
-             href=${data.moreinfo_url}>More Info</a></strong>`
+             href=${data.moreinfo_url}>More Info</a></strong>`;
         }
         const partyDiv = document.createElement("div");
-        partyDiv.innerHTML = "<strong>Party:</strong> " + (data && data.party ? data.party : CandidateDatatable.getUnderlinedSpace());
+        partyDiv.innerHTML = "<strong>Party:</strong> " + (data && data.party
+            ? data.party : CandidateDatatable.getUnderlinedSpace());
         mainTd.appendChild(nameDiv);
         mainTd.appendChild(document.createElement("br"));
         mainTd.appendChild(incumbentDiv);
@@ -150,7 +152,7 @@ export default class CandidateDatatable extends DataTable {
         onRendered(function() {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
-        })
+        });
 
         return {element, nameDiv};
     };

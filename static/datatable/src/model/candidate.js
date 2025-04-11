@@ -127,7 +127,7 @@ export default class Candidate {
         const candidate = cell.getData().candidate;
         const editor = document.createElement("div");
         const elem = Candidate.createInputElement(editor, null,
-            candidate.candidateName, true)
+            candidate.candidateName, true);
         const regex = /Candidate [\d]+/;
         const match = candidate.candidateName.match(regex);
         if (!cell.isEdited() && match && match.length > 0) {
@@ -136,7 +136,7 @@ export default class Candidate {
         onRendered(function() {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
-        })
+        });
         return editor;
     }
 
@@ -187,7 +187,9 @@ export default class Candidate {
         candidateName.onchange = successFunc;
         if (showModalNow) {
             MicroModal.show('datatable-modal', {
-                onClose: () => { successFunc(); }
+                onClose: () => {
+                    successFunc();
+                }
             });
         }
         return moreInfoButton;
@@ -198,8 +200,8 @@ export default class Candidate {
         const modalWrapper = document.getElementById("datatable-modal-content");
         const modalTitleWrapper = document.getElementById(
             "datatable-modal-title");
-        const candidateInfoId = Candidate.randstr("candidate-info-")
-        const candidateTitleId = Candidate.randstr("candidate-title-")
+        const candidateInfoId = Candidate.randstr("candidate-info-");
+        const candidateTitleId = Candidate.randstr("candidate-title-");
 
         const candidateInfo = document.createElement("div");
         candidateInfo.id = candidateInfoId;
@@ -207,7 +209,7 @@ export default class Candidate {
         const candidateTitle = document.createElement("h3");
         candidateTitle.id = candidateTitleId;
         candidateTitle.textContent = candidate.candidateName;
-        modalTitleWrapper.appendChild(candidateTitle)
+        modalTitleWrapper.appendChild(candidateTitle);
         modalWrapper.appendChild(candidateInfo);
         const successFunc = Candidate.attachModalElements(candidateInfo,
             candidateTitle, candidate,
@@ -237,11 +239,11 @@ export default class Candidate {
         const elem = readOnly ?
             document.createElement("span")
             : document.createElement("input");
-        elem.id = Candidate.randstr("candidate-input-")
+        elem.id = Candidate.randstr("candidate-input-");
         elem.classList.add("candidate-input");
         elem.type = "text";
         return Candidate.createElement(editor, elem, labelText, value,
-            placeholder)
+            placeholder);
     }
 
     static createElement(editor, elem, labelText, value, placeholder = false) {
@@ -268,9 +270,9 @@ export default class Candidate {
             elem.placeholder = value;
         }
         if (elem.type === "checkbox") {
-            elem.classList.add("form-check-input")
+            elem.classList.add("form-check-input");
         } else {
-            elem.classList.add("form-control")
+            elem.classList.add("form-control");
         }
         editor.appendChild(span);
         return elem;

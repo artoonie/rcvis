@@ -16,5 +16,9 @@ export default defineConfig([
 	},
 	{ files: ["**/*.js"],
         plugins: { js },
-        extends: ["js/recommended"] }
+        extends: ["js/recommended"],
+        rules: {
+          "@/semi": ["error", "always"],
+        }
+    }
 ]);

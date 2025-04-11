@@ -80,7 +80,7 @@ function redrawOptions(delay = 100) {
 }
 
 export function summaryFileSelected(files) {
-    $("#selectResultsFileButton").text(files[0].name)
+    $("#selectResultsFileButton").text(files[0].name);
     enableDataOptionsAndSubmitButton();
     hideManualEntryErrorShowMainButton();
     showManualOptionsHideTable(false);
@@ -104,15 +104,15 @@ export function manuallyEditUpload(e) {
             const fileContent = e.target.result;
             formData.set("jsonFile", fileContent);
             standardizeFormatAjax(formData);
-        }
-        reader.readAsText(file)
+        };
+        reader.readAsText(file);
     }
 }
 
 function formListener(e) {
     if (uploadDataTable && uploadDataTableEdited && manualSidecarSelectedLast) {
         const data = e.formData;
-        attachSidecarJson(transformTableDataToSidecarJson(), data)
+        attachSidecarJson(transformTableDataToSidecarJson(), data);
     }
 }
 
@@ -129,8 +129,8 @@ function standardizeFormatAjax(formData) {
         processData: false,
         contentType: false,
         success: function(data) {
-            const form = document.getElementById('form')
-            if (data.success !== null && data.success === false ) {
+            const form = document.getElementById('form');
+            if (data.success !== null && data.success === false) {
                 hideManualEntryShowError();
                 return;
             }
@@ -139,18 +139,19 @@ function standardizeFormatAjax(formData) {
                     transformJsonToTableData(data));
             } else {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
-                     Object.keys(data.results[0].tally), true);
+                    Object.keys(data.results[0].tally), true);
                 uploadDataTable.table.on("cellEdited", function(c) {
                     uploadDataTableEdited = true;
-                    const img = c.getElement().getElementsByClassName("candidate-img-thumbnail");
-                    if(img && img.length > 0) {
+                    const img = c.getElement().getElementsByClassName(
+                        "candidate-img-thumbnail");
+                    if (img && img.length > 0) {
                         img[0].addEventListener("load", () => {
                             c.getRow().normalizeHeight();
                             setTimeout(() => {
-                                c.getRow().reformat()
+                                c.getRow().reformat();
                                 c.getTable().redraw(true);
                                 redrawOptions();
-                            }, 100)
+                            }, 100);
                         }, {once: true});
                     }
                 });
@@ -165,7 +166,7 @@ function standardizeFormatAjax(formData) {
             }
             form.addEventListener('formdata', formListener);
         }
-    })
+    });
 }
 
 function attachSidecarJson(jsonData, formData) {
@@ -177,28 +178,28 @@ function attachSidecarJson(jsonData, formData) {
 }
 
 function transformJsonToTableData(json) {
-    const data = []
-    const candidates = Object.keys(json.results[0].tally)
+    const data = [];
+    const candidates = Object.keys(json.results[0].tally);
     for (let i = 0; i < candidates.length; i++) {
         const candidate = {
             id: i + 1, candidate:
                 new Candidate(candidates[i])
         };
-        let status = "Active"
+        let status = "Active";
         for (let j = 0; j < json.results.length; j++) {
             const roundResults = json.results[j];
             const roundNr = roundResults.round;
             candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
             const anyWon = roundResults.tallyResults.map(n => n.elected).some(
-                n => n)
+                n => n);
             const won = roundResults.tallyResults.map(
-                n => n.elected === candidates[i]).some(n => n)
+                n => n.elected === candidates[i]).some(n => n);
             const lost = roundResults.tallyResults.map(
-                n => n.eliminated === candidates[i]).some(n => n)
+                n => n.eliminated === candidates[i]).some(n => n);
             if (won) {
                 status = "Elected";
             } else if (lost || (anyWon && status !== null)) {
-                status = "Eliminated"
+                status = "Eliminated";
             }
             candidate["status-" + roundNr] = status;
             if (status !== "Active") {
@@ -219,15 +220,15 @@ function transformTableDataToSidecarJson() {
             photo_url: row.candidate.photo_url,
             moreinfo_url: row.candidate.moreinfo_url,
             party: row.candidate.party,
-        }
+        };
         info[row.candidate.candidateName] = obj;
         sidecar.order.push(row.candidate.candidateName);
-    })
+    });
     return sidecar;
 }
 
 export function sidecarFileSelected(files) {
-    $("#select-sidecar-file-button").text(files[0].name)
+    $("#select-sidecar-file-button").text(files[0].name);
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }
