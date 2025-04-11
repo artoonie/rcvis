@@ -18,17 +18,5 @@ module.exports = {
     },
     resolve: {
         extensions: ['.ts', '.js'],
-    },
-    optimization: {
-        splitChunks: {
-            cacheGroups: {
-                vendor: {
-                    test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
-                    maxSize: 244000
-                }
-            },
-        },
     }
 }

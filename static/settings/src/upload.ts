@@ -120,6 +120,10 @@ function formListener(e: FormDataEvent) {
 
 function uploadByDataTableInit() {
     uploadByDataTableTable = new RcvisDataTable(wrapperDivId);
+    uploadByDataTableTable.table.on("cellEdited", c => {
+        disableDataOptionsAndSubmitButton();
+        c.validate();
+    });
 }
 
 function standardizeFormatAjax(formData: FormData) {
@@ -145,7 +149,9 @@ function standardizeFormatAjax(formData: FormData) {
             dataPromise.then(data => {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
                     Object.keys(data.results[0].tally), true);
+                (window as any).uploadDataTable = uploadDataTable;
                 uploadDataTable.table.on("cellEdited", function (c: CellComponent) {
+                    disableDataOptionsAndSubmitButton();
                     uploadDataTableEdited = true;
                     const img = c.getElement().getElementsByClassName(
                         "candidate-img-thumbnail");
@@ -164,6 +170,7 @@ function standardizeFormatAjax(formData: FormData) {
                     }, 150);
                 });
                 uploadDataTable.table.on("dataProcessed", function () {
+                    console.log("dataProcessed")
                     uploadDataTable.table.validate();
                     // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();

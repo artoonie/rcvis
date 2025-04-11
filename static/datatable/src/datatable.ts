@@ -25,12 +25,21 @@ function requireRevalidation() {
     $("#validateButton").prop("disabled", false);
 }
 
-const errorPopupFormatter = function () {
+const errorPopupFormatter = function (table: Tabulator) {
     const container = document.createElement("div");
-    const contents = `<strong style='font-size:1.2em;'>Error Details</strong>
-    <br/><span class="upload-hoverable">${VOTE_ERROR_SIMPLE_MESSAGE}</span>
-    <div class="upload-hover ">${VOTE_ERROR_MESSAGE}</div>`;
+    const contents = `<strong style='font-size:1.2em;'>${VOTE_ERROR_SIMPLE_MESSAGE}</strong>
+    <br/><span>${VOTE_ERROR_MESSAGE}</span>`
     container.innerHTML = contents;
+    const closeAlert = document.createElement("button");
+    closeAlert.classList.add("close-alert");
+    closeAlert.textContent = "Ok";
+    closeAlert.style.textAlign = "center";
+    closeAlert.onclick = function (e) {
+        e.preventDefault();
+        table.clearAlert();
+    };
+    container.appendChild(document.createElement("br"));
+    container.appendChild(closeAlert);
     return container;
 };
 
@@ -40,6 +49,7 @@ const lessThanZeroError = function (table: Tabulator) {
         <br/><span>Must be a positive number</span>`;
     const closeAlert = document.createElement("button");
     closeAlert.textContent = "Ok";
+    closeAlert.classList.add("close-alert");
     closeAlert.style.textAlign = "center";
     closeAlert.onclick = function (e) {
         e.preventDefault();
@@ -95,7 +105,6 @@ export default class RcvisDataTable {
     static voteCountCallback(cell: CellComponent, value: number) {
         requireRevalidation();
         const cells = cell.getRow().getCells();
-        cell.setValue(value);
         if (cells.length <= 3) {
             return true;
         }
@@ -111,7 +120,6 @@ export default class RcvisDataTable {
         }
 
         if (value < 0) {
-            console.log("alert");
             (cell.getTable() as any).alert(lessThanZeroError(cell.getTable()), "error");
             return false;
         }
@@ -140,12 +148,12 @@ export default class RcvisDataTable {
                 // Last round, the candidate was elected - no error, it's allowed to decrease
                 cells[c].clearValidation();
             } else {
-                if (c === cellIndex) {
-                    (cell as any).popup(errorPopupFormatter, "bottom");
-                    return false;
-                } else {
-                    cells[c].validate();
-                }
+                // if (c === cellIndex) {
+                (cell.getTable() as any).alert(errorPopupFormatter(cell.getTable()), "error");
+                return false;
+                // } else {
+                //     cells[c].validate();
+                // }
             }
 
             prevRoundVotes = numVotes;
@@ -318,6 +326,7 @@ export default class RcvisDataTable {
                     editor: "number",
                     editable: editableFunc,
                     validator: [{type: RcvisDataTable.voteCountCallback}],
+                    cellEdited: c => c.validate,
                     resizable: true,
                 },
                 {

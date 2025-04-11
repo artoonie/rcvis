@@ -289,3 +289,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
         """
         return self.browser.execute_script(f'return document.getElementById("{inputId}").{attr};')
+
+    def _get_attr_from_class(self, className, attr):
+        """
+        Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
+        """
+        return self.browser.execute_script(f'return document.getElementsByClassName("{className}")[0].{attr};')
