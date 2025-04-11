@@ -8,7 +8,7 @@ module.exports = {
             {
                 test: /\.ts$/,
                 use: 'ts-loader',
-                exclude: /node_modules/,
+                exclude: /(node_modules|dist)/,
             },
         ],
     },
@@ -18,5 +18,10 @@ module.exports = {
     output: {
         filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
+    },
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+        },
     },
 };

@@ -1,6 +1,19 @@
 // noinspection JSUnusedLocalSymbols
 import Candidate from "./model/candidate";
-import {CellComponent, ColumnDefinition, EditorParams, TabulatorFull as Tabulator} from "tabulator-tables";
+import {
+    CellComponent,
+    ColumnDefinition,
+    EditModule,
+    EditorParams,
+    FormatModule,
+    HistoryModule,
+    InteractionModule,
+    PopupModule,
+    ResizeTableModule,
+    SortModule,
+    Tabulator,
+    ValidateModule
+} from "tabulator-tables";
 import {disableDataOptionsAndSubmitButton, enableDataOptionsAndSubmitButton} from "rcvis-settings";
 
 const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
@@ -249,6 +262,10 @@ export default class RcvisDataTable {
 
 
     createDataTable(id: string, data: any = null, sidecarOnly = false) {
+        Tabulator.registerModule([
+            EditModule, FormatModule, HistoryModule, InteractionModule,
+            PopupModule, ResizeTableModule, SortModule, ValidateModule
+        ]);
         return new Tabulator("#" + id, {
             data: data ? data : [
                 {id: 1, candidate: new Candidate("Candidate 1")},

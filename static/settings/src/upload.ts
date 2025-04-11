@@ -28,7 +28,7 @@ export function getUploadByDataTableTable() {
 
 export function enableDataOptionsAndSubmitButton() {
     const entireOptionsWrapper = getEntireOptionsWrapper();
-    if(entireOptionsWrapper) {
+    if (entireOptionsWrapper) {
         entireOptionsWrapper.style.opacity = '100%';
     }
     getUploadSubmitButton().disabled = false;
@@ -68,8 +68,8 @@ function showManualOptionsHideTable(redraw = true) {
 }
 
 export function uploadSidecarInstead(e: MouseEvent) {
-  e.preventDefault();
-  showManualOptionsHideTable();
+    e.preventDefault();
+    showManualOptionsHideTable();
 }
 
 function redrawOptions(delay = 100) {
@@ -80,7 +80,7 @@ function redrawOptions(delay = 100) {
 }
 
 export function summaryFileSelected(files: any) {
-    $("#selectResultsFileButton").text(files[0].name);
+    document.getElementById("selectResultsFileButton").textContent = files[0].name;
     enableDataOptionsAndSubmitButton();
     hideManualEntryErrorShowMainButton();
     showManualOptionsHideTable(false);
@@ -123,26 +123,29 @@ function uploadByDataTableInit() {
 }
 
 function standardizeFormatAjax(formData: FormData) {
-    $.ajax({
-        url: '/convertToUTFormat',
+    fetch('/convertToUTFormat', {
         method: 'POST',
-        dataType: 'json',
-        data: formData,
-        processData: false,
-        contentType: false,
-        success: function(data: any) {
-            const form = document.getElementById('form');
-            if (data.success !== null && data.success === false) {
-                hideManualEntryShowError();
-                return;
-            }
-            if (uploadDataTable) {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: formData
+    }).then(response => {
+        const form = document.getElementById('form');
+        const dataPromise = response.json();
+        if (response.status !== 200) {
+            hideManualEntryShowError();
+            return;
+        }
+        if (uploadDataTable) {
+            dataPromise.then(data => {
                 uploadDataTable.table.replaceData(
                     transformJsonToTableData(data));
-            } else {
+            })
+        } else {
+            dataPromise.then(data => {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
                     Object.keys(data.results[0].tally), true);
-                uploadDataTable.table.on("cellEdited", function(c: CellComponent) {
+                uploadDataTable.table.on("cellEdited", function (c: CellComponent) {
                     uploadDataTableEdited = true;
                     const img = c.getElement().getElementsByClassName(
                         "candidate-img-thumbnail");
@@ -160,19 +163,20 @@ function standardizeFormatAjax(formData: FormData) {
                         c.getRow().reformat();
                     }, 150);
                 });
-                uploadDataTable.table.on("dataProcessed", function() {
+                uploadDataTable.table.on("dataProcessed", function () {
                     uploadDataTable.table.validate();
                     // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();
                 });
-                uploadDataTable.table.on("tableBuilt", function() {
+                uploadDataTable.table.on("tableBuilt", function () {
                     uploadDataTable.table.rowManager.adjustTableSize();
                     uploadDataTable.table.redraw(true);
                 });
-            }
-            form.addEventListener('formdata', formListener);
+            })
         }
-    });
+        form.addEventListener('formdata', formListener);
+
+    })
 }
 
 function attachSidecarJson(jsonData: any, formData: FormData) {
@@ -186,26 +190,35 @@ function attachSidecarJson(jsonData: any, formData: FormData) {
 function transformJsonToTableData(json: any) {
     const data = [];
     const candidates = Object.keys(json.results[0].tally);
+
     interface CandidateData {
         id: number;
+
         [key: string]: any;
     }
+
     for (let i = 0; i < candidates.length; i++) {
-        const candidate : CandidateData = {
+        const candidate: CandidateData = {
             id: i + 1, candidate: new Candidate(candidates[i])
         };
         let status = "Active";
+
         interface TallyResults {
             [key: string]: any;
+
             elected: string;
             eliminated: string;
 
         }
+
         interface RoundResults {
             round: number;
+
             [key: string]: any;
+
             tallyResults: TallyResults[]
         }
+
         for (let j = 0; j < json.results.length; j++) {
             const roundResults: RoundResults = json.results[j];
             const roundNr = roundResults.round;
@@ -234,6 +247,7 @@ function transformJsonToTableData(json: any) {
 interface Info {
     [key: string]: any;
 }
+
 function transformTableDataToSidecarJson() {
     const info: Info = {};
     const order: string[] = [];
@@ -251,7 +265,7 @@ function transformTableDataToSidecarJson() {
 }
 
 export function sidecarFileSelected(files: any) {
-    $("#select-sidecar-file-button").text(files[0].name);
+    document.getElementById("select-sidecar-file-button").textContent = files[0].name;
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }

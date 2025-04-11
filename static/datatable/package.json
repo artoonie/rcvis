@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\"",
-    "build-dev": "npx webpack --mode=development --config ./webpack.config.js",
-    "build": "npx webpack --mode=production --config ./webpack.config.js",
+    "build-dev": "npx webpack --mode development --config ./webpack.config.js",
+    "build": "npx webpack --mode production --config ./webpack.config.js",
     "lint": "npx eslint --config ../../eslint.config.js"
   },
   "dependencies": {

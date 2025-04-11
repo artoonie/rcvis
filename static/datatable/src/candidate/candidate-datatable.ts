@@ -1,5 +1,18 @@
 import DataTable from '../datatable';
-import {CellComponent, ColumnDefinition, EditorParams, TabulatorFull as Tabulator} from 'tabulator-tables';
+import {
+    CellComponent,
+    ColumnDefinition,
+    EditModule,
+    EditorParams,
+    FormatModule,
+    HistoryModule,
+    InteractionModule,
+    PopupModule,
+    ResizeTableModule,
+    SortModule,
+    Tabulator,
+    ValidateModule
+} from 'tabulator-tables';
 import Candidate from "../model/candidate";
 
 export default class CandidateDatatable extends DataTable {
@@ -25,6 +38,10 @@ export default class CandidateDatatable extends DataTable {
     }
 
     createDataTable(id: string, data: any = null) {
+        Tabulator.registerModule([
+            EditModule, FormatModule, HistoryModule, InteractionModule,
+            PopupModule, ResizeTableModule, SortModule, ValidateModule
+        ]);
         interface RowData {
             [index: string]: Candidate;
         }
