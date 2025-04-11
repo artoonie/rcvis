@@ -123,10 +123,10 @@ class DataTablesTests(TestCase):
         """ Ensures the output of a generic json is standardized """
         TestHelpers.login(self.client)
         response = self._upload_file_to_convert(filenames.ONE_ROUND)
-        universal_format_json = response.json()
+        universalFormatJson = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(universal_format_json['config']['contest'], "One round")
-        self.assertEqual(len(universal_format_json['results']), 1)
+        self.assertEqual(universalFormatJson['config']['contest'], "One round")
+        self.assertEqual(len(universalFormatJson['results']), 1)
 
     def test_rate_limit(self):
         """
