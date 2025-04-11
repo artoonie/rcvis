@@ -127,10 +127,10 @@ export default class CandidateDatatable extends DataTable {
         const moreInfoDiv = document.createElement("div");
         moreInfoDiv.classList.add("row");
         if (data) {
-            const badgeLink = document.createElement("a")
+            const badgeLink = document.createElement("a");
             badgeLink.onclick = e => {
                 e.stopPropagation();
-            }
+            };
             badgeLink.href = data.moreinfo_url;
             badgeLink.classList.add('badge',
                 `${data.moreinfo_url ? 'badge-primary' : 'link-disabled'}`);
@@ -162,11 +162,11 @@ export default class CandidateDatatable extends DataTable {
         element.append(rowTable);
 
         onRendered(function() {
-            setTimeout( () => {
+            setTimeout(() => {
                 cell.getRow().normalizeHeight();
                 cell.getTable().rowManager.adjustTableSize();
                 element.style.css = "100%";
-            }, 100)
+            }, 100);
         });
 
         return {element, nameDiv};

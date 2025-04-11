@@ -156,7 +156,7 @@ function standardizeFormatAjax(formData) {
                     }
                     setTimeout(() => {
                         c.getRow().reformat();
-                    }, 150)
+                    }, 150);
                 });
                 uploadDataTable.table.on("dataProcessed", function() {
                     uploadDataTable.table.validate();
