@@ -5,7 +5,7 @@ import Candidate from "../model/candidate";
 export default class CandidateDatatable extends DataTable {
 
     initTable() {
-        console.log("Initializing table");
+        // No-Op
     }
 
     static candidateTableEditor(cell: CellComponent, onRendered: Function, success: Function, cancel: Function,

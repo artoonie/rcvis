@@ -32,6 +32,7 @@ const lessThanZeroError = function (table: Tabulator) {
         e.preventDefault();
         table.clearAlert();
     };
+    container.appendChild(document.createElement("br"));
     container.appendChild(closeAlert);
     return container;
 };
@@ -454,6 +455,5 @@ export default class RcvisDataTable {
                     tableInstance.table.deleteColumn(field2);
                 }
             });
-
     }
 }
