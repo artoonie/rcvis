@@ -46,11 +46,11 @@ export function getEntireOptionsWrapper() {
 }
 
 export function getUploadSubmitButton() {
-    return document.getElementById("uploadButton");
+    return document.getElementById("uploadButton") as HTMLButtonElement;
 }
 
 export function getEntireForm() {
-    return document.getElementById('form');
+    return document.getElementById('form') as HTMLFormElement;
 }
 
 export function getFileUploadBox() {

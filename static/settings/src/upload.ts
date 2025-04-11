@@ -13,12 +13,12 @@ import {
 import RcvisDataTable from "rcvis-datatable";
 import Candidate from "rcvis-datatable/candidate";
 import CandidateDatatable from "rcvis-datatable/candidate-datatable";
-import $ from "jquery";
+import {CellComponent} from "tabulator-tables";
 
 const uploadWrapperDivId = "dataTableWrapperUpload";
 const wrapperDivId = 'dataTableWrapper';
-let uploadDataTable = null;
-let uploadByDataTableTable = null;
+let uploadDataTable: CandidateDatatable = null;
+let uploadByDataTableTable: RcvisDataTable = null;
 let uploadDataTableEdited = false;
 let manualSidecarSelectedLast = false;
 
@@ -67,7 +67,7 @@ function showManualOptionsHideTable(redraw = true) {
     }
 }
 
-export function uploadSidecarInstead(e) {
+export function uploadSidecarInstead(e: MouseEvent) {
   e.preventDefault();
   showManualOptionsHideTable();
 }
@@ -79,7 +79,7 @@ function redrawOptions(delay = 100) {
     }, delay);
 }
 
-export function summaryFileSelected(files) {
+export function summaryFileSelected(files: any) {
     $("#selectResultsFileButton").text(files[0].name);
     enableDataOptionsAndSubmitButton();
     hideManualEntryErrorShowMainButton();
@@ -88,7 +88,7 @@ export function summaryFileSelected(files) {
     uploadDataTable = null;
 }
 
-export function manuallyEditUpload(e) {
+export function manuallyEditUpload(e: MouseEvent) {
     e.preventDefault();
     manualSidecarSelectedLast = true;
     if (uploadDataTable) {
@@ -102,14 +102,16 @@ export function manuallyEditUpload(e) {
         const reader = new FileReader();
         reader.onload = (e) => {
             const fileContent = e.target.result;
-            formData.set("jsonFile", fileContent);
-            standardizeFormatAjax(formData);
+            if (typeof fileContent === 'string') {
+                formData.set("jsonFile", fileContent);
+                standardizeFormatAjax(formData);
+            }
         };
-        reader.readAsText(file);
+        reader.readAsText(file as Blob);
     }
 }
 
-function formListener(e) {
+function formListener(e: FormDataEvent) {
     if (uploadDataTable && uploadDataTableEdited && manualSidecarSelectedLast) {
         const data = e.formData;
         attachSidecarJson(transformTableDataToSidecarJson(), data);
@@ -120,15 +122,15 @@ function uploadByDataTableInit() {
     uploadByDataTableTable = new RcvisDataTable(wrapperDivId);
 }
 
-function standardizeFormatAjax(formData) {
+function standardizeFormatAjax(formData: FormData) {
     $.ajax({
         url: '/convertToUTFormat',
         method: 'POST',
-        dataTypes: 'json',
+        dataType: 'json',
         data: formData,
         processData: false,
         contentType: false,
-        success: function(data) {
+        success: function(data: any) {
             const form = document.getElementById('form');
             if (data.success !== null && data.success === false) {
                 hideManualEntryShowError();
@@ -140,7 +142,7 @@ function standardizeFormatAjax(formData) {
             } else {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
                     Object.keys(data.results[0].tally), true);
-                uploadDataTable.table.on("cellEdited", function(c) {
+                uploadDataTable.table.on("cellEdited", function(c: CellComponent) {
                     uploadDataTableEdited = true;
                     const img = c.getElement().getElementsByClassName(
                         "candidate-img-thumbnail");
@@ -173,7 +175,7 @@ function standardizeFormatAjax(formData) {
     });
 }
 
-function attachSidecarJson(jsonData, formData) {
+function attachSidecarJson(jsonData: any, formData: FormData) {
     const jsonString = JSON.stringify(jsonData);
     const blob = new Blob([jsonString], {type: "application/json"});
     const file = new File([blob], "sidecar.json", {type: "application/json"});
@@ -181,17 +183,31 @@ function attachSidecarJson(jsonData, formData) {
     formData.set("candidateSidecarFile", file);
 }
 
-function transformJsonToTableData(json) {
+function transformJsonToTableData(json: any) {
     const data = [];
     const candidates = Object.keys(json.results[0].tally);
+    interface CandidateData {
+        id: number;
+        [key: string]: any;
+    }
     for (let i = 0; i < candidates.length; i++) {
-        const candidate = {
-            id: i + 1, candidate:
-                new Candidate(candidates[i])
+        const candidate : CandidateData = {
+            id: i + 1, candidate: new Candidate(candidates[i])
         };
         let status = "Active";
+        interface TallyResults {
+            [key: string]: any;
+            elected: string;
+            eliminated: string;
+
+        }
+        interface RoundResults {
+            round: number;
+            [key: string]: any;
+            tallyResults: TallyResults[]
+        }
         for (let j = 0; j < json.results.length; j++) {
-            const roundResults = json.results[j];
+            const roundResults: RoundResults = json.results[j];
             const roundNr = roundResults.round;
             candidate["votes-" + roundNr] = roundResults.tally[candidates[i]];
             const anyWon = roundResults.tallyResults.map(n => n.elected).some(
@@ -215,29 +231,32 @@ function transformJsonToTableData(json) {
     return data;
 }
 
+interface Info {
+    [key: string]: any;
+}
 function transformTableDataToSidecarJson() {
-    const info = {};
-    const sidecar = {version: "1.0", order: [], info: info};
-    uploadDataTable.table.getData().map(row => {
-        const obj = {
+    const info: Info = {};
+    const order: string[] = [];
+    const sidecar = {version: "1.0", order: order, info: info};
+    uploadDataTable.table.getData().map((row: any) => {
+        info[row.candidate.candidateName] = {
             incumbent: row.candidate.incumbent,
             photo_url: row.candidate.photo_url,
             moreinfo_url: row.candidate.moreinfo_url,
             party: row.candidate.party,
         };
-        info[row.candidate.candidateName] = obj;
         sidecar.order.push(row.candidate.candidateName);
     });
     return sidecar;
 }
 
-export function sidecarFileSelected(files) {
+export function sidecarFileSelected(files: any) {
     $("#select-sidecar-file-button").text(files[0].name);
     showManualOptionsHideTable();
     manualSidecarSelectedLast = false;
 }
 
-export function showDataTable(doShow) {
+export function showDataTable(doShow: boolean) {
     getFileUploadBox().style.display = doShow ? "none"
         : "block";
     getDatatableUploadBox().style.display = doShow

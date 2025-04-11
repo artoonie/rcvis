@@ -1,7 +1,7 @@
 {
   "name": "rcvis-settings",
   "version": "1.0.0",
-  "main": "src/upload.js",
+  "main": "src/upload.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\"",
     "build-dev": "npx webpack --mode=development --watch --config ./webpack.config.js",
