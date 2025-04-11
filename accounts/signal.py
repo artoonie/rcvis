@@ -1,8 +1,8 @@
 """ A signal that creates UserProfile whenever a User is created """
 
 import logging
-import requests
 
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
@@ -51,5 +51,5 @@ def user_activated_slot(sender, user, request, **kwargs):
                       "status": "subscribed",
                       "ip_signup": request.META.get('REMOTE_ADDR'),
                       "tags": ['autosignup']
-    },
-        timeout=3)
+                  },
+                  timeout=3)
