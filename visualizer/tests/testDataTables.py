@@ -9,9 +9,9 @@ from django.urls import reverse
 from rcvformats.schemas import universaltabulator
 
 from common.testUtils import TestHelpers
+from visualizer.graph import readDataTablesResult
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
-from visualizer.graph import readDataTablesResult
 
 
 class DataTablesTests(TestCase):
@@ -19,6 +19,16 @@ class DataTablesTests(TestCase):
 
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
+
+    def _upload_file_to_convert(self, filename):
+        with open(filename, encoding='utf-8') as f:
+            with self.settings(RATE_LIMIT_AJAX=False):
+                return self.client.post(
+                    '/convertToUTFormat', {'dataEntry': {},
+                                           'configElectionTitle': '',
+                                           'configElectionDate': '',
+                                           'configThreshold': '',
+                                           'jsonFile': f.read()})
 
     @classmethod
     def _get_simplified_post_data(cls):
@@ -108,6 +118,15 @@ class DataTablesTests(TestCase):
         url = reverse('visualize', args=(TestHelpers.get_latest_upload().slug,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_output_universal_conversion(self):
+        """ Ensures the output of a generic json is standardized """
+        TestHelpers.login(self.client)
+        response = self._upload_file_to_convert(filenames.ONE_ROUND)
+        universalFormatJson = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(universalFormatJson['config']['contest'], "One round")
+        self.assertEqual(len(universalFormatJson['results']), 1)
 
     def test_rate_limit(self):
         """

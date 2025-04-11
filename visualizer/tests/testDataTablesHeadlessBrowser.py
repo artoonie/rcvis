@@ -4,33 +4,49 @@ DataTables tests with a headless browser.
 This testing requires heavy javascript interaction, so we do it
 with a more-expensive selenium testing.
 """
-
 from enum import Enum
 
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 
 from visualizer.tests import liveServerTestBaseClass
+
+
+class element_is_enabled(object):
+    """An expectation for checking that an element is enabled.
+
+    locator - used to find the element
+    returns the WebElement once it is disabled.
+    """
+
+    def __init__(self, locator, reverse=False):
+        self.locator = locator
+        self.reverse = reverse
+
+    def __call__(self, driver):
+        enabled = driver.find_element(*self.locator).is_enabled()
+        if self.reverse:
+            return not enabled
+        else:
+            return enabled
 
 
 class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests for the DataTables library """
     class Button(Enum):
         """ Enumerator for the four buttons on DataTables """
-        ADD_ROUND = 0
-        DELETE_ROUND = 1
-        ADD_CANDIDATE = 2
-        DELETE_CANDIDATE = 3
+        ADD_CANDIDATE = 0
+        DELETE_CANDIDATE = 1
+        ADD_ROUND = 2
+        DELETE_ROUND = 3
 
     def _init_data_tables(self):
         self.open('/upload.html')
         self.browser.find_element(By.ID, 'swapDataTables').click()
 
     def _get_button(self, buttonEnum):
-        buttons = self.browser.find_elements(By.CLASS_NAME, 'dt_left-panel-button')
+        buttons = self.browser.find_elements(By.CSS_SELECTOR, '.upload-tableoptions button')
         self.assertEqual(len(buttons), 4)
         return buttons[buttonEnum.value]
 
@@ -47,14 +63,14 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _make_table_of_size(self, rounds, candidates):
         """ Constructs a rounds-by-candidates sized table using the add/delete buttons """
-        currRounds = self.browser.execute_script('return dtGetNumRows("dataTableWrapper")')
+        currRounds = self.browser.execute_script('return upload.getUploadByDataTableTable().table.getColumnDefinitions().length - 1')
         roundsDiff = rounds - currRounds
         if roundsDiff < 0:
             self._click_button_n_times(self.Button.DELETE_ROUND, -roundsDiff)
         elif roundsDiff > 0:
             self._click_button_n_times(self.Button.ADD_ROUND, roundsDiff)
 
-        currCandidates = self.browser.execute_script('return dtGetNumRows("dataTableWrapper")')
+        currCandidates = self.browser.execute_script('return upload.getUploadByDataTableTable().table.getRows().length')
         candidatesDiff = candidates - currCandidates
         if candidatesDiff < 0:
             self._click_button_n_times(self.Button.DELETE_CANDIDATE, -candidatesDiff)
@@ -71,10 +87,14 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     def _create_valid_1x1_table(self):
         self._fill_in_config()
         self._make_table_of_size(1, 1)
-        self.browser.find_element(By.ID,
-                                  'dataTableWrapper_row_1_and_col_0_and_field_0_').send_keys('name')
-        self.browser.find_element(By.ID,
-                                  'dataTableWrapper_row_1_and_col_1_and_field_0_').send_keys(2)
+        nameScript = """
+        const val = upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].getValue();
+        val.candidateName = "Name";
+        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].setValue(val);
+        """
+        votesScript = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue('
+        self.browser.execute_script(nameScript)
+        self.browser.execute_script(votesScript + '2)')
 
     def test_one_round_one_candidate(self):
         """
@@ -94,6 +114,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         self.assertEqual(self.browser.find_elements(By.TAG_NAME, 'textarea')[0].text, "")
 
+
     def test_validation_controls_submit_button(self):
         """ Test that the submit button is only enabled after validation """
         cellId = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
@@ -109,18 +130,18 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Any change disables the button
-            self._set_input_to(cellId, "1")
-            self.browser.find_element(By.ID, cellId).send_keys(Keys.TAB)
+            votesScript = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue('
+            self.browser.execute_script(votesScript + '10)')
             self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Invalid data keeps button disabled
-            self._set_input_to(cellId, "-1")
+            self.browser.execute_script(votesScript + '-1)')
             errorMessage = 'Error #10: Data is not valid: All vote counts must be positive'
             self._assert_ajax_response(errorMessage)
             self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # And we're back
-            self._set_input_to(cellId, "1")
+            self.browser.execute_script(votesScript + '1)')
             self._assert_ajax_response('Data is valid!')
             self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
@@ -129,25 +150,28 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         Tests the JS-based error message: vote counts shouldn't decrease
         """
         self._init_data_tables()
-
-        cellId1 = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
-        cellId2 = 'dataTableWrapper_row_1_and_col_2_and_field_0_'
-        errCellId = 'dataTableWrapper_row_1_and_col_2_0_error_'
+        setVotes1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)'
+        setVotes2 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)'
+        setVotes2Update = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(10)'
+        errCellClass = 'tabulator-alert-msg'
 
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
-        self._set_input_to(cellId1, '2')
-        self._set_input_to(cellId2, '1')
 
-        self.browser.find_element(By.ID, cellId2).send_keys(Keys.TAB)
-        errorMessage = self._get_attr_from_id(errCellId, 'innerHTML')
-        assert errorMessage.startswith('Vote count cannot decrease')
+        self.browser.execute_script(setVotes1)
+        self.browser.execute_script(setVotes2)
+
+
+        errorMessage = self._get_attr_from_class(errCellClass, 'innerText')
+        self.assertTrue(errorMessage.startswith('Vote count decreased'))
+
+        self.browser.find_element(By.CLASS_NAME, 'close-alert').click()
 
         # And make the error message clear
-        self._set_input_to(cellId2, '3')
-        self.browser.find_element(By.ID, cellId2).send_keys(Keys.TAB)
-        self.assertEqual(self.browser.find_elements(By.ID, errCellId), [])
+        self.browser.execute_script(setVotes2Update)
+        self.assertTrue(
+            len(self.browser.find_elements(By.CLASS_NAME, errCellClass)) == 0)
 
     def test_vote_counts_can_decrease_for_surplus(self):
         """
@@ -155,24 +179,24 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
 
-        dropdownId1 = 'dataTableWrapper_row_1_and_col_1_and_field_1_'
-        cellId1 = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
-        cellId2 = 'dataTableWrapper_row_1_and_col_2_and_field_0_'
-        errCellId = 'dataTableWrapper_row_1_and_col_2_0_error_'
+        dropdown1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")'
+        setVotes1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)'
+        setVotes2 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)'
+        errCellClass = 'tabulator-alert-msg'
 
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
-        self._set_input_to(cellId1, '2')
-        self._set_input_to(cellId2, '1')
+        self.browser.execute_script(setVotes1)
+        self.browser.execute_script(setVotes2)
 
+        self.browser.find_element(By.CLASS_NAME, 'close-alert').click()
         # Set candidate to elected
-        options = Select(self.browser.find_element(By.ID, dropdownId1))
-        options.select_by_index(1)  # Elected
+        self.browser.execute_script(dropdown1)
 
         # Which makes this valid
-        self.browser.find_element(By.ID, dropdownId1).send_keys(Keys.TAB)
-        self.assertEqual(self.browser.find_elements(By.ID, errCellId), [])
+        self.assertTrue(
+            len(self.browser.find_elements(By.CLASS_NAME, errCellClass)) == 0)
 
         self._assert_ajax_response('Data is valid!')
 
@@ -182,20 +206,26 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
         self._make_table_of_size(3, 1)
+        self.browser.get_screenshot_as_file('screenshot.png')
 
-        dropdownId1 = 'dataTableWrapper_row_1_and_col_1_and_field_1_'
-        dropdownId2 = 'dataTableWrapper_row_1_and_col_2_and_field_1_'
-        dropdownId3 = 'dataTableWrapper_row_1_and_col_3_and_field_1_'
+        script = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue('
 
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            options = Select(self.browser.find_element(By.ID, dropdownId1))
-            options.select_by_index(i)
-
-            self.assertTrue(self.browser.find_element(By.ID, dropdownId1).is_enabled())
-            self.assertFalse(self.browser.find_element(By.ID, dropdownId2).is_enabled())
-            self.assertFalse(self.browser.find_element(By.ID, dropdownId3).is_enabled())
+            val = 'Elected'
+            if i == 1:
+               val = 'Eliminated'
+            self.browser.execute_script(script + '"' + val + '")')
+            dropdownId1Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[2].getValue()')
+            dropdownId2Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[4].getValue()')
+            dropdownId3Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[6].getValue()')
+            self.assertEqual(dropdownId1Value, val)
+            self.assertIsNone(dropdownId2Value)
+            self.assertIsNone(dropdownId3Value)
 
     def test_electing_disables_rest_of_row_except_next(self):
         """
@@ -204,37 +234,41 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
         self._make_table_of_size(3, 1)
-
-        dropdownId1 = 'dataTableWrapper_row_1_and_col_1_and_field_1_'
-        inputId1 = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
-        inputId2 = 'dataTableWrapper_row_1_and_col_2_and_field_0_'
-        inputId3 = 'dataTableWrapper_row_1_and_col_3_and_field_0_'
+        script = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue('
 
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            options = Select(self.browser.find_element(By.ID, dropdownId1))
-            options.select_by_index(i)
-
-            self.assertTrue(self.browser.find_element(By.ID, inputId1).is_enabled())
+            val = 'Elected'
             if i == 1:
-                self.assertFalse(self.browser.find_element(By.ID, inputId2).is_enabled())
+                val = 'Eliminated'
+            self.browser.execute_script(script + '"' + val + '")')
+            votesId1Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[1].getValue()')
+            votesId2Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[3].getValue()')
+            votesId3Value = self.browser.execute_script(
+                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[5].getValue()')
+            self.assertEqual(0, votesId1Value)
+            if i == 1:
+                self.assertIsNone(votesId2Value)
             else:
-                self.assertTrue(self.browser.find_element(By.ID, inputId2).is_enabled())
-            self.assertFalse(self.browser.find_element(By.ID, inputId3).is_enabled())
+                self.assertEqual(0, votesId2Value)
+            self.assertIsNone(votesId3Value)
 
-    def test_unsafe_names(self):
         """
         Check that unsafe names are correctly stripped
         """
         self._init_data_tables()
         self._create_valid_1x1_table()
 
-        candidateNameCellId = 'dataTableWrapper_row_1_and_col_0_and_field_0_'
+        nameScript = """
+        const val1 = upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].getValue();
+        val1.candidateName = "&><'\\"";
+        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].setValue(val1);
+        """
 
-        unsafeChars = '&><\'"'
-        self.browser.find_element(By.ID, 'configElectionTitle').send_keys(unsafeChars)
-        self.browser.find_element(By.ID, candidateNameCellId).send_keys(unsafeChars)
+        self.browser.execute_script(nameScript)
 
         self._assert_ajax_response('Data is valid!')
         self.browser.find_element(By.ID, 'uploadButton').click()
