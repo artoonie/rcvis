@@ -413,8 +413,9 @@ class ValidateDataEntry(LoginRequiredMixin, View):
 
 
 class ConvertToUTFormat(ValidateDataEntry):
+    """ Converts to Universal Tabulator Format """
     def post(self, request):
-        """ Doesn't render a webpage - just text """
+        """ Converts to Universal Tabulator Format """
         secsToWait = self._check_rate_limit()
         if secsToWait > 0:
             secsToWait = int(secsToWait) + 1
