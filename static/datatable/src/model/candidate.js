@@ -181,7 +181,18 @@ export default class Candidate {
         moreInfoButton.textContent = "Manage Candidate";
         moreInfoButton.onclick = function(e) {
             e.preventDefault();
-            MicroModal.show('datatable-modal');
+            MicroModal.show('datatable-modal', {
+                onShow: (modal) => {
+                    modal.addEventListener("keypress", (e) => {
+                        if (e.key === 'Enter') {
+                            MicroModal.close('datatable-modal');
+                        }
+                    })
+                },
+                onClose: () => {
+                    successFunc();
+                }
+            });
         };
 
         // editor.appendChild(document.createElement("br"));
@@ -196,6 +207,13 @@ export default class Candidate {
         candidateName.onchange = successFunc;
         if (showModalNow) {
             MicroModal.show('datatable-modal', {
+                onShow: (modal) => {
+                    modal.addEventListener("keypress", (e) => {
+                        if (e.key === 'Enter') {
+                            MicroModal.close('datatable-modal');
+                        }
+                    })
+                },
                 onClose: () => {
                     successFunc();
                 }
@@ -207,6 +225,9 @@ export default class Candidate {
     static createModal(editor, candidate, cell, candidateName, success, cancel,
         onRendered) {
         const modalWrapper = document.getElementById("datatable-modal-content");
+        for (let i = 0; i < modalWrapper.children.length; i++) {
+            modalWrapper.children[i].remove();
+        }
         const modalTitleWrapper = document.getElementById(
             "datatable-modal-title");
         const candidateInfoId = Candidate.randstr("candidate-info-");
