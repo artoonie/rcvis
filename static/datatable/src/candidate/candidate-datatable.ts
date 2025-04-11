@@ -28,7 +28,8 @@ export default class CandidateDatatable extends DataTable {
         interface RowData {
             [index: string]: Candidate;
         }
-        let candidateData: RowData[] = [];
+
+        const candidateData: RowData[] = [];
 
         data.forEach(((c: string, idx: number) => {
             const candidate = new Candidate(c);
@@ -46,6 +47,7 @@ export default class CandidateDatatable extends DataTable {
             headerSort: false,
             editable: true
         };
+
         function getColumnDefinition(field: string) {
             const clone = structuredClone(columnDef);
             clone.editor = CandidateDatatable.candidateTableEditor;
@@ -53,6 +55,7 @@ export default class CandidateDatatable extends DataTable {
             clone.field = field;
             return clone;
         }
+
         return new Tabulator("#" + id, {
             data: candidateData,
             headerVisible: false,
@@ -70,10 +73,9 @@ export default class CandidateDatatable extends DataTable {
     }
 
     static getCustomFormatElement(cell: CellComponent, editorParams: EditorParams, onRendered: Function) {
-        let element = document.createElement("div"),
+        const element = document.createElement("div"),
             cellElement = cell.getElement(),
-            data = cell.getValue(),
-            rowTable;
+            data = cell.getValue();
         element.classList.add("container");
         element.style.height = "100%";
         //clear current row data
@@ -81,7 +83,7 @@ export default class CandidateDatatable extends DataTable {
             cellElement.removeChild(cellElement.firstChild);
         }
 
-        rowTable = document.createElement("div");
+        const rowTable = document.createElement("div");
         rowTable.classList.add("row");
         rowTable.style.height = "inherit";
 
@@ -162,7 +164,7 @@ export default class CandidateDatatable extends DataTable {
         //append newly formatted contents to the row
         element.append(rowTable);
 
-        onRendered(function() {
+        onRendered(function () {
             setTimeout(() => {
                 cell.getRow().normalizeHeight();
                 cell.getTable().rowManager.adjustTableSize();

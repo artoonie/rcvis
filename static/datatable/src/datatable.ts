@@ -13,26 +13,25 @@ function requireRevalidation() {
 }
 
 const errorPopupFormatter = function () {
-    let container = document.createElement("div"),
-        contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
-    contents += `<span class="upload-hoverable">${VOTE_ERROR_SIMPLE_MESSAGE}</span>`;
-    contents += `<div class="upload-hover">${VOTE_ERROR_MESSAGE}</div>`;
+    const container = document.createElement("div");
+    const contents = `<strong style='font-size:1.2em;'>Error Details</strong>
+    <br/><span class="upload-hoverable">${VOTE_ERROR_SIMPLE_MESSAGE}</span>
+    <div class="upload-hover ">${VOTE_ERROR_MESSAGE}</div>`;
     container.innerHTML = contents;
     return container;
 };
 
 const lessThanZeroError = function (table: Tabulator) {
-    let container = document.createElement("div"),
-        contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
-    contents += `<span>Must be a positive number</span>`;
-    container.innerHTML = contents;
-    let closeAlert = document.createElement("button");
+    const container = document.createElement("div");
+    container.innerHTML = `<strong style='font-size:1.2em;'>Error Details</strong>
+        <br/><span>Must be a positive number</span>`;
+    const closeAlert = document.createElement("button");
     closeAlert.textContent = "Ok";
     closeAlert.style.textAlign = "center";
     closeAlert.onclick = function (e) {
         e.preventDefault();
         table.clearAlert();
-    }
+    };
     container.appendChild(closeAlert);
     return container;
 };
@@ -249,8 +248,6 @@ export default class RcvisDataTable {
 
 
     createDataTable(id: string, data: any = null, sidecarOnly = false) {
-        // @ts-ignore
-        // @ts-ignore
         return new Tabulator("#" + id, {
             data: data ? data : [
                 {id: 1, candidate: new Candidate("Candidate 1")},
@@ -294,7 +291,6 @@ export default class RcvisDataTable {
         const lastCol = this.table.getColumn(cols[cols.length - 1]);
         const colNr = this.table.getColumnDefinitions().length;
         const editableFunc = readOnly ? () => false : this.editCheck;
-        // @ts-ignore
         const colDef: ColumnDefinition = {
             title: `Round ${colNr}`, columns: [
                 {
@@ -364,8 +360,8 @@ export default class RcvisDataTable {
     }
 
     toJson(tableData: any) {
-        let data = [];
-        let rowNames = [];
+        const data = [];
+        const rowNames = [];
 
         interface VotesStatus {
             [key: string]: any;
@@ -373,9 +369,9 @@ export default class RcvisDataTable {
 
         for (let i = 0; i < tableData.length; i++) {
             rowNames[i] = tableData[i].candidate.candidateName;
-            let rounds = [];
+            const rounds = [];
             for (let j = 1; j < this.table.getColumnDefinitions().length; j++) {
-                let obj: VotesStatus = {};
+                const obj: VotesStatus = {};
                 obj["# Votes"] = tableData[i][`votes-${j}`];
                 obj["Status"] = tableData[i][`status-${j}`];
                 rounds.push(obj);

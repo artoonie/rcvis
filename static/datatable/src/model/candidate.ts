@@ -191,7 +191,7 @@ export default class Candidate {
                         if (e.key === 'Enter') {
                             MicroModal.close('datatable-modal');
                         }
-                    })
+                    });
                 },
                 onClose: () => {
                     successFunc();
@@ -216,7 +216,7 @@ export default class Candidate {
                         if (e.key === 'Enter') {
                             MicroModal.close('datatable-modal');
                         }
-                    })
+                    });
                 },
                 onClose: () => {
                     successFunc();
@@ -365,7 +365,7 @@ export default class Candidate {
                     [key: string]: Candidate;
                 }
 
-                const obj: NameToCandidate = {}
+                const obj: NameToCandidate = {};
                 obj[cell.getField()] = candidateClone;
                 cell.getRow().update(obj);
             }
