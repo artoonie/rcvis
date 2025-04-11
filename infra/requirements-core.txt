@@ -18,6 +18,7 @@ whitenoise==6.4.0
 # For tests
 mock==5.0.2
 requests-mock==1.11.0
+django_extensions==3.2.3
 
 # For coverage
 autopep8==2.0.2
