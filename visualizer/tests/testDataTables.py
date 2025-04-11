@@ -9,9 +9,9 @@ from django.urls import reverse
 from rcvformats.schemas import universaltabulator
 
 from common.testUtils import TestHelpers
+from visualizer.graph import readDataTablesResult
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
-from visualizer.graph import readDataTablesResult
 
 
 class DataTablesTests(TestCase):
@@ -20,9 +20,9 @@ class DataTablesTests(TestCase):
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
 
-    def _upload_file_to_standardize(self, filename):
+    def _upload_file_to_convert(self, filename):
         with open(filename, encoding='utf-8') as f:
-            return self.client.post('/standardizeData', {'dataEntry': {},
+            return self.client.post('/convertToUTFormat', {'dataEntry': {},
                                                          'configElectionTitle': '',
                                                          'configElectionDate': '',
                                                          'configThreshold': '',
@@ -84,15 +84,6 @@ class DataTablesTests(TestCase):
         schema = universaltabulator.SchemaV0()
         self.assertTrue(schema.validate(urcvtData))
 
-    def test_output_standardization(self):
-        """ Ensures the output of a generic json is standardized """
-        TestHelpers.login(self.client)
-        response = self._upload_file_to_standardize(filenames.ONE_ROUND)
-        json = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(json['config']['contest'], "One round")
-        self.assertEqual(len(json['results']), 1)
-
     def test_data_conversion_and_post(self):
         """
         Test DataTables conversion via POST
@@ -125,6 +116,15 @@ class DataTablesTests(TestCase):
         url = reverse('visualize', args=(TestHelpers.get_latest_upload().slug,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_output_universal_conversion(self):
+        """ Ensures the output of a generic json is standardized """
+        TestHelpers.login(self.client)
+        response = self._upload_file_to_convert(filenames.ONE_ROUND)
+        universal_format_json = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(universal_format_json['config']['contest'], "One round")
+        self.assertEqual(len(universal_format_json['results']), 1)
 
     def test_rate_limit(self):
         """
