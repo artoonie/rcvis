@@ -63,14 +63,16 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _make_table_of_size(self, rounds, candidates):
         """ Constructs a rounds-by-candidates sized table using the add/delete buttons """
-        currRounds = self.browser.execute_script('return upload.getUploadByDataTableTable().table.getColumnDefinitions().length - 1')
+        currRounds = self.browser.execute_script(
+            'return upload.getUploadByDataTableTable().table.getColumnDefinitions().length - 1')
         roundsDiff = rounds - currRounds
         if roundsDiff < 0:
             self._click_button_n_times(self.Button.DELETE_ROUND, -roundsDiff)
         elif roundsDiff > 0:
             self._click_button_n_times(self.Button.ADD_ROUND, roundsDiff)
 
-        currCandidates = self.browser.execute_script('return upload.getUploadByDataTableTable().table.getRows().length')
+        currCandidates = self.browser.execute_script(
+            'return upload.getUploadByDataTableTable().table.getRows().length')
         candidatesDiff = candidates - currCandidates
         if candidatesDiff < 0:
             self._click_button_n_times(self.Button.DELETE_CANDIDATE, -candidatesDiff)
@@ -113,7 +115,6 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         wait.until(expected_conditions.title_contains("electiontitle"))
 
         self.assertEqual(self.browser.find_elements(By.TAG_NAME, 'textarea')[0].text, "")
-
 
     def test_validation_controls_submit_button(self):
         """ Test that the submit button is only enabled after validation """
@@ -161,7 +162,6 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         self.browser.execute_script(setVotes1)
         self.browser.execute_script(setVotes2)
-
 
         errorMessage = self._get_attr_from_class(errCellClass, 'innerText')
         self.assertTrue(errorMessage.startswith('Vote count decreased'))
@@ -215,7 +215,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         for i in range(1, 3):
             val = 'Elected'
             if i == 1:
-               val = 'Eliminated'
+                val = 'Eliminated'
             self.browser.execute_script(script + '"' + val + '")')
             dropdownId1Value = self.browser.execute_script(
                 'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[2].getValue()')

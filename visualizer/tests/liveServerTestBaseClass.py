@@ -149,7 +149,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         log = [l for l in log if 'favicon.ico - Failed to load resource' not in l['message']]
 
         # This happens on the chromedriver used on 2025-04-11
-        log = [l for l in log if "tabulator_esm.mjs? 3002:28 Uncaught TypeError: Cannot set properties of undefined (setting 'width')" not in l['message']]
+        log = [
+            l for l in log if "tabulator_esm.mjs? 3002:28 Uncaught TypeError: Cannot set properties of undefined (setting 'width')" not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)
@@ -297,4 +298,5 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """
         Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
         """
-        return self.browser.execute_script(f'return document.getElementsByClassName("{className}")[0].{attr};')
+        return self.browser.execute_script(
+            f'return document.getElementsByClassName("{className}")[0].{attr};')
