@@ -144,7 +144,7 @@ function standardizeFormatAjax(formData: FormData) {
             dataPromise.then(data => {
                 uploadDataTable.table.replaceData(
                     transformJsonToTableData(data));
-            })
+            });
         } else {
             dataPromise.then(data => {
                 uploadDataTable = new CandidateDatatable(uploadWrapperDivId,
@@ -170,7 +170,6 @@ function standardizeFormatAjax(formData: FormData) {
                     }, 150);
                 });
                 uploadDataTable.table.on("dataProcessed", function () {
-                    console.log("dataProcessed")
                     uploadDataTable.table.validate();
                     // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();
@@ -179,11 +178,11 @@ function standardizeFormatAjax(formData: FormData) {
                     uploadDataTable.table.rowManager.adjustTableSize();
                     uploadDataTable.table.redraw(true);
                 });
-            })
+            });
         }
         form.addEventListener('formdata', formListener);
 
-    })
+    });
 }
 
 function attachSidecarJson(jsonData: any, formData: FormData) {

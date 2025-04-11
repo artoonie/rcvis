@@ -29,7 +29,7 @@ function requireRevalidation() {
 const errorPopupFormatter = function (table: Tabulator) {
     const container = document.createElement("div");
     const contents = `<strong style='font-size:1.2em;'>${VOTE_ERROR_SIMPLE_MESSAGE}</strong>
-    <br/><span>${VOTE_ERROR_MESSAGE}</span>`
+    <br/><span>${VOTE_ERROR_MESSAGE}</span>`;
     container.innerHTML = contents;
     const closeAlert = document.createElement("button");
     closeAlert.classList.add("close-alert");
