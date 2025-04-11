@@ -53,9 +53,6 @@ form div.formArea {
 #candidate-options {
   overflow-x: auto;
 }
-/*.candidate-options-label {*/
-/*  height: 50%;*/
-/*}*/
 .selectFileButtonWrapper input[type=file] {
   font-size: 100px;
   position: absolute;

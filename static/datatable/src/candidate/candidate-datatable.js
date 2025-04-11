@@ -123,21 +123,25 @@ export default class CandidateDatatable extends DataTable {
 
         const moreInfoDiv = document.createElement("div");
         if (data) {
-            moreInfoDiv.innerHTML = `<strong><a class="badge ${data.moreinfo_url
-                ? 'badge-primary' : 'link-disabled'}" 
-             href=${data.moreinfo_url}>More Info</a></strong>`;
+            const badgeLink = document.createElement("a")
+            badgeLink.onclick = e => { e.stopPropagation(); }
+            badgeLink.href = data.moreinfo_url;
+            badgeLink.classList.add('badge', `${data.moreinfo_url ? 'badge-primary' : 'link-disabled'}`);
+            badgeLink.innerText = "More Info";
+            const strongContainer = document.createElement("strong");
+            strongContainer.appendChild(badgeLink);
+            moreInfoDiv.appendChild(strongContainer);
         }
         const partyDiv = document.createElement("div");
-        partyDiv.innerHTML = "<strong>Party:</strong> " + (data && data.party
-            ? data.party : CandidateDatatable.getUnderlinedSpace());
+        partyDiv.style.whiteSpace= "normal";
+        partyDiv.style.overflowWrap = "break-word";
+        partyDiv.innerHTML = "<strong>Party:</strong>" + (data && data.party
+            ? " " + data.party : CandidateDatatable.getUnderlinedSpace());
         mainTd.appendChild(nameDiv);
         mainTd.appendChild(document.createElement("br"));
         mainTd.appendChild(incumbentDiv);
         mainTd.appendChild(moreInfoDiv);
         mainTd.appendChild(partyDiv);
-
-        // rowTabletr.appendChild(content);
-        // rowTabletr.appendChild(mainTd);
 
         rowTable.appendChild(content);
         rowTable.appendChild(mainTd);
