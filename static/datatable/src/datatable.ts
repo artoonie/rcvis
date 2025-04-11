@@ -9,6 +9,7 @@ import {
     HistoryModule,
     InteractionModule,
     PopupModule,
+    ResizeColumnsModule,
     ResizeTableModule,
     SortModule,
     Tabulator,
@@ -272,7 +273,7 @@ export default class RcvisDataTable {
     createDataTable(id: string, data: any = null, sidecarOnly = false) {
         Tabulator.registerModule([
             EditModule, FormatModule, HistoryModule, InteractionModule,
-            PopupModule, ResizeTableModule, SortModule, ValidateModule
+            PopupModule, ResizeTableModule, ResizeColumnsModule, SortModule, ValidateModule
         ]);
         return new Tabulator("#" + id, {
             data: data ? data : [

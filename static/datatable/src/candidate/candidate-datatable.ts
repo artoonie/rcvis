@@ -8,6 +8,7 @@ import {
     HistoryModule,
     InteractionModule,
     PopupModule,
+    ResizeColumnsModule,
     ResizeTableModule,
     SortModule,
     Tabulator,
@@ -40,7 +41,7 @@ export default class CandidateDatatable extends DataTable {
     createDataTable(id: string, data: any = null) {
         Tabulator.registerModule([
             EditModule, FormatModule, HistoryModule, InteractionModule,
-            PopupModule, ResizeTableModule, SortModule, ValidateModule
+            PopupModule, ResizeTableModule, ResizeColumnsModule, SortModule, ValidateModule
         ]);
         interface RowData {
             [index: string]: Candidate;
