@@ -1,7 +1,6 @@
 // noinspection JSUnusedLocalSymbols
-import Candidate from "./model/candidate.js";
-import $ from "jquery";
-import {TabulatorFull as Tabulator} from "tabulator-tables";
+import Candidate from "./model/candidate";
+import {CellComponent, ColumnDefinition, EditorParams, TabulatorFull as Tabulator} from "tabulator-tables";
 import {disableDataOptionsAndSubmitButton, enableDataOptionsAndSubmitButton} from "rcvis-settings";
 
 const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
@@ -13,7 +12,12 @@ function requireRevalidation() {
     $("#validateButton").prop("disabled", false);
 }
 
-const errorPopupFormatter = function() {
+interface DataTableData {
+    id: number;
+    candidate: Candidate;
+}
+
+const errorPopupFormatter = function () {
     let container = document.createElement("div"),
         contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
     contents += `<span class="upload-hoverable">${VOTE_ERROR_SIMPLE_MESSAGE}</span>`;
@@ -22,7 +26,7 @@ const errorPopupFormatter = function() {
     return container;
 };
 
-const lessThanZeroError = function() {
+const lessThanZeroError = function () {
     let container = document.createElement("div"),
         contents = "<strong style='font-size:1.2em;'>Error Details</strong><br/>";
     contents += `<span>Must be a positive number</span>`;
@@ -31,13 +35,16 @@ const lessThanZeroError = function() {
 };
 
 export default class RcvisDataTable {
+    _sidecarOnly: boolean;
+    _includeModifiers: boolean;
+    _table: Tabulator;
 
-    constructor(id, data = null, sidecarOnly = false) {
+    constructor(id: string, data: any = null, sidecarOnly = false) {
         this._sidecarOnly = sidecarOnly;
         this._includeModifiers = !sidecarOnly;
         this._table = this.createDataTable(id, data, sidecarOnly);
 
-        this.table.on("dataChanged", function() {
+        this.table.on("dataChanged", function () {
             $("#validateButton").prop("disabled", false);
         });
         if (!data) {
@@ -69,7 +76,7 @@ export default class RcvisDataTable {
         return this._includeModifiers;
     }
 
-    static voteCountCallback(cell, value) {
+    static voteCountCallback(cell: any, value: number) {
         requireRevalidation();
         const cells = cell.getRow().getCells();
         cell.setValue(value);
@@ -132,7 +139,7 @@ export default class RcvisDataTable {
 
     // Checks if this cell is after an Eliminated cell, and if so,
     // it cannot be edited.
-    editCheck(cell) {
+    editCheck(cell: CellComponent) {
         const cells = cell.getRow().getCells();
         const value = cell.getValue();
         if (value !== null) {
@@ -168,7 +175,7 @@ export default class RcvisDataTable {
         return true;
     }
 
-    static updateElectedCell(cell) {
+    static updateElectedCell(cell: CellComponent) {
         const cells = cell.getRow().getCells();
         const value = cell.getValue();
         const oldValue = cell.getOldValue();
@@ -205,7 +212,7 @@ export default class RcvisDataTable {
         }
     }
 
-    static updateEliminatedCell(cell) {
+    static updateEliminatedCell(cell: CellComponent) {
         const cells = cell.getRow().getCells();
         const value = cell.getValue();
         const oldValue = cell.getOldValue();
@@ -231,12 +238,15 @@ export default class RcvisDataTable {
         }
     }
 
-    static updateStatusCell(cell) {
+    static updateStatusCell(cell: CellComponent) {
         RcvisDataTable.updateElectedCell(cell);
         RcvisDataTable.updateEliminatedCell(cell);
     }
 
-    createDataTable(id, data = null, sidecarOnly = false) {
+
+    createDataTable(id: string, data: any = null, sidecarOnly = false) {
+        // @ts-ignore
+        // @ts-ignore
         return new Tabulator("#" + id, {
             data: data ? data : [
                 {id: 1, candidate: new Candidate("Candidate 1")},
@@ -255,7 +265,7 @@ export default class RcvisDataTable {
                     formatter: Candidate.customCandidateFormatter,
                     formatterParams: {sidecarOnly: sidecarOnly},
                     editor: Candidate.customCandidateEditor,
-                    editorParams: {sidecarOnly: sidecarOnly},
+                    editorParams: {"sidecarOnly": sidecarOnly} as EditorParams,
                     sorter: Candidate.customCandidateSorter,
                     variableHeight: true,
                     resizable: true,
@@ -265,7 +275,7 @@ export default class RcvisDataTable {
         });
     }
 
-    static statusFormatter(cell) {
+    static statusFormatter(cell: CellComponent) {
         const elem = document.createElement("span");
         if (cell.getValue()) {
             elem.classList.add(
@@ -280,7 +290,8 @@ export default class RcvisDataTable {
         const lastCol = this.table.getColumn(cols[cols.length - 1]);
         const colNr = this.table.getColumnDefinitions().length;
         const editableFunc = readOnly ? () => false : this.editCheck;
-        const colDef = {
+        // @ts-ignore
+        const colDef: ColumnDefinition = {
             title: `Round ${colNr}`, columns: [
                 {
                     title: `# Votes`,
@@ -296,7 +307,7 @@ export default class RcvisDataTable {
                     field: `status-${colNr}`, hozAlign: "center",
                     editorParams: {
                         selected: 0, values: ["Active", "Eliminated", "Elected"]
-                    },
+                    } as EditorParams,
                     editor: "list",
                     formatter: RcvisDataTable.statusFormatter,
                     validator: [{type: RcvisDataTable.voteCountCallback}],
@@ -307,9 +318,16 @@ export default class RcvisDataTable {
                 }],
         };
         const rows = this.table.getRows();
+
+        interface RowData {
+            id: number;
+
+            [key: string]: any;
+        }
+
         if (!readOnly) {
             for (let i = 1; i <= rows.length; i++) {
-                const obj = {id: i};
+                const obj: RowData = {id: i};
                 obj[`votes-${colNr}`] = 0;
                 obj[`status-${colNr}`] = "Active";
                 rows[i - 1].update(obj);
@@ -322,7 +340,15 @@ export default class RcvisDataTable {
     addRow() {
         const rows = this.table.getRows();
         const rowNr = rows.length + 1;
-        const candidate = {
+
+        interface CandidateRowData {
+            id: number;
+            candidate: Candidate;
+
+            [key: string]: any;
+        }
+
+        const candidate: CandidateRowData = {
             id: rowNr, candidate: new Candidate(`Candidate ${rowNr}`)
         };
 
@@ -333,14 +359,19 @@ export default class RcvisDataTable {
         return this.table.addRow(candidate, false);
     }
 
-    toJson(tableData) {
+    toJson(tableData: any) {
         let data = [];
         let rowNames = [];
+
+        interface VotesStatus {
+            [key: string]: any;
+        }
+
         for (let i = 0; i < tableData.length; i++) {
             rowNames[i] = tableData[i].candidate.candidateName;
             let rounds = [];
             for (let j = 1; j < this.table.getColumnDefinitions().length; j++) {
-                let obj = {};
+                let obj: VotesStatus = {};
                 obj["# Votes"] = tableData[i][`votes-${j}`];
                 obj["Status"] = tableData[i][`status-${j}`];
                 rounds.push(obj);
@@ -352,15 +383,18 @@ export default class RcvisDataTable {
 
     validateDataEntry() {
         // Serialize data, add it to the hidden input
-        document.getElementById('dataEntry').value = JSON.stringify(
-            this.toJson(this.table.getData()));
+        const dataEntry = document.getElementById('dataEntry');
+        if (dataEntry instanceof HTMLInputElement) {
+            dataEntry.value = JSON.stringify(
+                this.toJson(this.table.getData()));
+        }
 
         // Prepare the mock form
         const form = document.getElementsByTagName('form')[0];
         const data = $(form).serializeArray();
 
         // AJAX to check if it would survive all serverside processing
-        $.post('/validateDataEntry', data, function(data) {
+        $.post('/validateDataEntry', data, function (data) {
             const validationMessage = $('#dataEntryValidationMessage');
             validationMessage.text(data.message);
 
@@ -377,7 +411,7 @@ export default class RcvisDataTable {
         });
     }
 
-    initTable(wrapperId, count = 3, readOnly = false) {
+    initTable(wrapperId: string, count = 3, readOnly = false) {
         this.table.on("tableBuilt", () => {
             for (let i = 0; i < count; i++) {
                 this.addRound(readOnly);
@@ -388,13 +422,13 @@ export default class RcvisDataTable {
     initTableModifiers() {
         const tableInstance = this;
         document.getElementById("upload-add-row")
-        .addEventListener("click", function(e) {
+        .addEventListener("click", function (e) {
             e.preventDefault();
             tableInstance.addRow();
         });
 
         document.getElementById("upload-del-row").addEventListener("click",
-            function(e) {
+            function (e) {
                 e.preventDefault();
                 const rows = tableInstance.table.getRows();
                 if (rows.length > 0) {
@@ -403,13 +437,13 @@ export default class RcvisDataTable {
             });
 
         document.getElementById("upload-add-col").addEventListener("click",
-            function(e) {
+            function (e) {
                 e.preventDefault();
                 tableInstance.addRound();
             });
 
         document.getElementById("upload-del-col").addEventListener("click",
-            function(e) {
+            function (e) {
                 e.preventDefault();
                 const columns = tableInstance.table.getColumns();
                 const length = columns.length;

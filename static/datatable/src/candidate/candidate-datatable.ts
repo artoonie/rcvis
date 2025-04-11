@@ -1,5 +1,5 @@
-import DataTable from '../datatable.js';
-import {TabulatorFull as Tabulator} from "tabulator-tables";
+import DataTable from '../datatable';
+import {CellComponent, ColumnDefinition, EditorParams, TabulatorFull as Tabulator} from 'tabulator-tables';
 import Candidate from "../model/candidate";
 
 export default class CandidateDatatable extends DataTable {
@@ -8,13 +8,13 @@ export default class CandidateDatatable extends DataTable {
         console.log("Initializing table");
     }
 
-    static candidateTableEditor(cell, onRendered, success, cancel,
-        editorParams) {
+    static candidateTableEditor(cell: CellComponent, onRendered: Function, success: Function, cancel: Function,
+                                editorParams: any) {
         const editor = document.createElement("div");
         const {element, nameDiv} = CandidateDatatable.getCustomFormatElement(
             cell, editorParams, onRendered);
         editor.appendChild(element);
-        onRendered(function() {
+        onRendered(function () {
             if (cell.getValue()) {
                 Candidate.getMoreInfoButton(editor,
                     cell.getValue(), cell, nameDiv, success, cancel, onRendered,
@@ -24,10 +24,13 @@ export default class CandidateDatatable extends DataTable {
         return editor;
     }
 
-    createDataTable(id, data = null) {
-        let candidateData = [];
+    createDataTable(id: string, data: any = null) {
+        interface RowData {
+            [index: string]: Candidate;
+        }
+        let candidateData: RowData[] = [];
 
-        data.forEach(((c, idx) => {
+        data.forEach(((c: string, idx: number) => {
             const candidate = new Candidate(c);
             const slot = idx % 3;
             candidate.index = idx + 1;
@@ -35,17 +38,15 @@ export default class CandidateDatatable extends DataTable {
                 candidateData.push(
                     {candidate1: candidate, candidate2: null, candidate3: null});
             } else {
-                candidateData[candidateData.length - 1][`candidate${slot
-                + 1}`] = candidate;
+                candidateData[candidateData.length - 1][`candidate${slot + 1}`] = candidate;
             }
         }));
-        const columnDef = {
+        const columnDef: ColumnDefinition = {
             title: "Candidate",
             headerSort: false,
-            resizableColumnFit: true,
             editable: true
         };
-        function getColumnDefinition(field) {
+        function getColumnDefinition(field: string) {
             const clone = structuredClone(columnDef);
             clone.editor = CandidateDatatable.candidateTableEditor;
             clone.formatter = CandidateDatatable.getFormatter;
@@ -64,16 +65,16 @@ export default class CandidateDatatable extends DataTable {
         });
     }
 
-    static getFormatter(c, p, r) {
+    static getFormatter(c: CellComponent, p: EditorParams, r: Function) {
         return CandidateDatatable.getCustomFormatElement(c, p, r).element;
     }
 
-    static getCustomFormatElement(cell, editorParams, onRendered) {
+    static getCustomFormatElement(cell: CellComponent, editorParams: EditorParams, onRendered: Function) {
         let element = document.createElement("div"),
             cellElement = cell.getElement(),
             data = cell.getValue(),
             rowTable;
-        element.style.className = "container";
+        element.classList.add("container");
         element.style.height = "100%";
         //clear current row data
         while (cellElement.firstChild) {
@@ -165,7 +166,6 @@ export default class CandidateDatatable extends DataTable {
             setTimeout(() => {
                 cell.getRow().normalizeHeight();
                 cell.getTable().rowManager.adjustTableSize();
-                element.style.css = "100%";
             }, 100);
         });
 

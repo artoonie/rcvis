@@ -2,9 +2,9 @@
   "name": "rcvis-datatable",
   "version": "1.0.0",
   "exports": {
-    ".": "./src/datatable.js",
-    "./candidate": "./src/model/candidate.js",
-    "./candidate-datatable": "./src/candidate/candidate-datatable.js"
+    ".": "./src/datatable.ts",
+    "./candidate": "./src/model/candidate.ts",
+    "./candidate-datatable": "./src/candidate/candidate-datatable.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\"",

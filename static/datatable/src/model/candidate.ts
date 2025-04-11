@@ -1,14 +1,23 @@
 import MicroModal from 'micromodal';
+import {CellComponent, ColumnComponent, RowComponent} from "tabulator-tables";
 
 export default class Candidate {
-    constructor(candidateName, incumbent = false, photo_url = "",
-        moreinfo_url = "", party = "", index = 0) {
+    _candidateName: string;
+    _incumbent: boolean;
+    _photo_url: string;
+    _moreinfo_url: string;
+    _party: string;
+    _isDefault: boolean;
+    _index: number;
+
+    constructor(candidateName: string, incumbent = false, photo_url = "",
+                moreinfo_url = "", party = "", index = 0) {
         this._candidateName = candidateName;
         this._incumbent = incumbent;
         this._photo_url = photo_url;
         this._moreinfo_url = moreinfo_url;
         this._party = party;
-        const regex = /Candidate [\d]+/;
+        const regex = /Candidate \d+/;
         this._isDefault = candidateName.match(regex) !== null && !incumbent
             && !photo_url && !moreinfo_url && !party;
         this._index = index;
@@ -91,9 +100,9 @@ export default class Candidate {
         );
     }
 
-    static customCandidateSorter(aCandidate, bCandidate, aRow, bRow, column,
-        dir,
-        params) {
+    static customCandidateSorter(aCandidate: Candidate, bCandidate: Candidate, aRow: RowComponent, bRow: RowComponent,
+                                 column: ColumnComponent, dir: string, params: any) {
+
         const a = aCandidate.candidateName;
         const b = bCandidate.candidateName;
         const alignEmptyValues = params.alignEmptyValues;
@@ -108,19 +117,13 @@ export default class Candidate {
         } else {
             //compare valid values
             switch (typeof params.locale) {
-                case "boolean":
-                    if (params.locale) {
-                        locale = this.langLocale();
-                    }
-                    break;
                 case "string":
                     locale = params.locale;
                     break;
             }
 
             return String(a).toLowerCase().localeCompare(
-                String(b).toLowerCase(),
-                locale);
+                String(b).toLowerCase(), locale);
         }
 
         //fix empty values in position
@@ -132,7 +135,7 @@ export default class Candidate {
         return emptyAlign;
     }
 
-    static customCandidateFormatter(cell, formatterParams, onRendered) {
+    static customCandidateFormatter(cell: CellComponent, formatterParams: any, onRendered: Function) {
         const candidate = cell.getData().candidate;
         const editor = document.createElement("div");
         const elem = Candidate.createInputElement(editor, null,
@@ -142,15 +145,15 @@ export default class Candidate {
         if (!cell.isEdited() && match && match.length > 0) {
             elem.classList.add("candidate-name-default");
         }
-        onRendered(function() {
+        onRendered(function () {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
         });
         return editor;
     }
 
-    static customCandidateEditor(cell, onRendered, success, cancel,
-        editorParams) {
+    static customCandidateEditor(cell: CellComponent, onRendered: Function, success: Function, cancel: Function,
+                                 editorParams: any) {
         const candidate = cell.getData().candidate || cell.getData();
         const editor = document.createElement("div");
         editor.id = Candidate.randstr("candidate-editor-");
@@ -170,8 +173,9 @@ export default class Candidate {
         return editor;
     };
 
-    static getMoreInfoButton(editor, candidate, cell, candidateName, success,
-        cancel, onRendered, editorParams, showModalNow) {
+    static getMoreInfoButton(editor: HTMLElement, candidate: Candidate, cell: CellComponent, candidateName: HTMLElement,
+                             success: Function,
+                             cancel: Function, onRendered: Function, editorParams: any, showModalNow = false) {
         const moreInfoButton = document.createElement("button");
         const successFunc = Candidate.createModal(editor,
             candidate, cell, candidateName, success, cancel, onRendered);
@@ -179,11 +183,11 @@ export default class Candidate {
         moreInfoButton.classList.add("btn", "btn-primary");
         moreInfoButton.dataset.candidateName = candidate.candidateName;
         moreInfoButton.textContent = "Manage Candidate";
-        moreInfoButton.onclick = function(e) {
+        moreInfoButton.onclick = function (e) {
             e.preventDefault();
             MicroModal.show('datatable-modal', {
                 onShow: (modal) => {
-                    modal.addEventListener("keypress", (e) => {
+                    modal.addEventListener("keypress", (e: KeyboardEvent) => {
                         if (e.key === 'Enter') {
                             MicroModal.close('datatable-modal');
                         }
@@ -197,7 +201,7 @@ export default class Candidate {
 
         // editor.appendChild(document.createElement("br"));
         candidateName.tabIndex = -1;
-        if (editorParams.sidecarOnly) {
+        if (editorParams.sidecarOnly && candidateName instanceof HTMLInputElement) {
             candidateName.readOnly = true;
         }
 
@@ -208,7 +212,7 @@ export default class Candidate {
         if (showModalNow) {
             MicroModal.show('datatable-modal', {
                 onShow: (modal) => {
-                    modal.addEventListener("keypress", (e) => {
+                    modal.addEventListener("keypress", (e: KeyboardEvent) => {
                         if (e.key === 'Enter') {
                             MicroModal.close('datatable-modal');
                         }
@@ -222,8 +226,9 @@ export default class Candidate {
         return moreInfoButton;
     }
 
-    static createModal(editor, candidate, cell, candidateName, success, cancel,
-        onRendered) {
+    static createModal(editor: HTMLElement, candidate: Candidate, cell: CellComponent, candidateName: HTMLElement,
+                       success: Function, cancel: Function,
+                       onRendered: Function) {
         const modalWrapper = document.getElementById("datatable-modal-content");
         for (let i = 0; i < modalWrapper.children.length; i++) {
             modalWrapper.children[i].remove();
@@ -244,18 +249,16 @@ export default class Candidate {
         const successFunc = Candidate.attachModalElements(candidateInfo,
             candidateTitle, candidate,
             cell, candidateName, success, cancel);
-        const handleClickOutside = (e) => {
-            if (!editor.contains(e.target) &&
+        const handleClickOutside = (e: MouseEvent) => {
+            if (!editor.contains(e.target as Node) &&
                 !document.getElementById("datatable-modal").contains(
-                    e.target)) {
+                    e.target as Node)) {
                 successFunc();
             }
         };
-        onRendered(function() {
+        onRendered(function () {
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
-            editor.style.css = "100%";
-            // editor.focus()
             MicroModal.init();
         });
         editor.onfocus = () => {
@@ -264,53 +267,52 @@ export default class Candidate {
         return successFunc;
     }
 
-    static createInputElement(editor, labelText, value, readOnly = false,
-        placeholder = false) {
+    static createInputElement(editor: HTMLElement, labelText: string, value: any, readOnly = false,
+                              placeholder = false) {
         const elem = readOnly ?
             document.createElement("span")
             : document.createElement("input");
         elem.id = Candidate.randstr("candidate-input-");
         elem.classList.add("candidate-input");
-        elem.type = "text";
         return Candidate.createElement(editor, elem, labelText, value,
             placeholder);
     }
 
-    static createElement(editor, elem, labelText, value, placeholder = false) {
+    static createElement(editor: HTMLElement, elem: HTMLElement, labelText: string, value: any, placeholder = false) {
         const span = document.createElement("span");
         span.className = "candidate-input-wrapper";
         if (labelText) {
-            const label = document.createElement("LABEL");
+            const label: HTMLLabelElement = <HTMLLabelElement>document.createElement("LABEL");
             label.className = "upload-candidate-label";
             label.htmlFor = elem.id;
             label.textContent = labelText;
             label.style.marginRight = "5px";
-            if (elem.type !== "checkbox") {
-                // label.appendChild(document.createElement("br"))
-            }
             span.appendChild(label);
         }
         span.appendChild(elem);
-        if (!placeholder) {
-            if (value) {
-                elem.value = value;
-                elem.textContent = value;
+        if (elem instanceof HTMLInputElement) {
+            if (!placeholder) {
+                if (value) {
+                    elem.value = value;
+                    elem.textContent = value;
+                }
+            } else {
+                elem.placeholder = value;
             }
-        } else {
-            elem.placeholder = value;
-        }
-        if (elem.type === "checkbox") {
-            elem.classList.add("form-check-input");
-            elem.checked = value;
-        } else {
-            elem.classList.add("form-control");
+            if (elem.type === "checkbox" && elem instanceof HTMLSelectElement) {
+                elem.classList.add("form-check-input");
+                elem.checked = value;
+            } else {
+                elem.classList.add("form-control");
+            }
         }
         editor.appendChild(span);
         return elem;
     }
 
-    static attachModalElements(candidateInfo, candidateTitle, candidate, cell,
-        candidateName, success, cancel) {
+    static attachModalElements(candidateInfo: HTMLElement, candidateTitle:
+                               HTMLElement, candidate: Candidate, cell: CellComponent,
+                               candidateName: HTMLElement, success: Function, cancel: Function) {
         const continueButton = document.getElementById(
             "datatable-modal-submit");
         const elem = document.createElement("input");
@@ -332,23 +334,21 @@ export default class Candidate {
             const originalCandidate = cell.getData().candidate
                 || cell.getValue();
             const candidateClone = Candidate.fromJSON(originalCandidate);
-            candidateClone.candidateName = (candidateName.value
+            candidateClone.candidateName = ((candidateName instanceof HTMLInputElement && candidateName.value)
                     || candidateName.textContent.trim())
                 || originalCandidate.candidateName;
-            candidateClone.incumbent = (!incumbent || incumbent.checked
-                === undefined)
-                ? originalCandidate.incumbent : incumbent.checked;
-            candidateClone.photo_url = photoUrl.value
+            candidateClone.incumbent = ((incumbent instanceof HTMLInputElement)
+                && incumbent.checked) || originalCandidate.incumbent;
+            candidateClone.photo_url = (photoUrl instanceof HTMLInputElement && photoUrl.value)
                 || originalCandidate.photo_url;
-            candidateClone.moreinfo_url = moreInfoUrl.value
+            candidateClone.moreinfo_url = (moreInfoUrl instanceof HTMLInputElement && moreInfoUrl.value)
                 || candidate.moreinfo_url;
-            candidateClone.party = party.value || originalCandidate.party;
-            const candidateInfoElem = document.getElementById(candidateInfo.id);
+            candidateClone.party = (party instanceof HTMLInputElement && party.value) || originalCandidate.party;
+            const candidateInfoElem =  candidateInfo.id ? document.getElementById(candidateInfo.id) : null;
             if (candidateInfoElem) {
                 candidateInfoElem.remove();
             }
-            const candidateTitleElem = document.getElementById(
-                candidateTitle.id);
+            const candidateTitleElem = candidateTitle.id ? document.getElementById(candidateTitle.id) : null;
             if (candidateTitleElem) {
                 candidateTitleElem.remove();
             }
@@ -359,12 +359,17 @@ export default class Candidate {
             if (cell.getData().candidate) {
                 cell.getRow().update(candidateClone);
             } else {
-                const obj = {};
+                interface NameToCandidate {
+                    [key: string]: Candidate;
+                }
+
+                const obj: NameToCandidate = {}
                 obj[cell.getField()] = candidateClone;
                 cell.getRow().update(obj);
             }
             success(candidateClone);
         }
+
         continueButton.onclick = () => {
             const modalWrapper = document.getElementById(
                 "datatable-modal-content");
@@ -380,11 +385,11 @@ export default class Candidate {
         return successFunc;
     }
 
-    static randstr(prefix) {
+    static randstr(prefix: string) {
         return Math.random().toString(36).replace('0.', prefix || '');
     }
 
-    static fromJSON(json) {
+    static fromJSON(json: any) {
         return new Candidate(json.candidateName,
             json.incumbent, json.photo_url, json.moreinfo_url, json.party, json.index);
     }
