@@ -2,7 +2,7 @@ import MicroModal from 'micromodal';
 
 export default class Candidate {
     constructor(candidateName, incumbent = false, photo_url = "",
-        moreinfo_url = "", party = "") {
+        moreinfo_url = "", party = "", index = 0) {
         this._candidateName = candidateName;
         this._incumbent = incumbent;
         this._photo_url = photo_url;
@@ -11,6 +11,7 @@ export default class Candidate {
         const regex = /Candidate [\d]+/;
         this._isDefault = candidateName.match(regex) !== null && !incumbent
             && !photo_url && !moreinfo_url && !party;
+        this._index = index;
     }
 
     get candidateName() {
@@ -70,6 +71,14 @@ export default class Candidate {
 
     get default() {
         return this._isDefault;
+    }
+
+    get index() {
+        return this._index;
+    }
+
+    set index(value) {
+        this._index = value;
     }
 
     clone() {
@@ -271,6 +280,7 @@ export default class Candidate {
         }
         if (elem.type === "checkbox") {
             elem.classList.add("form-check-input");
+            elem.checked = value;
         } else {
             elem.classList.add("form-control");
         }
@@ -298,12 +308,11 @@ export default class Candidate {
 
         //when the value has been set, trigger the cell to update
         function successFunc() {
-            console.log("success");
             const originalCandidate = cell.getData().candidate
                 || cell.getValue();
-            const candidateClone = structuredClone(originalCandidate);
+            const candidateClone = Candidate.fromJSON(originalCandidate);
             candidateClone.candidateName = (candidateName.value
-                    || candidateName.textContent)
+                    || candidateName.textContent.trim())
                 || originalCandidate.candidateName;
             candidateClone.incumbent = (!incumbent || incumbent.checked
                 === undefined)
@@ -326,7 +335,13 @@ export default class Candidate {
                 cancel();
                 return;
             }
-            cell.getRow().update(candidateClone);
+            if (cell.getData().candidate) {
+                cell.getRow().update(candidateClone);
+            } else {
+                const obj = {};
+                obj[cell.getField()] = candidateClone;
+                cell.getRow().update(obj);
+            }
             success(candidateClone);
         }
         continueButton.onclick = () => {
@@ -346,6 +361,11 @@ export default class Candidate {
 
     static randstr(prefix) {
         return Math.random().toString(36).replace('0.', prefix || '');
+    }
+
+    static fromJSON(json) {
+        return new Candidate(json.candidateName,
+            json.incumbent, json.photo_url, json.moreinfo_url, json.party, json.index);
     }
 
 }

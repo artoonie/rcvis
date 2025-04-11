@@ -8,15 +8,18 @@ export default class CandidateDatatable extends DataTable {
         console.log("Initializing table");
     }
 
-    static candidateTableEditor(cell, onRendered, success, cancel, editorParams) {
+    static candidateTableEditor(cell, onRendered, success, cancel,
+        editorParams) {
         const editor = document.createElement("div");
         const {element, nameDiv} = CandidateDatatable.getCustomFormatElement(
             cell, editorParams, onRendered);
         editor.appendChild(element);
         onRendered(function() {
-            Candidate.getMoreInfoButton(editor,
-                cell.getValue(), cell, nameDiv, success, cancel, onRendered,
-                editorParams, true);
+            if (cell.getValue()) {
+                Candidate.getMoreInfoButton(editor,
+                    cell.getValue(), cell, nameDiv, success, cancel, onRendered,
+                    editorParams, true);
+            }
         });
         return editor;
     }
@@ -72,7 +75,6 @@ export default class CandidateDatatable extends DataTable {
             rowTable;
         element.style.className = "container";
         element.style.height = "100%";
-        // element.classList.add("container");
         //clear current row data
         while (cellElement.firstChild) {
             cellElement.removeChild(cellElement.firstChild);
@@ -81,14 +83,14 @@ export default class CandidateDatatable extends DataTable {
         rowTable = document.createElement("div");
         rowTable.classList.add("row");
         rowTable.style.height = "inherit";
-        // const rowTabletr = document.createElement("div");
-        // rowTabletr.classList.add("col-sm");
 
         const content = document.createElement("div");
         content.classList.add("col-sm");
         const img = document.createElement("img");
         img.classList.add("candidate-img-thumbnail");
-        content.style.marginRight = "10px";
+        content.style.marginLeft = "15px";
+        content.style.alignContent = "center";
+        content.style.textAlign = "center";
         //add image on left of row
         if (data && data.photo_url) {
             img.src = data.photo_url;
@@ -104,13 +106,14 @@ export default class CandidateDatatable extends DataTable {
         //add row data on right hand side
         const mainTd = document.createElement("div");
         mainTd.classList.add("col-sm");
-        // mainTd.style.maxWidth = "50%";
         const nameDiv = document.createElement("div");
         nameDiv.innerHTML = `<strong style="white-space: normal; 
-          overflow-wrap: break-word  color: cadetblue">
+          overflow-wrap: break-word; color: cadetblue">
           ${(data && data.candidateName) ? data.candidateName : ""}</strong>`;
+        nameDiv.classList.add("row");
 
         const incumbentDiv = document.createElement("div");
+        incumbentDiv.classList.add("row");
         const incumbentSpan = document.createElement("span");
         const strong = document.createElement("strong");
         strong.textContent = "Incumbent: ";
@@ -122,18 +125,23 @@ export default class CandidateDatatable extends DataTable {
         incumbentDiv.appendChild(incumbentSpan);
 
         const moreInfoDiv = document.createElement("div");
+        moreInfoDiv.classList.add("row");
         if (data) {
             const badgeLink = document.createElement("a")
-            badgeLink.onclick = e => { e.stopPropagation(); }
+            badgeLink.onclick = e => {
+                e.stopPropagation();
+            }
             badgeLink.href = data.moreinfo_url;
-            badgeLink.classList.add('badge', `${data.moreinfo_url ? 'badge-primary' : 'link-disabled'}`);
+            badgeLink.classList.add('badge',
+                `${data.moreinfo_url ? 'badge-primary' : 'link-disabled'}`);
             badgeLink.innerText = "More Info";
             const strongContainer = document.createElement("strong");
             strongContainer.appendChild(badgeLink);
             moreInfoDiv.appendChild(strongContainer);
         }
         const partyDiv = document.createElement("div");
-        partyDiv.style.whiteSpace= "normal";
+        partyDiv.classList.add("row");
+        partyDiv.style.whiteSpace = "normal";
         partyDiv.style.overflowWrap = "break-word";
         partyDiv.innerHTML = "<strong>Party:</strong>" + (data && data.party
             ? " " + data.party : CandidateDatatable.getUnderlinedSpace());
@@ -154,8 +162,11 @@ export default class CandidateDatatable extends DataTable {
         element.append(rowTable);
 
         onRendered(function() {
-            cell.getRow().normalizeHeight();
-            cell.getTable().rowManager.adjustTableSize();
+            setTimeout( () => {
+                cell.getRow().normalizeHeight();
+                cell.getTable().rowManager.adjustTableSize();
+                element.style.css = "100%";
+            }, 100)
         });
 
         return {element, nameDiv};

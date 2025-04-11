@@ -154,6 +154,9 @@ function standardizeFormatAjax(formData) {
                             }, 100);
                         }, {once: true});
                     }
+                    setTimeout(() => {
+                        c.getRow().reformat();
+                    }, 150)
                 });
                 uploadDataTable.table.on("dataProcessed", function() {
                     uploadDataTable.table.validate();
@@ -161,6 +164,7 @@ function standardizeFormatAjax(formData) {
                     hideManualOptionsShowTable();
                 });
                 uploadDataTable.table.on("tableBuilt", function() {
+                    uploadDataTable.table.rowManager.adjustTableSize();
                     uploadDataTable.table.redraw(true);
                 });
             }
