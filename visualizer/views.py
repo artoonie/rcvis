@@ -418,6 +418,12 @@ class ConvertToUTFormat(ValidateDataEntry):
 
     def post(self, request):
         """ Converts to Universal Tabulator Format """
+        secsToWait = self._check_rate_limit()
+        if secsToWait > 0:
+            secsToWait = int(secsToWait) + 1
+            message = f"Please wait {secsToWait} seconds before trying again"
+            return JsonResponse({'message': message, 'success': False})
+
         jsonData = request.POST['jsonFile']
         try:
             with tempfile.TemporaryFile(mode='w+b') as tf:

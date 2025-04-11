@@ -22,11 +22,13 @@ class DataTablesTests(TestCase):
 
     def _upload_file_to_convert(self, filename):
         with open(filename, encoding='utf-8') as f:
-            return self.client.post('/convertToUTFormat', {'dataEntry': {},
-                                                           'configElectionTitle': '',
-                                                           'configElectionDate': '',
-                                                           'configThreshold': '',
-                                                           'jsonFile': f.read()})
+            with self.settings(RATE_LIMIT_AJAX=False):
+                return self.client.post(
+                    '/convertToUTFormat', {'dataEntry': {},
+                                           'configElectionTitle': '',
+                                           'configElectionDate': '',
+                                           'configThreshold': '',
+                                           'jsonFile': f.read()})
 
     @classmethod
     def _get_simplified_post_data(cls):
