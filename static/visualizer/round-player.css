@@ -10,14 +10,11 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
+  margin-bottom: 16px;
 }
 
 .round-steps-wrapper {
   flex-wrap: wrap;
-}
-
-.round-player-wrapper {
-  margin-bottom: 16px;
 }
 
 .round-player-step-btn {
@@ -59,7 +56,7 @@
   color: #1922da;
   font-size: 16px;
   padding: 4px 8px;
-  min-width: 160px;
+  min-width: 200px;
 }
 
 .range-player-nav.range-player-prev,
