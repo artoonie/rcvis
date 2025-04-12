@@ -29,6 +29,11 @@ function RoundPlayer({
     if (isNext || totalRounds < MIN_ROUNDS_FOR_NAV) {
       navBtn.classList.add("range-player-hidden");
     }
+
+    const labelEl = document.createElement("span");
+    labelEl.innerText = `${isNext ? "Next" : "Previous"} Round`;
+    navBtn.appendChild(labelEl);
+
     const navSvg = document.createElementNS(svgNS, "svg");
     navSvg.setAttribute("viewBox", ARROW_SVG_VIEWBOX);
     navSvg.setAttribute("aria-hidden", "true");
@@ -86,11 +91,11 @@ function RoundPlayer({
     for (let round = 0; round < totalRounds; ++round) {
       stepsWrapperEl.appendChild(createStepButton(round));
     }
-    wrapperEl.appendChild(stepsWrapperEl);
+    wrapperEl.appendChild(createPlayButton());
 
     wrapperEl.appendChild(createNavButton(true));
+    playerEl.appendChild(stepsWrapperEl);
     playerEl.appendChild(wrapperEl);
-    playerEl.appendChild(createPlayButton());
 
     container.appendChild(playerEl);
   }
