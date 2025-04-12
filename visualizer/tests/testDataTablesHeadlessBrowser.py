@@ -13,27 +13,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from visualizer.tests import liveServerTestBaseClass
 
 
-class element_is_enabled(object):
-    """An expectation for checking that an element is enabled.
-
-    locator - used to find the element
-    returns the WebElement once it is disabled.
-    """
-
-    def __init__(self, locator, reverse=False):
-        self.locator = locator
-        self.reverse = reverse
-
-    def __call__(self, driver):
-        enabled = driver.find_element(*self.locator).is_enabled()
-        if self.reverse:
-            return not enabled
-        else:
-            return enabled
-
-
 class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests for the DataTables library """
+
     class Button(Enum):
         """ Enumerator for the four buttons on DataTables """
         ADD_CANDIDATE = 0
@@ -90,13 +72,17 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._fill_in_config()
         self._make_table_of_size(1, 1)
         nameScript = """
-        const val = upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].getValue();
+        const val = upload.getUploadByDataTableTable()
+                    .table.getRow(1)._row.getCells()[0].getValue();
         val.candidateName = "Name";
-        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].setValue(val);
+        upload.getUploadByDataTableTable()
+               .table.getRow(1)._row.getCells()[0].setValue(val);
         """
-        votesScript = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue('
+        votesScript = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
+        """
         self.browser.execute_script(nameScript)
-        self.browser.execute_script(votesScript + '2)')
+        self.browser.execute_script(votesScript)
 
     def test_one_round_one_candidate(self):
         """
@@ -118,7 +104,6 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_validation_controls_submit_button(self):
         """ Test that the submit button is only enabled after validation """
-        cellId = 'dataTableWrapper_row_1_and_col_1_and_field_0_'
         with self.settings(RATE_LIMIT_AJAX=False):
             self._init_data_tables()
 
@@ -131,7 +116,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Any change disables the button
-            votesScript = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue('
+            votesScript = """
+            return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(
+            """
             self.browser.execute_script(votesScript + '10)')
             self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
@@ -151,9 +138,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         Tests the JS-based error message: vote counts shouldn't decrease
         """
         self._init_data_tables()
-        setVotes1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)'
-        setVotes2 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)'
-        setVotes2Update = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(10)'
+        setVotes1 = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
+        """
+        setVotes2 = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
+        """
+        setVotes2Update = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(10)
+        """
         errCellClass = 'tabulator-alert-msg'
 
         # Create a 1x2 table with decreasing votes
@@ -179,9 +172,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
 
-        dropdown1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")'
-        setVotes1 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)'
-        setVotes2 = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)'
+        dropdown1 = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")
+        """
+        setVotes1 = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
+        """
+        setVotes2 = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
+        """
         errCellClass = 'tabulator-alert-msg'
 
         # Create a 1x2 table with decreasing votes
@@ -208,7 +207,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._make_table_of_size(3, 1)
         self.browser.get_screenshot_as_file('screenshot.png')
 
-        script = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue('
+        script = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue(
+        """
 
         # 1 = eliminated
         # 2 = elected
@@ -217,12 +218,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             if i == 1:
                 val = 'Eliminated'
             self.browser.execute_script(script + '"' + val + '")')
-            dropdownId1Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[2].getValue()')
-            dropdownId2Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[4].getValue()')
-            dropdownId3Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[6].getValue()')
+            dropdownId1Value = self.browser.execute_script("""
+            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[2].getValue()
+            """)
+            dropdownId2Value = self.browser.execute_script("""
+            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[4].getValue()
+            """)
+            dropdownId3Value = self.browser.execute_script("""
+                return upload.getUploadByDataTableTable().table.getRow(1).getCells()[6].getValue()
+                """)
             self.assertEqual(dropdownId1Value, val)
             self.assertIsNone(dropdownId2Value)
             self.assertIsNone(dropdownId3Value)
@@ -234,7 +238,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
         self._make_table_of_size(3, 1)
-        script = 'return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue('
+        script = """
+        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue(
+        """
 
         # 1 = eliminated
         # 2 = elected
@@ -243,12 +249,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             if i == 1:
                 val = 'Eliminated'
             self.browser.execute_script(script + '"' + val + '")')
-            votesId1Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[1].getValue()')
-            votesId2Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[3].getValue()')
-            votesId3Value = self.browser.execute_script(
-                'return upload.getUploadByDataTableTable().table.getRow(1).getCells()[5].getValue()')
+            votesId1Value = self.browser.execute_script("""
+            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[1].getValue()
+            """)
+            votesId2Value = self.browser.execute_script("""
+            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[3].getValue()
+            """)
+            votesId3Value = self.browser.execute_script("""
+            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[5].getValue()
+            """)
             self.assertEqual(0, votesId1Value)
             if i == 1:
                 self.assertIsNone(votesId2Value)

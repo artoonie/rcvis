@@ -12,10 +12,10 @@ import os
 import platform
 
 from django.urls import reverse
+from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import WebDriverException
 
 from common.testUtils import TestHelpers
 from visualizer.tests import filenames

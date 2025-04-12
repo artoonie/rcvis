@@ -150,7 +150,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         # This happens on the chromedriver used on 2025-04-11
         log = [
-            l for l in log if "tabulator_esm.mjs? 3002:28 Uncaught TypeError: Cannot set properties of undefined (setting 'width')" not in l['message']]
+            l for l in log if
+            "tabulator_esm.mjs? 3002:28 Uncaught TypeError:"
+            + "Cannot set properties of undefined (setting 'width')" not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)
@@ -278,8 +280,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         # Note - need an action chain because the first tick isn't actually receiving the click,
         # the slider itself handles it, and selenium throws ElementClickInterceptedException
-        ActionChains(self.browser).move_to_element(tick)\
-            .click(tick)\
+        ActionChains(self.browser).move_to_element(tick) \
+            .click(tick) \
             .perform()
 
     def _set_input_to(self, inputId, value):
