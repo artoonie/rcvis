@@ -41,6 +41,15 @@ class RCTabFormatDataTablesTests(TestCase):
         response = self._upload_file_to_convert(filenames.INVALID_JSON)
         self.assertEqual(response.json()['message'], "Error #40: Unknown error")
 
+    def test_output_rctab_conversion_bad_input(self):
+        """ Ensures the output of a generic json is standardized """
+        TestHelpers.login(self.client)
+        with open(filenames.ONE_ROUND, encoding='utf-8') as f:
+            with self.settings(RATE_LIMIT_AJAX=False):
+                response = self.client.post(
+                    '/convertToRCTabFormat', {'jsonFie': f.read()})
+                self.assertEqual(response.json()['message'], "Error #20: Unknown error")
+
     def test_rate_limit_convert_to_rctab(self):
         """
         Data validation is CPU-intensive. Rate limit to once per 5 seconds.

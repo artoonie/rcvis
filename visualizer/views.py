@@ -424,10 +424,9 @@ class ConvertToRCTabFormat(ValidateDataEntry):
             message = f"Please wait {secsToWait} seconds before trying again"
             return JsonResponse({'message': message, 'success': False})
 
-        jsonData = request.POST['jsonFile']
         try:
+            jsonData = request.POST['jsonFile']
             with tempfile.TemporaryFile(mode='w+b') as tf:
-                # json.dump(jsonData.encode(), tf)
                 tf.write(jsonData.encode())
                 tf.seek(0)
                 try:
