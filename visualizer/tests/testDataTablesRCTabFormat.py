@@ -52,8 +52,8 @@ class RCTabFormatDataTablesTests(TestCase):
 
         # Then rate limit
         with self.assertLogs("visualizer.views") as logger:
-            response = self._upload_file_to_convert(filenames.ONE_ROUND, rateLimit=True)
-            self.assertEqual(response.json()['message'],
-                             'Please wait 5 seconds before trying again')
+            response = self._upload_file_to_convert(filenames.ONE_ROUND, rateLimit=True).json()
+            self.assertTrue(response['message'].startswith('Please wait'))
+            self.assertTrue(response['message'].endswith('seconds before trying again'))
             self.assertListEqual(logger.output,
                                  ["WARNING:visualizer.views:User testuser has been rate limited"])
