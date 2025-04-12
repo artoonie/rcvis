@@ -20,6 +20,7 @@ class DataTablesTests(TestCase):
     def setUp(self):
         TestHelpers.setup_host_mocks(self)
 
+    @classmethod
     def _upload_file_to_convert(self, filename, rateLimit=False):
         with open(filename, encoding='utf-8') as f:
             with self.settings(RATE_LIMIT_AJAX=rateLimit):
@@ -61,6 +62,7 @@ class DataTablesTests(TestCase):
             print(f"{toTest} does not start with {startsWith}")
             assert False
 
+    @classmethod
     def _ajax_starts_with(self, data, message):
         """ What's the AJAX response for the given data? """
         with self.settings(RATE_LIMIT_AJAX=False):
