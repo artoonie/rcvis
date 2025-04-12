@@ -619,15 +619,22 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """Test that no candidate names are bolded until the end of the round and that winners are bolded correctly in subsequent rounds."""
         # Upload file
         self._upload(filenames.MULTIWINNER)
-        self._execute_transition_data_labels() 
-        # Round 1: Winners are not bolded on round 1
-        self.assertFalse(self._check_boldness_in_round(0),
-                        "Candidate names should not be bold in round 1.")
-        self._debug_screenshot()
+        self._execute_transition_data_labels()
+        total_rounds = len(self.browser.find_elements(By.ID, 'g.candidateNamesWrapper'))
+        WebDriverWait(self.browser, 2).until(
+                EC.presence_of_all_elements_located((By.CLASS_NAME, '.tick')))
+        
+        for rounds in range(total_rounds):
+             # Round 1: Winners are not bolded on round 1
+            winner_FontWeight = self.find_element(By.CSS_SELECTOR, 'font-weight').value_of_css_property()
+            self.assertEqual(self._check_boldness_in_round(0), "how to check for font weight")
+            self._debug_screenshot()
+       
+        
 
         # Round 2: Move to round 2 and check boldness
         self._go_to_round_by_clicking(1)  # Click to go to round 2
-        self._execute_transition_data_labels()  # Execute the JS function
+        self._execute_transition_data_labels()   # Execute the JS function
         self._debug_screenshot()
         self.assertTrue(self._check_boldness_in_round(1),
                     "Winner's name should still be bold in round 2.")
@@ -648,9 +655,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.assertTrue(self._check_boldness_in_round(0),
                             "Winner's name should be bold even after uploading a sidecar file.")
 
-    def _check_boldness_in_round(self, round_number):
+    def _check_boldness_in_round(self, rounds):
         """Helper method to check if the winner's name is bold in the specified round."""
-        self._go_to_round_by_clicking(round_number)
+        self._go_to_round_by_clicking(rounds)
         tspan_elements = self.browser.find_elements(By.CSS_SELECTOR, "#candidateNamesWrapper tspan")
         self._debug_screenshot()
 
@@ -669,7 +676,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def _execute_transition_data_labels(self):
         """Helper method to execute the JavaScript function that updates boldness based on the current round. """
-        self.browser.execute_script('return typeof transitionDataLabelsForRound;')  # Execute JS function
+        self.browser.execute_script('return transitionDataLabelsForRound;')  # Execute JS function
 
     def _is_sidecar_enabled(self):
         """Helper method to check if sidecar functionality is enabled."""
