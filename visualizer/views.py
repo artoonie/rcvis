@@ -413,7 +413,7 @@ class ValidateDataEntry(LoginRequiredMixin, View):
             return JsonResponse({'message': "Data is valid!", 'success': True})
 
 
-class ConvertToUTFormat(ValidateDataEntry):
+class ConvertToRCTabFormat(ValidateDataEntry):
     """ Converts to Universal Tabulator Format """
 
     def post(self, request):
@@ -433,16 +433,9 @@ class ConvertToUTFormat(ValidateDataEntry):
                 try:
                     resp = AutomaticConverter().convert_to_ut(tf)
                     return JsonResponse(resp)
-                except BadJSONError as exc:
-                    logger.warning(exc)
-                    return self._make_failure(30,
-                                              'Could not generate a visualization: ' + str(
-                                                  exc))
                 except BaseException as exc:  # pylint: disable=broad-except
                     logger.warning(exc)
                     return self._make_failure(40, 'Unknown error')
-        except readDataTablesResult.InvalidDataTableInput as exc:
-            return self._make_failure(10, 'Data is not valid: ' + str(exc))
         except BaseException as exc:  # pylint: disable=broad-except
             logger.warning(exc)
             return self._make_failure(20, 'Unknown error')

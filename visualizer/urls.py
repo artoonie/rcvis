@@ -36,8 +36,8 @@ urlpatterns = [
 
     # Upload Validation API / AJAX
     path('validateDataEntry', views.ValidateDataEntry.as_view(), name='validateDataEntry'),
-    path('convertToUTFormat', views.ConvertToUTFormat.as_view(),
-         name='convertToUTFormat'),
+    path('convertToRCTabFormat', views.ConvertToRCTabFormat.as_view(),
+         name='convertToRCTabFormat'),
 
     # REST API
     path('api/', include(router.urls)),

@@ -127,7 +127,7 @@ function uploadByDataTableInit() {
 }
 
 function standardizeFormatAjax(formData: FormData) {
-    fetch('/convertToUTFormat', {
+    fetch('/convertToRCTabFormat', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
