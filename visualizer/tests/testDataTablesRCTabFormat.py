@@ -8,7 +8,7 @@ from common.testUtils import TestHelpers
 from visualizer.tests import filenames
 
 
-class DataTablesTests(TestCase):
+class RCTabFormatDataTablesTests(TestCase):
     """ Tests for the DataTables library """
 
     def setUp(self):
