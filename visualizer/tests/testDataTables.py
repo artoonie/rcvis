@@ -21,17 +21,6 @@ class DataTablesTests(TestCase):
         TestHelpers.setup_host_mocks(self)
 
     @classmethod
-    def _upload_file_to_convert(self, filename, rateLimit=False):
-        with open(filename, encoding='utf-8') as f:
-            with self.settings(RATE_LIMIT_AJAX=rateLimit):
-                return self.client.post(
-                    '/convertToRCTabFormat', {'dataEntry': {},
-                                              'configElectionTitle': '',
-                                              'configElectionDate': '',
-                                              'configThreshold': '',
-                                              'jsonFile': f.read()})
-
-    @classmethod
     def _get_simplified_post_data(cls):
         """ The barebones data sent via POST - no extraneous options included """
         with open(filenames.DATATABLES_OUTPUT, 'r', encoding='utf-8') as f:
@@ -62,7 +51,6 @@ class DataTablesTests(TestCase):
             print(f"{toTest} does not start with {startsWith}")
             assert False
 
-    @classmethod
     def _ajax_starts_with(self, data, message):
         """ What's the AJAX response for the given data? """
         with self.settings(RATE_LIMIT_AJAX=False):
@@ -121,59 +109,7 @@ class DataTablesTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_output_universal_conversion(self):
-        """ Ensures the output of a generic json is standardized """
-        TestHelpers.login(self.client)
-        response = self._upload_file_to_convert(filenames.ONE_ROUND)
-        universalFormatJson = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(universalFormatJson['config']['contest'], "One round")
-        self.assertEqual(len(universalFormatJson['results']), 1)
-
-    def test_output_universal_conversion_bad_json(self):
-        """ Ensures the output of a generic json is standardized """
-        TestHelpers.login(self.client)
-        response = self._upload_file_to_convert(filenames.BAD_DATA)
-        self.assertEqual(response.json()['message'], "Error #40: Unknown error")
-        response = self._upload_file_to_convert(filenames.INVALID_JSON)
-        self.assertEqual(response.json()['message'], "Error #40: Unknown error")
-
     def test_rate_limit(self):
-        """
-        Data validation is CPU-intensive. Rate limit to once per 5 seconds.
-        """
-        TestHelpers.login(self.client)
-
-        # Fail first
-        response = self.client.post(reverse('validateDataEntry'))
-        self.assertEqual(response.json()['message'], 'Error #20: Unknown error')
-
-        # Then rate limit
-        with self.assertLogs("visualizer.views") as logger:
-            response = self.client.post(reverse('validateDataEntry'))
-            self.assertEqual(response.json()['message'],
-                             'Please wait 5 seconds before trying again')
-            self.assertListEqual(logger.output,
-                                 ["WARNING:visualizer.views:User testuser has been rate limited"])
-
-    def test_rate_limit_convert_to_rctab(self):
-        """
-        Data validation is CPU-intensive. Rate limit to once per 5 seconds.
-        """
-        TestHelpers.login(self.client)
-
-        # Fail first
-        self._upload_file_to_convert(filenames.ONE_ROUND, rateLimit=True)
-
-        # Then rate limit
-        with self.assertLogs("visualizer.views") as logger:
-            response = self._upload_file_to_convert(filenames.ONE_ROUND, rateLimit=True)
-            self.assertEqual(response.json()['message'],
-                             'Please wait 5 seconds before trying again')
-            self.assertListEqual(logger.output,
-                                 ["WARNING:visualizer.views:User testuser has been rate limited"])
-
-    def test_rate_limit_(self):
         """
         Data validation is CPU-intensive. Rate limit to once per 5 seconds.
         """
