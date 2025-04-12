@@ -151,8 +151,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on the chromedriver used on 2025-04-11
         log = [
             l for l in log if
-            "tabulator_esm.mjs? 3002:28 Uncaught TypeError:"
-            + "Cannot set properties of undefined (setting 'width')" not in l['message']]
+            " Uncaught TypeError: Cannot set properties of undefined (setting 'width')"
+            not in l['message']]
 
         if len(log) != num:
             print("Log information: ", log)

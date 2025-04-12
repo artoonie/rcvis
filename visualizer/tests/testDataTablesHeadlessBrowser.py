@@ -163,8 +163,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # And make the error message clear
         self.browser.execute_script(setVotes2Update)
-        self.assertTrue(
-            len(self.browser.find_elements(By.CLASS_NAME, errCellClass)) == 0)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, errCellClass)), 0)
 
     def test_vote_counts_can_decrease_for_surplus(self):
         """
@@ -194,8 +193,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.execute_script(dropdown1)
 
         # Which makes this valid
-        self.assertTrue(
-            len(self.browser.find_elements(By.CLASS_NAME, errCellClass)) == 0)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, errCellClass)), 0)
 
         self._assert_ajax_response('Data is valid!')
 
@@ -265,6 +263,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
                 self.assertEqual(0, votesId2Value)
             self.assertIsNone(votesId3Value)
 
+    def test_unsafe_names(self):
         """
         Check that unsafe names are correctly stripped
         """
