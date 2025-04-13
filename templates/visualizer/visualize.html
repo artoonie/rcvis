@@ -93,8 +93,11 @@
               incomplete
             {% endif %}
           {% endif %}
-        results of a ranked-choice voting election.
-
+        {% if config.customText %}
+          {{ config.customText }}
+        {% else %}
+          results of a ranked-choice voting election.
+        {% endif %}
         | <a href="{% url 'downloadRawData' config.slug %}">Download Raw Summary Data</a>
         {% if config.dataSourceURL %}
         | <a href="{{ config.dataSourceURL }}">Source [{{ sourceDomain }}]</a>
