@@ -180,7 +180,7 @@ export default class Candidate {
         const successFunc = Candidate.createModal(editor,
             candidate, cell, candidateName, success, cancel, onRendered);
 
-        moreInfoButton.classList.add("btn", "btn-primary");
+        moreInfoButton.classList.add("btn", "btn-primary", "manage-candidate");
         moreInfoButton.dataset.candidateName = candidate.candidateName;
         moreInfoButton.textContent = "Manage Candidate";
         moreInfoButton.onclick = function (e) {
@@ -319,6 +319,7 @@ export default class Candidate {
             "datatable-modal-submit");
         const elem = document.createElement("input");
         elem.type = "checkbox";
+        elem.classList.add("candidate-input")
         const incumbent = Candidate.createElement(candidateInfo, elem,
             "Incumbent:",
             candidate.incumbent);

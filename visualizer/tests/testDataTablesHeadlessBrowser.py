@@ -284,3 +284,65 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Go to the latest upload, make sure it worked and has no errors
         wait = WebDriverWait(self.browser, 2)
         wait.until(expected_conditions.title_contains("electiontitle"))
+
+    def test_can_edit_modal(self):
+        """
+        Check that unsafe names are correctly stripped
+        """
+        self._init_data_tables()
+        self._make_table_of_size(3, 3)
+
+        editScript = """
+        upload.getUploadByDataTableTable().table.getRow({})._row.getCells()[{}].getElement().click()
+        """
+
+        self.browser.execute_script(editScript.format(1, 0))
+        manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+        self.assertEqual(len(manageCandidate), 1)
+        manageCandidate[0].click()
+        modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+        self.assertTrue(modalText.startswith('Candidate 1\n'))
+        inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
+        self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
+        inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+        self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
+        self.verify_modal_state(inputWrappers)
+        inputs[3].click()
+        inputs[4].send_keys("http://myphotourl.com")
+        inputs[5].send_keys("http://mymoreinfourl.com")
+        inputs[6].send_keys("Whig Party")
+        self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+
+        self.browser.execute_script(editScript.format(1, 0))
+        manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+        self.assertEqual(len(manageCandidate), 1)
+        manageCandidate[0].click()
+        modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+        self.assertTrue(modalText.startswith('Candidate 1\n'))
+        inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+        self.assertEqual(inputs[4].get_attribute('value'), 'http://myphotourl.com')
+        self.assertEqual(inputs[5].get_attribute('value'), 'http://mymoreinfourl.com')
+        self.assertEqual(inputs[6].get_attribute('value'), 'Whig Party')
+        self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+
+        for i in range(2, 4):
+            self.browser.execute_script(editScript.format(i, 0))
+            manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+            self.browser.get_screenshot_as_file('screenshot.png')
+            self.assertEqual(len(manageCandidate), 1)
+            manageCandidate[0].click()
+            modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+            self.assertTrue(modalText.startswith('Candidate ' + str(i)))
+            self.assertFalse('Candidate 1' in modalText)
+            inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
+            self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
+            inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+            self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
+            self.verify_modal_state(inputWrappers)
+            self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+
+    def verify_modal_state(self, inputWrappers):
+        self.assertEqual(inputWrappers[3].get_attribute('innerText'), 'Incumbent:')
+        self.assertEqual(inputWrappers[4].get_attribute('innerText'), 'Photo URL:')
+        self.assertEqual(inputWrappers[5].get_attribute('innerText'), 'More Info URL:')
+        self.assertEqual(inputWrappers[6].get_attribute('innerText'), 'Party:')
