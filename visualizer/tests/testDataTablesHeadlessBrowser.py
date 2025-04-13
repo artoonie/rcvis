@@ -287,7 +287,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_can_edit_modal(self):
         """
-        Check that unsafe names are correctly stripped
+        Check that the edit modal works correctly.
         """
         self._init_data_tables()
         self._make_table_of_size(3, 3)
@@ -296,6 +296,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         upload.getUploadByDataTableTable().table.getRow({})._row.getCells()[{}].getElement().click()
         """
 
+        # Click Manage Candidate button
         self.browser.execute_script(editScript.format(1, 0))
         manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
         self.assertEqual(len(manageCandidate), 1)
@@ -307,6 +308,8 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
         self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
         self.verify_modal_state(inputWrappers)
+
+        # Edit fields in modal and verify they stay after close/reopen.
         inputs[3].click()
         inputs[4].send_keys("http://myphotourl.com")
         inputs[5].send_keys("http://mymoreinfourl.com")
@@ -325,6 +328,8 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(inputs[6].get_attribute('value'), 'Whig Party')
         self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
+        # assert that the other candidates modals open and don't contain any info about the
+        # previous candidate (the modals are reused so this is a potential problem)
         for i in range(2, 4):
             self.browser.execute_script(editScript.format(i, 0))
             manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
@@ -342,6 +347,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
     def verify_modal_state(self, inputWrappers):
+        """
+        Verify initial modal state.
+        """
         self.assertEqual(inputWrappers[3].get_attribute('innerText'), 'Incumbent:')
         self.assertEqual(inputWrappers[4].get_attribute('innerText'), 'Photo URL:')
         self.assertEqual(inputWrappers[5].get_attribute('innerText'), 'More Info URL:')
