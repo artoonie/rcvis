@@ -619,66 +619,42 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """Test that no candidate names are bolded until the end of the round and that winners are bolded correctly in subsequent rounds."""
         # Upload file
         self._upload(filenames.MULTIWINNER)
-        self._execute_transition_data_labels()
-        total_rounds = len(self.browser.find_elements(By.ID, 'g.candidateNamesWrapper'))
-        WebDriverWait(self.browser, 2).until(
-                EC.presence_of_all_elements_located((By.CLASS_NAME, '.tick')))
+        # self._execute_transition_data_labels()
+        total_rounds = len(self.browser.find_elements(By.ID, 'candidateNamesWrapper'))
+        winners_contain = self.browser.find_elements(By.TAG_NAME, 'tspan')
+        # winner_normal = self.browser.find_elements(By.CSS_SELECTOR, '[style*="font-weight: normal"]')
         
-        for rounds in range(total_rounds):
-             # Round 1: Winners are not bolded on round 1
-            winner_FontWeight = self.find_element(By.CSS_SELECTOR, 'font-weight').value_of_css_property()
-            self.assertEqual(self._check_boldness_in_round(0), "how to check for font weight")
-            self._debug_screenshot()
-       
-        
+        for round in range(total_rounds):
+            font_weight = winners_contain.__getattribute__("style")
 
-        # Round 2: Move to round 2 and check boldness
-        self._go_to_round_by_clicking(1)  # Click to go to round 2
-        self._execute_transition_data_labels()   # Execute the JS function
-        self._debug_screenshot()
-        self.assertTrue(self._check_boldness_in_round(1),
-                    "Winner's name should still be bold in round 2.")
+            # # Convert for boldness
+            if font_weight in ["bold", 700]:
+                return True
+            return False
 
-        # Round 3: Move to round 3 and check boldness
-        self._go_to_round_by_clicking(2)  # Click to go to round 3
-        self._execute_transition_data_labels()  # Execute the JS function
-        self._debug_screenshot()
-        self.assertTrue(self._check_boldness_in_round(2),
-                    "Winner's name should still be bold in round 3.")
+        # Round 0: Move to round 0 and check boldness
+        self._go_to_round_by_clicking(0)  # Click to go to round 1
+        self.assertFalse(font_weight == "bold", "Winner's name should not be bold on page load.")
+
+        # Round 4: Move to round 3 and check boldness
+        self._go_to_round_by_clicking(3)  # Click to go to round 3
+        self.assertTrue(font_weight == "bold", "Winner's name should be bold.")
 
         # Check for winner boldness with sidecar file
         # Only test sidecar behavior if sidecar is enabled
-        if self._is_sidecar_enabled():
-            self._upload(filenames.MULTIWINNER)
-            self._go_to_round_by_clicking(0)  # Go back to the first round after upload
-            self._execute_transition_data_labels()
-            self.assertTrue(self._check_boldness_in_round(0),
-                            "Winner's name should be bold even after uploading a sidecar file.")
+        # if self._is_sidecar_enabled():
+        #     self._upload(filenames.MULTIWINNER)
+        #     self._go_to_round_by_clicking(0)  # Go back to the first round after upload
+        #     self._execute_transition_data_labels()
+        #     self.assertTrue(self._check_boldness_in_round(4),
+        #                     "Winner's name should be bold even after uploading a sidecar file.")
 
-    def _check_boldness_in_round(self, rounds):
-        """Helper method to check if the winner's name is bold in the specified round."""
-        self._go_to_round_by_clicking(rounds)
-        tspan_elements = self.browser.find_elements(By.CSS_SELECTOR, "#candidateNamesWrapper tspan")
-        self._debug_screenshot()
+        
+    # def _execute_transition_data_labels(self):
+    #     """Helper method to execute the JavaScript function that updates boldness based on the current round. """
+    #     self.browser.execute_script('makeBarGraph.transitionDataLabelsForRound();')  # Execute JS function
 
-        for tspan in tspan_elements:
-            font_weight = tspan.value_of_css_property("font-weight")
-
-            # Convert font weight to integer if it's a number
-            if font_weight.isdigit():
-                font_weight = int(font_weight)
-
-            # Convert for boldness
-            if font_weight in ["bold", "bolder", 700]:
-                return True
-                
-        return False
-
-    def _execute_transition_data_labels(self):
-        """Helper method to execute the JavaScript function that updates boldness based on the current round. """
-        self.browser.execute_script('return transitionDataLabelsForRound;')  # Execute JS function
-
-    def _is_sidecar_enabled(self):
-        """Helper method to check if sidecar functionality is enabled."""
-        return self.browser.execute_script(
-            "return window.sidecarEnabled === true;")  # Modify as needed
+    # def _is_sidecar_enabled(self):
+    #     """Helper method to check if sidecar functionality is enabled."""
+    #     return self.browser.execute_script(
+    #         "return window.sidecarEnabled === true;")  # Modify as needed

@@ -652,11 +652,18 @@ function makeBarGraph(args) {
           .text(mainDataLabelTextFn);
   }
 
+   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names */
+  function boldWinnerFont(_, i){
+    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
+    stackSeries[currRound][i].isWinner) ? "bold" : null;
+  }
+
   if (!isInteractive) {
     // Show a legend
     d3.select('#'+idOfLegend)
       .append("g")
-        .call(legend);
+        .call(legend)
+        .style("font-weight", boldWinnerFont);
   }
 
   // Draw the threshold dashed line
@@ -776,11 +783,7 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
-  /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names */
-  function boldWinnerFont(_, i){
-    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
-    stackSeries[currRound][i].isWinner) ? "bold" : null;
-  }
+
 
   function transitionDataLabelsForRound() {
     svg.selectAll("#candidateNamesWrapper tspan")
