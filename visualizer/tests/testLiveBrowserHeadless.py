@@ -624,7 +624,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         winners_contain = self.browser.find_elements(By.CLASS_NAME, 'dataLabel')
         font_weight = winners_contain.__getattribute__("style")
 
-            # Convert for boldness
+        # Convert for boldness
         if font_weight in ["bold", 700]:
             return True
 
@@ -635,3 +635,4 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Round 4: Move to round 3 and check boldness
         self._go_to_round_by_clicking(3)  # Click to go to round 3
         self.assertTrue(font_weight == "bold", "Winner's name should be bold.")
+        return None
