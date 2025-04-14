@@ -620,16 +620,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Upload file
         self._upload(filenames.MULTIWINNER)
         # self._execute_transition_data_labels()
-        total_rounds = len(self.browser.find_elements(By.ID, 'candidateNamesWrapper'))
+        #total_rounds = len(self.browser.find_elements(By.ID, 'candidateNamesWrapper'))
         winners_contain = self.browser.find_elements(By.CLASS_NAME, 'dataLabel')
-        
-        for round in range(total_rounds):
-            font_weight = winners_contain.__getattribute__("style")
+        font_weight = winners_contain.__getattribute__("style")
 
             # Convert for boldness
-            if font_weight in ["bold", 700]:
-                return True
-            return False
+        if font_weight in ["bold", 700]:
+            return True
 
         # Round 0: Move to round 0 and check boldness
         self._go_to_round_by_clicking(0)  # Click to go to round 1
