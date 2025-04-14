@@ -621,13 +621,12 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.MULTIWINNER)
         # self._execute_transition_data_labels()
         total_rounds = len(self.browser.find_elements(By.ID, 'candidateNamesWrapper'))
-        winners_contain = self.browser.find_elements(By.TAG_NAME, 'tspan')
-        # winner_normal = self.browser.find_elements(By.CSS_SELECTOR, '[style*="font-weight: normal"]')
+        winners_contain = self.browser.find_elements(By.CLASS_NAME, 'dataLabel')
         
         for round in range(total_rounds):
             font_weight = winners_contain.__getattribute__("style")
 
-            # # Convert for boldness
+            # Convert for boldness
             if font_weight in ["bold", 700]:
                 return True
             return False
@@ -639,22 +638,3 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Round 4: Move to round 3 and check boldness
         self._go_to_round_by_clicking(3)  # Click to go to round 3
         self.assertTrue(font_weight == "bold", "Winner's name should be bold.")
-
-        # Check for winner boldness with sidecar file
-        # Only test sidecar behavior if sidecar is enabled
-        # if self._is_sidecar_enabled():
-        #     self._upload(filenames.MULTIWINNER)
-        #     self._go_to_round_by_clicking(0)  # Go back to the first round after upload
-        #     self._execute_transition_data_labels()
-        #     self.assertTrue(self._check_boldness_in_round(4),
-        #                     "Winner's name should be bold even after uploading a sidecar file.")
-
-        
-    # def _execute_transition_data_labels(self):
-    #     """Helper method to execute the JavaScript function that updates boldness based on the current round. """
-    #     self.browser.execute_script('makeBarGraph.transitionDataLabelsForRound();')  # Execute JS function
-
-    # def _is_sidecar_enabled(self):
-    #     """Helper method to check if sidecar functionality is enabled."""
-    #     return self.browser.execute_script(
-    #         "return window.sidecarEnabled === true;")  # Modify as needed
