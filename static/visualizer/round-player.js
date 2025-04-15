@@ -31,7 +31,7 @@ function RoundPlayer({
     }
 
     const labelEl = document.createElement("span");
-    labelEl.innerText = `${isNext ? "Next" : "Previous"} Round`;
+    labelEl.innerText = `Round ${isNext ? totalRounds : totalRounds - 2}`;
     navBtn.appendChild(labelEl);
 
     const navSvg = document.createElementNS(svgNS, "svg");
@@ -44,7 +44,6 @@ function RoundPlayer({
     navSvg.appendChild(navPath);
     navBtn.appendChild(navSvg);
 
-    navBtn.setAttribute("aria-label", isNext ? "Next" : "Previous");
     navBtn.addEventListener("click", () =>
       setStep(currentStep + (isNext ? 1 : -1))
     );
@@ -70,7 +69,7 @@ function RoundPlayer({
   function createPlayButton() {
     const playBtn = document.createElement("button");
     playBtn.classList.add("btn", "round-player-play-btn");
-    playBtn.innerText = "Play";
+    playBtn.innerText = "Auto-Step";
     playBtn.addEventListener("click", () => {
       isPlaying ? stop() : play();
     });
@@ -127,10 +126,16 @@ function RoundPlayer({
           "range-player-hidden",
           currentStep >= totalRounds - 1
         );
+      container.querySelector(".range-player-next span").innerText = `Round ${
+        currentStep + 2
+      }`;
 
       container
         .querySelector(".range-player-prev")
         .classList.toggle("range-player-hidden", currentStep <= 0);
+      container.querySelector(
+        ".range-player-prev span"
+      ).innerText = `Round ${currentStep}`;
     }
 
     onChange(step);
@@ -161,7 +166,7 @@ function RoundPlayer({
   function stop() {
     isPlaying = false;
     window.clearTimeout(timer);
-    container.querySelector(".round-player-play-btn").innerText = "Play";
+    container.querySelector(".round-player-play-btn").innerText = "Auto-Step";
   }
 
   function playing() {

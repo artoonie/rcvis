@@ -10,7 +10,14 @@
   display: flex;
   flex-direction: row;
   justify-content: center;
+  align-items: center;
   margin-bottom: 16px;
+}
+
+.round-player-wrapper {
+  width: 100%;
+  justify-content: space-between;
+  max-width: 750px;
 }
 
 .round-steps-wrapper {
@@ -43,8 +50,13 @@
   color: #fff;
   padding: 2px 10px;
   font-size: 16px;
-  min-width: 80px;
-  width: 80px;
+}
+
+@media screen and (min-width: 750px) {
+  .round-player-play-btn {
+    min-width: 160px;
+    width: 160px;
+  }
 }
 
 .range-player-nav {
@@ -56,7 +68,7 @@
   color: #1922da;
   font-size: 16px;
   padding: 4px 8px;
-  min-width: 200px;
+  min-width: 132px;
 }
 
 .range-player-nav.range-player-prev,
@@ -71,6 +83,7 @@
 }
 
 .range-player-nav svg {
+  scale: 50%;
   width: 24px;
 }
 
