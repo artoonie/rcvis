@@ -319,7 +319,7 @@ export default class Candidate {
             "datatable-modal-submit");
         const elem = document.createElement("input");
         elem.type = "checkbox";
-        elem.classList.add("candidate-input")
+        elem.classList.add("candidate-input");
         const incumbent = Candidate.createElement(candidateInfo, elem,
             "Incumbent:",
             candidate.incumbent);
