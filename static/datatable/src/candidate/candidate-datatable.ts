@@ -109,7 +109,8 @@ export default class CandidateDatatable extends DataTable {
         content.classList.add("col-sm");
         const img = document.createElement("img");
         img.classList.add("candidate-img-thumbnail");
-        content.style.marginLeft = "15px";
+        content.style.marginLeft = "10px";
+        content.style.marginRight = "5px";
         content.style.alignContent = "center";
         content.style.textAlign = "center";
         //add image on left of row
@@ -139,9 +140,9 @@ export default class CandidateDatatable extends DataTable {
         const strong = document.createElement("strong");
         strong.textContent = "Incumbent: ";
         incumbentSpan.appendChild(strong);
-        const check = document.createElement("input");
-        check.type = "checkbox";
-        check.checked = data && data.incumbent;
+
+        const check = document.createElement("span");
+        check.textContent = (data && data.incumbent) ? "Yes" : "No";
         incumbentSpan.appendChild(check);
         incumbentDiv.appendChild(incumbentSpan);
 
@@ -155,7 +156,11 @@ export default class CandidateDatatable extends DataTable {
             badgeLink.href = data.moreinfo_url;
             badgeLink.classList.add('badge',
                 `${data.moreinfo_url ? 'badge-primary' : 'link-disabled'}`);
-            badgeLink.innerText = "More Info";
+            if (data.moreinfo_url) {
+                badgeLink.innerText = "More Info";
+            } else {
+                badgeLink.innerText = "Add More Info Link";
+            }
             const strongContainer = document.createElement("strong");
             strongContainer.appendChild(badgeLink);
             moreInfoDiv.appendChild(strongContainer);
@@ -164,10 +169,13 @@ export default class CandidateDatatable extends DataTable {
         partyDiv.classList.add("row");
         partyDiv.style.whiteSpace = "normal";
         partyDiv.style.overflowWrap = "break-word";
-        partyDiv.innerHTML = "<strong>Party:</strong>" + (data && data.party
-            ? " " + data.party : CandidateDatatable.getUnderlinedSpace());
+        if (data && data.party) {
+            partyDiv.innerHTML = `<strong>Party:</strong>&nbsp;${data.party}`
+        } else {
+            partyDiv.innerHTML =
+                `<strong style="color: dimgray; opacity: .5">Add Party</strong>`
+        }
         mainTd.appendChild(nameDiv);
-        mainTd.appendChild(document.createElement("br"));
         mainTd.appendChild(incumbentDiv);
         mainTd.appendChild(moreInfoDiv);
         mainTd.appendChild(partyDiv);
