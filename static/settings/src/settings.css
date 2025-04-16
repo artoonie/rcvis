@@ -149,6 +149,7 @@ svg {
   display: block;
 }
 .candidate-input-wrapper {
+  padding-top: 0.5rem;
   width: 100%;
   display: inline-block;
 }
@@ -165,8 +166,11 @@ svg {
 input[type="checkbox"].candidate-input {
   width: auto;
 }
+.candidate-input::placeholder {
+  opacity: 0.2;
+}
 .upload-status-active {
-  color: lightgray;
+  color: gray;
 }
 .upload-status-eliminated {
   text-decoration: line-through;

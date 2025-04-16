@@ -170,6 +170,12 @@ export default class Candidate {
             onRendered, editorParams);
         editor.appendChild(document.createElement("br"));
         editor.appendChild(moreInfoButton);
+
+        setTimeout(() => {
+            // Once it's loaded, focus on the input
+            // TODO -- waiting 50ms is hacky.
+            candidateName.focus();
+        }, 50);
         return editor;
     };
 
@@ -180,9 +186,9 @@ export default class Candidate {
         const successFunc = Candidate.createModal(editor,
             candidate, cell, candidateName, success, cancel, onRendered);
 
-        moreInfoButton.classList.add("btn", "btn-primary", "manage-candidate");
+        moreInfoButton.classList.add("btn", "btn-link", "manage-candidate");
         moreInfoButton.dataset.candidateName = candidate.candidateName;
-        moreInfoButton.textContent = "Manage Candidate";
+        moreInfoButton.textContent = "Enter Metadata";
         moreInfoButton.onclick = function (e) {
             e.preventDefault();
             MicroModal.show('datatable-modal', {
@@ -198,6 +204,17 @@ export default class Candidate {
                 }
             });
         };
+
+        // Add an image to the moreInfoButton text content
+        const popoutImg = document.createElement("img");
+        popoutImg.src = "static/visualizer/icon_popout.png";
+        popoutImg.width = 8;
+        popoutImg.height = 8;
+        popoutImg.style.marginLeft = "4px";
+        popoutImg.style.marginRight = "4px";
+        popoutImg.style.verticalAlign = "top";
+        popoutImg.style.filter = "invert(100%)";
+        moreInfoButton.appendChild(popoutImg);
 
         // editor.appendChild(document.createElement("br"));
         candidateName.tabIndex = -1;
