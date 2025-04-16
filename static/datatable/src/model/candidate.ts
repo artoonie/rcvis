@@ -182,6 +182,9 @@ export default class Candidate {
         const successFunc = Candidate.createModal(editor,
             candidate, cell, candidateName, success, cancel, onRendered);
 
+        moreInfoButton.onclick = function (e) {
+            e.stopPropagation();
+        }
         moreInfoButton.classList.add("btn", "btn-link", "manage-candidate");
         moreInfoButton.dataset.candidateName = candidate.candidateName;
         moreInfoButton.textContent = "Enter Metadata";
@@ -220,7 +223,12 @@ export default class Candidate {
 
         editor.onblur = successFunc;
         editor.onchange = successFunc;
-        candidateName.onblur = successFunc;
+        candidateName.onblur = e => {
+            if(moreInfoButton.contains(e.relatedTarget as Node)) {
+                return;
+            }
+            successFunc();
+        };
         candidateName.onchange = successFunc;
         if (showModalNow) {
             MicroModal.show('datatable-modal', {
