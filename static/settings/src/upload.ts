@@ -169,7 +169,6 @@ function standardizeFormatAjax(formData: FormData) {
                 });
                 uploadDataTable.table.on("dataProcessed", function () {
                     uploadDataTable.table.validate();
-                    // uploadDataTable.table.redraw(true);
                     hideManualOptionsShowTable();
                 });
                 uploadDataTable.table.on("tableBuilt", function () {

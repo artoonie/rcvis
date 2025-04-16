@@ -165,17 +165,13 @@ export default class Candidate {
         const candidateName = Candidate.createInputElement(editor,
             null, candidate.candidateName, editorParams.sidecarOnly,
             placeholder);
+        candidateName.classList.add("candidate-name-input");
         const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
             cell, candidateName, success, cancel,
             onRendered, editorParams);
         editor.appendChild(document.createElement("br"));
         editor.appendChild(moreInfoButton);
 
-        setTimeout(() => {
-            // Once it's loaded, focus on the input
-            // TODO -- waiting 50ms is hacky.
-            candidateName.focus();
-        }, 50);
         return editor;
     };
 
@@ -277,6 +273,8 @@ export default class Candidate {
             }
         };
         onRendered(function () {
+            cell.getTable().off("renderComplete", Candidate.focusOnCandidateName);
+            cell.getTable().on("renderComplete", Candidate.focusOnCandidateName);
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
             MicroModal.init();
@@ -285,6 +283,14 @@ export default class Candidate {
             document.addEventListener("click", handleClickOutside);
         };
         return successFunc;
+    }
+
+    static focusOnCandidateName() {
+        const candidateNameInput = document.getElementsByClassName(
+            "candidate-name-input");
+        if(candidateNameInput && candidateNameInput.length > 0) {
+            (candidateNameInput[0] as HTMLInputElement).focus();
+        }
     }
 
     static createInputElement(editor: HTMLElement, labelText: string, value: any, readOnly = false,
