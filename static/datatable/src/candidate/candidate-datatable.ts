@@ -170,10 +170,10 @@ export default class CandidateDatatable extends DataTable {
         partyDiv.style.whiteSpace = "normal";
         partyDiv.style.overflowWrap = "break-word";
         if (data && data.party) {
-            partyDiv.innerHTML = `<strong>Party:</strong>&nbsp;${data.party}`
+            partyDiv.innerHTML = `<strong>Party:</strong>&nbsp;${data.party}`;
         } else {
             partyDiv.innerHTML =
-                `<strong style="color: dimgray; opacity: .5">Add Party</strong>`
+                `<strong style="color: dimgray; opacity: .5">Add Party</strong>`;
         }
         mainTd.appendChild(nameDiv);
         mainTd.appendChild(incumbentDiv);

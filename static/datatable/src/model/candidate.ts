@@ -235,6 +235,9 @@ export default class Candidate {
         }
         const modalTitleWrapper = document.getElementById(
             "datatable-modal-title");
+        for (let i = 0; i < modalTitleWrapper.children.length; i++) {
+            modalTitleWrapper.children[i].remove();
+        }
         const candidateInfoId = Candidate.randstr("candidate-info-");
         const candidateTitleId = Candidate.randstr("candidate-title-");
 

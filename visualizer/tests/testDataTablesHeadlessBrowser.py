@@ -338,7 +338,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             manageCandidate[0].click()
             modalText = self._get_attr_from_id('datatable-modal', 'innerText')
             self.assertTrue(modalText.startswith('Candidate ' + str(i)))
-            self.assertFalse('Candidate 1' in modalText)
+            self.assertNotIn('Candidate 1', modalText)
             inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
             self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
             inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
