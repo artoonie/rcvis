@@ -182,9 +182,6 @@ export default class Candidate {
         const successFunc = Candidate.createModal(editor,
             candidate, cell, candidateName, success, cancel, onRendered);
 
-        moreInfoButton.onclick = function (e) {
-            e.stopPropagation();
-        }
         moreInfoButton.classList.add("btn", "btn-link", "manage-candidate");
         moreInfoButton.dataset.candidateName = candidate.candidateName;
         moreInfoButton.textContent = "Enter Metadata";
