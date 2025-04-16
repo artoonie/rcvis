@@ -278,7 +278,6 @@ export default class Candidate {
             }
         };
         onRendered(function () {
-            cell.getTable().off("renderComplete", Candidate.focusOnCandidateName);
             cell.getTable().on("renderComplete", Candidate.focusOnCandidateName);
             cell.getRow().normalizeHeight();
             cell.getTable().rowManager.adjustTableSize();
