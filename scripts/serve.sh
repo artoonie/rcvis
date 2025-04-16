@@ -20,6 +20,7 @@ else
 fi
 
 # Clear cache, compress and run the server
+npm run build # To enable file watching run `npm run build-dev` manually
 python3 manage.py clearCache
 python3 manage.py compress
 python3 manage.py runserver
