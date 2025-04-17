@@ -88,6 +88,7 @@ export default class RcvisDataTable {
     static voteCountCallback(cell: CellComponent, value: number) {
         requireRevalidation();
         const cells = cell.getRow().getCells();
+        let valid = true;
         if (cells.length <= 3) {
             return true;
         }
@@ -103,8 +104,7 @@ export default class RcvisDataTable {
         }
 
         if (value < 0) {
-            (cell as any).popup(
-                lessThanZeroError(), "bottom");
+            (cell as any).popup(lessThanZeroError(), "bottom");
             return false;
         }
 
@@ -125,8 +125,9 @@ export default class RcvisDataTable {
 
             if (isNaN(numVotes) || numVotes == null ||
                 // If it hasn't been edited and isn't currently being edited.
-                (!cells[c].isEdited() && cells[c].getField()
-                    !== cell.getField())) {
+                (!cells[c].isEdited() && cells[c].getField() !==
+                    cell.getField() && cells[c].getValue() ===
+                    cells[c].getInitialValue())) {
                 // User hasn't entered data here yet - no error
                 cells[c].clearValidation();
             } else if (numVotes >= prevRoundVotes) {
@@ -136,20 +137,18 @@ export default class RcvisDataTable {
                 // Last round, the candidate was elected - no error, it's allowed to decrease
                 cells[c].clearValidation();
             } else {
-                if (cells[c].isEdited()) {
-                    (cells[c] as any).popup(
-                        errorPopupFormatter, "bottom");
-                    cells[c].getElement().classList.add("tabulator-validation-fail");
-                }
+                (cells[c] as any).popup(errorPopupFormatter, "bottom");
                 if (c === cellIndex && value !== cell.getInitialValue()) {
-                    return false;
+                    valid = false;
                 }
+                cells[c].getElement().classList.add(
+                    "tabulator-validation-fail");
             }
 
             prevRoundVotes = numVotes;
             prevRoundStatus = status;
         }
-        return true;
+        return valid;
     }
 
     // Checks if this cell is after an Eliminated cell, and if so,
