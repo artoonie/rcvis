@@ -85,7 +85,6 @@
       <h1 class="masthead-subheading font-weight-light electiontitleheading mt-1 mb-0 ml-3">{{ title }}</h1>
       <p class="font-weight-light mb-0 ml-3">{{ date }}</p>
       <h6 class="font-weight-light mb-1 ml-3">
-        The
           {% if config.excludeFinalWinnerAndEliminatedCandidate %}
             {% if config.numRounds == 1 %}
               preliminary
@@ -96,7 +95,7 @@
         {% if config.customText %}
           {{ config.customText }}
         {% else %}
-          results of a ranked-choice voting election.
+          The results of a ranked-choice voting election.
         {% endif %}
         | <a href="{% url 'downloadRawData' config.slug %}">Download Raw Summary Data</a>
         {% if config.dataSourceURL %}
