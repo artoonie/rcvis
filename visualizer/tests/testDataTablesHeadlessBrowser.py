@@ -290,7 +290,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_can_edit_modal(self):
         """
-        Check that the edit modal works correctly.
+        Check that the edit modal works correctly and no lingering state is left behind.
         """
         self._init_data_tables()
         self._make_table_of_size(3, 3)
