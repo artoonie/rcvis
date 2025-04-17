@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 16px;
 }
 
 .round-player-wrapper,
@@ -11,13 +10,14 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .round-player-wrapper {
   width: 100%;
   justify-content: space-between;
   max-width: 750px;
+  height: 35px;
 }
 
 .round-steps-wrapper {
@@ -50,6 +50,23 @@
   color: #fff;
   padding: 2px 10px;
   font-size: 16px;
+}
+.round-player-play-btn:hover {
+  color: #fff;
+}
+
+.round-player-play-btn-initial {
+  width: 100% !important;
+}
+
+.range-player-nav-initial {
+  visibility: hidden;
+  overflow: hidden;
+  pointer-events: none;
+  text-wrap-mode: nowrap;
+  flex-basis: 0;
+  flex-grow: 0;
+  flex-shrink: 1;
 }
 
 @media screen and (min-width: 750px) {
@@ -93,4 +110,31 @@
 
 .range-player-hidden {
   visibility: hidden;
+}
+
+@media screen and (max-width: 450px) {
+  .round-player-step-btn {
+    margin: 4px;
+    font-size: 10px;
+    min-width: 16px;
+    padding: 0 2px;
+    border-radius: 4px;
+  }
+  .range-player-nav {
+    font-size: 12px;
+    padding: 2px 4px;
+    min-width: 50px;
+  }
+  .round-player-container {
+    margin-bottom: 0px;
+  }
+  .round-player-wrapper {
+    margin-bottom: 4px;
+  }
+  .round-steps-wrapper {
+    margin-bottom: 0px;
+  }
+  .round-player-play-btn {
+    font-size: 10px;
+  }
 }

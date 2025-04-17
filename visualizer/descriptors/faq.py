@@ -271,7 +271,7 @@ class WhatIsInactiveBallots(FAQBase):
         numInactive = inactiveItem.totalVotesPerRound[roundNum]
         base = "Voters are not required to rank all candidates. "
         if numInactive != 0:
-            rest = f"Because {numInactive} ballots had all of their choices eliminated, "\
+            rest = f"Because {intify(numInactive)} ballots had all of their choices eliminated, "\
                 "those ballots are no longer active in this round."
         else:
             rest = "In this round, all ballots are still active, "\

@@ -69,7 +69,7 @@ function RoundPlayer({
   function createPlayButton() {
     const playBtn = document.createElement("button");
     playBtn.classList.add("btn", "round-player-play-btn");
-    playBtn.innerText = "Auto-Step";
+    playBtn.innerText = "Animate From Round 1 to Round " + totalRounds; // Note: initial text differs
     playBtn.addEventListener("click", () => {
       isPlaying ? stop() : play();
     });
@@ -93,10 +93,11 @@ function RoundPlayer({
     wrapperEl.appendChild(createPlayButton());
 
     wrapperEl.appendChild(createNavButton(true));
-    playerEl.appendChild(stepsWrapperEl);
     playerEl.appendChild(wrapperEl);
+    playerEl.appendChild(stepsWrapperEl);
 
     container.appendChild(playerEl);
+    setInitialState(true);
   }
 
   function changeStep(step) {
@@ -105,6 +106,8 @@ function RoundPlayer({
       stop();
       return;
     }
+
+    setInitialState(false);
 
     // Remove from previous element
     const previousStepEl = container.querySelector(
@@ -141,6 +144,24 @@ function RoundPlayer({
     onChange(step);
   }
 
+  function setInitialState(state) {
+    container
+      .querySelector(".range-player-next")
+      .classList.toggle("range-player-hidden", state);
+    container
+      .querySelector(".range-player-next")
+      .classList.toggle("range-player-nav-initial", state);
+    container
+      .querySelector(".range-player-prev")
+      .classList.toggle("range-player-hidden", state);
+    container
+      .querySelector(".range-player-prev")
+      .classList.toggle("range-player-nav-initial", state);
+    container
+      .querySelector(".round-player-play-btn")
+      .classList.toggle("round-player-play-btn-initial", state);
+  }
+
   function setStep(step) {
     stop();
     changeStep(step);
@@ -166,7 +187,7 @@ function RoundPlayer({
   function stop() {
     isPlaying = false;
     window.clearTimeout(timer);
-    container.querySelector(".round-player-play-btn").innerText = "Auto-Step";
+    container.querySelector(".round-player-play-btn").innerText = "Animate";
   }
 
   function playing() {

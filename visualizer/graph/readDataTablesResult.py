@@ -1,7 +1,7 @@
 """ Converts DataTables JSON format to URCVT """
 
 import json
-import sys
+from rcvformats.schemas import universaltabulator
 from rcvformats.conversions.ut_without_transfers import UTWithoutTransfersConverter
 
 
@@ -129,19 +129,16 @@ class ReadDataTableJSON():
         converter = UTWithoutTransfersConverter(allow_guessing=False)
         try:
             withTransfers = converter.convert_to_ut(withoutTransfers)
-        except Exception as exc:
-            # Try to find a reason
-            totalVotesLastRound = sys.maxsize
-            for roundNum, result in enumerate(results):
-                totalVotesThisRound = sum(t for t in result['tally'].values())
-                if totalVotesThisRound > totalVotesLastRound:
-                    raise InvalidDataTableInput(
-                        f"Round {roundNum+1} has {totalVotesThisRound} votes, which is more " +
-                        f"than the previous round, which only has {totalVotesLastRound}. " +
-                        "This should not be possible.") from exc
-                totalVotesLastRound = totalVotesThisRound
+        except Exception as conversionExc:
+            # If there's a failure, rely on RCVFormats for a human-readable error message
+            schema = universaltabulator.SchemaV0()
+            try:
+                isValid = schema.validate(withoutTransfers)
+            except Exception as schemaExc:
+                raise InvalidDataTableInput("Unknown error -- unexpected schema") from schemaExc
+            if not isValid:
+                raise InvalidDataTableInput(schema.last_error()) from conversionExc
 
-            # No reason found
-            raise InvalidDataTableInput("Could not add transfers") from exc
+            raise InvalidDataTableInput("Could not add transfers") from conversionExc
 
         return withTransfers
