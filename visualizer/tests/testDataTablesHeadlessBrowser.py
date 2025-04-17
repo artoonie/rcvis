@@ -147,7 +147,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         setVotes2Update = """
         return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(10)
         """
-        errCellClass = 'tabulator-alert-msg'
+        clearPopup = """
+        document.getElementsByClassName("datatable-error-popup")[0].remove()
+        """
 
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
@@ -156,14 +158,14 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.execute_script(setVotes1)
         self.browser.execute_script(setVotes2)
 
-        errorMessage = self._get_attr_from_class(errCellClass, 'innerText')
-        self.assertTrue(errorMessage.startswith('Vote count decreased'))
-
-        self.browser.find_element(By.CLASS_NAME, 'close-alert').click()
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 1)
+        self.assertIn('Vote count decreased',
+                      self.browser.find_element(By.CLASS_NAME, 'tabulator-popup').text)
+        self.browser.execute_script(clearPopup)
 
         # And make the error message clear
         self.browser.execute_script(setVotes2Update)
-        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, errCellClass)), 0)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 0)
 
     def test_vote_counts_can_decrease_for_surplus(self):
         """
@@ -172,30 +174,31 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._init_data_tables()
 
         dropdown1 = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")
+        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")
         """
         setVotes1 = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
+        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
         """
         setVotes2 = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
+        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
         """
-        errCellClass = 'tabulator-alert-msg'
+        clearPopup = """
+        document.getElementsByClassName("datatable-error-popup")[0].remove()
+        """
 
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
         self.browser.execute_script(setVotes1)
         self.browser.execute_script(setVotes2)
-
-        self.browser.find_element(By.CLASS_NAME, 'close-alert').click()
-        # Set candidate to elected
+        popups = self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')
+        self.assertEqual(len(popups), 1)
+        self.browser.execute_script(clearPopup)
         self.browser.execute_script(dropdown1)
 
-        # Which makes this valid
-        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, errCellClass)), 0)
-
+        self.browser.get_screenshot_as_file("screenshot.png")
         self._assert_ajax_response('Data is valid!')
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 0)
 
     def test_dropdowns_disable_after_nonactive(self):
         """
