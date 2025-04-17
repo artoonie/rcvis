@@ -396,33 +396,32 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             "3",
 
-            "A name (middle name)",
+            "A very long name (middle name)",
             "with parenthesis in the middle",
 
             "A malicious name with",
             "\"quotes\" and 'ticks'",
 
-            "A malicious name",
-            "<b>with html</b>",
+            "A malicious name <b>with html</b>",
 
-            "Don't split me",
+            "Don't split me, I am only 40 characters",
 
-            "A name",
+            "A very long name",
             "(but now with commas, and parenthesis, and a number: #1)",
 
-            "A name",
+            "A very long name",
             "(but now (with nested parenthesis))",
 
-            "A name, however this time,",
+            "A very long name, however this time,",
             "with several commas",
 
-            "Anamewithnospacesat-",
-            "allbutidohaveabang!",
+            "Averylongnamewithnospac-",
+            "esatallbutidohaveabang!",
 
-            "Anamewithnospacesata-",
-            "llholymolyguacamole",
+            "Averylongnamewithnospace-",
+            "satallholymolyguacamole",
 
-            "A name,",
+            "A very long name,",
             "however this time with a comma",
 
             "A longish name",
