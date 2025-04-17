@@ -28,9 +28,7 @@ function requireRevalidation() {
 
 const errorPopupFormatter = function () {
     const container = document.createElement("div");
-    container.tabIndex = -1
     container.classList.add("datatable-error-popup");
-    container.setAttribute("onclick", "this.focus()")
     container.style.maxWidth = "300px";
     const contents = `<strong style='font-size:1.2em;'>${VOTE_ERROR_SIMPLE_MESSAGE}</strong>
     <br/><span>${VOTE_ERROR_MESSAGE}</span>`;
@@ -38,7 +36,7 @@ const errorPopupFormatter = function () {
     return container;
 };
 
-const lessThanZeroError = function (table: Tabulator) {
+const lessThanZeroError = function () {
     const container = document.createElement("div");
     container.innerHTML = `<strong style='font-size:1.2em;'>Error Details</strong>
         <br/><span>Must be a positive number</span>`;
@@ -105,8 +103,8 @@ export default class RcvisDataTable {
         }
 
         if (value < 0) {
-            (cell.getRow() as any).popup(
-                lessThanZeroError(cell.getTable()), "bottom");
+            (cell as any).popup(
+                lessThanZeroError(), "bottom");
             return false;
         }
 
@@ -138,9 +136,12 @@ export default class RcvisDataTable {
                 // Last round, the candidate was elected - no error, it's allowed to decrease
                 cells[c].clearValidation();
             } else {
-                if (cell.isEdited() || value !== cell.getInitialValue()) {
-                    (cells[0] as any).popup(
-                        errorPopupFormatter, "top");
+                if (cells[c].isEdited()) {
+                    (cells[c] as any).popup(
+                        errorPopupFormatter, "bottom");
+                    cells[c].getElement().classList.add("tabulator-validation-fail");
+                }
+                if (c === cellIndex && value !== cell.getInitialValue()) {
                     return false;
                 }
             }
