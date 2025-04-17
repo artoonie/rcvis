@@ -67,10 +67,8 @@ function makeBarGraph(args) {
   }
 
   // If any of the labels are too long, the max height will be even longer.
-  // Check for that, and ensure it's then at least 40px high.
-  if (namesNeedAnyTwoLineLabels(candidateNames)) {
-      maxHeight = Math.max(numCandidates*40, maxHeight);
-  }
+  // Add 20px for each of them.
+  maxHeight += countNamesThatNeedTwoLines(candidateNames) * 20;
 
   const width = maxWidth - margin.left - margin.right,
         height = maxHeight - margin.top - margin.bottom;
