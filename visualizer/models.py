@@ -64,6 +64,7 @@ class JsonConfig(models.Model):
     dataSourceURL = models.URLField(max_length=512, null=True, blank=True)
     areResultsCertified = models.BooleanField(default=False)
     textForWinner = models.IntegerField(choices=TextForWinner.choices, default=0)
+    customText = models.CharField(max_length=256, default="", blank=True)
 
     # Movie
     movieGenerationStatus = models.IntegerField(
@@ -117,7 +118,8 @@ class JsonConfig(models.Model):
                 'eliminationBarColor',
                 'dataSourceURL',
                 'areResultsCertified',
-                'textForWinner')
+                'textForWinner',
+                'customText')
 
     @classmethod
     def get_all_public(cls):

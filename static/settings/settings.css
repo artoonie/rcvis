@@ -61,6 +61,9 @@ svg {
   transition: max-height 0.2s ease-out;
   background-color: ##00060c;
 }
+.optionscontent textarea {
+  width: 100%;
+}
 .uploaddescriptor {
  padding: 30px;
 }
