@@ -652,18 +652,21 @@ function makeBarGraph(args) {
           .text(mainDataLabelTextFn);
   }
 
-   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names */
-  function boldWinnerFont(_, i){
-    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
-    stackSeries[currRound][i].isWinner) ? "bold" : null;
-  }
 
   if (!isInteractive) {
     // Show a legend
     d3.select('#'+idOfLegend)
       .append("g")
         .call(legend)
-        .style("font-weight", boldWinnerFont);
+  }
+
+  svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+
+   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names and !isInteractive */
+  function boldWinnerFont(_, i){
+    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
+    stackSeries[currRound][i].isWinner) ? "bold" : null;
   }
 
   // Draw the threshold dashed line

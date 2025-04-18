@@ -619,20 +619,22 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """Test that no candidate names are bolded until the end of the round and that winners are bolded correctly in subsequent rounds."""
         # Upload file
         self._upload(filenames.MULTIWINNER)
-        # self._execute_transition_data_labels()
-        #total_rounds = len(self.browser.find_elements(By.ID, 'candidateNamesWrapper'))
-        winners_contain = self.browser.find_elements(By.CLASS_NAME, 'dataLabel')
-        font_weight = winners_contain.__getattribute__("style")
-
-        # Convert for boldness
-        if font_weight in ["bold", 700]:
-            return True
-
+        
         # Round 0: Move to round 0 and check boldness
         self._go_to_round_by_clicking(0)  # Click to go to round 1
-        self.assertFalse(font_weight == "bold", "Winner's name should not be bold on page load.")
+        font_weight = self.browser.find_element(By.CLASS_NAME, 'dataLabel').value_of_css_property("font-weight")
+        self.assertTrue(font_weight != "bold" or font_weight == 400, "Winner's name should not be bold on page load.")
 
-        # Round 4: Move to round 3 and check boldness
+        # Round 3: Move to round 3 and check boldness
+        
+        # candidateLabels = self.browser.find_elements(By.CSS_SELECTOR, '#candidateNamesWrapper .dataLabel')
+        # self.assertEqual(candidateLabels[0].get_attribute("style"), "font-weight: bold;")
+        
         self._go_to_round_by_clicking(3)  # Click to go to round 3
-        self.assertTrue(font_weight == "bold", "Winner's name should be bold.")
-        return None
+        candidateNameLabel = self.browser.find_elements(By.CSS_SELECTOR, '#candidateNamesWrapper .dataLabel')
+        font_weight = candidateNameLabel[0].value_of_css_property("font-weight")
+        print("Computed font-weight is: ", font_weight)
+        self.assertIn(font_weight, ["700", "bold"], "Winner name is not bold.")
+        
+        
+        
