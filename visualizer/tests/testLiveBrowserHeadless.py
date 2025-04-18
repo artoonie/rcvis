@@ -619,26 +619,28 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """Test that no candidate names are bolded until the end of the round and that winners are bolded correctly in subsequent rounds."""
         # Upload file
         self._upload(filenames.MULTIWINNER)
-        
+
         # Round 0: Move to round 0 and check boldness
         self._go_to_round_by_clicking(0)  # Click to go to round 1
         # font_weight = self.browser.find_element(By.CLASS_NAME, 'dataLabel').value_of_css_property("font-weight")
         # self.assertTrue(font_weight != "bold" or font_weight == 400, "Winner's name should not be bold on page load.")
-        candidateName = self.browser.find_elements(By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
-        self.assertEqual(candidateName[0].get_attribute("style"), "", "Candidates' names should NOT be bold.")
+        candidateName = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self.assertEqual(candidateName[0].get_attribute("style"),
+                         "", "Candidates' names should NOT be bold.")
 
         # Round 3: Move to round 3 and check boldness
-        
+
         self._go_to_round_by_clicking(3)  # Click to go to round 3
-        candidateLabels = self.browser.find_elements(By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
-        self.assertEqual(candidateLabels[0].get_attribute("style"), "font-weight: bold;", "Winner name SHOULD BE bold.")
-        
+        candidateLabels = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self.assertEqual(
+            candidateLabels[0].get_attribute("style"),
+            "font-weight: bold;",
+            "Winner name SHOULD BE bold.")
 
         # candidateNameLabel = self.browser.find_elements(By.CSS_SELECTOR, '#candidateNamesWrapper .dataLabel')
         # font_weight = candidateNameLabel[0].value_of_css_property("font-weight")
         # print("Computed font-weight is: ", font_weight)
-        
+
         # self.assertIn(font_weight, ["700", "bold"], "Winner name is not bold.")
-        
-        
-        
