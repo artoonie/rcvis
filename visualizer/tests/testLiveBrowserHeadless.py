@@ -638,9 +638,3 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             candidateLabels[0].get_attribute("style"),
             "font-weight: bold;",
             "Winner name SHOULD BE bold.")
-
-        # candidateNameLabel = self.browser.find_elements(By.CSS_SELECTOR, '#candidateNamesWrapper .dataLabel')
-        # font_weight = candidateNameLabel[0].value_of_css_property("font-weight")
-        # print("Computed font-weight is: ", font_weight)
-
-        # self.assertIn(font_weight, ["700", "bold"], "Winner name is not bold.")
