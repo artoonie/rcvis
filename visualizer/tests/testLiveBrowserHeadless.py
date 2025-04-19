@@ -613,13 +613,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         This is a rRegression test to make sure we handle it right.
         """
         self._upload(filenames.DOMINION)
-        
+
     def test_data_labels_elected(self):
         """
         Makes sure that elected and shows when a candidate wins,
         not the number of votes or percentage.
         """
-        
+
     # Upload the ballot file that produces a winner.
         self._upload(filenames.MULTIWINNER)
 
@@ -628,8 +628,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     # Use a selector to find the label (likely a text or tspan SVG element).
         winnerNames = self.browser.find_element(By.ID, "candidateNamesWrapper")
-        winner_name = winnerNames.find_elements(By.CLASS_NAME, "dataLabel")
+        winnerName = winnerNames.find_elements(By.CLASS_NAME, "dataLabel")
 
     # Extract the text content & assert that "elected" is present in it..
-        self.assertEqual(winner_name[0].get_attribute('innerHTML'), "Harvey Curley")
-        print(winner_name[0].get_attribute('innerHTML'))
+        self.assertEqual(winnerName[0].get_attribute('innerHTML'), "Harvey Curley")
