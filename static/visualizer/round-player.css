@@ -112,6 +112,34 @@
   visibility: hidden;
 }
 
+.round-player-dropdown {
+  width: 150px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.round-player-dropdown:hover {
+  border-color: #888;
+}
+
+.round-player-dropdown:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+.round-player-dropdown option {
+  padding: 5px;
+  background-color: #fff;
+  color: #333;
+}
+
 @media screen and (max-width: 450px) {
   .round-player-step-btn {
     margin: 4px;

@@ -40,8 +40,9 @@ path.domain {
   margin-left: auto;
   margin-right: auto;
   margin-top: 15px;
-  display: none; /* Disable for now */
+  display: block;
   overflow-y: auto;
+  width: 100%;
   max-width: 750px;
 }
 .round-description-text {
