@@ -791,7 +791,7 @@ function makeBarGraph(args) {
   function transitionDataLabelsForRound() {
       // Set all labels to correct display
     svg.selectAll("text.dataLabel")
-        t.attr("display", dataLabelDisplayFor);
+        .attr("display", dataLabelDisplayFor);
     svg.selectAll("#candidateNamesWrapper tspan")
       .style("font-weight", boldWinnerFont);
       
