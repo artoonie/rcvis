@@ -1,4 +1,3 @@
-
 """
 Integration tests with a headless browser.
 Place StaticLiveServerTestCase tests here when you want them to be faster on CI,
