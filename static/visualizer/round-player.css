@@ -16,81 +16,71 @@
 
 .round-player-wrapper {
   width: 100%;
-  justify-content: space-between;
+  justify-content: center;
   max-width: 750px;
 }
 
-.round-steps-wrapper {
-  flex-wrap: wrap;
+.round-player-container select {
+  text-align: center;
+  padding: 4px 8px;
 }
 
-.round-player-step-btn {
-  border-color: #636161;
-  border-width: 1px;
-  color: #636161;
-  margin: 8px;
-  font-size: 16px;
-  min-width: 32px;
-  padding: 0 4px;
-  flex: 0 1 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-}
-
-.round-player-step-btn.round-player-active {
-  font-weight: bold;
-  border-width: 3px;
-}
 
 .round-player-play-btn {
-  background-color: #1922da;
-  font-weight: bold;
+  background-color: #4747ff;
   color: #fff;
   padding: 2px 10px;
   font-size: 16px;
+  width: 240px;
 }
 
-@media screen and (min-width: 750px) {
-  .round-player-play-btn {
-    min-width: 160px;
-    width: 160px;
-  }
+.round-player-play-btn:hover {
+  color: #fff;
+  background-color: #4747c2;
 }
 
-.range-player-nav {
+.round-player-nav {
   display: flex;
   align-items: center;
   flex-direction: row;
-  justify-content: space-between;
-  font-weight: bold;
-  color: #1922da;
+  color: #4747ff;
   font-size: 16px;
   padding: 4px 8px;
-  min-width: 132px;
 }
 
-.range-player-nav.range-player-prev,
-.range-player-nav.range-player-prev svg {
-  margin-right: 8px;
+.round-player-nav.round-player-prev,
+.round-player-nav.round-player-prev svg {
+  margin-right: 4px;
   flex-direction: row-reverse;
 }
 
-.range-player-nav.range-player-next,
-.range-player-nav.range-player-next svg {
-  margin-left: 8px;
+.round-player-nav.round-player-next,
+.round-player-nav.round-player-next svg {
+  margin-left: 4px;
 }
 
-.range-player-nav svg {
+.round-player-nav-label {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .round-player-nav {
+    min-width: 80px;
+  }
+  .round-player-nav-label {
+    display: inline-block;
+  }
+}
+
+.round-player-nav svg {
   scale: 50%;
   width: 24px;
 }
 
-.range-player-nav.range-player-prev svg {
+.round-player-nav.round-player-prev svg {
   transform: rotate(180deg);
 }
 
-.range-player-hidden {
+.round-player-hidden {
   visibility: hidden;
 }

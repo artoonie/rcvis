@@ -65,34 +65,11 @@ function updateFaqText(round) {
               .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
                         "<p class='faq-a'>" + d['answer'] + "</p>")
               .reduce((accum, val) => accum + val);
-  document.getElementById(idOfFaqTextDiv).innerHTML = text;
+  document.getElementById(idOfFaqTextDiv).innerHTML = `<h3 class="faq-description-header">Round ${round + 1} Explanation</h3> ${text}`;
 }
 
 function showFaqs() {
-  const idRoundDescriptionText = "#round-description-wrapper";
-  d3.select(idRoundDescriptionText)
-    .style("height", "100%");
-
-  const idOfFaqTextDiv = "faq-text";
-  document.getElementById(idOfFaqTextDiv).style.display = "block"
-}
-
-function hideFaqs() {
-  if (barchartRoundPlayer.playing()) {
-    return;
-  }
-
-  const idRoundDescriptionText = "#round-description-wrapper";
-  const currHeight = d3.select(idRoundDescriptionText).node().offsetHeight;
-  d3.select(idRoundDescriptionText)
-    .style("height", currHeight + "px") // convert 100% to its actual height
-    .transition()
-      .delay(30)
-      .duration(600)
-      .style("height", "65px");  // Note: sync with bargraph/style.css
-
-  const idOfFaqTextDiv = "faq-text";
-  document.getElementById(idOfFaqTextDiv).style.display = "none"
+  document.getElementById("faq-text").scrollIntoView({ behavior: "smooth" })
 }
 
 function makeInteractiveGraph() {
@@ -124,7 +101,6 @@ function makeInteractiveGraph() {
   });
 
   function sliderValueChangedCallback(round) {
-    hideFaqs();
     transitionEachBarForRound(round);
     showTextOnRoundDescriber(descriptionOfCurrRound(round), false);
     updateFaqText(round);
@@ -142,6 +118,9 @@ function makeInteractiveGraph() {
   // After creating the slider, make the default text the summary
   // round summary, with the FAQ button showing.
   showTextOnRoundDescriber(humanFriendlySummary, false);
+
+  // Populate the FAQ with initial description for the last round
+  updateFaqText(numRounds - 1);
 }
 
 function showFaqButton() {
