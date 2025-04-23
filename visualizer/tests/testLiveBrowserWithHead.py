@@ -217,7 +217,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Somebody")
 
     def test_faq(self):
-        """ Test the FAQ button works """
+        """ Test the FAQ section works """
         self._upload(filenames.MULTIWINNER)
 
         # Move the slider and complete all other animations
@@ -230,18 +230,8 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         div = self.browser.find_element(By.ID, 'round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
-        # Expands to fit the FAQs
-        hackyXpathForWhyButton = '//*[@id="bargraph-interactive-why-button"]/a[1]'
-        whyButton = self.browser.find_element(By.XPATH, hackyXpathForWhyButton)
-        self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
-        whyButton.click()
-        self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
-
-        # Move the slider again
-        self._go_to_round_by_clicking(1)
-
-        # Restores size on new round
-        self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
+        faqHeader = self.browser.find_element(By.CSS_SELECTOR, '.faq-description-header')
+        self.assertEqual(faqHeader.get_attribute('innerHTML'), 'Round 4 Explanation')
 
     def test_embedded_scrollbars(self):
         """
