@@ -21,17 +21,18 @@ function RoundPlayer({
     const navBtn = document.createElement("button");
     navBtn.classList.add(
       "btn",
-      "range-player-nav",
-      isNext ? "range-player-next" : "range-player-prev"
+      "round-player-nav",
+      isNext ? "round-player-next" : "round-player-prev"
     );
     // Including at the beginning because we start at the last round
     // Also including if there aren't more than two rounds
     if (isNext || totalRounds < MIN_ROUNDS_FOR_NAV) {
-      navBtn.classList.add("range-player-hidden");
+      navBtn.classList.add("round-player-hidden");
     }
 
     const labelEl = document.createElement("span");
-    labelEl.innerText = `Round ${isNext ? totalRounds : totalRounds - 2}`;
+    labelEl.classList.add("round-player-nav-label");
+    labelEl.innerText = isNext ? "Next" : "Back";
     navBtn.appendChild(labelEl);
 
     const navSvg = document.createElementNS(svgNS, "svg");
@@ -50,26 +51,29 @@ function RoundPlayer({
     return navBtn;
   }
 
-  function createStepButton(round) {
-    let stepBtn = document.createElement("button");
-    stepBtn.classList.add("btn", "round-player-step-btn");
-    if (round === currentStep) {
-      stepBtn.classList.add("round-player-active");
+  function createDropdown() {
+    const select = document.createElement("select");
+    select.classList.add("round-player-select");
+    for (let round = 0; round < totalRounds; ++round) {
+      const opt = document.createElement("option");
+      opt.value = round;
+      opt.innerText = `Round ${round + 1} of ${totalRounds}`;
+      if (round === totalRounds - 1) {
+        opt.selected = true;
+      }
+      select.appendChild(opt);
     }
-    if (round === 0 && totalRounds === 1) {
-      stepBtn.innerText = "Round 1";
-    } else {
-      stepBtn.innerText = round + 1;
-    }
-    stepBtn.dataset.round = round;
-    stepBtn.addEventListener("click", () => setStep(round));
-    return stepBtn;
+
+    select.addEventListener("change", (e) => {
+      setStep(+e.target.value);
+    });
+    return select;
   }
 
   function createPlayButton() {
     const playBtn = document.createElement("button");
     playBtn.classList.add("btn", "round-player-play-btn");
-    playBtn.innerText = "Auto-Step";
+    playBtn.innerText = "Play round animation";
     playBtn.addEventListener("click", () => {
       isPlaying ? stop() : play();
     });
@@ -83,18 +87,11 @@ function RoundPlayer({
     const wrapperEl = document.createElement("div");
     wrapperEl.classList.add("round-player-wrapper");
     wrapperEl.appendChild(createNavButton(false));
-
-    const stepsWrapperEl = document.createElement("div");
-    stepsWrapperEl.classList.add("round-steps-wrapper");
-
-    for (let round = 0; round < totalRounds; ++round) {
-      stepsWrapperEl.appendChild(createStepButton(round));
-    }
-    wrapperEl.appendChild(createPlayButton());
-
+    wrapperEl.appendChild(createDropdown());
     wrapperEl.appendChild(createNavButton(true));
-    playerEl.appendChild(stepsWrapperEl);
+
     playerEl.appendChild(wrapperEl);
+    playerEl.appendChild(createPlayButton());
 
     container.appendChild(playerEl);
   }
@@ -106,36 +103,20 @@ function RoundPlayer({
       return;
     }
 
-    // Remove from previous element
-    const previousStepEl = container.querySelector(
-      `[data-round="${currentStep}"]`
-    );
-    if (previousStepEl) {
-      previousStepEl.classList.remove("round-player-active");
-    }
     currentStep = step;
-
-    container
-      .querySelector(`[data-round="${currentStep}"]`)
-      .classList.add("round-player-active");
+    container.querySelector(`select option[value="${step}"]`).selected = true;
 
     if (totalRounds >= MIN_ROUNDS_FOR_NAV) {
       container
-        .querySelector(".range-player-next")
+        .querySelector(".round-player-next")
         .classList.toggle(
-          "range-player-hidden",
+          "round-player-hidden",
           currentStep >= totalRounds - 1
         );
-      container.querySelector(".range-player-next span").innerText = `Round ${
-        currentStep + 2
-      }`;
 
       container
-        .querySelector(".range-player-prev")
-        .classList.toggle("range-player-hidden", currentStep <= 0);
-      container.querySelector(
-        ".range-player-prev span"
-      ).innerText = `Round ${currentStep}`;
+        .querySelector(".round-player-prev")
+        .classList.toggle("round-player-hidden", currentStep <= 0);
     }
 
     onChange(step);
@@ -166,7 +147,9 @@ function RoundPlayer({
   function stop() {
     isPlaying = false;
     window.clearTimeout(timer);
-    container.querySelector(".round-player-play-btn").innerText = "Auto-Step";
+    container.querySelector(".round-player-play-btn").innerText =
+      "Play round animation";
+    changeStep(currentStep);
   }
 
   function playing() {
