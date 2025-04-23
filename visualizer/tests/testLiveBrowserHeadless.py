@@ -381,8 +381,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             lambda: self.assertIn('Ranked Choice Voting election', desc.text))
 
         # Now move the player
-        self.browser.find_element(
-            By.CSS_SELECTOR, '#bargraph-slider-container [data-round="0"]').click()
+        self._go_to_round_by_clicking(0)
 
         # Check that the text updates now
         self._ensure_eventually_asserts(
