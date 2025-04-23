@@ -12,6 +12,7 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_script_to_disable_animations
@@ -261,7 +262,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         """
         # Cancel animation by clicking on round_i'th element element
         container = self.browser.find_element(By.ID, 'bargraph-slider-container')
-        container.find_elements(By.CLASS_NAME, 'round-player-step-btn')[round_i].click()
+        selectEl = container.find_element(By.CSS_SELECTOR, ".round-player-select")
+        select = Select(selectEl)
+        select.select_by_value(str(round_i))
 
     def _set_input_to(self, inputId, value):
         """
