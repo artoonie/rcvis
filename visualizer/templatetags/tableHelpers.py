@@ -22,6 +22,6 @@ def get_round_background_color(context, candidateName, round_item):
         context[candidateKey]["wasWinner"] = True
         return "#A0FFB5"
     if context[candidateKey]["wasWinner"]:
-        return "#BFFFCC"
+        return "#DCFFE1"
 
     return "rgba(0,0,0,0)"
