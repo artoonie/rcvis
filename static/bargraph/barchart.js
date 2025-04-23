@@ -301,8 +301,8 @@ function makeBarGraph(args) {
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
       for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
-        // TODO here should be the memoizeeee
-        // why does the data format suckeeeeee
+        // TODO here should be the memoize
+        // why does the data format suck
       }
     }
   }
@@ -316,8 +316,9 @@ function makeBarGraph(args) {
           return isVertical ? "❌ "  :  "eliminated";
       }
       let startText = "";
-      if (d.isWinner)
+      if (d.isWinner){
           startText = "✔️ " ;
+      }
       if (isVertical)
       {
           return startText + votesToText(d[1], false, true);
@@ -328,6 +329,7 @@ function makeBarGraph(args) {
           return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
   };
+
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
@@ -648,11 +650,21 @@ function makeBarGraph(args) {
           .text(mainDataLabelTextFn);
   }
 
+
   if (!isInteractive) {
     // Show a legend
     d3.select('#'+idOfLegend)
       .append("g")
-        .call(legend);
+        .call(legend)
+  }
+
+  svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+
+   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names and !isInteractive */
+  function boldWinnerFont(_, i){
+    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
+    stackSeries[currRound][i].isWinner) ? "bold" : null;
   }
 
   // Draw the threshold dashed line
@@ -772,11 +784,15 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+
+
   function transitionDataLabelsForRound() {
-    // Set all labels to correct display
+      // Set all labels to correct display
     svg.selectAll("text.dataLabel")
         .attr("display", dataLabelDisplayFor);
-
+    svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+      
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
       .filter(isLatestRoundFor)

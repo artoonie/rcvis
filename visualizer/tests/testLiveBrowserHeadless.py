@@ -612,3 +612,27 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         This is a rRegression test to make sure we handle it right.
         """
         self._upload(filenames.DOMINION)
+
+    def test_bolding_winners(self):
+        """Test that no candidate names are bolded until the end of the round
+        and that winners are bolded correctly in subsequent rounds."""
+        # Upload file
+        self._upload(filenames.MULTIWINNER)
+
+        # Round 0: Move to round 0 and check boldness
+        self._go_to_round_by_clicking(0)  # Click to go to round 1/page load
+        candidateName = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self.assertEqual(
+            candidateName[0].get_attribute("style"),
+            "",
+            "Candidates' names should NOT be bold.")
+
+        # Round 3: Move to round 3 and check boldness
+        self._go_to_round_by_clicking(3)  # Click to go to round 3
+        candidateLabels = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self.assertEqual(
+            candidateLabels[0].get_attribute("style"),
+            "font-weight: bold;",
+            "Winner name SHOULD BE bold.")
