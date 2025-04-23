@@ -80,8 +80,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Ensure eliminated color setting can be changed """
         def _get_eliminated_color():
             # Move the slider to stop animation
-            self.browser.find_element(
-                By.CSS_SELECTOR, '#bargraph-slider-container [data-round="3"]').click()
+            self._go_to_round_by_clicking(3)
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')

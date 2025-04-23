@@ -149,7 +149,6 @@ function RoundPlayer({
     window.clearTimeout(timer);
     container.querySelector(".round-player-play-btn").innerText =
       "Play round animation";
-    changeStep(currentStep);
   }
 
   function playing() {
