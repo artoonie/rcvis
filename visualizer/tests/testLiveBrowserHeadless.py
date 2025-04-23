@@ -632,7 +632,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_round_by_clicking(3)  # Click to go to round 3
         candidateLabels = self.browser.find_elements(
             By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
-        self.assertEqual(
+        self._ensure_eventually_asserts(lambda: self.assertEqual(
             candidateLabels[0].get_attribute("style"),
             "font-weight: bold;",
-            "Winner name SHOULD BE bold.")
+            "Winner name SHOULD BE bold."))
