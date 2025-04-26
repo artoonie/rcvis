@@ -31,7 +31,6 @@ path.domain {
   font-size: 0.6rem;
 }
 
-.round-description-header,
 .faq-description-header {
   font-size: 1.125rem;
   font-weight: bold;
@@ -46,10 +45,6 @@ path.domain {
   width: 100%;
   margin-left: auto;
   margin-right: auto;
-}
-
-.round-description-header {
-  padding: 5px 10px 0px 10px;
 }
 
 .round-description-wrapper {

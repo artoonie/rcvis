@@ -73,7 +73,7 @@ function RoundPlayer({
   function createPlayButton() {
     const playBtn = document.createElement("button");
     playBtn.classList.add("btn", "round-player-play-btn");
-    playBtn.innerText = "Play round animation";
+    playBtn.innerText = "Play animation";
     playBtn.addEventListener("click", () => {
       isPlaying ? stop() : play();
     });
@@ -148,7 +148,7 @@ function RoundPlayer({
     isPlaying = false;
     window.clearTimeout(timer);
     container.querySelector(".round-player-play-btn").innerText =
-      "Play round animation";
+      "Play animation";
   }
 
   function playing() {
