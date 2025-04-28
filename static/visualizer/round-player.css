@@ -20,11 +20,43 @@
   max-width: 750px;
 }
 
-.round-player-container select {
-  text-align: center;
-  padding: 4px 8px;
+.round-player-select-wrapper {
+  position: relative;
 }
 
+.round-player-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  width: 100%;
+  background-color: #fff;
+  border: 2px solid #4747ff;
+  border-radius: 4px;
+  padding: 4px 8px;
+  padding-right: 32px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.round-player-select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #4747ff;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+}
+
+.round-player-select::-ms-expand {
+  display: none;
+}
 
 .round-player-play-btn {
   background-color: #4747ff;

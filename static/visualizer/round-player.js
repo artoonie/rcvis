@@ -52,6 +52,9 @@ function RoundPlayer({
   }
 
   function createDropdown() {
+    const selectWrapper = document.createElement("div");
+    selectWrapper.classList.add("round-player-select-wrapper");
+
     const select = document.createElement("select");
     select.classList.add("round-player-select");
     for (let round = 0; round < totalRounds; ++round) {
@@ -67,7 +70,9 @@ function RoundPlayer({
     select.addEventListener("change", (e) => {
       setStep(+e.target.value);
     });
-    return select;
+
+    selectWrapper.appendChild(select);
+    return selectWrapper;
   }
 
   function createPlayButton() {
