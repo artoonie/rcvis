@@ -323,10 +323,12 @@ function makeBarGraph(args) {
 
       if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
         return startText = "✔️ elected ";
-    }
+      }
 
       if (d.isWinner) {
-        return startText = "✔️ ";
+        startText = "✔️ ";
+        const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+        return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
       
       if (isVertical)
