@@ -397,7 +397,7 @@ class RestAPITests(APITestCase):
         self._authenticate_as('notadmin')
         with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
             data = {'jsonFile': jsonFile, 'customText': 'FAKE' * 500}
-            response = self.client.post('/api/visualizations/', data=data)
+            response = self.client.post('/api/verbose/', data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         errMsg = b'{"customText":["Ensure this field has no more than 256 characters."]}'
         assert errMsg in response.content
