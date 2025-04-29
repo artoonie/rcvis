@@ -72,6 +72,7 @@ path.domain {
   margin-bottom: 12px;
   margin-left: auto;
   margin-right: auto;
+  display: none;
 }
 
 .faq-q {

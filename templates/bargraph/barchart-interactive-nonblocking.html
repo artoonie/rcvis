@@ -85,7 +85,12 @@ function updateFaqText(round) {
 }
 
 function showFaqs() {
+  makeFaqSectionVisible();
   document.getElementById("faq-text").scrollIntoView({ behavior: "smooth" })
+}
+
+function makeFaqSectionVisible() {
+  document.getElementById("faq-text").style.display = "block";
 }
 
 function makeInteractiveGraph() {
@@ -134,6 +139,11 @@ function makeInteractiveGraph() {
   // After creating the slider, make the default text the summary
   // round summary, with the FAQ button showing.
   showTextOnRoundDescriber(humanFriendlySummary, false);
+
+  // On load, show the FAQs if not in an iframe
+  if (window.self === window.top) {
+    makeFaqSectionVisible();
+  }
 
   // Populate the FAQ with initial description for the last round
   updateFaqText(numRounds - 1);
