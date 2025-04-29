@@ -1,0 +1,23 @@
+{
+  "name": "rcvis-settings",
+  "version": "1.0.0",
+  "main": "src/upload.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\"",
+    "build-dev": "npx webpack --mode development --watch --config ./webpack.config.js",
+    "build": "npx webpack --mode production --config ./webpack.config.js",
+    "lint": "npx eslint --config ../../eslint.config.js"
+  },
+  "dependencies": {
+    "rcvis-datatable": "../datatable",
+    "zepto": "^1.2.0"
+  },
+  "devDependencies": {
+    "@types/zepto": "^1.0.36",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

@@ -185,8 +185,8 @@ class WhyMultiWinner(FAQBase):
         threshold = intify(self.graph.threshold)
         supportCount = len(self.summary.winnerNames) + 1
         return f"Because {winnerText} received {threshold} votes. "\
-               f"The threshold of {threshold} votes was chosen to achieve proportional "\
-               f"representation, equal to at least one out of every {supportCount} voters "\
+            f"The threshold of {threshold} votes was chosen to achieve proportional "\
+            f"representation, equal to at least one out of every {supportCount} voters "\
             "supporting this candidate."
 
 

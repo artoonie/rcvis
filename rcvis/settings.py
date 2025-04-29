@@ -69,6 +69,8 @@ INSTALLED_APPS = [
     'django_cleanup.apps.CleanupConfig',
     'django_social_share',
     'django_node_assets',
+
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
