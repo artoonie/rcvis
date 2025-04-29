@@ -80,15 +80,13 @@
   padding: 4px 8px;
 }
 
-.round-player-nav.round-player-prev,
-.round-player-nav.round-player-prev svg {
-  margin-right: 4px;
+.round-player-nav.round-player-prev {
+  margin-right: 12px;
   flex-direction: row-reverse;
 }
 
-.round-player-nav.round-player-next,
-.round-player-nav.round-player-next svg {
-  margin-left: 4px;
+.round-player-nav.round-player-next {
+  margin-left: 12px;
 }
 
 .round-player-nav-label {
@@ -97,7 +95,13 @@
 
 @media screen and (min-width: 750px) {
   .round-player-nav {
-    min-width: 80px;
+    width: 100px;
+  }
+  .round-player-nav.round-player-prev svg {
+    margin-right: 12px;
+  }
+  .round-player-nav.round-player-next svg {
+    margin-left: 12px;
   }
   .round-player-nav-label {
     display: inline-block;
