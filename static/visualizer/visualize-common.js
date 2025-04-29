@@ -160,15 +160,16 @@ function splitText(text) {
   }
 }
 
-function namesNeedAnyTwoLineLabels(names) {
+function countNamesThatNeedTwoLines(names) {
+    let count = 0;
     for (const name of names) {
-       if (needsTwoLines(name)) return true;
+       if (needsTwoLines(name)) count += 1;
     }
-    return false;
+    return count;
 }
 
 function needsTwoLines(name) {
-    return name.length > 25;
+    return name.length > 40;
 }
 
 /*
