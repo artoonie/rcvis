@@ -322,7 +322,6 @@ function makeBarGraph(args) {
       startText = "";
 
       if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
-          
         return startText = "✔️ elected ";
     }
 
@@ -337,7 +336,7 @@ function makeBarGraph(args) {
       else
       {
       const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-        return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
   };
   function secondaryDataLabelTextFn(d) {
