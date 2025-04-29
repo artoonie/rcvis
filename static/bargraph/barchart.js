@@ -318,18 +318,17 @@ function makeBarGraph(args) {
           return isVertical ? "❌ "  :  "eliminated";
       }
       // controls string in STV election results
-      if (d.isWinner) 
-        startText = "✔️ ";
-        if (numRoundsTilWin.length > 1) {
-          startText + "elected ";
-        }
-      
-      // if (d.isWinner && numRoundsTilWin.length > 1) {
-      //     return startText = ? "✔️ elected ": "✔️ ";
-      // }
-      // else {
-      //   return startText = "✔️ ";
-      // }
+      //console.log(Object.entries(numRoundsTilWin).length);
+      startText = "";
+
+      if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
+          
+        return startText = "✔️ elected ";
+    }
+
+      if (d.isWinner) {
+        return startText = "✔️ ";
+      }
       
       if (isVertical)
       {
@@ -338,7 +337,7 @@ function makeBarGraph(args) {
       else
       {
       const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-       return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+        return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       }
   };
   function secondaryDataLabelTextFn(d) {
