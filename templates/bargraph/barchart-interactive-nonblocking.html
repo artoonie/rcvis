@@ -5,6 +5,7 @@
 const idOfWhyButton = "#bargraph-interactive-why-button";
 // Raising the scope for other methods to access
 let barchartRoundPlayer = null;
+let scrollbarLocked = false;
 
 function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
   // While playing, don't update the description text for the round
@@ -58,6 +59,20 @@ function descriptionOfCurrRound(round) {
   return roundIdentifier + roundText;
 }
 
+
+function lockScrollbarIfNeeded() {
+  // Don't allow the animation to shift horizontally when a scrollbar is added
+  // and removed -- if a scrollbar is ever visible, keep it there.
+  if (scrollbarLocked) return;
+
+  const hasVerticalScrollbar = document.documentElement.scrollHeight > window.innerHeight;
+
+  if (hasVerticalScrollbar) {
+    document.body.style.overflowY = 'scroll';
+    scrollbarLocked = true;
+  }
+}
+
 function updateFaqText(round) {
   const faqsPerRound = {{ faqsPerRound|safe }};
   const idOfFaqTextDiv = "faq-text";
@@ -66,10 +81,16 @@ function updateFaqText(round) {
                         "<p class='faq-a'>" + d['answer'] + "</p>")
               .reduce((accum, val) => accum + val);
   document.getElementById(idOfFaqTextDiv).innerHTML = `<h3 class="faq-description-header">Round ${round + 1} Explanation</h3> ${text}`;
+  setTimeout(lockScrollbarIfNeeded, 0); // Needs to run after the DOM is updated
 }
 
 function showFaqs() {
+  makeFaqSectionVisible();
   document.getElementById("faq-text").scrollIntoView({ behavior: "smooth" })
+}
+
+function makeFaqSectionVisible() {
+  document.getElementById("faq-text").style.display = "block";
 }
 
 function makeInteractiveGraph() {
@@ -118,6 +139,11 @@ function makeInteractiveGraph() {
   // After creating the slider, make the default text the summary
   // round summary, with the FAQ button showing.
   showTextOnRoundDescriber(humanFriendlySummary, false);
+
+  // On load, show the FAQs if not in an iframe
+  if (window.self === window.top) {
+    makeFaqSectionVisible();
+  }
 
   // Populate the FAQ with initial description for the last round
   updateFaqText(numRounds - 1);

@@ -121,7 +121,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # And the height was correctly set via PostMessages
         self._ensure_eventually_asserts(lambda: self.assertEqual(bargraphIframeWrapper.find_element(
-            By.TAG_NAME, 'iframe').get_attribute('height'), '695px'))
+            By.TAG_NAME, 'iframe').get_attribute('height'), '397px'))
 
     @Mocker()
     def test_scrape_all(self, requestMock):
