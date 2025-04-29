@@ -392,6 +392,16 @@ class RestAPITests(APITestCase):
         errMsg = b'{"non_field_errors":["You included superfluous fields: candidateSidecarFile"]}'
         assert errMsg in response.content
 
+    def test_custom_text_max_length(self):
+        """Ensure custom text field can't be longer than max characters"""
+        self._authenticate_as('notadmin')
+        with open(filenames.THREE_ROUND, encoding='utf-8') as jsonFile:
+            data = {'jsonFile': jsonFile, 'customText': 'FAKE' * 500}
+            response = self.client.post('/api/visualizations/', data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        errMsg = b'{"customText":["Ensure this field has no more than 256 characters."]}'
+        assert errMsg in response.content
+
     def test_create_token(self):
         """ Ensure only api-enabled users can create a token """
         # This user may create a token

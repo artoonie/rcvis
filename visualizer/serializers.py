@@ -145,7 +145,7 @@ class JsonOnlySerializer(BaseVisualizationSerializer):
     All other settings are set to their default values.
     """
     class Meta(BaseVisualizationSerializer.Meta):
-        writeable_fields = ('jsonFile', 'owner')
+        writeable_fields = ('jsonFile', 'owner', 'customText')
         fields = BaseVisualizationSerializer.Meta.fields + writeable_fields
 
 
