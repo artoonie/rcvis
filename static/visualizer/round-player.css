@@ -81,12 +81,12 @@
 }
 
 .round-player-nav.round-player-prev {
-  margin-right: 12px;
+  margin-right: 24px;
   flex-direction: row-reverse;
 }
 
 .round-player-nav.round-player-next {
-  margin-left: 12px;
+  margin-left: 24px;
 }
 
 .round-player-nav-label {
@@ -98,10 +98,10 @@
     width: 100px;
   }
   .round-player-nav.round-player-prev svg {
-    margin-right: 12px;
+    margin-right: 6px;
   }
   .round-player-nav.round-player-next svg {
-    margin-left: 12px;
+    margin-left: 6px;
   }
   .round-player-nav-label {
     display: inline-block;
