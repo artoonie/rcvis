@@ -1,4 +1,5 @@
 {% load static %}
+{% load tableHelpers %}
 <link rel="stylesheet" type="text/css" href="{% static 'tabular/style.css' %}">
 
 <div class="shadow-wrapper responsive-table-wrapper" id="single-table-summary-wrapper">
@@ -18,18 +19,13 @@
         <tr>
             <th scope="row">{{ candidateTabulation.name }}</th>
             {% for round in candidateTabulation.eachRound %}
-                {% if not round %}
-                 <td style="background-color: #FFBFBF"></td>
-                 {% else %}
-                 <td
-                     {% if round.isWinner %}
-                     style="background-color: #BFFFCC"
-                     {% endif %}
-                 >
+                {% get_round_background_color candidateTabulation.name round as roundBg %}
+                 <td style="background-color: {{ roundBg }}">
+                    {% if round %}
                       <h3 class="primaryLabel">{{ round.primaryLabel }}</h3>
                                               {{ round.secondaryLabel }}
+                    {% endif %}
                  </td>
-                 {% endif %}
             {% endfor %}
         </tr>
         {% endfor %}
