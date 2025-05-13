@@ -318,29 +318,54 @@ function makeBarGraph(args) {
           return isVertical ? "❌ "  :  "eliminated";
       }
       // controls string in STV election results
-      //console.log(Object.entries(numRoundsTilWin).length);
-      startText = "";
-
-      if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
-        return startText = "✔️ elected ";
-      }
-
-      if (d.isWinner) {
-        startText = "✔️ ";
-        const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-        return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
-      }
+        const percentDenominator = calculatePercentDenominator(
+          lastRoundNumWinners,
+          totalVotesPerRound[0],
+          totalVotesPerRound[d.round]
+        );
       
-      if (isVertical)
-      {
-          return startText + votesToText(d[1], false, true);
-      }
-      else
-      {
-      const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-      return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
-      }
-  };
+        const hasMultipleRounds = Object.entries(numRoundsTilWin).length > 1;
+        const winningRound = numRoundsTilWin[d.data["candidate"]]
+      
+        if (d.isWinner && hasMultipleRounds && d.round > winningRound) {
+          return "✔️ elected ";
+        }
+      
+        const prefix = d.isWinner ? "✔️ " : "";
+      
+        if (isVertical) {
+          return prefix + votesToText(d[1], false, true);
+        }
+      
+        return prefix + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      };
+
+
+      //console.log(Object.entries(numRoundsTilWin).length);
+      // let startText = "";
+      // const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+      
+      // if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
+      //   return startText = "✔️ elected ";
+      // } else {
+
+      // }
+
+      // if (d.isWinner) {
+      //   startText = "✔️ ";
+      //   return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      // }
+      
+      // if (isVertical)
+      // {
+      //     return startText + votesToText(d[1], false, true);
+      // }
+      // else
+      // {
+      
+      // return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      // }
+
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
