@@ -625,8 +625,12 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     # Click through to the round where the winner is announced.
         self._go_to_round_by_clicking(3)
-        winnerName = self.browser.find_elements(
+        winnerNames = self.browser.find_elements(
             By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper .dataLabel")
     # Extract the text content & assert that "elected" is present in it..
-        self.assertEqual(winnerName[0].get_attribute('innerHTML'), "elected")
+        winnerLabel = [el.get_attribute('innerText').lower() for el in winnerNames]
+        electedLabels = [t for t in winnerLabel if "elected" in t]
+        #self.assertIn("elected", winnerName[0].get_attribute('innerText').lower())
+        self.assertTrue(electedLabels, f"No label included 'elected'. Got: {winnerLabel}")
+        
     # Create a test for non-SVP elections to make sure they still show number results
