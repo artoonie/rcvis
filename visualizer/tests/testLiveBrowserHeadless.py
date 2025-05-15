@@ -619,18 +619,13 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         Makes sure that elected and shows when a candidate wins or is elected
         not the number of votes or percentage in a SVP.
         """
-
     # Upload the ballot file that produces a winner.
         self._upload(filenames.MULTIWINNER)
-
     # Click through to the round where the winner is announced.
         self._go_to_round_by_clicking(3)
         winnerNames = self.browser.find_elements(
             By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper .dataLabel")
-    # Extract the text content & assert that "elected" is present in it..
+    # Extract the text content & assert that "elected" is present in it.
         winnerLabel = [el.get_attribute('innerText').lower() for el in winnerNames]
         electedLabels = [t for t in winnerLabel if "elected" in t]
-        #self.assertIn("elected", winnerName[0].get_attribute('innerText').lower())
         self.assertTrue(electedLabels, f"No label included 'elected'. Got: {winnerLabel}")
-        
-    # Create a test for non-SVP elections to make sure they still show number results
