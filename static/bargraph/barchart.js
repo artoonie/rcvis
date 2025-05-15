@@ -318,16 +318,18 @@ function makeBarGraph(args) {
           return isVertical ? "❌ "  :  "eliminated";
       }
       // controls string in STV election results
-        const percentDenominator = calculatePercentDenominator(
+        let percentDenominator = calculatePercentDenominator(
           lastRoundNumWinners,
           totalVotesPerRound[0],
           totalVotesPerRound[d.round]
         );
       
         const hasMultipleRounds = Object.entries(numRoundsTilWin).length > 1;
-        const winningRound = numRoundsTilWin[d.data["candidate"]]
+        const winningRound = numRoundsTilWin[d.data["candidate"]];
+        const lastRound = totalVotesPerRound.length - 1;
+
       
-        if (d.isWinner && hasMultipleRounds && d.round > winningRound) {
+        if (d.isWinner && hasMultipleRounds && (d.round > winningRound || d.round === lastRound)) {
           return "✔️ elected ";
         }
       
@@ -340,31 +342,6 @@ function makeBarGraph(args) {
         return prefix + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
       };
 
-
-      //console.log(Object.entries(numRoundsTilWin).length);
-      // let startText = "";
-      // const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-      
-      // if (d.isWinner && Object.entries(numRoundsTilWin).length > 1) {
-      //   return startText = "✔️ elected ";
-      // } else {
-
-      // }
-
-      // if (d.isWinner) {
-      //   startText = "✔️ ";
-      //   return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
-      // }
-      
-      // if (isVertical)
-      // {
-      //     return startText + votesToText(d[1], false, true);
-      // }
-      // else
-      // {
-      
-      // return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
-      // }
 
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {

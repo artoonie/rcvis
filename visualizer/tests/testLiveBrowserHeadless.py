@@ -616,19 +616,17 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
     def test_data_labels_elected(self):
         """
-        Makes sure that elected and shows when a candidate wins,
-        not the number of votes or percentage.
+        Makes sure that elected and shows when a candidate wins or is elected
+        not the number of votes or percentage in a SVP.
         """
 
     # Upload the ballot file that produces a winner.
         self._upload(filenames.MULTIWINNER)
 
     # Click through to the round where the winner is announced.
-        self._go_to_round_by_clicking(2)
-
-    # Use a selector to find the label (likely a text or tspan SVG element).
-        winnerNames = self.browser.find_element(By.ID, "candidateNamesWrapper")
-        winnerName = winnerNames.find_elements(By.CLASS_NAME, "dataLabel")
-
+        self._go_to_round_by_clicking(3)
+        winnerName = self.browser.find_elements(
+            By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper .dataLabel")
     # Extract the text content & assert that "elected" is present in it..
-        self.assertEqual(winnerName[0].get_attribute('innerHTML'), "Harvey Curley")
+        self.assertEqual(winnerName[0].get_attribute('innerHTML'), "elected")
+    # Create a test for non-SVP elections to make sure they still show number results
