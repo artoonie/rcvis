@@ -3,6 +3,7 @@ Testing the FAQ Generator
 """
 
 import json
+from collections import Counter
 
 from django.test import TestCase
 from mock import Mock
@@ -274,3 +275,12 @@ class FAQTests(TestCase):
         desc = allRoundsDesc[-1][-1]
         self.assertIn("is among the top vote-getters", desc['description'])
         self.assertNotIn("reached the threshold", desc['description'])
+
+    def test_describer_consolidates_events(self):
+        """Describer should always consolidate events, no more than 1 record per verb"""
+        with open(filenames.RESIDUAL_SURPLUS_MAIN, 'r', encoding='utf-8') as f:
+            graph = make_graph_with_file(f, False)
+        allRounds = Describer(graph, self.config, False).describe_all_rounds()
+        for round in allRounds:
+            verbCounter = Counter([r['verb'] for r in round])
+            self.assertTrue([verb <= 1 for verb in verbCounter.values()])
