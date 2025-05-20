@@ -623,9 +623,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.MULTIWINNER)
     # Click through to the round where the winner is announced.
         self._go_to_round_by_clicking(3)
-        winnerNames = self.browser.find_elements(
+        electedLabels = self.browser.find_elements(
             By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper .dataLabel")
     # Extract the text content & assert that "elected" is present in it.
-        winnerLabel = [el.get_attribute('innerText').lower() for el in winnerNames]
-        electedLabels = [t for t in winnerLabel if "elected" in t]
-        self.assertTrue(electedLabels, f"No label included 'elected'. Got: {winnerLabel}")
+    
+    self.assertTrue(winnerLabel, f"No label included 'elected'. Got: {winnerLabel}")
