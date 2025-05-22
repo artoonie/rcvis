@@ -81,15 +81,22 @@ class Describer:
     def _list_to_describe_list_of_names(cls, listOfNames, verb, whatHappenedToThemDescription):
         """
         e.g. With listOfNames = [Foo,Bar,Baz], verb="ate", and whatHappenedToThem="ate chips":
-        [ {summary: "Foo ate", verb: "ate", description: "Foo at chips"},
-          {summary: "Bar ate", verb: "ate", description: "Bar at chips"},
-          {summary: "Baz ate", verb: "ate", description: "Baz at chips"} ]
+        [{
+            "summary": "Foo, Bar and Baz ate",
+            "verb": "ate",
+            "description": "Foo, Bar and Baz ate chips"
+        }]
         listOfNames can be empty, in which case an empty list is returned.
         """
-        return [{'summary': name + verb,
-                 'description': whatHappenedToThemDescription.format(name=name),
-                 'verb': verb}
-                for name in listOfNames]
+        if len(listOfNames) == 0:
+            return []
+        return [{
+            'summary': common.text_to_describe_list_of_names(
+                listOfNames, "{name} " + verb),
+            'description': common.text_to_describe_list_of_names(
+                listOfNames, whatHappenedToThemDescription),
+            'verb': verb
+        }]
 
     def _describe_list_of_names(self, listOfNames, verb, whatHappenedToThemDescription):
         """
@@ -115,7 +122,8 @@ class Describer:
             Returns empty string if nobody was eliminated."""
         rounds = self.graph.summarize().rounds
         eliminated = rounds[roundNum].eliminatedNames
-        whatHappened = "{name} had the fewest votes and was eliminated. "
+        wasWere = "was" if len(eliminated) == 1 else "were"
+        whatHappened = "{name} had the fewest votes and " + wasWere + " eliminated. "
         return self._describe_list_of_names(eliminated, " eliminated", whatHappened)
 
     def _describe_transfers_this_round(self, roundNum):
@@ -149,10 +157,7 @@ class Describer:
         winnerNames = rounds[roundNum].winnerNames
         winnerItems = rounds[roundNum].winnerItems
 
-        # Note: each event shows just one winner. If there are multiple winners,
-        # there will be multiple sentences in the main vis. (Not true in the video...)
-        # So, set numWinners to 1, not len(winners)
-        event = textForWinnerUtils.as_event(self.config, 1)
+        event = textForWinnerUtils.as_event(self.config, len(winnerNames))
 
         if self.graph.threshold is not None:
             # Did all candidates pass the threshold?
