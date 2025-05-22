@@ -176,8 +176,9 @@ class FAQTests(TestCase):
                 self.assertNotIn('None', desc['description'])
 
         # explicitly validate last round description
-        self.assertEqual(allRoundsDesc[-1][2]['description'], "Vanilla was elected. ")
-        self.assertEqual(allRoundsDesc[-1][3]['description'], "Blackberry was elected. ")
+        self.assertEqual(
+            allRoundsDesc[-1][2]['description'],
+            "Vanilla and Blackberry were elected. ")
 
     def test_text_for_winner_has_no_elected(self):
         """
@@ -281,6 +282,6 @@ class FAQTests(TestCase):
         with open(filenames.RESIDUAL_SURPLUS_MAIN, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
         allRounds = Describer(graph, self.config, False).describe_all_rounds()
-        for round in allRounds:
-            verbCounter = Counter([r['verb'] for r in round])
+        for electionRound in allRounds:
+            verbCounter = Counter([r['verb'] for r in electionRound])
             self.assertTrue([verb <= 1 for verb in verbCounter.values()])

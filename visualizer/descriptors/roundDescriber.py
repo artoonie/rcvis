@@ -81,11 +81,15 @@ class Describer:
     def _list_to_describe_list_of_names(cls, listOfNames, verb, whatHappenedToThemDescription):
         """
         e.g. With listOfNames = [Foo,Bar,Baz], verb="ate", and whatHappenedToThem="ate chips":
-        [ {summary: "Foo ate", verb: "ate", description: "Foo at chips"},
-          {summary: "Bar ate", verb: "ate", description: "Bar at chips"},
-          {summary: "Baz ate", verb: "ate", description: "Baz at chips"} ]
+        [{
+            "summary": "Foo, Bar and Baz ate",
+            "verb": "ate",
+            "description": "Foo, Bar and Baz ate chips"
+        }]
         listOfNames can be empty, in which case an empty list is returned.
         """
+        if len(listOfNames) == 0:
+            return []
         return [{
             'summary': common.text_to_describe_list_of_names(
                 listOfNames, "{name} " + verb),
@@ -118,8 +122,8 @@ class Describer:
             Returns empty string if nobody was eliminated."""
         rounds = self.graph.summarize().rounds
         eliminated = rounds[roundNum].eliminatedNames
-        wasWere = "was" if len(eliminated) == 0 else "were"
-        whatHappened = "{name} had the fewest votes and " + wasWere + " eliminated."
+        wasWere = "was" if len(eliminated) == 1 else "were"
+        whatHappened = "{name} had the fewest votes and " + wasWere + " eliminated. "
         return self._describe_list_of_names(eliminated, " eliminated", whatHappened)
 
     def _describe_transfers_this_round(self, roundNum):
