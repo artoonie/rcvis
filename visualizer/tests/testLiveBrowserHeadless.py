@@ -621,6 +621,16 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
     # Upload the ballot file that produces a winner.
         self._upload(filenames.MULTIWINNER)
+    # Click the first round and make sure no one is listed as elected.
+        self._go_to_round_by_clicking(0)
+        winnerNames = self.browser.find_elements(
+            By.CSS_SELECTOR, ("#bargraph-interactive-body #candidateNamesWrapper text.dataLabel"))
+    # Extract the text content & assert that "elected" is NOT present in it.
+        for i, winnerLabel in enumerate(winnerNames):
+            label = winnerLabel.get_attribute("textContent")
+            for electLabel in label:
+                self.assertNotIn("elected", electLabel,
+                    f"Uh-oh! Label {i} does include 'elected': {electLabel}")
     # Click through to the round where the winner is announced.
         self._go_to_round_by_clicking(3)
         winnerNames = self.browser.find_elements(
@@ -630,4 +640,4 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             label = winnerLabel.get_attribute("textContent")
             for electLabel in label:
                 self.assertIn("elected", electLabel,
-                              f"Label {i} does NOT include 'elected': {electLabel}")
+                    f"Label {i} does NOT include 'elected': {electLabel}")
