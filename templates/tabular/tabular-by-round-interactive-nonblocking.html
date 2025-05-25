@@ -15,15 +15,10 @@ function showRound(round) {
 
 showRound(numRounds-1)
 
-trs_createSliderAndTimeline({
-  wrapperDivId: 'tabular-by-round-slider-container',
-  numTicks: numRounds,
-  tickText: generateTickTexts(numRounds),
-  hideActiveTickText: doHideActiveTickText(numRounds),
-  sliderValueChanged: showRound,
-  timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-  timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-  timeBetweenStepsMs: getTimeBetweenAnimationStepsMs(numRounds) / 2 // hack: make this twice as fast as barchart
+const roundPlayer = RoundPlayer({
+  container: document.getElementById("tabular-by-round-slider-container"),
+  totalRounds: numRounds,
+  onChange: showRound,
 });
 
 </script>

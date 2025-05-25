@@ -20,7 +20,7 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = 'RCVis'
-copyright = '2023, Robot Armin LLC'
+copyright = '2025 RCVis'
 author = 'Armin Samii'
 
 

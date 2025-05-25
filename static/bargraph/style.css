@@ -30,21 +30,49 @@ path.domain {
 .secondaryDataLabel {
   font-size: 0.6rem;
 }
+
+.faq-description-header {
+  font-size: 1.125rem;
+  font-weight: bold;
+  margin-bottom: 0;
+  margin-top: 12px;
+  padding-left: 0;
+}
+
+.round-description-container {
+  box-shadow: 1px 5px 20px 0 #dedede;
+  max-width: 750px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .round-description-wrapper {
   padding: 5px 10px 0px 10px;
-  box-shadow: 1px 5px 20px 0 #dedede;
-  border-radius: 10px;
   height: 65px;  /* Note: sync with hideFaqs() */
   font-size: 0.9em;
-  background-color: #fafdff;
+  margin-left: auto;
+  margin-right: auto;
   margin-top: 15px;
   display: none; /* Disable for now */
   overflow-y: auto;
+  width: 100%;
 }
 .round-description-text {
   line-height: normal;
   vertical-align: middle;
   display: inline-block;
+}
+
+#faq-text {
+  width: 100%;
+  max-width: 750px;
+  padding: 5px 10px 0px 10px;
+  box-shadow: 1px 5px 20px 0 #dedede;
+  margin-bottom: 12px;
+  margin-left: auto;
+  margin-right: auto;
+  display: none;
 }
 
 .faq-q {
@@ -76,11 +104,12 @@ path.domain {
   font-weight: bold;
 }
 
-#faq-text {
-  display: none;
-}
 .prev-next-button {
   color: white;
+}
+
+.flex-column {
+  flex-direction: column;
 }
 
 @media only screen and (max-width: 1024px) {

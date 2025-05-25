@@ -80,7 +80,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ Ensure eliminated color setting can be changed """
         def _get_eliminated_color():
             # Move the slider to stop animation
-            self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
+            self._go_to_round_by_clicking(3)
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
@@ -358,33 +358,34 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Upload something with few rounds so the animation doesn't take too long
         self._upload(filenames.THREE_ROUND)
 
-        # Ensure the animation started
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+        # Start the animation
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
+        playbutton.click()
 
         # Ensure description is inital summary
         desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
+            lambda: self.assertIn('Ranked Choice Voting election', desc.text))
 
         # Now disable animations to speed them up
         self._disable_all_animations()
         self._disable_bargraph_slider_timer()
 
         # Wait for animation to complete
-        WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return !isBargraphAnimationInProgress;"))
+        WebDriverWait(self.browser, timeout=10, poll_frequency=1).until(
+            lambda d: self.browser.execute_script("return !barchartRoundPlayer.playing();"))
 
         # Check that the text hasn't changed
         self._ensure_eventually_asserts(
-            lambda: self.assertIn('what happened in each round', desc.text))
+            lambda: self.assertIn('Ranked Choice Voting election', desc.text))
 
-        # Now move the slider
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 0)")
+        # Now move the player
+        self._go_to_round_by_clicking(0)
 
         # Check that the text updates now
         self._ensure_eventually_asserts(
-            lambda: self.assertNotIn('what happened in each round', desc.text))
+            lambda: self.assertNotIn('Ranked Choice Voting election', desc.text))
 
     def test_crazy_names(self):
         """ Ensure that crazy names are correctly handled, escaping quotes and ensuring
@@ -396,33 +397,32 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             "3",
 
-            "A name (middle name)",
+            "A very long name (middle name)",
             "with parenthesis in the middle",
 
             "A malicious name with",
             "\"quotes\" and 'ticks'",
 
-            "A malicious name",
-            "<b>with html</b>",
+            "A malicious name <b>with html</b>",
 
-            "Don't split me",
+            "Don't split me, I am only 40 characters",
 
-            "A name",
+            "A very long name",
             "(but now with commas, and parenthesis, and a number: #1)",
 
-            "A name",
+            "A very long name",
             "(but now (with nested parenthesis))",
 
-            "A name, however this time,",
+            "A very long name, however this time,",
             "with several commas",
 
-            "Anamewithnospacesat-",
-            "allbutidohaveabang!",
+            "Averylongnamewithnospac-",
+            "esatallbutidohaveabang!",
 
-            "Anamewithnospacesata-",
-            "llholymolyguacamole",
+            "Averylongnamewithnospace-",
+            "satallholymolyguacamole",
 
-            "A name,",
+            "A very long name,",
             "however this time with a comma",
 
             "A longish name",
@@ -542,20 +542,18 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Look at the description, ensure it shows the summary
         span = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Move the slider to see', span.get_attribute('innerHTML')))
 
         # Ensure animation has not begun
-        self.assertFalse(self.browser.execute_script("return hasAnimatedSlider;"))
+        self.assertFalse(self.browser.execute_script("return barchartRoundPlayer.playing();"))
 
         # Hit play button
-        hackyXpathForPlayButton = '//*[@id="bargraph-interactive-why-button"]/a[2]'
-        playbutton = self.browser.find_element(By.XPATH, hackyXpathForPlayButton)
+        playbutton = self.browser.find_element(
+            By.CSS_SELECTOR, '#bargraph-slider-container .round-player-play-btn')
         playbutton.click()
 
         # Ensure animation has begun
         WebDriverWait(self.browser, timeout=0.5, poll_frequency=0.1).until(
-            lambda d: self.browser.execute_script("return hasAnimatedSlider;"))
+            lambda d: self.browser.execute_script("return barchartRoundPlayer.playing();"))
 
         # Ensure animation stops and new text appears, and that new text starts with
         # the round number. Click twice in case we were already on the first round.
@@ -641,3 +639,55 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             for electLabel in label:
                 self.assertIn("elected", electLabel,
                     f"Label {i} does NOT include 'elected': {electLabel}")
+    def test_bolding_winners(self):
+        """Test that no candidate names are bolded until the end of the round
+        and that winners are bolded correctly in subsequent rounds."""
+        # Upload file
+        self._upload(filenames.MULTIWINNER)
+
+        # Round 0: Move to round 0 and check boldness
+        self._go_to_round_by_clicking(0)  # Click to go to round 1/page load
+        candidateName = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self.assertEqual(
+            candidateName[0].get_attribute("style"),
+            "",
+            "Candidates' names should NOT be bold.")
+
+        # Round 3: Move to round 3 and check boldness
+        self._go_to_round_by_clicking(3)  # Click to go to round 3
+        candidateLabels = self.browser.find_elements(
+            By.CSS_SELECTOR, '#bargraph-interactive-body #candidateNamesWrapper .dataLabel')
+        self._ensure_eventually_asserts(lambda: self.assertEqual(
+            candidateLabels[0].get_attribute("style"),
+            "font-weight: bold;",
+            "Winner name SHOULD BE bold."))
+
+    def test_faq_visibility_wrt_iframes(self):
+        """ FAQ visibility with respect to iframes: visibility = not in iframe """
+        self._upload_something_if_needed()
+
+        # Ensure that the FAQs are visible outside an iframe
+        faq = self.browser.find_element(By.ID, 'faq-text')
+        self.assertEqual(faq.value_of_css_property("display"), "block")
+
+        # Get the iframe HTML
+        self._go_to_tab("share-tab")
+        htmlTextarea = self.browser.find_element(By.ID, 'htmlembedexport')
+        iframeHtml = htmlTextarea.get_attribute("value")
+
+        # Render that HTML in a separate page
+        self.browser.get("data:text/html,<html><head></head><body></body></html>")
+        self.browser.execute_script("document.body.innerHTML = arguments[0];", iframeHtml)
+
+        # Get the iframe's body by going into the iframe in the source
+        iframe = self.browser.find_element(By.TAG_NAME, 'iframe')
+        self.browser.switch_to.frame(iframe)
+
+        # Check that the FAQs are hidden
+        faq = self.browser.find_element(By.ID, 'faq-text')
+        self.assertEqual(faq.value_of_css_property("display"), "none")
+
+        # After clicking "Read a detailed explanation" it becomes visible
+        self.browser.find_element(By.LINK_TEXT, "Read a detailed explanation").click()
+        self.assertEqual(faq.value_of_css_property("display"), "block")

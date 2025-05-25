@@ -67,10 +67,8 @@ function makeBarGraph(args) {
   }
 
   // If any of the labels are too long, the max height will be even longer.
-  // Check for that, and ensure it's then at least 40px high.
-  if (namesNeedAnyTwoLineLabels(candidateNames)) {
-      maxHeight = Math.max(numCandidates*40, maxHeight);
-  }
+  // Add 20px for each of them.
+  maxHeight += countNamesThatNeedTwoLines(candidateNames) * 20;
 
   const width = maxWidth - margin.left - margin.right,
         height = maxHeight - margin.top - margin.bottom;
@@ -303,8 +301,8 @@ function makeBarGraph(args) {
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
       for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
-        // TODO here should be the memoizeeee
-        // why does the data format suckeeeeee
+        // TODO here should be the memoize
+        // why does the data format suck
       }
     }
   }
@@ -663,11 +661,21 @@ function makeBarGraph(args) {
           .text(mainDataLabelTextFn);
   }
 
+
   if (!isInteractive) {
     // Show a legend
     d3.select('#'+idOfLegend)
       .append("g")
-        .call(legend);
+        .call(legend)
+  }
+
+  svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+
+   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names and !isInteractive */
+  function boldWinnerFont(_, i){
+    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
+    stackSeries[currRound][i].isWinner) ? "bold" : null;
   }
 
   // Draw the threshold dashed line
@@ -787,11 +795,15 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+
+
   function transitionDataLabelsForRound() {
-    // Set all labels to correct display
+      // Set all labels to correct display
     svg.selectAll("text.dataLabel")
         .attr("display", dataLabelDisplayFor);
-
+    svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+      
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
       .filter(isLatestRoundFor)

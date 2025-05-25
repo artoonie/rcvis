@@ -580,3 +580,15 @@ class SimpleTests(TestCase):
             self.assertEqual(2, len(summary.rounds[-1].eliminatedNames))
             self.assertEqual('Nicole Speer', summary.rounds[-1].eliminatedNames[0])
             self.assertEqual('Paul Tweedlie', summary.rounds[-1].eliminatedNames[1])
+
+    def test_custom_text_on_visualization(self):
+        """
+        Integration test: create a visualization with custom text included and verify
+        that the provided text is displayed on the result page
+        """
+        customText = "Testing custom text in field"
+        with open(filenames.MULTIWINNER, encoding='utf-8') as f:
+            data = {'jsonFile': f, 'customText': customText}
+            response = self.client.post('/upload.html', data)
+        response = self.client.get('/' + response['location'])
+        self.assertIn(customText.encode("utf-8"), response.content)
