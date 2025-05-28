@@ -180,11 +180,11 @@ class WhyMultiWinner(FAQBase):
             self.config, self.summary.rounds[roundNum].winnerNames)
 
     def get_answer(self, roundNum):
-        winners = self.summary.rounds[roundNum].winnerNames
+        winners = self.summary.winnerNames
         threshold = self.graph.threshold / self.summary.percent_denominator(roundNum)
-        return f"In a ranked choice election with {len(winners)}, each candidate "\
-            f"needs to earn more than {threshold:.1%} of the votes to win a seat. "\
-            f"{threshold:.1%} is the threshold for victory because only "\
+        return f"In a ranked choice election with {len(winners)} winners, each "\
+            f"candidate needs to earn more than {threshold:.1%} of the votes to win a "\
+            f"seat. {threshold:.1%} is the threshold for victory because only "\
             f"{len(winners)} candidates can earn more than {threshold:.1%} "\
             "of the votes."
 
