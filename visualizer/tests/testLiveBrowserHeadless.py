@@ -27,6 +27,10 @@ from common.viewUtils import get_data_for_view
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
 
+# pylint: disable=too-many-public-methods
+# Adding the previous line to tiptoe around the amount of methods that we are using in this class.
+# This should only affect this code, not the entire project and should only be applied when testing.
+
 
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests that launch a selenium browser """
@@ -628,7 +632,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             label = winnerLabel.get_attribute("textContent")
             for electLabel in label:
                 self.assertNotIn("elected", electLabel,
-                    f"Uh-oh! Label {i} does include 'elected': {electLabel}")
+                                 f"Uh-oh! Label {i} does include 'elected': {electLabel}")
     # Click through to the round where the winner is announced.
         self._go_to_round_by_clicking(3)
         winnerNames = self.browser.find_elements(
@@ -638,7 +642,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             label = winnerLabel.get_attribute("textContent")
             for electLabel in label:
                 self.assertIn("elected", electLabel,
-                    f"Label {i} does NOT include 'elected': {electLabel}")
+                              f"Label {i} does NOT include 'elected': {electLabel}")
+
     def test_bolding_winners(self):
         """Test that no candidate names are bolded until the end of the round
         and that winners are bolded correctly in subsequent rounds."""
