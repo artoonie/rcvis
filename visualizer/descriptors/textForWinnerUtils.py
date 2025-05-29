@@ -45,18 +45,18 @@ def as_event(config, numWinners):
 
 def as_question(config, names):
     """
-    A question asking why the winners won
+    A question asking why the winners won in the current round
     """
     nameText = comma_separated_names_with_and(names)
     if config.textForWinner == TextForWinner.ELECTED:
         wereOrWas = "was" if len(names) == 1 else "were"
-        return f"Why {wereOrWas} {nameText} elected?"
+        return f"Why {wereOrWas} {nameText} elected this round?"
     if config.textForWinner == TextForWinner.WON:
-        return f"Why did {nameText} win?"
+        return f"Why did {nameText} win this round?"
     if config.textForWinner == TextForWinner.PRIMARY:
-        return f"Why did {nameText} advanced to the general?"
+        return f"Why did {nameText} advanced to the general this round?"
     if config.textForWinner == TextForWinner.LEAD:
-        return f"Why is {nameText} in the lead?"
+        return f"Why is {nameText} in the lead this round?"
 
     raise RuntimeError("Unsupported TextForWinner.")
 
