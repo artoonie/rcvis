@@ -20,7 +20,7 @@
     },
     {
       "question": "Why was Harvey Curley elected?",
-      "answer": "In a ranked choice election with 1, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 1 candidates can earn more than 33.5% of the votes."
+      "answer": "In a ranked choice election with 2 winners, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 2 candidates can earn more than 33.5% of the votes."
     },
     {
       "question": "Why did they need 134 votes to win?",
@@ -56,7 +56,7 @@
     },
     {
       "question": "Why was Larry Edwards elected?",
-      "answer": "In a ranked choice election with 1, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 1 candidates can earn more than 33.5% of the votes."
+      "answer": "In a ranked choice election with 2 winners, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 2 candidates can earn more than 33.5% of the votes."
     },
     {
       "question": "Why did they need 134 votes to win?",
