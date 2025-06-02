@@ -3,8 +3,9 @@ Testing the FAQ Generator
 """
 
 import json
-from collections import Counter
+import re
 
+from collections import Counter
 from django.test import TestCase
 from mock import Mock
 
@@ -120,7 +121,8 @@ class FAQTests(TestCase):
         singleWinner = faq.WhatHappeningSingleWinner(*args)
         self.assertTrue(singleWinner.is_active(0))
         assert singleWinner.get_answer(0).endswith(
-            "The 14 lowest-performing candidates were eliminated in succession.")
+            "The rounds continue until one candidate wins by earning more than "
+            "50% of the votes.")
 
     def test_excluded_winner(self):
         """ Ensure all descriptors work without crashing with no winner """
@@ -187,7 +189,7 @@ class FAQTests(TestCase):
         with open(filenames.MULTIWINNER, 'r', encoding='utf-8') as f:
             graph = make_graph_with_file(f, False)
 
-        searchFor = 'lected'  # match both elected and Elected
+        searchFor = r'Elected| elected'  # match both elected and Elected
 
         # Find all uses of "elected" or "Elected". Store them to look at later.
         allRoundsQA = faq.FAQGenerator(graph, self.config).describe_all_rounds()
@@ -198,9 +200,8 @@ class FAQTests(TestCase):
                     indicesWhereElectedFound.append((round_i, desc_i, 'question'))
                 if 'lected' in desc['answer']:
                     indicesWhereElectedFound.append((round_i, desc_i, 'answer'))
-
         # Make sure we didn't accidentally change anything - update this value as needed.
-        self.assertEqual(len(indicesWhereElectedFound), 7)
+        self.assertEqual(len(indicesWhereElectedFound), 9)
 
         # Change from TextForWinner.ELECTED to TextForWinner.WON
         self.config.textForWinner = TextForWinner.WON
@@ -208,7 +209,7 @@ class FAQTests(TestCase):
 
         # Look at the same indices. They must now NOT use the word.
         for round_i, desc_i, qOrA in indicesWhereElectedFound:
-            self.assertNotIn(searchFor, allRoundsQA[round_i][desc_i][qOrA])
+            self.assertIsNone(re.search(searchFor, allRoundsQA[round_i][desc_i][qOrA]))
 
     def test_text_for_winner_multiwinner_text(self):
         """

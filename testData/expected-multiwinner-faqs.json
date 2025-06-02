@@ -2,25 +2,25 @@
   [
     {
       "question": "What is happening?",
-      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "These are results from a ranked choice election with 2 winners. Voters were asked to rank the candidates from most to least favorite. The ballots are then counted in rounds. In each round, the candidate with the fewest votes is eliminated, and their supporters' votes transfer to the next choice on their ballots. The rounds continue until 2 candidates have been elected by each earning more than 33.5% of the votes."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "A ballot is \"inactive\" if the voter did not rank any of the candidates remaining in that round. Voters are not required to rank all the candidates, so if all the candidates they ranked are eliminated, their ballot becomes inactive."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "These are results from a ranked choice election with 2 winners. Voters were asked to rank the candidates from most to least favorite. The ballots are then counted in rounds. In each round, the candidate with the fewest votes is eliminated, and their supporters' votes transfer to the next choice on their ballots. The rounds continue until 2 candidates have been elected by each earning more than 33.5% of the votes."
     },
     {
       "question": "Why was Write-In eliminated?",
-      "answer": "Because they had the fewest votes and could not win the election, they were eliminated. To ensure people who voted for them still had their voices heard, their votes were transferred to their next choice. If you are familiar with the concept of runoff elections, you can think of these eliminations as holding a runoff without going back to the voting booth."
+      "answer": "Write-In had the fewest votes in Round 1. Since Write-In was eliminated, the voters who supported Write-In had their votes count for their next choices in Round 2. Transferring votes ensures that every voter can be included in choosing the final winner(s), even if their favorite candidate doesn't win."
     },
     {
-      "question": "Why was Harvey Curley elected?",
-      "answer": "Because Harvey Curley received 134 votes. The threshold of 134 votes was chosen to achieve proportional representation, equal to at least one out of every 3 voters supporting this candidate."
+      "question": "Why was Harvey Curley elected this round?",
+      "answer": "In a ranked choice election with 2 winners, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 2 candidates can earn more than 33.5% of the votes."
     },
     {
       "question": "Why did they need 134 votes to win?",
@@ -28,35 +28,35 @@
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "A ballot is \"inactive\" if the voter did not rank any of the candidates remaining in that round. Voters are not required to rank all the candidates, so if all the candidates they ranked are eliminated, their ballot becomes inactive."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "These are results from a ranked choice election with 2 winners. Voters were asked to rank the candidates from most to least favorite. The ballots are then counted in rounds. In each round, the candidate with the fewest votes is eliminated, and their supporters' votes transfer to the next choice on their ballots. The rounds continue until 2 candidates have been elected by each earning more than 33.5% of the votes."
     },
     {
       "question": "Why did Harvey Curley lose 10 votes?",
-      "answer": "A principle of RCV is that no vote should be wasted. Since Harvey Curley only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 2 candidates can reach the 134-vote threshold. The 10 votes were are redistributed to remaining candidates proportionally based on voters' next choices."
+      "answer": "Harvey Curley only needed 134 votes to win a seat, so their extra votes above 134 were transferred to those voters' next choices. Transferring the extra votes allows supporters of Harvey Curley to win their fair share of representation in this election. Those voters selected one of the seats and part of another."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "A ballot is \"inactive\" if the voter did not rank any of the candidates remaining in that round. Voters are not required to rank all the candidates, so if all the candidates they ranked are eliminated, their ballot becomes inactive."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "These are results from a ranked choice election with 2 winners. Voters were asked to rank the candidates from most to least favorite. The ballots are then counted in rounds. In each round, the candidate with the fewest votes is eliminated, and their supporters' votes transfer to the next choice on their ballots. The rounds continue until 2 candidates have been elected by each earning more than 33.5% of the votes."
     },
     {
       "question": "Why was Sarah Lucido eliminated?",
-      "answer": "Because they had the fewest votes and could not win the election, they were eliminated. To ensure people who voted for them still had their voices heard, their votes were transferred to their next choice. If you are familiar with the concept of runoff elections, you can think of these eliminations as holding a runoff without going back to the voting booth."
+      "answer": "Sarah Lucido had the fewest votes in Round 3. Since Sarah Lucido was eliminated, the voters who supported Sarah Lucido had their votes count for their next choices in Round 4. Transferring votes ensures that every voter can be included in choosing the final winner(s), even if their favorite candidate doesn't win."
     },
     {
-      "question": "Why was Larry Edwards elected?",
-      "answer": "Because Larry Edwards received 134 votes. The threshold of 134 votes was chosen to achieve proportional representation, equal to at least one out of every 3 voters supporting this candidate."
+      "question": "Why was Larry Edwards elected this round?",
+      "answer": "In a ranked choice election with 2 winners, each candidate needs to earn more than 33.5% of the votes to win a seat. 33.5% is the threshold for victory because only 2 candidates can earn more than 33.5% of the votes."
     },
     {
       "question": "Why did they need 134 votes to win?",
@@ -64,21 +64,21 @@
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates. In this round, all ballots are still active, meaning that no ballot had all of their choices eliminated already."
+      "answer": "A ballot is \"inactive\" if the voter did not rank any of the candidates remaining in that round. Voters are not required to rank all the candidates, so if all the candidates they ranked are eliminated, their ballot becomes inactive."
     }
   ],
   [
     {
       "question": "What is happening?",
-      "answer": "This is a proportional Ranked Choice Voting election which elects multiple winners. There were 2 seats to be filled. Voters have ranked their candidates in order of preference. Each voter still only had one vote. The lowest-performing candidates were eliminated until 2 candidates have been elected."
+      "answer": "These are results from a ranked choice election with 2 winners. Voters were asked to rank the candidates from most to least favorite. The ballots are then counted in rounds. In each round, the candidate with the fewest votes is eliminated, and their supporters' votes transfer to the next choice on their ballots. The rounds continue until 2 candidates have been elected by each earning more than 33.5% of the votes."
     },
     {
       "question": "Why did Larry Edwards lose about 51 votes?",
-      "answer": "A principle of RCV is that no vote should be wasted. Since Larry Edwards only needed 134 votes, any vote beyond that should not be wasted, and is instead redistributed. This also ensures that 2 candidates can reach the 134-vote threshold. The 51 votes were are redistributed to remaining candidates proportionally based on voters' next choices."
+      "answer": "Larry Edwards only needed 134 votes to win a seat, so their extra votes above 134 were transferred to those voters' next choices. Transferring the extra votes allows supporters of Larry Edwards to win their fair share of representation in this election. Those voters selected one of the seats and part of another."
     },
     {
       "question": "What are Inactive Ballots?",
-      "answer": "Voters are not required to rank all candidates. Because 0.30 ballots had all of their choices eliminated, those ballots are no longer active in this round."
+      "answer": "A ballot is \"inactive\" if the voter did not rank any of the candidates remaining in that round. Voters are not required to rank all the candidates, so if all the candidates they ranked are eliminated, their ballot becomes inactive."
     }
   ]
 ]
