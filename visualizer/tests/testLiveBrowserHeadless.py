@@ -26,7 +26,10 @@ from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
-from visualizer.descriptors import textForWinnerUtils
+
+# pylint: disable=too-many-public-methods
+# Adding the previous line to tiptoe around the amount of methods that we are using in this class.
+# This should only affect this code, not the entire project and should only be applied when testing.
 
 
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
@@ -662,32 +665,24 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._upload(filenames.DOMINION)
 
-    def _assert_label_contains(self, round_index, expected_in_label):
+    def _assert_label_contains(self, roundIndex, candidateIndex, expectedInLabel):
         # Click the first round and make sure no one is listed as elected.
-        self._go_to_round_by_clicking(round_index)
-        winnerNames = self.browser.find_elements(
+        self._go_to_round_by_clicking(roundIndex)
+        winnerLabels = self.browser.find_elements(
             By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper text.dataLabel")
-        # Extract the text content & assert that "elected" is NOT present in it.
-        for i, winnerLabel in enumerate(winnerNames):
-            label = winnerLabel.get_attribute("textContent")
-            for electLabel in label:
-                electedHelperText = textForWinnerUtils.as_caption(self)
-                assertion = self.assertIn if expected_in_label else self.assertNotIn
-                assertion(
-                    electedHelperText,
-                    electLabel,
-                    f"Label {i} "
-                    f"{'includes' if expected_in_label else 'does NOT include'} "
-                    f"'elected': {electLabel}"
-                )
+        winnerLabel = winnerLabels[candidateIndex].get_attribute("textContent")
+        if expectedInLabel:
+            self.assertIn("elected", winnerLabel)
+        else:
+            self.assertNotIn("elected", winnerLabel)
 
     def test_data_labels_elected(self):
         """
         Test that candidate labels show 'elected' only when a candidate has won.
         """
         self._upload(filenames.MULTIWINNER)
-        self._assert_label_contains(round_index=0, expected_in_label=False)
-        self._assert_label_contains(round_index=3, expected_in_label=True)
+        self._assert_label_contains(0, 0, False)
+        self._assert_label_contains(3, 0, True)
 
     def test_bolding_winners(self):
         """Test that no candidate names are bolded until the end of the round
