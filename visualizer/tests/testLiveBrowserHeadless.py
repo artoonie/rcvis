@@ -669,8 +669,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Click the first round and make sure no one is listed as elected.
         self._go_to_round_by_clicking(roundIndex)
         winnerLabels = self.browser.find_elements(
-            By.CSS_SELECTOR, "#bargraph-interactive-body #candidateNamesWrapper text.dataLabel")
-        winnerLabel = winnerLabels[candidateIndex].get_attribute("textContent")
+            By.CSS_SELECTOR, "#bargraph-interactive-body text.dataLabel:not([display])")
+        winnerLabel = winnerLabels[candidateIndex].get_attribute("innerHTML")
         if expectedInLabel:
             self.assertIn("elected", winnerLabel)
         else:
