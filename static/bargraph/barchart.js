@@ -12,6 +12,7 @@ function makeBarGraph(args) {
   const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
+  const textForWinner = args.textForWinner; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
@@ -326,12 +327,10 @@ function makeBarGraph(args) {
         const winningRound = numRoundsTilWin[d.data["candidate"]];
         const lastRound = totalVotesPerRound.length - 1;
 
-      
-        if (d.isWinner && hasMultipleRounds && (d.round > winningRound || d.round === lastRound)) {
-          return "✔️ elected ";
-        }
-      
         const prefix = d.isWinner ? "✔️ " : "";
+        if (d.isWinner && hasMultipleRounds && (d.round > winningRound || d.round === lastRound)) {
+            return prefix + textForWinner;
+        }
       
         if (isVertical) {
           return prefix + votesToText(d[1], false, true);
