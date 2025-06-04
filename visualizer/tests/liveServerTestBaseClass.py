@@ -207,7 +207,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
                 values[key] = field.get_default()
         return values
 
-    def _upload(self, jsonFilename, sidecarFilename=None):
+    def _upload(self, jsonFilename, sidecarFilename=None, additionalArgs=None):
         """
         Uploads the given local files. The sidecar file is optional.
         After upload, follows the redirect.
@@ -216,6 +216,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         with open(jsonFilename, 'rb') as jsonFileObject:
             values['jsonFile'] = jsonFileObject
+            if additionalArgs is not None:
+                # Merge additional args
+                values.update(additionalArgs)
 
             if sidecarFilename is None:
                 response = self.client.post('/upload.html', values)
