@@ -24,10 +24,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_data_for_view
+from visualizer.models import TextForWinner
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
 
 
+# pylint: disable=too-many-public-methods
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     """ Tests that launch a selenium browser """
 
@@ -611,6 +613,29 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         This is a rRegression test to make sure we handle it right.
         """
         self._upload(filenames.DOMINION)
+
+    def test_data_labels_elected(self):
+        """
+        Test that candidate labels show 'elected' only when a candidate has won.
+        """
+        def _assert_label_contains(roundIndex, candidateIndex, expectedText, expectedInLabel):
+            # Click the first round and make sure no one is listed as elected.
+            self._go_to_round_by_clicking(roundIndex)
+            winnerLabels = self.browser.find_elements(
+                By.CSS_SELECTOR, "#bargraph-interactive-body text.dataLabel:not([display])")
+            winnerLabel = winnerLabels[candidateIndex].get_attribute("innerHTML")
+            if expectedInLabel:
+                self.assertIn(expectedText, winnerLabel)
+            else:
+                self.assertNotIn(expectedText, winnerLabel)
+
+        self._upload(filenames.MULTIWINNER)
+        _assert_label_contains(0, 0, "elected", False)
+        _assert_label_contains(3, 0, "elected", True)
+
+        self._upload(filenames.MULTIWINNER, additionalArgs={'textForWinner': TextForWinner.LEAD})
+        _assert_label_contains(0, 0, "leading", False)
+        _assert_label_contains(3, 0, "leading", True)
 
     def test_bolding_winners(self):
         """Test that no candidate names are bolded until the end of the round
