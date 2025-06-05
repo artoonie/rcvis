@@ -13,35 +13,13 @@ import {
     ResizeTableModule,
     SortModule,
     Tabulator,
-    ValidateModule
+    ValidateModule, Validator
 } from "tabulator-tables";
 import {disableDataOptionsAndSubmitButton, enableDataOptionsAndSubmitButton} from "rcvis-settings";
-
-const VOTE_ERROR_SIMPLE_MESSAGE = "Vote count decreased";
-const VOTE_ERROR_MESSAGE = "Vote count cannot decrease unless this is a surplus transfer,"
-    +
-    " i.e., the candidate must have been elected in the previous round";
 
 function requireRevalidation() {
     $("#validateButton").prop("disabled", false);
 }
-
-const errorPopupFormatter = function () {
-    const container = document.createElement("div");
-    container.classList.add("datatable-error-popup");
-    container.style.maxWidth = "300px";
-    const contents = `<strong style='font-size:1.2em;'>${VOTE_ERROR_SIMPLE_MESSAGE}</strong>
-    <br/><span>${VOTE_ERROR_MESSAGE}</span>`;
-    container.innerHTML = contents;
-    return container;
-};
-
-const lessThanZeroError = function () {
-    const container = document.createElement("div");
-    container.innerHTML = `<strong style='font-size:1.2em;'>Error Details</strong>
-        <br/><span>Must be a positive number</span>`;
-    return container;
-};
 
 export default class RcvisDataTable {
     _sidecarOnly: boolean;
@@ -84,8 +62,19 @@ export default class RcvisDataTable {
     get includeModifiers() {
         return this._includeModifiers;
     }
+    
+    static statusValidator(cell: CellComponent, value: number) {
+        const cells = cell.getRow().getCells();
+        for (let i = 0; i < cells.length; i++) {
+            if (cells[i] === cell) {
+                continue;
+            }
+            cells[i].clearValidation();
+        }
+        return true;
+    }
 
-    static voteCountCallback(cell: CellComponent, value: number) {
+    static increasingVotesValidator(cell: CellComponent, value: number) {
         requireRevalidation();
         const cells = cell.getRow().getCells();
         let valid = true;
@@ -100,11 +89,6 @@ export default class RcvisDataTable {
             }
         }
         if (cellIndex < 1) {
-            return false;
-        }
-
-        if (value < 0) {
-            (cell as any).popup(lessThanZeroError(), "bottom");
             return false;
         }
 
@@ -146,6 +130,10 @@ export default class RcvisDataTable {
             prevRoundStatus = status;
         }
         return valid;
+    }
+
+    static nonNegativeValidator(cell: CellComponent, value: number) {
+        return value >= 0;
     }
 
     // Checks if this cell is after an Eliminated cell, and if so,
@@ -292,24 +280,71 @@ export default class RcvisDataTable {
         const value = cell.getValue();
         const elem = cell.getElement();
         if (cell.getValue()) {
-            elem.classList.add(
-                `upload-status-${cell.getValue().toLowerCase()}`);
+            elem.classList.remove(`upload-status-eliminated`);
+            elem.classList.remove(`upload-status-elected`);
+            elem.classList.remove(`upload-status-active`);
+            elem.classList.add(`upload-status-${cell.getValue().toLowerCase()}`);
             elem.textContent = cell.getValue();
         }
         return value;
     }
 
-    static voteCountFormatter(cell: CellComponent)  {
+    static voteCountFormatter(cell: CellComponent) {
         const value = cell.getValue();
-        if (cell.isValid() !== true) {
-            cell.getElement().classList.add("tabulator-validation-fail");
-            if (cell.getField().startsWith("votes-")) {
-                (cell as any).popup(errorPopupFormatter, "bottom");
+        const isValid = cell.isValid();
+
+        // Container for the whole cell content
+        const container = document.createElement("div");
+        container.classList.add("cell-content");
+
+        // Value span
+        const valueSpan = document.createElement("span");
+        valueSpan.textContent = value;
+        container.appendChild(valueSpan);
+
+        const cellElem = cell.getElement();
+        cellElem.classList.remove("tabulator-validation-fail"); // clean slate
+
+        const rowIndex = cell.getRow().getIndex();
+        const colIndex = parseInt(cell.getField().substring(6)); // Remove "votes-"
+        const cellIdentifier = rowIndex + "-" + colIndex;
+
+        // Remove any existing errors for this cell
+        document.getElementById("error-" + cellIdentifier + "-incr")?.remove();
+        document.getElementById("error-" + cellIdentifier + "-nonneg")?.remove();
+
+        if (isValid !== true) {
+            // Add fail styling to the cell element
+            cellElem.classList.add("tabulator-validation-fail");
+
+            // Extract first failed validation
+            const firstInvalidValidator = (isValid as Validator[])[0];
+            const tag = firstInvalidValidator?.parameters?.tag;
+
+            // Create the error message div
+            const wrapper = document.getElementById("dataEntryValidationMessage");
+            const errorDivId = "error-" + cellIdentifier + "-" + tag;
+            let errorDiv = document.createElement("div");
+            errorDiv.id = errorDivId;
+            errorDiv.classList.add("validation-error");
+
+            // Create error text
+            const candidate = cell.getRow().getData().candidate.candidateName;
+            const leadText = `Error for ${candidate} on Round ${colIndex+1}: `;
+            if (tag === "incr") {
+                errorDiv.textContent = leadText
+                    + "Vote count cannot decrease from one round to the next "
+                    + "(unless it's a surplus transfer).";
+            } else if (tag === "nonneg") {
+                errorDiv.textContent = leadText
+                    + "Error: Vote counts must be positive.";
+            } else {
+                throw new Error("Unknown validation tag: " + tag);
             }
-        } else {
-            cell.getElement().classList.remove("tabulator-validation-fail");
+            wrapper.appendChild(errorDiv);
         }
-        return value;
+
+        return container;
     }
 
     addRound(readOnly = false) {
@@ -326,7 +361,8 @@ export default class RcvisDataTable {
                     editor: "number",
                     formatter: RcvisDataTable.voteCountFormatter,
                     editable: editableFunc,
-                    validator: [{type: RcvisDataTable.voteCountCallback}],
+                    validator: [{type: RcvisDataTable.nonNegativeValidator, parameters: {"tag": "nonneg"}},
+                                {type: RcvisDataTable.increasingVotesValidator, parameters: {"tag": "incr"}}],
                     cellEdited: c => c.validate,
                     resizable: true,
                 },
@@ -337,8 +373,8 @@ export default class RcvisDataTable {
                         selected: 0, values: ["Active", "Eliminated", "Elected"]
                     } as EditorParams,
                     editor: "list",
+                    validator: [{type: RcvisDataTable.statusValidator}],
                     formatter: RcvisDataTable.statusFormatter,
-                    validator: [{type: RcvisDataTable.voteCountCallback}],
                     cellEdited: RcvisDataTable.updateStatusCell,
                     editable: editableFunc,
                     minWidth: 100,

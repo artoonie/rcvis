@@ -27,6 +27,19 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.open('/upload.html')
         self.browser.find_element(By.ID, 'swapDataTables').click()
 
+        helperFunctions = """
+        window.dtTestGetter = function(row, col) {
+          return upload.getUploadByDataTableTable().table.getRow(row)._row.getCells()[col];
+        }
+        window.dtTestSetter = function(row, col, value) {
+          // For some reason we have to call this twice. The first time, the formatter
+          // runs before the validator, so it's formatting on stale data.
+          dtTestGetter(row, col).setValue(value);
+          return dtTestGetter(row, col).setValue(value);
+        }
+        """
+        self.browser.execute_script(helperFunctions)
+
     def _get_button(self, buttonEnum):
         buttons = self.browser.find_elements(By.CSS_SELECTOR, '.upload-tableoptions button')
         self.assertEqual(len(buttons), 4)
@@ -72,15 +85,11 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._fill_in_config()
         self._make_table_of_size(1, 1)
         nameScript = """
-        const val = upload.getUploadByDataTableTable()
-                    .table.getRow(1)._row.getCells()[0].getValue();
+        const val = dtTestGetter(1, 0).getValue();
         val.candidateName = "Name";
-        upload.getUploadByDataTableTable()
-               .table.getRow(1)._row.getCells()[0].setValue(val);
+        dtTestSetter(1, 0, val);
         """
-        votesScript = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
-        """
+        votesScript = "return dtTestSetter(1, 1, 2);"
         self.browser.execute_script(nameScript)
         self.browser.execute_script(votesScript)
 
@@ -116,20 +125,17 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Any change disables the button
-            votesScript = """
-            return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(
-            """
-            self.browser.execute_script(votesScript + '10)')
+            self.browser.execute_script("dtTestSetter(1, 1, 10);")
             self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # Invalid data keeps button disabled
-            self.browser.execute_script(votesScript + '-1)')
+            self.browser.execute_script("dtTestSetter(1, 1, -1);")
             errorMessage = 'Error #10: Data is not valid: All vote counts must be positive'
             self._assert_ajax_response(errorMessage)
             self.assertFalse(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
             # And we're back
-            self.browser.execute_script(votesScript + '1)')
+            self.browser.execute_script("dtTestSetter(1, 1, 1);")
             self._assert_ajax_response('Data is valid!')
             self.assertTrue(self.browser.find_element(By.ID, 'uploadButton').is_enabled())
 
@@ -138,34 +144,21 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         Tests the JS-based error message: vote counts shouldn't decrease
         """
         self._init_data_tables()
-        setVotes1 = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
-        """
-        setVotes2 = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
-        """
-        setVotes2Update = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(10)
-        """
-        clearPopup = """
-        document.getElementsByClassName("datatable-error-popup")[0].remove()
-        """
 
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
 
-        self.browser.execute_script(setVotes1)
-        self.browser.execute_script(setVotes2)
+        self.browser.execute_script("return dtTestSetter(1, 1, 2);")
+        self.browser.execute_script("return dtTestSetter(1, 3, 1);")
 
-        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 1)
-        self.assertIn('Vote count decreased',
-                      self.browser.find_element(By.CLASS_NAME, 'tabulator-popup').text)
-        self.browser.execute_script(clearPopup)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'validation-error')), 1)
+        self.assertIn('Error for Name on Round 3: Vote count cannot decrease',
+                      self.browser.find_element(By.CLASS_NAME, 'validation-error').text)
 
         # And make the error message clear
-        self.browser.execute_script(setVotes2Update)
-        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 0)
+        self.browser.execute_script("return dtTestSetter(1, 3, 10);")
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'validation-error')), 0)
 
     def test_vote_counts_can_decrease_for_surplus(self):
         """
@@ -173,32 +166,17 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
 
-        dropdown1 = """
-        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue("Elected")
-        """
-        setVotes1 = """
-        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[1].setValue(2)
-        """
-        setVotes2 = """
-        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[3].setValue(1)
-        """
-        clearPopup = """
-        document.getElementsByClassName("datatable-error-popup")[0].remove()
-        """
-
         # Create a 1x2 table with decreasing votes
         self._create_valid_1x1_table()
         self._make_table_of_size(2, 1)
-        self.browser.execute_script(setVotes1)
-        self.browser.execute_script(setVotes2)
-        popups = self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')
+        self.browser.execute_script("return dtTestSetter(1, 1, 2);")
+        self.browser.execute_script("return dtTestSetter(1, 3, 1);")
+        popups = self.browser.find_elements(By.CLASS_NAME, 'validation-error')
         self.assertEqual(len(popups), 1)
-        self.browser.execute_script(clearPopup)
-        self.browser.execute_script(dropdown1)
+        self.browser.execute_script("return dtTestSetter(1, 2, \"Elected\");")
 
-        self.browser.get_screenshot_as_file("screenshot.png")
         self._assert_ajax_response('Data is valid!')
-        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'tabulator-popup')), 0)
+        self.assertEqual(len(self.browser.find_elements(By.CLASS_NAME, 'validation-error')), 0)
 
     def test_dropdowns_disable_after_nonactive(self):
         """
@@ -206,31 +184,16 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
         self._make_table_of_size(3, 1)
-        self.browser.get_screenshot_as_file('screenshot.png')
-
-        script = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue(
-        """
 
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            val = 'Elected'
-            if i == 1:
-                val = 'Eliminated'
-            self.browser.execute_script(script + '"' + val + '")')
-            dropdownId1Value = self.browser.execute_script("""
-            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[2].getValue()
-            """)
-            dropdownId2Value = self.browser.execute_script("""
-            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[4].getValue()
-            """)
-            dropdownId3Value = self.browser.execute_script("""
-                return upload.getUploadByDataTableTable().table.getRow(1).getCells()[6].getValue()
-                """)
-            self.assertEqual(dropdownId1Value, val)
-            self.assertIsNone(dropdownId2Value)
-            self.assertIsNone(dropdownId3Value)
+            val = 'Elected' if i == 2 else 'Eliminated'
+            self.browser.execute_script(f"dtTestSetter(1, 2, \"{val}\");")
+            self.assertEqual(self.browser.execute_script(
+                "return dtTestGetter(1, 2).getValue();"), val)
+            self.assertIsNone(self.browser.execute_script("return dtTestGetter(1, 4).getValue();"))
+            self.assertIsNone(self.browser.execute_script("return dtTestGetter(1, 6).getValue();"))
 
     def test_electing_disables_rest_of_row_except_next(self):
         """
@@ -239,26 +202,15 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         self._init_data_tables()
         self._make_table_of_size(3, 1)
-        script = """
-        return upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[2].setValue(
-        """
 
         # 1 = eliminated
         # 2 = elected
         for i in range(1, 3):
-            val = 'Elected'
-            if i == 1:
-                val = 'Eliminated'
-            self.browser.execute_script(script + '"' + val + '")')
-            votesId1Value = self.browser.execute_script("""
-            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[1].getValue()
-            """)
-            votesId2Value = self.browser.execute_script("""
-            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[3].getValue()
-            """)
-            votesId3Value = self.browser.execute_script("""
-            return upload.getUploadByDataTableTable().table.getRow(1).getCells()[5].getValue()
-            """)
+            val = 'Elected' if i == 2 else 'Eliminated'
+            self.browser.execute_script(f"dtTestSetter(1, 2, \"{val}\");")
+            votesId1Value = self.browser.execute_script("return dtTestGetter(1, 1).getValue()")
+            votesId2Value = self.browser.execute_script("return dtTestGetter(1, 3).getValue()")
+            votesId3Value = self.browser.execute_script("return dtTestGetter(1, 5).getValue()")
             self.assertEqual(0, votesId1Value)
             if i == 1:
                 self.assertIsNone(votesId2Value)
@@ -274,9 +226,9 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._create_valid_1x1_table()
 
         nameScript = """
-        const val1 = upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].getValue();
+        const val1 = dtTestGetter(1, 0).getValue();
         val1.candidateName = "&><'\\"";
-        upload.getUploadByDataTableTable().table.getRow(1)._row.getCells()[0].setValue(val1);
+        dtTestSetter(1, 0, val1);
         """
 
         self.browser.execute_script(nameScript)
@@ -295,12 +247,8 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._init_data_tables()
         self._make_table_of_size(3, 3)
 
-        editScript = """
-        upload.getUploadByDataTableTable().table.getRow({})._row.getCells()[{}].getElement().click()
-        """
-
         # Click Manage Candidate button
-        self.browser.execute_script(editScript.format(1, 0))
+        self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
         manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
         self.assertEqual(len(manageCandidate), 1)
         manageCandidate[0].click()
@@ -319,7 +267,7 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         inputs[6].send_keys("Whig Party")
         self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
-        self.browser.execute_script(editScript.format(1, 0))
+        self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
         manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
         self.assertEqual(len(manageCandidate), 1)
         manageCandidate[0].click()
@@ -334,9 +282,8 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # assert that the other candidates modals open and don't contain any info about the
         # previous candidate (the modals are reused so this is a potential problem)
         for i in range(2, 4):
-            self.browser.execute_script(editScript.format(i, 0))
+            self.browser.execute_script(f"dtTestGetter({i}, 0).getElement().click();")
             manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
-            self.browser.get_screenshot_as_file('screenshot.png')
             self.assertEqual(len(manageCandidate), 1)
             manageCandidate[0].click()
             modalText = self._get_attr_from_id('datatable-modal', 'innerText')
