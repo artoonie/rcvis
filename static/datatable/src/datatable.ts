@@ -137,12 +137,9 @@ export default class RcvisDataTable {
                 // Last round, the candidate was elected - no error, it's allowed to decrease
                 cells[c].clearValidation();
             } else {
-                (cells[c] as any).popup(errorPopupFormatter, "bottom");
                 if (c === cellIndex && value !== cell.getInitialValue()) {
                     valid = false;
                 }
-                cells[c].getElement().classList.add(
-                    "tabulator-validation-fail");
             }
 
             prevRoundVotes = numVotes;
@@ -292,13 +289,27 @@ export default class RcvisDataTable {
     }
 
     static statusFormatter(cell: CellComponent) {
-        const elem = document.createElement("span");
+        const value = cell.getValue();
+        const elem = cell.getElement();
         if (cell.getValue()) {
             elem.classList.add(
                 `upload-status-${cell.getValue().toLowerCase()}`);
             elem.textContent = cell.getValue();
         }
-        return elem;
+        return value;
+    }
+
+    static voteCountFormatter(cell: CellComponent)  {
+        const value = cell.getValue();
+        if (cell.isValid() !== true) {
+            cell.getElement().classList.add("tabulator-validation-fail");
+            if (cell.getField().startsWith("votes-")) {
+                (cell as any).popup(errorPopupFormatter, "bottom");
+            }
+        } else {
+            cell.getElement().classList.remove("tabulator-validation-fail");
+        }
+        return value;
     }
 
     addRound(readOnly = false) {
@@ -313,6 +324,7 @@ export default class RcvisDataTable {
                     editorParams: {selectContents: true},
                     field: `votes-${colNr}`, hozAlign: "center",
                     editor: "number",
+                    formatter: RcvisDataTable.voteCountFormatter,
                     editable: editableFunc,
                     validator: [{type: RcvisDataTable.voteCountCallback}],
                     cellEdited: c => c.validate,
