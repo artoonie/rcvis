@@ -164,10 +164,6 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload(filenames.MULTIWINNER)
         self._disable_all_animations()
 
-        # The expand button is hidden
-        expandButton = self.browser.find_element(By.CLASS_NAME, 'expand-collapse-button')
-        self.assertEqual(self._is_elem_visible(expandButton), False)
-
         # And longform description is visible
         desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self._ensure_eventually_asserts(
@@ -177,7 +173,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._go_to_round_by_clicking(0)
 
         # Move animation to end
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 4)")
+        self._go_to_round_by_clicking(4)
 
         # Give JS a second to catch up with the animation
         self._ensure_eventually_asserts(
@@ -196,25 +192,9 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Go to the bargraph
         self._go_to_tab("barchart-tab")
 
-        # Now the the expand/collapse button is visible
-        expandButton = self.browser.find_element(By.CLASS_NAME, 'expand-collapse-button')
-        self.assertEqual(self._is_elem_visible(expandButton), True)
-        expandButton.click()
-
-        # And longform description is hidden
+        # Now the longform description is hidden
         desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
         self.assertEqual(self._is_elem_visible(desc), False)
-
-        # Ensure the timeline has all expected data
-        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info-good')
-        self.assertEqual(len(elems), 2 * 2)  # two elected, x2 graphs
-
-        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info-bad')
-        self.assertEqual(len(elems), 2 * 2)  # two eliminated, x2 graphs
-
-        elems = self.browser.find_elements(By.CLASS_NAME, 'timeline-info')
-        # 2 * 9: win/loss from above + three infos: initial, redistributed x2, transfer x2
-        self.assertEqual(len(elems), 2 * 9)
 
     def test_oneround_zerovote(self):
         """ Tests we do something sane in a single-round zero-vote election """
@@ -237,31 +217,21 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(elemsInOrder[3].get_attribute('innerHTML'), "Somebody")
 
     def test_faq(self):
-        """ Test the FAQ button works """
+        """ Test the FAQ section works """
         self._upload(filenames.MULTIWINNER)
 
         # Move the slider and complete all other animations
         self._disable_all_animations()
         self._disable_bargraph_slider_timer()
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 3);")
+        self._go_to_round_by_clicking(3)
         self.browser.execute_script("showFaqButtonNow();")
 
         # Starts at 65px
         div = self.browser.find_element(By.ID, 'round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
-        # Expands to fit the FAQs
-        hackyXpathForWhyButton = '//*[@id="bargraph-interactive-why-button"]/a[1]'
-        whyButton = self.browser.find_element(By.XPATH, hackyXpathForWhyButton)
-        self._ensure_eventually_asserts(lambda: self.assertTrue(self._is_elem_visible(whyButton)))
-        whyButton.click()
-        self._ensure_eventually_asserts(lambda: self.assertGreater(div.size['height'], 65))
-
-        # Move the slider again
-        self.browser.execute_script("trs_moveSliderTo('bargraph-slider-container', 1)")
-
-        # Restores size on new round
-        self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
+        faqHeader = self.browser.find_element(By.CSS_SELECTOR, '.faq-description-header')
+        self.assertEqual(faqHeader.get_attribute('innerHTML'), 'Round 4 Explanation')
 
     def test_embedded_scrollbars(self):
         """

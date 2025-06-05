@@ -5,8 +5,7 @@ Generates the dynamic, per-round Frequently-Asked-Questions
 import abc
 
 from visualizer.common import INACTIVE_TEXT, intify
-from visualizer.descriptors import common
-from visualizer.descriptors import textForWinnerUtils
+from visualizer.descriptors import common, textForWinnerUtils
 
 
 class FAQBase():
@@ -46,18 +45,12 @@ class WhatHappeningSingleWinner(FAQBase):
         return "What is happening?"
 
     def get_answer(self, roundNum):
-        numEliminated = self.summary.numEliminated
-        base = "This is a single-winner Ranked Choice Voting election. "\
-            "Voters have ranked their candidates in order of preference. "\
-            "Each voter still only had one vote, but if their top pick wasn't going to win, "\
-            "their next choices were taken into account. "
-        elim = f"The {numEliminated} lowest-performing candidates were eliminated in succession"
-        if self.summary.numWinners == 0:
-            win = "."
-        else:
-            winnerName = self.summary.winnerNames[0]
-            win = f" until {winnerName} received more than 50% of the votes."
-        return base + elim + win
+        return "These are results from a ranked choice election. "\
+            "Voters were asked to rank the candidates from most to least favorite. "\
+            "The ballots are then counted in rounds. In each round, the candidate "\
+            "with the fewest votes is eliminated, and their supporters' votes "\
+            "transfer to the next choice on their ballots. The rounds continue until "\
+            "one candidate wins by earning more than 50% of the votes."
 
 
 class WhatHappeningPreferentialBlockWinner(FAQBase):
@@ -93,14 +86,19 @@ class WhatHappeningMultiWinner(FAQBase):
 
     def get_answer(self, roundNum):
         numWinners = self.summary.numWinners
-        presentPerfectAction = textForWinnerUtils.as_present_perfect_tense(self.config, numWinners)
-        return "This is a proportional Ranked Choice Voting election "\
-            "which elects multiple winners. "\
-            f"There were {numWinners} seats to be filled. "\
-            "Voters have ranked their candidates in order of preference. "\
-            "Each voter still only had one vote. "\
-            "The lowest-performing candidates were eliminated until "\
-            f"{numWinners} candidates {presentPerfectAction}."
+        presentPerfectAction = textForWinnerUtils.as_present_perfect_tense(
+            self.config, numWinners)
+        output = f"These are results from a ranked choice election with {numWinners} "\
+            "winners. Voters were asked to rank the candidates from most to least "\
+            "favorite. The ballots are then counted in rounds. In each round, the "\
+            "candidate with the fewest votes is eliminated, and their supporters' "\
+            "votes transfer to the next choice on their ballots. The rounds continue "\
+            f"until {numWinners} candidates {presentPerfectAction}"
+        if self.graph.threshold:
+            denominator = self.summary.percent_denominator(roundNum)
+            threshold = self.graph.threshold / denominator
+            output += f" by each earning more than {threshold:.1%} of the votes"
+        return output + "."
 
 
 class WhyEliminated(FAQBase):
@@ -116,13 +114,14 @@ class WhyEliminated(FAQBase):
         return common.text_to_describe_list_of_names(elims, "Why were {name} eliminated?")
 
     def get_answer(self, roundNum):
-        return "Because they had the fewest votes and could not win the election, "\
-               "they were eliminated. "\
-               "To ensure people who voted for them still had their voices heard, "\
-               "their votes were transferred to their next choice. "\
-               "If you are familiar with the concept of runoff elections, "\
-               "you can think of these eliminations as holding a runoff "\
-               "without going back to the voting booth."
+        eliminatedNames = self.summary.rounds[roundNum].eliminatedNames
+        elims = common.comma_separated_names_with_and(eliminatedNames)
+        wasOrWere = "was" if len(eliminatedNames) == 1 else "were"
+        return f"{elims} had the fewest votes in Round {roundNum}. Since {elims} "\
+            f"{wasOrWere} eliminated, the voters who supported {elims} had their "\
+            f"votes count for their next choices in Round {roundNum + 1}. "\
+            "Transferring votes ensures that every voter can be included in choosing "\
+            "the final winner(s), even if their favorite candidate doesn't win."
 
 
 class WhyBatchEliminated(FAQBase):
@@ -133,18 +132,17 @@ class WhyBatchEliminated(FAQBase):
 
     def get_question(self, roundNum):
         numElims = len(self.summary.rounds[roundNum].eliminatedNames)
-        return f"Why were {numElims} candidates eliminated?"
+        return f"Why were {numElims} candidates eliminated in this round?"
 
     def get_answer(self, roundNum):
-        # Note: this wording almost verbatim from CCD
-        return "This is known as \"batch elimination.\" "\
-               "Two or more candidates with the lowest number of votes can be eliminated "\
-               "in a single round if their total number of votes is less than the votes "\
-               "for the candidate immediately ahead of them. "\
-               "This means that, if all next choices went to one of them, "\
-               "they would still trail the next higher candidate, "\
-               "and the outcome will be the same whether they are eliminated one by one, "\
-               "or at the same time."
+        numElims = len(self.summary.rounds[roundNum].eliminatedNames)
+        return "This election used \"batch\" elimination, which reduces the number of "\
+            f"rounds without changing the winner. The {numElims} eliminated "\
+            "candidates had fewer total votes together than the next highest "\
+            f"candidates, so even if all of the votes for the {numElims} eliminated "\
+            "candidates had gone to one of them, that person would still trail the "\
+            "next highest candidates. Eliminating the candidates one at a time "\
+            "produces the same results, \"batch\" elimination just takes fewer rounds."
 
 
 class WhySingleWinner(FAQBase):
@@ -161,7 +159,9 @@ class WhySingleWinner(FAQBase):
 
     def get_answer(self, roundNum):
         winner = self.summary.rounds[roundNum].winnerNames[0]
-        return f"Because {winner} received more than 50% of the votes."
+        return f"{winner} received more than 50% of the votes after {roundNum + 1} "\
+            "round(s). Only one candidate can have more than 50% of the votes, so "\
+            f"{winner} was the candidate most preferred by these voters."
 
 
 class WhyMultiWinner(FAQBase):
@@ -180,14 +180,13 @@ class WhyMultiWinner(FAQBase):
             self.config, self.summary.rounds[roundNum].winnerNames)
 
     def get_answer(self, roundNum):
-        winners = self.summary.rounds[roundNum].winnerNames
-        winnerText = common.comma_separated_names_with_and(winners)
-        threshold = intify(self.graph.threshold)
-        supportCount = len(self.summary.winnerNames) + 1
-        return f"Because {winnerText} received {threshold} votes. "\
-            f"The threshold of {threshold} votes was chosen to achieve proportional "\
-            f"representation, equal to at least one out of every {supportCount} voters "\
-            "supporting this candidate."
+        winners = self.summary.winnerNames
+        threshold = self.graph.threshold / self.summary.percent_denominator(roundNum)
+        return f"In a ranked choice election with {len(winners)} winners, each "\
+            f"candidate needs to earn more than {threshold:.1%} of the votes to win a "\
+            f"seat. {threshold:.1%} is the threshold for victory because only "\
+            f"{len(winners)} candidates can earn more than {threshold:.1%} "\
+            "of the votes."
 
 
 class WhyThreshold(FAQBase):
@@ -239,17 +238,13 @@ class WhySurplusTransfer(FAQBase):
 
     def get_answer(self, roundNum):
         redistributionData = self._surplusCache[roundNum]
-        lostVotes = int(round(redistributionData['sum']))  # note: don't aboutify
         names = common.comma_separated_names_with_and(redistributionData['names'])
         threshold = intify(self.graph.threshold)
-        numWinners = self.summary.numWinners
-        return "A principle of RCV is that no vote should be wasted. "\
-            f"Since {names} only needed {threshold} votes, "\
-            "any vote beyond that should not be wasted, and is instead redistributed. "\
-            f"This also ensures that {numWinners} candidates can reach the "\
-            f"{threshold}-vote threshold. "\
-            f"The {lostVotes} votes were are redistributed to remaining candidates "\
-            "proportionally based on voters' next choices."
+        return f"{names} only needed {threshold} votes to win a seat, so their extra "\
+            f"votes above {threshold} were transferred to those voters' next "\
+            f"choices. Transferring the extra votes allows supporters of {names} to "\
+            "win their fair share of representation in this election. Those voters "\
+            "selected one of the seats and part of another."
 
 
 class WhatIsInactiveBallots(FAQBase):
@@ -267,16 +262,10 @@ class WhatIsInactiveBallots(FAQBase):
         return "What are Inactive Ballots?"
 
     def get_answer(self, roundNum):
-        inactiveItem = self._inactiveCandidateInfoList[0]
-        numInactive = inactiveItem.totalVotesPerRound[roundNum]
-        base = "Voters are not required to rank all candidates. "
-        if numInactive != 0:
-            rest = f"Because {intify(numInactive)} ballots had all of their choices eliminated, "\
-                "those ballots are no longer active in this round."
-        else:
-            rest = "In this round, all ballots are still active, "\
-                   "meaning that no ballot had all of their choices eliminated already."
-        return base + rest
+        return "A ballot is \"inactive\" if the voter did not rank any of the "\
+            "candidates remaining in that round. Voters are not required to rank all "\
+            "the candidates, so if all the candidates they ranked are eliminated, "\
+            "their ballot becomes inactive."
 
 
 class WhyNoVotes(FAQBase):

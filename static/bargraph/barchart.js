@@ -12,6 +12,7 @@ function makeBarGraph(args) {
   const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
+  const textForWinner = args.textForWinner; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
@@ -315,20 +316,29 @@ function makeBarGraph(args) {
       if(isEliminatedThisRound(d)) {
           return isVertical ? "❌ "  :  "eliminated";
       }
-      let startText = "";
-      if (d.isWinner){
-          startText = "✔️ " ;
+      // controls string in STV election results
+      let percentDenominator = calculatePercentDenominator(
+        lastRoundNumWinners,
+        totalVotesPerRound[0],
+        totalVotesPerRound[d.round]
+      );
+      
+      const hasMultipleRounds = Object.entries(numRoundsTilWin).length > 1;
+      const winningRound = numRoundsTilWin[d.data["candidate"]];
+      const lastRound = totalVotesPerRound.length - 1;
+
+      const prefix = d.isWinner ? "✔️ " : "";
+      if (d.isWinner && hasMultipleRounds && (d.round > winningRound || d.round === lastRound)) {
+          return prefix + textForWinner;
       }
-      if (isVertical)
-      {
-          return startText + votesToText(d[1], false, true);
+      
+      if (isVertical) {
+        return prefix + votesToText(d[1], false, true);
       }
-      else
-      {
-          const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-          return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
-      }
-  };
+      
+      return prefix + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+    };
+
 
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {

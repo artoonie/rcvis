@@ -95,6 +95,9 @@ svg {
   overflow: hidden;
   transition: max-height 0.2s ease-out;
 }
+.optionscontent textarea {
+  width: 100%;
+}
 .uploaddescriptor {
  padding: 30px;
 }

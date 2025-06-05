@@ -47,6 +47,15 @@
 {% endblock %}
 
 {% block additionalOptions %}
+    <button class="collapsible">▶ Text Options</button>
+
+    <div class="optionscontent" id="globalOptions">
+      <div class="container mt-3 mb-3">
+        <label for="customText" class="d-block">Custom text to display with visualization title:</label>
+        <textarea id="customText" name="customText" maxlength="256" placeholder="The results of a ranked choice voting election"></textarea>
+      </div>
+    </div>
+
     <button class="collapsible">▶ Data Options</button>
 
     <div class="optionscontent" id="data-options">
