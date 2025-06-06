@@ -8,7 +8,7 @@ django-registration==3.3
 django-social-share==2.3.0
 django-sortedm2m==3.1.1
 django-storages==1.13.2
-Django==4.2.21
+Django==4.2.22
 rcvformats==0.0.46
 selenium==4.25.0
 psycopg2-binary==2.9.10
