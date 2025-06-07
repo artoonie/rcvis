@@ -43,6 +43,7 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     echo "Starting tests"
     $RUN test visualizer.tests.testBallotpediaRestApi\
               visualizer.tests.testDataTables\
+              visualizer.tests.testDataTablesRCTabFormat\
               visualizer.tests.testDataTablesHeadlessBrowser\
               visualizer.tests.testFaq\
               visualizer.tests.testModelDeletion\

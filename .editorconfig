@@ -1,0 +1,11 @@
+# EditorConfig helps standardize different editing environments to a common standard.
+# Read more at https://editorconfig.org/
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+[*.{js,ts,py}]
+indent_style = space
+indent_size = 4
