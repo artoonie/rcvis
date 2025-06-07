@@ -55,6 +55,13 @@ class SimpleTests(TestCase):
         """
         self._get_data_for_view(filenames.INACTIVE_BALLOT_APPEARS_LATER)
 
+    def test_zero_vote_multiwinner(self):
+        """
+        A zero-vote multiwinner election with zero votes should still load.
+        Note: this is a regression test from a RankedChoices file.
+        """
+        self._get_data_for_view(filenames.ZERO_VOTE_MULTIWINNER)
+
     def test_opavote_loads(self):
         """ Opens the opavote file """
         self._get_data_for_view(filenames.OPAVOTE)

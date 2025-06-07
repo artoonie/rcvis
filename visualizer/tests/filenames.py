@@ -20,6 +20,7 @@ DOMINION = 'testData/dominion-input.xlsx'
 INACTIVE_BALLOT_APPEARS_LATER = 'testData/inactive-ballots-appears-later.json'
 INACTIVE_BALLOT_RENAME_DATA = 'testData/inactive-ballot-rename.json'
 INACTIVE_BALLOT_RENAME_SIDECAR = 'testData/inactive-ballot-rename-sidecar.json'
+ZERO_VOTE_MULTIWINNER = 'testData/zero-vote-multiwinner.json'
 
 # Regression tests for commit c28d6a7 (fix-inactive-after-double-elim)
 RESIDUAL_SURPLUS_MAIN = 'testData/with-residual-surplus.json'
