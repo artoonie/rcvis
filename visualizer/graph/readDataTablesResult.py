@@ -62,7 +62,7 @@ class ReadDataTableJSON():
             try:
                 numVotes = float(numVotes)
             except (TypeError, ValueError) as exc:
-                raise InvalidDataTableInput(f"On Round {roundNum+1}, \"{candidateName}\" " +
+                raise InvalidDataTableInput(f"On Round {roundNum + 1}, \"{candidateName}\" " +
                                             "has an invalid number of votes") from exc
 
             if numVotes < 0:

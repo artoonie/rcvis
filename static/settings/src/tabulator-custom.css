@@ -1,0 +1,16 @@
+.link-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  display: inline-block;  /* For IE11/ MS Edge bug */
+  pointer-events: none;
+  text-decoration: none;
+}
+
+.manage-candidate {
+  font-size: .7em;
+  margin-left: 10px;
+}
+
+.tabulator-row:nth-child(even) {
+  background-color: #ffffff;
+}

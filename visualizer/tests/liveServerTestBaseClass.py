@@ -148,6 +148,12 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         # This happens on saucelabs
         log = [l for l in log if 'favicon.ico - Failed to load resource' not in l['message']]
 
+        # This happens on the chromedriver used on 2025-04-11
+        log = [
+            l for l in log if
+            " Uncaught TypeError: Cannot set properties of undefined (setting 'width')"
+            not in l['message']]
+
         if len(log) != num:
             print("Log information: ", log)
 
@@ -280,3 +286,10 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
         Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
         """
         return self.browser.execute_script(f'return document.getElementById("{inputId}").{attr};')
+
+    def _get_attr_from_class(self, className, attr):
+        """
+        Uses JS to get the attribute, use `value` for <input>s and `innerHTML` for divs
+        """
+        return self.browser.execute_script(
+            f'return document.getElementsByClassName("{className}")[0].{attr};')
