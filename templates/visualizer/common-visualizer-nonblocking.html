@@ -29,3 +29,9 @@
   <script src="{% static '@artoonie/timeline-range-slider/timeline-range-slider/slider.js' %}"></script>
   <script src="{% static 'visualizer/visualize-nonblocking.js' %}"/>
 {% endcompress %}
+
+<script type="text/javascript">
+    const colorThemeGenerator = getColorGenerator(config.colorTheme);
+    const colorsPerRound = Array.from(colorThemeGenerator({{ tabularByRoundInteractive.rounds|length }}));
+</script>
+

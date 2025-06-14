@@ -6,19 +6,12 @@
 {% endcompress %}
 
 <script>
-
     // const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
     //
     // We might as well leave this as a string, because it has to be serialized to send to the
     // client browser anyway, and the pie chart component can handle it in string form.
     const electionSummary = document.getElementById("rawDataId").textContent;
-
-    const candidateColors = [
-        "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f",
-        "#bcbd22", "#17becf", "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5", "#c49c94",
-        "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5", "#3366cc", "#dc3912", "#ff9900", "#109618",
-        "#990099", "#0099c6", "#dd4477", "#66aa00", "#b82e2e", "#316395"
-    ];    
+    const candidateColors = Array.from(colorThemeGenerator({{ tabularByCandidate.tabulation|length }}));
 
     // Create the pie-chart element
     const pieChart = document.createElement("pie-chart");

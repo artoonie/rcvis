@@ -3704,7 +3704,7 @@ Qe.prototype;
 var ic = /* @__PURE__ */ ul('<svg class="pie-chart-svg svelte-42cyhy"><defs><filter id="text-top-filter"><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImage"></feBlend></filter><pattern id="cross-hatch" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="transparent"></rect><path d="M0,0 l10,10 M0,10 l10,-10" stroke="lightgray" stroke-width="2"></path></pattern></defs></svg>');
 const sc = {
   hash: "svelte-42cyhy",
-  code: `.pie-chart-svg.svelte-42cyhy {width:100%;height:100%;max-width:700px;max-height:60vh;aspect-ratio:1 / 1; /* For a perfect circle, use 1:1 ratio */margin:0 auto;display:block;}
+  code: `.pie-chart-svg.svelte-42cyhy {font-size: 1.5em; overflow: visible;width:100%;height:100%;max-width:700px;max-height:60vh;aspect-ratio:1 / 1; /* For a perfect circle, use 1:1 ratio */margin:0 auto;display:block;}
 
 @media (max-width: 768px) {.pie-chart-svg.svelte-42cyhy {max-height:50vh; /* Smaller maximum height on mobile */}
 }
@@ -4077,9 +4077,11 @@ function Xs(t, e) {
     const V = Rt(v), D = Pt(v), Ut = at(w(G)).attr("viewBox", `0 0 ${f} ${o}`).attr("preserveAspectRatio", "xMidYMid meet").classed("pie-chart-svg", !0).append("g").attr("id", g).attr("transform", `translate(${k}, ${A})`).selectAll(".slice").data(m).enter().append("g").attr("class", "slice").classed("eliminated", (N) => V.includes(N.data.label.split("#")[0]) || N.data.label.includes(_)).classed("elected", (N) => D.includes(N.data.label.split("#")[0]) && !N.data.label.includes(_)).attr("id", (N) => N.data.label).on("mouseenter", (N, nt) => or(N, nt)).on("mouseleave", (N, nt) => ur(N, nt)), Ke = ne().outerRadius(S).innerRadius(C);
     if (I) {
       const N = ne().outerRadius(C + 1).innerRadius(C);
-      Ut.append("path").attr("d", N).transition("global").duration(b).attr("d", (nt) => Ke(nt)).attr("fill", (nt) => dn(nt)).on("end", (nt) => lr());
-    } else
+      Ut.append("path").attr("d", N).transition("global").duration(b).attr("d", (nt) => Ke(nt)).attr("fill", (nt) => candidateColors[nt]).on("end", (nt) => lr());
+    } else {
+      const color = candidateColors;
       Ut.append("path").attr("d", (N) => Ke(N)).attr("fill", (N) => dn(N)), lr();
+    }
     return O && ri(v, m, k, A, S, V), m;
   }
   function na() {
