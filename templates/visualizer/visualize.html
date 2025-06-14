@@ -35,7 +35,19 @@
         <li class="nav-item">
             <a class="nav-link btn" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="barchart" aria-selected="true">
               <img class="tabicon" src="{% static 'visualizer/tabicons/barchart.png' %}" width="18" height="18" alt="Barchart icon"/>
-              <span class="tabtext">Bar Chart</span>
+              <span class="tabtext">Bar</span>
+            </a>
+        </li>
+        <li class="nav-item" name="li_hideable_tabular">
+            <a class="nav-link btn" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
+              <span class="tabtext">Table</span>
+            </a>
+        </li>
+        <li class="nav-item" name="li_hideable_pie">
+            <a class="nav-link btn" id="pie-tab" data-toggle="changeviz" href="#pie" role="tab" aria-controls="pie" aria-selected="false">
+              <img class="tabicon" src="{% static 'visualizer/tabicons/pie.png' %}" width="18" height="18" alt="Pie icon"/>
+              <span class="tabtext">Pie</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_sankey">
@@ -45,21 +57,15 @@
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
-              <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
-              <span class="tabtext">Summary table</span>
-            </a>
-        </li>
-        <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/roundbyround.png' %}" width="18" height="18" alt="Round-By-Round icon. 'move cells to another location for editing' by icon 54 from the Noun Project."/>
-              <span class="tabtext">Tables by round</span>
+              <span class="tabtext">By round</span>
             </a>
         </li>
         <li class="nav-item" name="li_hideable_tabular">
             <a class="nav-link btn" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/candidatesummary.png' %}" width="18" height="18" alt="Candidate summary icon. 'data set' by H Alberto Gongora from the Noun Project."/>
-              <span class="tabtext">Tables by candidate</span>
+              <span class="tabtext">By candidate</span>
             </a>
         </li>
         <li class="nav-item">
@@ -129,6 +135,10 @@
       </div>
     </div>
 
+    <div class="vis-wrapper" id="id-pie" data-anchor="pie" aria-labeledby="pie-tab">
+        {% include "pie/pie.html" %}
+    </div>
+
     <div class="vis-wrapper" id="id-candidate-summary" data-anchor="candidate-summary" aria-labeledby="candidate-summary-tab">
         {% include "tabular/tabular-by-candidate.html" %}
     </div>
@@ -156,6 +166,7 @@
 {% block afterMaincontent %}
     {% include "visualizer/common-visualizer-nonblocking.html" %}
     {% include "sankey/sankey-nonblocking.html" %}
+    {% include "pie/pie-nonblocking.html" %}
     {% include "bargraph/barchart-common-nonblocking.html" %}
     {% include "bargraph/barchart-fixed-nonblocking.html" %}
     {% include "bargraph/barchart-interactive-nonblocking.html" %}
