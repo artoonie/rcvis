@@ -1,0 +1,123 @@
+.round-player-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.round-player-wrapper,
+.round-steps-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.round-player-wrapper {
+  width: 100%;
+  justify-content: center;
+  max-width: 750px;
+}
+
+.round-player-select-wrapper {
+  position: relative;
+}
+
+.round-player-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  width: 100%;
+  background-color: #fff;
+  border: 2px solid #4747ff;
+  color: #002c59;
+  border-radius: 4px;
+  padding: 4px 8px;
+  padding-right: 32px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.round-player-select-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid #4747ff;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+}
+
+.round-player-select::-ms-expand {
+  display: none;
+}
+
+.round-player-play-btn {
+  background-color: #4747ff;
+  color: #fff;
+  padding: 2px 10px;
+  font-size: 1rem;
+  min-width: 160px;
+}
+
+.round-player-play-btn:hover {
+  color: #fff;
+  background-color: #4747c2;
+}
+
+.round-player-nav {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  color: #4747ff;
+  font-size: 1rem;
+  padding: 4px 8px;
+}
+
+.round-player-nav.round-player-prev {
+  margin-right: 24px;
+  flex-direction: row-reverse;
+}
+
+.round-player-nav.round-player-next {
+  margin-left: 24px;
+}
+
+.round-player-nav-label {
+  display: none;
+}
+
+@media screen and (min-width: 750px) {
+  .round-player-nav {
+    width: 100px;
+  }
+  .round-player-nav.round-player-prev svg {
+    margin-right: 6px;
+  }
+  .round-player-nav.round-player-next svg {
+    margin-left: 6px;
+  }
+  .round-player-nav-label {
+    display: inline-block;
+  }
+}
+
+.round-player-nav svg {
+  scale: 50%;
+  width: 24px;
+}
+
+.round-player-nav.round-player-prev svg {
+  transform: rotate(180deg);
+}
+
+.round-player-hidden {
+  visibility: hidden;
+}

@@ -11,8 +11,8 @@ from django.db.models import BooleanField
 from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import Select
 
 from common.testUtils import TestHelpers
 from common.viewUtils import get_script_to_disable_animations
@@ -62,6 +62,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
+            self.browser.set_window_size(1280, 1024)
 
         self.browser.implicitly_wait(10)
         self._screenshotCount = 0
@@ -164,18 +165,11 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _disable_bargraph_slider_timer(self):
         """
-        Changes the timeBetweenStepsMs to 1ms.
-        Note that this does not change the barchart's time between each step,
-        just the timeline. You still need to cancel the animation using trs_moveSliderTo.
+        Changes the timeBetweenStepsMs to 0 to run through animation.
         """
-        key = "_sliderDiv_bargraph-slider-container"
-
-        # Ensure we're touching the right thing: 1200ms
-        oldTime = self.browser.execute_script(f"return sliders['{key}']['timeBetweenStepsMs'];")
-        self.assertEqual(oldTime, 1200)  # note: 1200 is only true if <= 7 rounds
-
-        # Change
-        self.browser.execute_script(f"sliders['{key}']['timeBetweenStepsMs'] = 1;")
+        self.browser.execute_script(
+            "if (barchartRoundPlayer) { barchartRoundPlayer.setTimeBetweenStepsMs(0); };\
+             if (roundPlayer) { roundPlayer.setTimeBetweenStepsMs(0); };")
 
     @classmethod
     def _ensure_eventually_asserts(cls, assertion):
@@ -213,7 +207,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
                 values[key] = field.get_default()
         return values
 
-    def _upload(self, jsonFilename, sidecarFilename=None):
+    def _upload(self, jsonFilename, sidecarFilename=None, additionalArgs=None):
         """
         Uploads the given local files. The sidecar file is optional.
         After upload, follows the redirect.
@@ -222,6 +216,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
         with open(jsonFilename, 'rb') as jsonFileObject:
             values['jsonFile'] = jsonFileObject
+            if additionalArgs is not None:
+                # Merge additional args
+                values.update(additionalArgs)
 
             if sidecarFilename is None:
                 response = self.client.post('/upload.html', values)
@@ -254,7 +251,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _debug_screenshot(self):
         """ Saves a screenshot in the current directory for debugging """
-        # First, ensure we're not on Travis. This is only for local debugging.
+        # First, ensure we're not connected to SauceLabs: this is only for local debugging.
         assert not self.isUsingSauceLabs
 
         # Save a screenshot
@@ -264,18 +261,13 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _go_to_round_by_clicking(self, round_i):
         """
-        trs_moveSliderTo does not cancel the animation, so this can be used if
-        you need to trigger the cancel-animation behavior.
+        Helper to trigger going to a specific round in the player
         """
         # Cancel animation by clicking on round_i'th element element
         container = self.browser.find_element(By.ID, 'bargraph-slider-container')
-        tick = container.find_elements(By.CLASS_NAME, 'slider-item')[round_i]
-
-        # Note - need an action chain because the first tick isn't actually receiving the click,
-        # the slider itself handles it, and selenium throws ElementClickInterceptedException
-        ActionChains(self.browser).move_to_element(tick)\
-            .click(tick)\
-            .perform()
+        selectEl = container.find_element(By.CSS_SELECTOR, ".round-player-select")
+        select = Select(selectEl)
+        select.select_by_value(str(round_i))
 
     def _set_input_to(self, inputId, value):
         """

@@ -1,37 +1,3 @@
-var hasAnimatedSlider = false;
-
-function animationForBarchartCompleted() {
-    isBargraphAnimationInProgress = false;
-    showFaqButton();
-}
-
-function animateIfNeeded(newTabName) {
-  if (hasAnimatedSlider) {
-    return;
-  }
-
-  animateNow(newTabName);
-}
-
-function animateNow(newTabName) {
-  // TODO only run animation on interactive visualizations
-  if (newTabName == 'barchart') {
-    hideFaqs();
-
-    showTextOnRoundDescriber(humanFriendlySummary, true);
-    isBargraphAnimationInProgress = true;
-
-    trs_animate('bargraph-slider-container', animationForBarchartCompleted);
-    hasAnimatedSlider = true;
-  } else if (newTabName == 'round-by-round') {
-    trs_animate('tabular-by-round-slider-container');
-    hasAnimatedSlider = true;
-  } else if (newTabName == 'pie') {
-    trs_animate('pie-slider-container');
-    hasAnimatedSlider = true;
-  }
-}
-
 function chooseBetweenTimelineAndDescription() {
   // Pretty hacky - just for evaluation
   if (!config.doUseDescriptionInsteadOfTimeline) {

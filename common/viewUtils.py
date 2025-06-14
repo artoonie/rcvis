@@ -7,6 +7,7 @@ from django.conf import settings
 from visualizer.bargraph.graphToD3 import D3Bargraph
 from visualizer.descriptors.faq import FAQGenerator
 from visualizer.descriptors.roundDescriber import Describer
+from visualizer.descriptors.textForWinnerUtils import as_caption
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.models import TextForWinner
 from visualizer.sankey.graphToD3 import D3Sankey
@@ -64,6 +65,7 @@ def get_data_for_graph(graph, config):
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'graph': graph,
+        'textForWinner': as_caption(config).lower(),
         'rawData': graph._debug_temporary_raw_JSON
     }
     roundDescriberData = get_data_for_round_describer(graph, config)

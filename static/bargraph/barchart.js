@@ -12,6 +12,7 @@ function makeBarGraph(args) {
   const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
+  const textForWinner = args.textForWinner; // Horizontal or vertical mode?
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
@@ -67,10 +68,8 @@ function makeBarGraph(args) {
   }
 
   // If any of the labels are too long, the max height will be even longer.
-  // Check for that, and ensure it's then at least 40px high.
-  if (namesNeedAnyTwoLineLabels(candidateNames)) {
-      maxHeight = Math.max(numCandidates*40, maxHeight);
-  }
+  // Add 20px for each of them.
+  maxHeight += countNamesThatNeedTwoLines(candidateNames) * 20;
 
   const width = maxWidth - margin.left - margin.right,
         height = maxHeight - margin.top - margin.bottom;
@@ -303,8 +302,8 @@ function makeBarGraph(args) {
   function memoizeDoCandidatesGetAnyMoreVotes() {
     for (let round_i = numRounds - 1; round_i >= 0; round_i--) {
       for(let candidate_i = 0; candidate_i < numCandidates; ++candidate_i) {
-        // TODO here should be the memoizeeee
-        // why does the data format suckeeeeee
+        // TODO here should be the memoize
+        // why does the data format suck
       }
     }
   }
@@ -317,19 +316,30 @@ function makeBarGraph(args) {
       if(isEliminatedThisRound(d)) {
           return isVertical ? "❌ "  :  "eliminated";
       }
-      let startText = "";
-      if (d.isWinner)
-          startText = "✔️ " ;
-      if (isVertical)
-      {
-          return startText + votesToText(d[1], false, true);
+      // controls string in STV election results
+      let percentDenominator = calculatePercentDenominator(
+        lastRoundNumWinners,
+        totalVotesPerRound[0],
+        totalVotesPerRound[d.round]
+      );
+      
+      const hasMultipleRounds = Object.entries(numRoundsTilWin).length > 1;
+      const winningRound = numRoundsTilWin[d.data["candidate"]];
+      const lastRound = totalVotesPerRound.length - 1;
+
+      const prefix = d.isWinner ? "✔️ " : "";
+      if (d.isWinner && hasMultipleRounds && (d.round > winningRound || d.round === lastRound)) {
+          return prefix + textForWinner;
       }
-      else
-      {
-          const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
-          return startText + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+      
+      if (isVertical) {
+        return prefix + votesToText(d[1], false, true);
       }
-  };
+      
+      return prefix + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, false, false);
+    };
+
+
   function secondaryDataLabelTextFn(d) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
@@ -650,11 +660,21 @@ function makeBarGraph(args) {
           .text(mainDataLabelTextFn);
   }
 
+
   if (!isInteractive) {
     // Show a legend
     d3.select('#'+idOfLegend)
       .append("g")
-        .call(legend);
+        .call(legend)
+  }
+
+  svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+
+   /* boldWinnerFont function used by transitionDataLabelsForRound() to bold winner Names and !isInteractive */
+  function boldWinnerFont(_, i){
+    return (stackSeries && stackSeries[currRound] && stackSeries[currRound][i] &&
+    stackSeries[currRound][i].isWinner) ? "bold" : null;
   }
 
   // Draw the threshold dashed line
@@ -774,11 +794,15 @@ function makeBarGraph(args) {
         .attr("transform", "translate(0,0)")
         .attr("fill", barColorFn);
   };
+
+
   function transitionDataLabelsForRound() {
-    // Set all labels to correct display
+      // Set all labels to correct display
     svg.selectAll("text.dataLabel")
         .attr("display", dataLabelDisplayFor);
-
+    svg.selectAll("#candidateNamesWrapper tspan")
+      .style("font-weight", boldWinnerFont);
+      
     // Create starting position and color for the just-eliminated candidate
     const eliminatedLabel = svg.selectAll("text.dataLabel")
       .filter(isLatestRoundFor)

@@ -71,6 +71,7 @@ class TestHelpers():
         chromeOptions.add_argument("--no-sandbox")
         chromeOptions.add_argument("--disable-dev-shm-usage")
         chromeOptions.add_argument("--shm-size=512m")
+        chromeOptions.add_argument("--force-device-scale-factor=1")
 
         if 'CHROMEDRIVER_PATH' in os.environ:
             chromeOptions.add_argument("--remote-debugging-port=9222")

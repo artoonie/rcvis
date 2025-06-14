@@ -33,16 +33,21 @@
     // Append it to the div
     document.getElementById("pie-body").appendChild(pieChart);
 
-    trs_createSliderAndTimeline({
-      wrapperDivId: 'pie-slider-container',
-      numTicks: {{ config.numRounds }},
-      tickText: generateTickTexts({{ config.numRounds }}),
-      hideActiveTickText: doHideActiveTickText({{ config.numRounds }}),
-      sliderValueChanged: updatePieChartRound,
-      timelineData: generateTimelineData(humanFriendlyEventsPerRound),
-      timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
-      timeBetweenStepsMs: 3000,
-      animateOnLoad: false,
+    // trs_createSliderAndTimeline({
+    //   wrapperDivId: ,
+    //   numTicks: {{config.numRounds }},
+    //   tickText: generateTickTexts({{ config.numRounds }}),
+    //   hideActiveTickText: doHideActiveTickText({{ config.numRounds }}),
+    //   sliderValueChanged: updatePieChartRound,
+    //   timelineData: generateTimelineData(humanFriendlyEventsPerRound),
+    //   timelinePeeking: !config.doUseDescriptionInsteadOfTimeline,
+    //   timeBetweenStepsMs: 3000,
+    //   animateOnLoad: false,
+    // });
+    piechartRoundPlayer = RoundPlayer({
+      container: document.getElementById("pie-slider-container"),
+      totalRounds: {{ config.numRounds }},
+      onChange: updatePieChartRound,
     });
 
     function updatePieChartRound(sliderIndex) {
