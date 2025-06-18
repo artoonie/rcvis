@@ -1,0 +1,36 @@
+{% extends "django_registration/base.html" %}
+
+{% block regcontent %}
+    <h2>
+        {% block regtitle %}
+            Complete Account Registration
+        {% endblock %}
+    </h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.activation_key.label_tag }} {{ form.activation_key }}
+
+        {% if form.activation_key.errors %}
+            {% for error in form.activation_key.errors %}
+                <p class="errorlist">{{ error }}</p>
+            {% endfor %}
+        {% endif %}
+        {% if activation_error %}
+            <div class="error">
+                <strong>Activation Failed:</strong>
+                {% if activation_error.code == "already_activated" %}
+                    This account has already been activated.
+                {% elif activation_error.code == "invalid_key" %}
+                    The activation key is invalid. Please check your link or try again.
+                {% else %}
+                    An unknown activation error occurred. Please contact support.
+                {% endif %}
+            </div>
+        {% endif %}
+    
+        <p>
+            <button type="submit" class="btn btn-primary">Activate</button>
+        </p>
+    </form>
+{% endblock %}

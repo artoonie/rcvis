@@ -31,7 +31,7 @@ def create_profile(sender, instance, created, **kwargs):
 @receiver(user_activated)
 def user_activated_slot(sender, user, request, **kwargs):
     """
-    When we receive a signal that user registration has occured,
+    When we receive a signal that user registration has occurred,
     subscribe the user to mailchimp - on prod only
     """
     mcDc = settings.MAILCHIMP_DC

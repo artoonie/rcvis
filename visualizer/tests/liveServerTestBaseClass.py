@@ -57,6 +57,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             sauceOptions["webdriverRemoteQuietExceptions"] = False
             sauceOptions["videoUploadOnPass"] = False
             options.set_capability('sauce:options', sauceOptions)
+            options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
 
             seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)

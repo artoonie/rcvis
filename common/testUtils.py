@@ -203,7 +203,8 @@ class TestHelpers():
         """ Gets the auth regisration link from the email outbox """
         emailBodyLines = outbox[0].body.split('\n')
         emailBodyLink = [l for l in emailBodyLines if l.startswith('http')][0]
-        return urlparse(emailBodyLink).path
+        parsed = urlparse(emailBodyLink)
+        return parsed.path + '?' + parsed.query
 
     @classmethod
     def give_auth(cls, user, auths):
