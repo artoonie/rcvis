@@ -15,9 +15,9 @@ from django.core.cache import cache
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
+from django.urls import Resolver404
 from django.urls import resolve
 from django.urls import reverse
-from django.urls import Resolver404
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -25,6 +25,7 @@ from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
+from rcvformats.conversions.automatic import AutomaticConverter
 from rest_framework import permissions, viewsets
 from rest_framework_tracking.mixins import LoggingMixin
 
@@ -36,11 +37,11 @@ from visualizer.common import make_complete_url, intify
 from visualizer.forms import UploadForm, UploadByDataTableForm
 from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
-from visualizer.serializers import BaseVisualizationSerializer
-from visualizer.sidecar.reader import BadSidecarError
 from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
+from visualizer.serializers import BaseVisualizationSerializer
 from visualizer.serializers import JsonOnlySerializer, VerboseSerializer, \
     BallotpediaSerializer, UserSerializer
+from visualizer.sidecar.reader import BadSidecarError
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 logger = logging.getLogger(__name__)
@@ -411,6 +412,32 @@ class ValidateDataEntry(LoginRequiredMixin, View):
                 return self._make_failure(40, 'Unknown error')
             return JsonResponse({'message': "Data is valid!", 'success': True})
 
+
+class ConvertToRCTabFormat(ValidateDataEntry):
+    """ Converts to Universal Tabulator Format """
+
+    def post(self, request):
+        """ Converts to Universal Tabulator Format """
+        secsToWait = self._check_rate_limit()
+        if secsToWait > 0:
+            secsToWait = int(secsToWait) + 1
+            message = f"Please wait {secsToWait} seconds before trying again"
+            return JsonResponse({'message': message, 'success': False})
+
+        try:
+            jsonData = request.POST['jsonFile']
+            with tempfile.TemporaryFile(mode='w+b') as tf:
+                tf.write(jsonData.encode())
+                tf.seek(0)
+                try:
+                    resp = AutomaticConverter().convert_to_ut(tf)
+                    return JsonResponse(resp)
+                except BaseException as exc:  # pylint: disable=broad-except
+                    logger.warning(exc)
+                    return self._make_failure(40, 'Unknown error')
+        except BaseException as exc:  # pylint: disable=broad-except
+            logger.warning(exc)
+            return self._make_failure(20, 'Unknown error')
 
 # For django REST
 

@@ -9,9 +9,9 @@ from django.urls import reverse
 from rcvformats.schemas import universaltabulator
 
 from common.testUtils import TestHelpers
+from visualizer.graph import readDataTablesResult
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
-from visualizer.graph import readDataTablesResult
 
 
 class DataTablesTests(TestCase):

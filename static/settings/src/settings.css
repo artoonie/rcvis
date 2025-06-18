@@ -1,0 +1,185 @@
+form div.formArea {
+  line-height: 50px;
+  border: 4px dashed #fff;
+}
+.uploadButtonWrapper {
+  text-align: center;
+}
+.selectFileButtonWrapper {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  height: 75px;
+  width: 100%;
+}
+.candidate-column-wrapper {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  /*max-height: 150px;*/
+  max-width: 45%;
+}
+.add-candidate-image {
+  white-space: normal;
+}
+.manually-edit-upload-button {
+  display: inline;
+  text-align: center;
+}
+#submitDiv {
+  text-align: center;
+  margin-top: 20px;
+}
+.candidate-button-wrapper {
+  margin: 5px;
+}
+.candidate-button-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+}
+.candidate-options-content {
+  text-align: center;
+}
+#hide-datatable-button {
+  margin-bottom: 10px;
+}
+#candidate-options {
+  overflow-x: auto;
+}
+.selectFileButtonWrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+}
+svg {
+  shape-rendering: crispEdges;
+}
+.collapsible {
+  background-color: #0074D9;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  border-width: 0px 1px 1px 0px;
+  border-bottom-color: #7198b9;
+}
+.active .collapsible:hover {
+  background-color: #7FDBFF;
+  color: #00060c;
+}
+.narrowbox {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+.optionscontent {
+  text-align: left;
+  line-height: 1.5em;
+  padding: 0 5px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}
+.optionscontent textarea {
+  width: 100%;
+}
+.uploaddescriptor {
+ padding: 30px;
+}
+#options {
+ opacity: 20%;
+}
+#datatable-upload-box {
+  display: none;
+}
+.left-panel-button {
+  width: 300px !important;
+  margin: 30px !important;
+}
+.dt_left-panel {
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: auto auto;
+}
+#dataTableWrapper {
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 5px 5px 5px #ccc;
+  margin: 15px;
+  overflow-x: scroll;
+}
+.upload-tableoptions {
+  margin: 15px;
+}
+.upload-candidate-label  {
+  font-weight: bold;
+  margin: 5px;
+}
+.upload-candidate-label input,
+.upload-candidate-label span {
+  font-weight: normal;
+  width: 80%;
+}
+.candidate-name {
+  border: 1px solid black;
+  width: 80%;
+  display: block;
+}
+.upload-candidate-label input {
+  color: #6c757d;
+  opacity: 1;
+}
+.upload-hover {
+  display: none;
+}
+.upload-hoverable:hover + .upload-hover {
+  display: block;
+}
+.candidate-input-wrapper {
+  padding-top: 0.5rem;
+  width: 100%;
+  display: inline-block;
+}
+.candidate-name-default {
+  color: #6c757d;
+  opacity: 1;
+}
+.candidate-input {
+  line-height: 100%;
+  width: 100%;
+  margin-left: 5px;
+  margin-right: 5px;
+}
+input[type="checkbox"].candidate-input {
+  width: auto;
+}
+.candidate-input::placeholder {
+  opacity: 0.2;
+}
+.upload-status-active {
+  color: gray;
+}
+.upload-status-eliminated {
+  text-decoration: line-through;
+  color: red;
+}
+.upload-status-elected {
+  font-weight: bold;
+  color: green;
+}

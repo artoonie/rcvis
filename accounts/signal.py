@@ -1,8 +1,8 @@
 """ A signal that creates UserProfile whenever a User is created """
 
 import logging
-import requests
 
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save

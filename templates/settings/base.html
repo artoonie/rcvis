@@ -2,12 +2,12 @@
 {% load compress %}
 
 {% compress css file %}
-<link rel="stylesheet" type="text/css" href="{% static 'settings/settings.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'settings/src/settings.css' %}">
 {% endcompress %}
               
 {% block beforeOptions %}
 {% endblock %}
-
+<body>
      <div class="container formArea">
         {% block additionalOptions %}
         {% endblock %}
@@ -86,3 +86,6 @@
 
 {% block afterOptions %}
 {% endblock %}
+
+     {% include "settings/settings-candidate-modal.html" %}
+</body>
