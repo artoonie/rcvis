@@ -277,7 +277,7 @@ class MovieCreationFactory():
         self.browser.get(url)
         self.browser.execute_script(get_script_to_disable_animations())
 
-    # pylint: disable=too-many-arguments
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     @classmethod
     def save_and_upload(cls, movie, slug, mp4FileObject, gifFileObject, titleImageFileObject):
         """

@@ -15,7 +15,6 @@
 {% endif %}
 
 {% compress css file %}
-  <link rel="stylesheet" href="{% static '@artoonie/timeline-range-slider/timeline-range-slider/slider.css' %}">
   <link rel="stylesheet" href="{% static 'visualizer/visualize-common.css' %}">
   <link rel="stylesheet" href="{% static 'visualizer/round-player.css' %}">
   <link rel="stylesheet" href="{% static 'tabular/style.css' %}">
@@ -26,6 +25,5 @@
   <script src="{% static 'visualizer/visualize-common.js' %}" />
   <script src="{% static 'visualizer/round-player.js' %}"></script>
   <script src="{% static 'visualizer/colors.js' %}" />
-  <script src="{% static '@artoonie/timeline-range-slider/timeline-range-slider/slider.js' %}"></script>
   <script src="{% static 'visualizer/visualize-nonblocking.js' %}"/>
 {% endcompress %}

@@ -20,8 +20,7 @@ class JSONMigrateTask():
     def _enumerate_tally_results(self):
         results = self.data['results']
         for result in results:
-            for tallyResult in result['tallyResults']:
-                yield tallyResult
+            yield from result['tallyResults']
 
     def is_rankit_data(self):
         """ Is the jsonData from RankIt? """
