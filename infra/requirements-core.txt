@@ -10,7 +10,7 @@ django-sortedm2m==4.0.0
 django-storages==1.14.6
 Django==4.2.22
 rcvformats==0.0.46
-selenium==4.33.0
+selenium==4.31.0  # Stay below 4.32.0 until this is fixed: https://github.com/SeleniumHQ/selenium/issues/15772
 requests==2.32.4
 whitenoise==6.4.0
 

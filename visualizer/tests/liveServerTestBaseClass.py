@@ -47,7 +47,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             sauceOptions['accessKey'] = accessKey
             sauceOptions['build'] = os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            sauceOptions["seleniumVersion"] = "4.10.0"
+            sauceOptions["seleniumVersion"] = "4.31.0"
             sauceOptions["tunnelName"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions["tags"] = ["CI"]
             sauceOptions["idleTimeout"] = 60
@@ -57,7 +57,6 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             sauceOptions["webdriverRemoteQuietExceptions"] = False
             sauceOptions["videoUploadOnPass"] = False
             options.set_capability('sauce:options', sauceOptions)
-            options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
 
             seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
             self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
