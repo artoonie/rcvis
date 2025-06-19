@@ -1,7 +1,6 @@
 {
   "name": "rcvis",
   "dependencies": {
-    "@artoonie/timeline-range-slider": "^0.1.12"
   },
   "scripts": {
     "test": "npm run test --workspaces",

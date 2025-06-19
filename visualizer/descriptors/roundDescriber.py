@@ -240,6 +240,6 @@ class Describer:
                 f"after which {winnerText}. Here's what happened in each round. "
         else:
             text = f"After {numRounds} rounds of this {electionType}, "\
-                   f"{winnerText}."
+                f"{winnerText}."
 
         return text

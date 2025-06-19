@@ -47,7 +47,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             sauceOptions['accessKey'] = accessKey
             sauceOptions['build'] = os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions['name'] = self._testMethodName + ":" + os.environ["HEROKU_TEST_RUN_BRANCH"]
-            sauceOptions["seleniumVersion"] = "4.10.0"
+            sauceOptions["seleniumVersion"] = "4.31.0"
             sauceOptions["tunnelName"] = "sc-proxy-tunnel-" + os.environ["HEROKU_TEST_RUN_ID"]
             sauceOptions["tags"] = ["CI"]
             sauceOptions["idleTimeout"] = 60

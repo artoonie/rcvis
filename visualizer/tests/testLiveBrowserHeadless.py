@@ -483,21 +483,28 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         def register():
             self.open(reverse('django_registration_register'))
+            submitButton = self.browser.find_element(By.XPATH, "//input[@type='submit']")
             self.browser.find_element(By.ID, "id_username").send_keys(username)
             self.browser.find_element(By.ID, "id_password1").send_keys(password)
             self.browser.find_element(By.ID, "id_password2").send_keys(password)
             self.browser.find_element(By.ID, "id_email").send_keys("test@example.com")
-            self.browser.find_element(By.XPATH, "//input[@type='submit']").click()
+            submitButton.click()
+            WebDriverWait(self.browser, 1).until(EC.staleness_of(submitButton))
 
         def login_via_upload_redirect():
             self.open(reverse('upload'))
+            submitButton = self.browser.find_element(By.XPATH, "//input[@type='submit']")
             self.browser.find_element(By.ID, "id_username").send_keys(username)
             self.browser.find_element(By.ID, "id_password").send_keys(password)
-            self.browser.find_element(By.XPATH, "//input[@type='submit']").click()
+            submitButton.click()
+            WebDriverWait(self.browser, 1).until(EC.staleness_of(submitButton))
 
         def click_activation_link():
             emailBodyRelativeLink = TestHelpers.get_email_reg_link(test_mailbox.outbox)
             self.open(emailBodyRelativeLink)
+            submitButton = self.browser.find_element(By.XPATH, "//button[@type='submit']")
+            submitButton.click()
+            WebDriverWait(self.browser, 1).until(EC.staleness_of(submitButton))
 
         # Make sure we won't sign up for mailchimp
         self.assertEqual(settings.MAILCHIMP_API_KEY, None)
@@ -525,10 +532,8 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Now activate via email link
         click_activation_link()
-
         # Now login should succeed, and upload has no username field
         login_via_upload_redirect()
-        WebDriverWait(self.browser, 5).until(EC.staleness_of(usernameFields[0]))
         self.assertEqual(len(self.browser.find_elements(By.ID, "id_username")), 0)
 
         # And for good measure, upload a file

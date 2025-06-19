@@ -31,7 +31,7 @@ def create_profile(sender, instance, created, **kwargs):
 @receiver(user_activated)
 def user_activated_slot(sender, user, request, **kwargs):
     """
-    When we receive a signal that user registration has occured,
+    When we receive a signal that user registration has occurred,
     subscribe the user to mailchimp - on prod only
     """
     mcDc = settings.MAILCHIMP_DC
@@ -51,5 +51,5 @@ def user_activated_slot(sender, user, request, **kwargs):
                       "status": "subscribed",
                       "ip_signup": request.META.get('REMOTE_ADDR'),
                       "tags": ['autosignup']
-                  },
-                  timeout=3)
+    },
+        timeout=3)

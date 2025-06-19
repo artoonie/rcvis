@@ -17,17 +17,21 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
 
   if [ "$CI_NODE_INDEX" -eq 0 ]; then
     # Start tunnel, make sure its killed on exit (success or failure)
-    READY_FILENAME=saucelabs-is-now-ready.tmp.file
-    ./sc -u $SAUCE_USERNAME \
-         -k $SAUCE_ACCESS_KEY \
-         -i sc-proxy-tunnel-$HEROKU_TEST_RUN_ID \
-         -f $READY_FILENAME &
+    ./sc run --region us-west \
+             --proxy-localhost allow \
+             --username $SAUCE_USERNAME \
+             --access-key $SAUCE_ACCESS_KEY \
+             --api-address :8032 \
+             --tunnel-name sc-proxy-tunnel-$HEROKU_TEST_RUN_ID &
     SC_PID=$!
     trap "kill $SC_PID" EXIT
 
-    # Wait for $READY_FILENAME to exist
-    while [ ! -f $READY_FILENAME ]; do sleep 1; done
-    echo "Readyfile found."
+    # Wait for saucelabs to be ready
+    until [ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8032/readyz)" == "200" ]
+    do
+        sleep 1
+    done
+    echo "Sauce Connect Proxy is ready"
 
     # Run tests once saucelabs proxy is ready
     $RUN test visualizer.tests.testLiveBrowserWithHead

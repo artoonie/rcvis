@@ -38,9 +38,10 @@ class RegistrationTests(TestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Activation view requiring a valid token (which should be invalid)
-        response = self.client.get(reverse('django_registration_activate', args=('testtoken',)))
+        url = reverse('django_registration_activate')
+        response = self.client.post(url, data={"activation_key": "testtoken"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        assert b'Activation Failed' in response.content
+        assert b'The activation key you provided is invalid.' in response.content
 
     def test_logged_out_cannot_get_upload_page(self):
         """ Tests that upload page redirects when logged out """
@@ -112,7 +113,10 @@ class RegistrationTests(TestCase):
             postMock.assert_not_called()
 
             # and it is called once we click the activation email
-            self.client.get(TestHelpers.get_email_reg_link(test_mailbox.outbox))
+            url = TestHelpers.get_email_reg_link(test_mailbox.outbox)
+            firstEqualSignPos = url.find('=')
+            token = url[firstEqualSignPos + 1:]
+            self.client.post(url, data={'activation_key': token})
             postMock.assert_called_once()
 
             # Check all the arguments
@@ -122,4 +126,5 @@ class RegistrationTests(TestCase):
                                               'FNAME': 'testuser',
                                               'status': 'subscribed',
                                               'ip_signup': '127.0.0.1',
-                                              'tags': ['autosignup']})
+                                              'tags': ['autosignup']},
+                                        timeout=3)
