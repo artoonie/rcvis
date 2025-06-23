@@ -166,11 +166,12 @@ export default class Candidate {
             null, candidate.candidateName, editorParams.sidecarOnly,
             placeholder);
         candidateName.classList.add("candidate-name-input");
-        const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
-            cell, candidateName, success, cancel,
-            onRendered, editorParams);
-        editor.appendChild(document.createElement("br"));
-        editor.appendChild(moreInfoButton);
+        // TODO -- disabled for now -- NOMODALEDIT
+        // const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
+        //     cell, candidateName, success, cancel,
+        //     onRendered, editorParams);
+        // editor.appendChild(document.createElement("br"));
+        // editor.appendChild(moreInfoButton);
 
         return editor;
     };

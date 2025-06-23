@@ -54,17 +54,19 @@ function hideManualEntryShowError() {
 }
 
 function hideManualEntryErrorShowMainButton() {
-    getManuallyEditSidecarButton().style.display = "inline";
-    getManuallyEditSidecarErrorButton().style.display = "none";
+    // TODO -- disabled for now -- NOMODALEDIT
+    // getManuallyEditSidecarButton().style.display = "inline";
+    // getManuallyEditSidecarErrorButton().style.display = "none";
 }
 
 function showManualOptionsHideTable(redraw = true) {
-    getOptionsForManualSidecarEntry().style.display = 'block';
-    getDatatableOuterWrapper().style.display = 'none';
-    document.removeEventListener('formdata', formListener);
-    if (redraw) {
-        redrawOptions();
-    }
+    // TODO -- disabled for now -- NOMODALEDIT
+    // getOptionsForManualSidecarEntry().style.display = 'block';
+    // getDatatableOuterWrapper().style.display = 'none';
+    // document.removeEventListener('formdata', formListener);
+    // if (redraw) {
+    //     redrawOptions();
+    // }
 }
 
 export function uploadSidecarInstead(e: MouseEvent) {

@@ -244,57 +244,58 @@ class DataTablesTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """
         Check that the edit modal works correctly and no lingering state is left behind.
         """
-        self._init_data_tables()
-        self._make_table_of_size(3, 3)
+        # TODO -- disabled for now -- NOMODALEDIT
+        # self._init_data_tables()
+        # self._make_table_of_size(3, 3)
 
-        # Click Manage Candidate button
-        self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
-        manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
-        self.assertEqual(len(manageCandidate), 1)
-        manageCandidate[0].click()
-        modalText = self._get_attr_from_id('datatable-modal', 'innerText')
-        self.assertTrue(modalText.startswith('Candidate 1\n'))
-        inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
-        self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
-        inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
-        self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
-        self.verify_modal_state(inputWrappers)
+        # # Click Manage Candidate button
+        # self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
+        # manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+        # self.assertEqual(len(manageCandidate), 1)
+        # manageCandidate[0].click()
+        # modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+        # self.assertTrue(modalText.startswith('Candidate 1\n'))
+        # inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
+        # self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
+        # inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+        # self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
+        # self.verify_modal_state(inputWrappers)
 
-        # Edit fields in modal and verify they stay after close/reopen.
-        inputs[3].click()
-        inputs[4].send_keys("http://myphotourl.com")
-        inputs[5].send_keys("http://mymoreinfourl.com")
-        inputs[6].send_keys("Whig Party")
-        self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+        # # Edit fields in modal and verify they stay after close/reopen.
+        # inputs[3].click()
+        # inputs[4].send_keys("http://myphotourl.com")
+        # inputs[5].send_keys("http://mymoreinfourl.com")
+        # inputs[6].send_keys("Whig Party")
+        # self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
-        self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
-        manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
-        self.assertEqual(len(manageCandidate), 1)
-        manageCandidate[0].click()
-        modalText = self._get_attr_from_id('datatable-modal', 'innerText')
-        self.assertTrue(modalText.startswith('Candidate 1\n'))
-        inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
-        self.assertEqual(inputs[4].get_attribute('value'), 'http://myphotourl.com')
-        self.assertEqual(inputs[5].get_attribute('value'), 'http://mymoreinfourl.com')
-        self.assertEqual(inputs[6].get_attribute('value'), 'Whig Party')
-        self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+        # self.browser.execute_script("dtTestGetter(1, 0).getElement().click();")
+        # manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+        # self.assertEqual(len(manageCandidate), 1)
+        # manageCandidate[0].click()
+        # modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+        # self.assertTrue(modalText.startswith('Candidate 1\n'))
+        # inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+        # self.assertEqual(inputs[4].get_attribute('value'), 'http://myphotourl.com')
+        # self.assertEqual(inputs[5].get_attribute('value'), 'http://mymoreinfourl.com')
+        # self.assertEqual(inputs[6].get_attribute('value'), 'Whig Party')
+        # self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
-        # assert that the other candidates modals open and don't contain any info about the
-        # previous candidate (the modals are reused so this is a potential problem)
-        for i in range(2, 4):
-            self.browser.execute_script(f"dtTestGetter({i}, 0).getElement().click();")
-            manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
-            self.assertEqual(len(manageCandidate), 1)
-            manageCandidate[0].click()
-            modalText = self._get_attr_from_id('datatable-modal', 'innerText')
-            self.assertTrue(modalText.startswith('Candidate ' + str(i)))
-            self.assertNotIn('Candidate 1', modalText)
-            inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
-            self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
-            inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
-            self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
-            self.verify_modal_state(inputWrappers)
-            self.browser.find_element(By.ID, 'datatable-modal-submit').click()
+        # # assert that the other candidates modals open and don't contain any info about the
+        # # previous candidate (the modals are reused so this is a potential problem)
+        # for i in range(2, 4):
+        #     self.browser.execute_script(f"dtTestGetter({i}, 0).getElement().click();")
+        #     manageCandidate = self.browser.find_elements(By.CLASS_NAME, 'manage-candidate')
+        #     self.assertEqual(len(manageCandidate), 1)
+        #     manageCandidate[0].click()
+        #     modalText = self._get_attr_from_id('datatable-modal', 'innerText')
+        #     self.assertTrue(modalText.startswith('Candidate ' + str(i)))
+        #     self.assertNotIn('Candidate 1', modalText)
+        #     inputWrappers = self.browser.find_elements(By.CLASS_NAME, 'candidate-input-wrapper')
+        #     self.assertEqual(len(inputWrappers), 7)  # Four on the input, three in the background
+        #     inputs = self.browser.find_elements(By.CLASS_NAME, 'candidate-input')
+        #     self.assertEqual(len(inputs), 7)  # Four on the input, three in the background
+        #     self.verify_modal_state(inputWrappers)
+        #     self.browser.find_element(By.ID, 'datatable-modal-submit').click()
 
     def verify_modal_state(self, inputWrappers):
         """

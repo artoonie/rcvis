@@ -146,7 +146,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements(By.NAME, "hideSankey")[1].click()
         self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
-        assert self._is_visible("sankey-tab")
+        self._ensure_eventually_asserts(lambda: self._is_visible("sankey-tab"))
 
         # Finally, toggle it back off
         self._go_to_tab("settings-tab")
@@ -154,7 +154,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Check the box (the second one, which isn't hidden)
         self.browser.find_elements(By.NAME, "hideSankey")[1].click()
         self.browser.find_elements(By.ID, "updateSettings")[0].click()  # Hit submit
-        assert not self._is_visible("sankey-tab")
+        self._ensure_eventually_asserts(lambda: not self._is_visible("sankey-tab"))
 
         self._assert_log_len(0)
 
