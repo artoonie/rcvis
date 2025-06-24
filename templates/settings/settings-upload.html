@@ -47,15 +47,6 @@
 {% endblock %}
 
 {% block additionalOptions %}
-    <button class="collapsible">▶ Text Options</button>
-
-    <div class="optionscontent" id="globalOptions">
-      <div class="container mt-3 mb-3">
-        <label for="customText" class="d-block">Custom text to display with visualization title:</label>
-        <textarea id="customText" name="customText" maxlength="256" placeholder="The results of a ranked choice voting election"></textarea>
-      </div>
-    </div>
-
     <button class="collapsible">▶ Data Options</button>
 
     <div class="optionscontent" id="data-options">
@@ -119,6 +110,7 @@
             </div>
           </div>
         </div>
+        <!--  TODO -- disabled for now -- NOMODALEDIT
         <div class="col-sm candidate-column-wrapper">
           <div id="manual-sidecar-options">
             <div class="row candidate-options-label">
@@ -144,6 +136,7 @@
             </div>
           </div>
         </div>
+        -->
       </div>
       <div class="mt-3 container" style="overflow-x: auto">
         <div id="datatable-outer-wrapper" style="display: none">
@@ -153,7 +146,7 @@
           </div>
           <div id="hide-datatable-wrapper">
             <button id="hide-datatable-button" class="btn btn-secondary" onclick="upload.uploadSidecarInstead(event)">
-              Upload a sidecar instead
+              Upload a sidecar
             </button>
           </div>
         </div>
@@ -161,19 +154,23 @@
     </div>
   </div>
 
-  <button class="collapsible">▶ Global visualization options</button>
+    <button class="collapsible">▶ Global visualization options</button>
+    <div class="optionscontent" id="globalOptions">
+      <div class="container mt-3 mb-3">
+          <label for="customText" class="d-block">Custom text to display with visualization title:</label>
+          <textarea id="customText" name="customText" maxlength="256" placeholder="The results of a ranked choice voting election"></textarea>
+      </div>
 
-  <div class="optionscontent" id="globalOptions">
-    <p class="mt-3">
-      <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
-      <label>
-        <input type="checkbox" name="hideDecimals"/> Hide decimal places
-      </label>
-      <br/>
-      <small>By default, we'll show up to two decimal places.</small></label>
-      <br/><br/>
-    </p>
-  </div>
+      <p class="mt-3">
+        <input type="hidden" name="hideDecimals"/><!-- To be sent in GET/POST if unchecked -->
+        <label>
+          <input type="checkbox" name="hideDecimals"/> Hide decimal places
+        </label>
+        <br/>
+        <small>By default, we'll show up to two decimal places.</small></label>
+        <br/><br/>
+      </p>
+    </div>
 
 {% endblock %}
 
