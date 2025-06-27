@@ -167,9 +167,13 @@ export default class Candidate {
             placeholder);
         candidateName.classList.add("candidate-name-input");
         // TODO -- disabled for now -- NOMODALEDIT
-        // const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
-        //     cell, candidateName, success, cancel,
-        //     onRendered, editorParams);
+        // TODO -- getMoreInfoButton does more than create the button.
+        // Without constructing this, data entry does not work.
+        // 1. Split out whatever initialization is done here into something unrelated to "more info"
+        // 2. Add a regression test that catches this issue
+        const moreInfoButton = Candidate.getMoreInfoButton(editor, candidate,
+            cell, candidateName, success, cancel,
+            onRendered, editorParams);
         // editor.appendChild(document.createElement("br"));
         // editor.appendChild(moreInfoButton);
 
