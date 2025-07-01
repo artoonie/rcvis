@@ -9,6 +9,7 @@ from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourc
 class ElectionPageAdmin(admin.ModelAdmin):
     """ Administer election pages """
     view_on_site = True
+    autocomplete_fields = ['listOfElections']
 
 
 @admin.register(ScrapableElectionPage)
