@@ -56,12 +56,20 @@
       "required": false
     },
 
-    "SENDGRID_USERNAME": {
-      "description": "sendgrid username - required in prod to send user registration emails",
+    "SMTP_HOST": {
+      "description": "smtp host - required in prod to send user registration emails",
       "required": false
     },
-    "SENDGRID_PASSWORD": {
-      "description": "sendgrid password - required in prod to send user registration emails",
+    "SMTP_PORT": {
+      "description": "smtp port - required in prod to send user registration emails",
+      "required": false
+    },
+    "SMTP_USERNAME": {
+      "description": "smtp username - required in prod to send user registration emails",
+      "required": false
+    },
+    "SMTP_PASSWORD": {
+      "description": "smtp password - required in prod to send user registration emails",
       "required": false
     }
   },
