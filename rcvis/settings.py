@@ -136,7 +136,7 @@ else:
     EMAIL_HOST = os.environ.get('SMTP_HOST')
     EMAIL_HOST_USER = os.environ.get('SMTP_USERNAME')
     EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD')
-    EMAIL_PORT = os.environ.get('SMTP_PORT')
+    EMAIL_PORT = int(os.environ.get('SMTP_PORT', 587))
     EMAIL_USE_TLS = True
     DEFAULT_FROM_EMAIL = 'team@rcvis.com'
 
