@@ -9,6 +9,10 @@ from visualizer.graph import rcvResult
 from visualizer.graph.graphSummary import GraphSummary
 
 
+class KnownJsonProblemError(Exception):
+    """ An exception to be thrown if the file has a known problem type """
+
+
 # pylint: disable=too-few-public-methods
 class LinkData:
     """ Data about a single "link": a transfer from the source to target """
@@ -142,6 +146,10 @@ class Graph:
             # Compute transfers to other candidates on each round
             totalVotesTransferredFrom = {}
             for transfer in transfers:
+                if transfer.item not in nodesThisRound:
+                    raise KnownJsonProblemError(
+                        f"Expected to find {transfer.item.name} " +
+                        f"in the nodes in round {i + 1}")
                 sourceNode = nodesThisRound[transfer.item]
                 totalVotesTransferredFrom[transfer.item] = 0
 

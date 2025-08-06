@@ -27,7 +27,7 @@
     "DISABLE_COLLECTSTATIC": "1",
 
     "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
-    "FFMPEG_BINARY": "/app/.heroku/activestorage-preview/bin/ffmpeg",
+    "FFMPEG_BINARY": "/app/.apt/usr/bin/ffmpeg",
     "CHROMEDRIVER_PATH": "/app/.chrome-for-testing/chrome-linux64/chrome",
 
     "AWS_POLLY_STORAGE_BUCKET": {
@@ -74,11 +74,10 @@
     }
   },
   "buildpacks": [
-    { "url": "https://github.com/heroku/heroku-buildpack-activestorage-preview" },
+    { "url": "heroku-community/apt" },
     { "url": "heroku-community/chrome-for-testing" },
     { "url": "heroku/nodejs" },
     { "url": "heroku/python" },
-    { "url": "https://github.com/artoonie/heroku-buildpack-imagemagick" },
     { "url": "https://github.com/artoonie/saucelabs-proxy-buildpack.git" }
   ],
   "environments": {
@@ -104,7 +103,7 @@
 
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
-        "FFMPEG_BINARY": "/app/.heroku/activestorage-preview/bin/ffmpeg",
+        "FFMPEG_BINARY": "/app/.apt/usr/bin/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
       }
     },
@@ -122,7 +121,7 @@
         "DISABLE_COLLECTSTATIC": "1",
         "RCVIS_HOST": "localhost",
         "MAGICK_CONFIGURE_PATH": "/app/infra/.magick",
-        "FFMPEG_BINARY": "/app/.heroku/activestorage-preview/bin/ffmpeg",
+        "FFMPEG_BINARY": "/app/.apt/usr/bin/ffmpeg",
         "HEROKU_WORKER_DYNO_TYPE": "free"
       },
       "formation": {

@@ -7,6 +7,7 @@ from rcvformats.schemas.universaltabulator import SchemaV0
 from rcvformats.conversions.automatic import AutomaticConverter
 from rcvformats.conversions.base import CouldNotConvertException
 
+from visualizer.graph.graph import KnownJsonProblemError
 from visualizer.graph.rcvResult import Elimination
 import visualizer.graph.readRCVRCJSON as rcvrcJson
 
@@ -86,6 +87,8 @@ def make_graph_with_file(fileObject, excludeFinalWinnerAndEliminatedCandidate):
         try:
             jsonReader = rcvrcJson.JSONReader(jsonData)
         except rcvrcJson.MigrationError as exc:
+            raise BadJSONError("Invalid file: " + str(exc)) from exc
+        except KnownJsonProblemError as exc:
             raise BadJSONError("Invalid file: " + str(exc)) from exc
         except Exception as exc:  # pylint: disable=broad-except
             raise BadJSONError("File schema was valid, but we could not interpret it") from exc
