@@ -5,6 +5,7 @@ and is used by Ballotpedia to generate Ballotpedia-style visualizations.
 """
 
 import json
+
 from visualizer import common
 
 
@@ -62,10 +63,10 @@ class SidecarReader:
             self._expect_in(expectedNames, "the actual candidates", candidate)
             self._expect_in(info, "the candidate info", 'incumbent')
 
-            assert isinstance(info['incumbent'], bool)
-            assert isinstance(info['photo_url'], str)
-            assert isinstance(info['moreinfo_url'], str)
-            assert isinstance(info['party'], str)
+            assert info['incumbent'] is None or isinstance(info['incumbent'], bool)
+            assert info['photo_url'] is None or isinstance(info['photo_url'], str)
+            assert info['moreinfo_url'] is None or isinstance(info['moreinfo_url'], str)
+            assert info['party'] is None or isinstance(info['party'], str)
 
     @classmethod
     def _expect_in(cls, data, dataDescriptor, field):
