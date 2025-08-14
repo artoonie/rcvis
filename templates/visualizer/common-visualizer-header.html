@@ -80,7 +80,11 @@
 <meta property="og:video:height" content="{{ config.movieHorizontal.height }}" />
 {% else %}
 <meta property="og:type" content="website">
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'visualizer/favicons/android-chrome-256x256.png' %}">
+  {% if config.titleImage %}
+  <meta property="og:image" content="{% get_as_complete_url config.titleImage.url %}">
+  {% else %}
+  <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'visualizer/favicons/android-chrome-256x256.png' %}">
+  {% endif %}
 {% endif %}
 
 {% if config.owner.userprofile.isPrivate %}

@@ -28,6 +28,8 @@ from visualizer.models import TextForWinner
 from visualizer.tests import filenames
 from visualizer.tests import liveServerTestBaseClass
 
+from . import executor_mock
+
 
 # pylint: disable=too-many-public-methods
 class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
@@ -694,3 +696,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # After clicking "Read a detailed explanation" it becomes visible
         self.browser.find_element(By.LINK_TEXT, "Read a detailed explanation").click()
         self.assertEqual(faq.value_of_css_property("display"), "block")
+
+    def test_upload_starts_background_task(self):
+        """Verify that background executor is triggered for uploads"""
+        executorCallCount = executor_mock.submit.call_count
+        self._upload(filenames.MULTIWINNER)
+        self.assertEqual(executor_mock.submit.call_count, executorCallCount + 1)
