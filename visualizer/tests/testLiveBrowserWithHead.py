@@ -16,6 +16,8 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from visualizer.tests import filenames
@@ -321,3 +323,34 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         assert 'Macomb' in wiki
         html = textAreaValues[1]
         assert html.startswith('<iframe')
+
+    def test_faq_visibility_wrt_iframes(self):
+        """ FAQ visibility with respect to iframes: visibility = not in iframe """
+        self._upload_something_if_needed()
+
+        # Ensure that the FAQs are visible outside an iframe
+        faq = self.browser.find_element(By.ID, 'faq-text')
+        self.assertEqual(faq.value_of_css_property("display"), "block")
+
+        # Get the iframe HTML
+        self._go_to_tab("share-tab")
+        htmlTextarea = self.browser.find_element(By.ID, 'htmlembedexport')
+        iframeHtml = htmlTextarea.get_attribute("value")
+
+        # Render that HTML in a separate page
+        self.browser.get("data:text/html,<html><head></head><body></body></html>")
+        self.browser.execute_script("document.body.innerHTML = arguments[0];", iframeHtml)
+
+        # Get the iframe's body by going into the iframe in the source
+        iframe = self.browser.find_element(By.TAG_NAME, 'iframe')
+        self.browser.switch_to.frame(iframe)
+
+        # Check that the FAQs are hidden
+        WebDriverWait(self.browser, 3).until(
+            EC.visibility_of_element_located((By.ID, "embedded-body")))
+        faq = self.browser.find_element(By.ID, 'faq-text')
+        self.assertEqual(faq.value_of_css_property("display"), "none")
+
+        # After clicking "Read a detailed explanation" it becomes visible
+        self.browser.find_element(By.LINK_TEXT, "Read a detailed explanation").click()
+        self.assertEqual(faq.value_of_css_property("display"), "block")
