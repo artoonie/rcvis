@@ -43,7 +43,7 @@ def generate_json_config_title_image(pk, domain):
 
     try:
         jsonconfig = JsonConfig.objects.get(pk=pk)
-        logger.info(f"Generating title image for JsonConfig {pk}")
+        logger.info("Generating title image for JsonConfig: %s", pk)
 
         path = reverse('visualizeEmbedded', args=(jsonconfig.slug,))
         browser.get(f"{domain}{path}")

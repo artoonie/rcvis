@@ -15,6 +15,7 @@ _executor_lock = threading.Lock()
 _pid = None
 
 
+# pylint: disable=import-outside-toplevel
 def init_django_logging():
     """Initialize Django logging in each worker process"""
     import logging.config
