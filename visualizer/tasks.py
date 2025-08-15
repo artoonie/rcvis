@@ -1,5 +1,6 @@
 """Background tasks for visualizer module"""
 
+import logging
 import os
 import tempfile
 import time
@@ -32,19 +33,17 @@ def create_headless_browser():
 
 def generate_json_config_title_image(pk, domain):
     """Use headless Chrome to generate a title image for a JsonConfig object"""
-    import django
-    django.setup()
-
     from django.core.files import File
     from django.urls import reverse
 
     from visualizer.models import JsonConfig
 
     browser = create_headless_browser()
+    logger = logging.getLogger()
 
     try:
-        browser.implicitly_wait(10)
         jsonconfig = JsonConfig.objects.get(pk=pk)
+        logger.info(f"Generating title image for JsonConfig {pk}")
 
         path = reverse('visualizeEmbedded', args=(jsonconfig.slug,))
         browser.get(f"{domain}{path}")
