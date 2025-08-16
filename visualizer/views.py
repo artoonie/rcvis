@@ -34,6 +34,7 @@ from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
+from visualizer.executor import get_executor
 from visualizer.forms import UploadForm, UploadByDataTableForm
 from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
@@ -42,6 +43,7 @@ from visualizer.serializers import BaseVisualizationSerializer
 from visualizer.serializers import JsonOnlySerializer, VerboseSerializer, \
     BallotpediaSerializer, UserSerializer
 from visualizer.sidecar.reader import BadSidecarError
+from visualizer.tasks import generate_json_config_title_image
 from visualizer.wikipedia.wikipedia import WikipediaExport
 
 logger = logging.getLogger(__name__)
@@ -134,6 +136,14 @@ class Upload(LoginRequiredMixin, CreateView):
             return render(self.request, 'visualizer/errorUploadFailedGeneric.html', context=context)
 
         form.save()
+
+        # Fire background job to set the title image from view preview
+        get_executor().submit(
+            generate_json_config_title_image,
+            self.model.pk,
+            viewUtils.request_to_domain(self.request)
+        )
+
         return super().form_valid(form)
 
     def form_invalid(self, form):

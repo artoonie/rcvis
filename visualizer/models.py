@@ -81,6 +81,7 @@ class JsonConfig(models.Model):
                                          on_delete=models.CASCADE,
                                          null=True,
                                          blank=True)
+    titleImage = models.ImageField(upload_to='titleImages', null=True)
 
     # Options modifiable at upload or runtime
     rotateNames = models.BooleanField(default=True)
