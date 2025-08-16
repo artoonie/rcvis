@@ -21,14 +21,14 @@ path.domain {
   font-size: 1.3em;
 }
 .dataLabel {
-  font-size: 0.8rem;
+  font-size: 1.1rem;
 }
 .dataLabelIncumbent {
   font-weight: bold;
   text-decoration: underline;
 }
 .secondaryDataLabel {
-  font-size: 0.6rem;
+  font-size: 0.8rem;
 }
 
 .faq-description-header {
@@ -50,7 +50,7 @@ path.domain {
 .round-description-wrapper {
   padding: 5px 10px 0px 10px;
   height: 65px;  /* Note: sync with hideFaqs() */
-  font-size: 0.9em;
+  font-size: 1.0em;
   margin-left: auto;
   margin-right: auto;
   margin-top: 15px;
@@ -133,17 +133,17 @@ path.domain {
 @media only screen and (max-width: 425px) {
   .dataLabel {
     /* The SVG scaled down, so scale up the text */
-    font-size: 1.0rem;
+    font-size: 1.5rem;
   }
   .secondaryDataLabel {
     /* The SVG scaled down, so scale up the text */
-    font-size: 0.8rem;
+    font-size: 1.0rem;
   }
   .round-description-wrapper {
-    font-size: 0.7rem;
+    font-size: 0.9rem;
   }
   .trs-wrapper {
-    font-size: 0.5rem;
+    font-size: 0.7rem;
   }
   .slider-item-hidden-slider-active{
     padding-bottom: 6px;

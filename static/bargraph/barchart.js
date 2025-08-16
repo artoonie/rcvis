@@ -50,8 +50,8 @@ function makeBarGraph(args) {
 
   const numCandidates = candidateVoteCounts.length;
 
-  const maxWidth = 500; // of the viewbox - it can be scaled up by the outer div as needed
-                        // NOTE: sync this 500 with barchart-common.js
+  const maxWidth = 750; // of the viewbox - it can be scaled up by the outer div as needed
+                        // NOTE: sync this 750 with barchart-common.js
 
   // TODO hacky way of matching the initial, and only the initial, aspect ratio
   // Setting this precisely prevents scrolling in iframes and mobile
