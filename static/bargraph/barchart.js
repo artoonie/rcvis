@@ -12,7 +12,7 @@ function makeBarGraph(args) {
   const threshold = args.threshold; // The optional threshold single value (cannot change over time currently)
   const eliminationBarColor = args.eliminationBarColor; // Color of elimination bar
   const isVertical = args.isVertical; // Horizontal or vertical mode?
-  const textForWinner = args.textForWinner; // Horizontal or vertical mode?
+  const textForWinner = args.textForWinner; // Eliminated, elected, etc
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
