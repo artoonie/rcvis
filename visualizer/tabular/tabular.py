@@ -155,8 +155,6 @@ class TabulateByCandidate:
         summary = graph.summarize()
         self.tabulation = []
         candidates = summary.candidates
-        if config.onlyShowWinnersTabular:
-            candidates = [c for c in candidates if c in graph.winnersSoFar]
         for item in candidates:
             self.tabulation.append(CandidateTabulation(graph, config, item))
         self.rounds = range(len(summary.rounds))
@@ -166,11 +164,15 @@ class CandidateTabulation:
     """ A summary of one candidate, prepared for tabulation """
     name: str
     rounds: list
+    isWinner: bool
 
     def __init__(self, graph, config, item):
-        self.name = item.name
         summary = graph.summarize()
         candidateInfo = summary.candidates[item]
+
+        self.name = item.name
+        self.isWinner = item.name in summary.winnerNames
+
         self.rounds = []
         for i in range(len(candidateInfo.votesAddedPerRound)):
             node = graph.nodesPerRound[i][item]

@@ -1,16 +1,3 @@
-function chooseBetweenTimelineAndDescription() {
-  // Pretty hacky - just for evaluation
-  if (!config.doUseDescriptionInsteadOfTimeline) {
-    return;
-  }
-
-  var style = document.createElement('style');
-  document.head.appendChild(style);
-  var styleSheet = style.sheet;
-  styleSheet.insertRule('.expand-collapse-button { display: none !important}');
-  styleSheet.insertRule('.round-description-wrapper { display: block !important}');
-}
-
 /**
  * Message passing between parent and our iframe to dynamically determine the size
  * that our embedder should use.
@@ -33,5 +20,4 @@ function setUpIframeMessageListener() {
   });
 }
 
-chooseBetweenTimelineAndDescription();
 setUpIframeMessageListener();

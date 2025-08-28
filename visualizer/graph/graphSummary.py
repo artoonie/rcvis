@@ -11,7 +11,7 @@ class GraphSummary:
     candidates: dict  # Map: Graph.Item to CandidateInfo
     # Map: Graph.NodeData to list of graph.LinkData where link.target == node
     linksByTargetNode: dict
-    winners: list
+    winnerNames: list
     numWinners: int
     numEliminated: int
 
