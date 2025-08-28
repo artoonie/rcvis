@@ -1,8 +1,9 @@
 {% load static %}
 
 {% for candidateTabulation in tabularByCandidate.tabulation %}
-<table class="shadow-wrapper table fixed-width-table">
+<div class="candidate-container" data-candidate-name="{{ candidateTabulation.name }}" data-is-winner="{{ candidateTabulation.isWinner|yesno:'true,false' }}">
     <h4 class="text-center"> {{ candidateTabulation.name }} </h4>
+    <table class="shadow-wrapper table fixed-width-table">
     <thead class="thead-light">
         <tr>
             <th scope="col">Round</th>
@@ -21,5 +22,23 @@
         </tr>
         {% endfor %}
     </tbody>
-</table>
+    </table>
+</div>
 {% endfor %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log(config.onlyShowWinnersTabular);
+    if (!config.onlyShowWinnersTabular) {
+        return;
+    }
+
+    const candidateContainers = document.querySelectorAll('.candidate-container');
+    candidateContainers.forEach(function(container) {
+        console.log(container.getAttribute('data-is-winner'));
+        if (container.getAttribute('data-is-winner') !== 'true') {
+            container.style.display = 'none';
+        }
+    });
+});
+</script>
