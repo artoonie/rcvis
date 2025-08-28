@@ -29,7 +29,7 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
 
   let tmarginLength;
   let rotationOffset = 0;
-  if (config.rotateNames)
+  if (config.rotateNames) // disabled
   {
       tmarginLength = longestLabelApxWidth * ESTIMATED_CHAR_WIDTH;
       rotationOffset = tmarginLength*.7071067/2.0;
@@ -283,7 +283,7 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
         .attr(size1string(), function(d) { return ddim1(d); })
         .attr(size0string(), nodeSize0)
         .append("text");
-      if (config.rotateNames) {
+      if (config.rotateNames) { // disabled
         topbar_g
         .attr("dx", -rotationOffset + 5)
         .attr("dy", rotationOffset + 5)

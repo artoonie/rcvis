@@ -84,13 +84,11 @@ class JsonConfig(models.Model):
     titleImage = models.ImageField(upload_to='titleImages', null=True)
 
     # Options modifiable at upload or runtime
-    rotateNames = models.BooleanField(default=True)
     showRoundNumbersOnSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
-    doUseDescriptionInsteadOfTimeline = models.BooleanField(default=True)
     isPreferentialBlock = models.BooleanField(default=False)
     colorTheme = models.IntegerField(choices=ColorTheme.choices, default=1)
     eliminationBarColor = models.IntegerField(choices=EliminationBarColor.choices, default=0)
@@ -105,10 +103,8 @@ class JsonConfig(models.Model):
             of fields above. (I'm sure there's a way to do this automatically...) """
         return ('jsonFile',
                 'candidateSidecarFile',
-                'rotateNames',
                 'showRoundNumbersOnSankey',
                 'onlyShowWinnersTabular',
-                'doUseDescriptionInsteadOfTimeline',
                 'isPreferentialBlock',
                 'hideSankey',
                 'hideTabular',

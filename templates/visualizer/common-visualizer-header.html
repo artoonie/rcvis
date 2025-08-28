@@ -24,9 +24,7 @@
   var config = {};
 
   // 1. Load from django (happens once on baking)
-  config.rotateNames = {% if config.rotateNames %} true {% else %} false {% endif %};
   config.onlyShowWinnersTabular = {% if config.onlyShowWinnersTabular %} true {% else %} false {% endif %};
-  config.doUseDescriptionInsteadOfTimeline = {% if config.doUseDescriptionInsteadOfTimeline %} true {% else %} false {% endif %};
   config.hideSankey = {% if config.hideSankey %} true {% else %} false {% endif %};
   config.showRoundNumbersOnSankey = {% if config.showRoundNumbersOnSankey %} true {% else %} false {% endif %};
   config.hideTabular = {% if config.hideTabular %} true {% else %} false {% endif %};

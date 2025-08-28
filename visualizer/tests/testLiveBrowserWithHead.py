@@ -160,44 +160,6 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         self._assert_log_len(0)
 
-    def test_timeline_and_longform_desc(self):
-        """ Ensures the timeline show correct data, and that it can be toggled to show
-            the longform description instead """
-        self._upload(filenames.MULTIWINNER)
-        self._disable_all_animations()
-
-        # And longform description is visible
-        desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self._ensure_eventually_asserts(
-            lambda: self.assertEqual(self._is_elem_visible(desc), True))
-
-        # Cancel animation
-        self._go_to_round_by_clicking(0)
-
-        # Move animation to end
-        self._go_to_round_by_clicking(4)
-
-        # Give JS a second to catch up with the animation
-        self._ensure_eventually_asserts(
-            lambda: self.assertIn('Larry Edwards had more than enough', desc.text))
-        self.assertNotIn('Larry Edwards reached the threshold of 134', desc.text)
-
-        # Go to the settings tab
-        self._go_to_tab("settings-tab")
-
-        # Then, toggle on the sankey tab from the settings page
-        self.browser.find_element(By.ID, "bargraphOptions").click()  # Open the dropdown
-        # Check the box (the second one, which isn't hidden)
-        self.browser.find_elements(By.NAME, "doUseDescriptionInsteadOfTimeline")[1].click()
-        self.browser.find_element(By.ID, "updateSettings").click()  # Hit submit
-
-        # Go to the bargraph
-        self._go_to_tab("barchart-tab")
-
-        # Now the longform description is hidden
-        desc = self.browser.find_element(By.ID, 'bargraph-interactive-round-description')
-        self.assertEqual(self._is_elem_visible(desc), False)
-
     def test_oneround_zerovote(self):
         """ Tests we do something sane in a single-round zero-vote election """
         # Regression test: size of graph with one round, with votes

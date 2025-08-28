@@ -66,7 +66,7 @@ create_visualization_verbose_api() {
         -H "Authorization: Token $API_KEY" \
         -F "jsonFile=@$JSON_FILE_PATH" \
         -F "colorTheme=2" \
-        -F "doUseDescriptionInsteadOfTimeline=false")
+        -F "hideSankey=true")
     # NOTE: for a complete list of options, see visualizer/models.py:get_all_non_auto_fields
     
     SLUG=$(echo "$RESPONSE" | jq -r '.slug')
