@@ -183,3 +183,9 @@ input[type="checkbox"].candidate-input {
   font-weight: bold;
   color: green;
 }
+.upload-public-warning {
+  font-size: 0.7em;
+  font-style: italic;
+  opacity: 80%;
+  margin-top: 5px;
+}
