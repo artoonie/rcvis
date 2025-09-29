@@ -27,3 +27,9 @@
   <script src="{% static 'visualizer/colors.js' %}" />
   <script src="{% static 'visualizer/visualize-nonblocking.js' %}"/>
 {% endcompress %}
+
+<script type="text/javascript">
+    const colorThemeGenerator = getColorGenerator(config.colorTheme);
+    const colorsPerRound = Array.from(colorThemeGenerator({{ tabularByRoundInteractive.rounds|length }}));
+</script>
+

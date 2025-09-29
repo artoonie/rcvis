@@ -186,7 +186,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
                          "tabular-by-candidate",
                          "tabular-by-round",
                          "tabular-by-round-interactive",
-                         "tabular-candidate-by-round"]
+                         "tabular-candidate-by-round",
+                         "pie"
+                         ]
 
         # None of the valid vistypes have errors
         for vistype in validVistypes:

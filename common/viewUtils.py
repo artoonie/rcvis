@@ -66,6 +66,7 @@ def get_data_for_graph(graph, config):
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'graph': graph,
         'textForWinner': as_caption(config).lower(),
+        'rawData': graph._debug_temporary_raw_JSON
     }
     roundDescriberData = get_data_for_round_describer(graph, config)
     graphData.update(roundDescriberData)
