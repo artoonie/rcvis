@@ -75,7 +75,7 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
       return textForNode(d)
   }
   function getNodePercentText(d) {
-      const percentDenominator = calculatePercentDenominator(numWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+      const percentDenominator = calculatePercentDenominator(numWinners, totalVotesPerRound[d.round], totalVotesPerRound[d.round])
       return percentToText(d.name, d.value, percentDenominator)
   }
 
