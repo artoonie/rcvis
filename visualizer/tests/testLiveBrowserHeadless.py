@@ -88,7 +88,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
-            cssSelector = "path[data-original-title=\"On Round 1, has 64 votes (16%)\"]"
+            cssSelector = "path[data-original-title=\"On Round 1, had 64 votes (16%)\"]"
             WebDriverWait(self.browser, 5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, cssSelector)))
             lastBarInLastRoundList = bargraph.find_elements(By.CSS_SELECTOR, cssSelector)

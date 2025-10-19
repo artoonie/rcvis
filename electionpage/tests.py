@@ -186,6 +186,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
     def test_create_scrapable_page(self):
         """ With proper permissions, can create a scrapable election page """
         def submit_with_num_elections_and_get_error(num, expectReload):
+            bodyElement = self.browser.find_element(By.TAG_NAME, "body")
             numElectionsElement = self.browser.find_element(By.ID, "id_numElections")
             numElectionsElement.clear()
             numElectionsElement.send_keys(num)
@@ -193,7 +194,7 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             if expectReload:
                 self._ensure_eventually_asserts(
-                    lambda: EC.staleness_of(numElectionsElement))
+                    lambda: EC.staleness_of(bodyElement))
 
             try:
                 return self.browser.find_element(

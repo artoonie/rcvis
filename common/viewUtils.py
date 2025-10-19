@@ -101,11 +101,10 @@ def get_data_for_view(config):
 
         # TODO this doesn't feel good - the graph should load this natively,
         # not have it snuck here.
-        orderedItems = graph.get_candidates_for_names(candidateSidecarDataPyObj.data['order'])
-        graph.set_elimination_order(orderedItems)
+        orderedCandidates = graph.get_candidates_for_names(candidateSidecarDataPyObj.data['order'])
+        graph.set_elimination_order(orderedCandidates)
         candidateSidecarData = json.dumps(candidateSidecarDataPyObj.data)
     else:
-        candidateSidecarDataPyObj = None
         candidateSidecarData = json.dumps(None)
 
     offlineMode = settings.OFFLINE_MODE
