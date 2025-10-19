@@ -301,9 +301,10 @@ class WhyPercentageBasedOnFirstRound(FAQBase):
             return False
         if self.summary.numWinners > 1:
             return False
-        if self.summary.rounds[roundNum].totalActiveVotes == self.summary.rounds[0].totalActiveVotes:
-            return False
-        return True
+
+        currVotes = self.summary.rounds[roundNum].totalActiveVotes
+        round0Votes = self.summary.rounds[0].totalActiveVotes
+        return currVotes != round0Votes
 
     def get_question(self, roundNum):
         return "How do you calculate percentages?"

@@ -99,7 +99,11 @@ class SingleTableSummary:
 
         candidates = summary.candidates
         for candidate in candidates:
-            self.tabulation.append(CandidateTabulationByRound(graph, candidate, forceFirstRoundDeterminesPercentages))
+            self.tabulation.append(
+                CandidateTabulationByRound(
+                    graph,
+                    candidate,
+                    forceFirstRoundDeterminesPercentages))
 
 
 """ A summary of one candidate, prepared for tabulation, with every round """
@@ -118,7 +122,8 @@ class CandidateTabulationByRound:
         self.rounds = range(numRounds)
         for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
             thisRoundSummary = summary.rounds[i]
-            percentDenominator = summary.percent_denominator(i, forceFirstRoundDeterminesPercentages)
+            percentDenominator = summary.percent_denominator(
+                i, forceFirstRoundDeterminesPercentages)
             self.eachRound.append(OneCandidateOneRound(
                 thisRoundSummary, myNumVotes, percentDenominator, candidate))
 

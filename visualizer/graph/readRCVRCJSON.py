@@ -378,7 +378,9 @@ class JSONReader:
             candidatesEliminatedThisRound = [
                 e.candidate for e in rnd.transfers if isinstance(e, rcvResult.Elimination)]
             candidatesEliminatedThisRound = sorted(
-                candidatesEliminatedThisRound, key=lambda candidate, rnd=rnd: rnd.candidatesToVotes[candidate])
+                candidatesEliminatedThisRound,
+                key=lambda candidate,
+                rnd=rnd: rnd.candidatesToVotes[candidate])
             for candidate in candidatesEliminatedThisRound:
                 eliminationOrder.append(candidate)
                 candidatesRemaining.remove(candidate)

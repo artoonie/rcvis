@@ -683,23 +683,23 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
                 'forceFirstRoundDeterminesPercentages': forceFirstRoundDeterminesPercentages
             })
             return self.browser.page_source
-        content_true = get_content(True)
-        content_false = get_content(False)
+        contentTrue = get_content(True)
+        contentFalse = get_content(False)
 
         # This is the percent of votes Eric Adams received in the last round when the setting
         # forceFirstRoundDeterminesPercentages is true vs false
-        pct_when_false = '51.05%'
-        pct_when_true = '43.74%'
+        percentWhenFalse = '51.05%'
+        percentWhenTrue = '43.74%'
         # The number of times the percentage is expected to appear.
-        num_appearances = 9
+        numAppearances = 9
 
-        self.assertEqual(content_true.count(pct_when_true), num_appearances)
-        self.assertEqual(content_true.count(pct_when_false), 0)
-        self.assertEqual(content_false.count(pct_when_false), num_appearances)
-        self.assertEqual(content_false.count(pct_when_true), 0)
+        self.assertEqual(contentTrue.count(percentWhenTrue), numAppearances)
+        self.assertEqual(contentTrue.count(percentWhenFalse), 0)
+        self.assertEqual(contentFalse.count(percentWhenFalse), numAppearances)
+        self.assertEqual(contentFalse.count(percentWhenTrue), 0)
 
         # Also ensure the FAQs are as expected -- on every round where there are inactive ballots
-        # That's eight rounds (excludes round 1), plus the JS to populate the round text, for a total
-        # of 9 matches.
-        self.assertEqual(content_true.count("How do you calculate percentages"), 9)
-        self.assertEqual(content_false.count("How do you calculate percentages"), 0)
+        # That's eight rounds (excludes round 1), plus the JS to populate the round text, for a
+        # total of 9 matches.
+        self.assertEqual(contentTrue.count("How do you calculate percentages"), 9)
+        self.assertEqual(contentFalse.count("How do you calculate percentages"), 0)

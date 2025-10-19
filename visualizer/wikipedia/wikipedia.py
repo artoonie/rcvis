@@ -116,7 +116,8 @@ class WikipediaExport():
 
     def _create_table_body(self, forceFirstRoundDeterminesPercentages):
         """ Creates the body of the table """
-        singleTableSummary = SingleTableSummary(self.graph, forceFirstRoundDeterminesPercentages).tabulation
+        singleTableSummary = SingleTableSummary(
+            self.graph, forceFirstRoundDeterminesPercentages).tabulation
 
         body = ""
         for candidateTabulation in singleTableSummary:
