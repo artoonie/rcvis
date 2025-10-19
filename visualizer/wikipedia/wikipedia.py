@@ -114,9 +114,9 @@ class WikipediaExport():
         """ Does this candidate need an elimination row bar now? """
         return not roundTabulation and not self._already_has_elimination_bar(name)
 
-    def _create_table_body(self):
+    def _create_table_body(self, forceFirstRoundDeterminesPercentages):
         """ Creates the body of the table """
-        singleTableSummary = SingleTableSummary(self.graph).tabulation
+        singleTableSummary = SingleTableSummary(self.graph, forceFirstRoundDeterminesPercentages).tabulation
 
         body = ""
         for candidateTabulation in singleTableSummary:
@@ -159,9 +159,9 @@ class WikipediaExport():
 
         return body
 
-    def create_wikicode(self):
+    def create_wikicode(self, forceFirstRoundDeterminesPercentages):
         """ Return the text to generate the wikicode table """
         text = ""
         text += self._create_header()
-        text += self._create_table_body()
+        text += self._create_table_body(forceFirstRoundDeterminesPercentages)
         return text

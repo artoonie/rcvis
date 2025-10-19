@@ -673,3 +673,27 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         executorCallCount = executor_mock.submit.call_count
         self._upload(filenames.MULTIWINNER)
         self.assertEqual(executor_mock.submit.call_count, executorCallCount + 1)
+
+    def test_force_first_round_determines_percentages(self):
+        """
+        Test that forceFirstRoundDeterminesPercentages correctly changes percentage calculations.
+        """
+        def get_content(forceFirstRoundDeterminesPercentages):
+            self._upload(filenames.SOME_MISSING_TRANSFERS, additionalArgs={
+                'forceFirstRoundDeterminesPercentages': forceFirstRoundDeterminesPercentages
+            })
+            return self.browser.page_source
+        content_true = get_content(True)
+        content_false = get_content(False)
+
+        # This is the percent of votes Eric Adams received in the last round when the setting
+        # forceFirstRoundDeterminesPercentages is true vs false
+        pct_when_false = '51.05%'
+        pct_when_true = '43.74%'
+        # The number of times the percentage is expected to appear.
+        num_appearances = 9
+
+        self.assertEqual(content_true.count(pct_when_true), num_appearances)
+        self.assertEqual(content_true.count(pct_when_false), 0)
+        self.assertEqual(content_false.count(pct_when_false), num_appearances)
+        self.assertEqual(content_false.count(pct_when_true), 0)

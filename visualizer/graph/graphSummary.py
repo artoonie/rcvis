@@ -8,7 +8,7 @@ class GraphSummary:
     """ A class which organizes a Graph into data that makes it easier to visualize """
 
     rounds: list  # List of RoundInfo
-    candidates: dict  # Map: Graph.Item to CandidateInfo
+    candidates: dict  # Map: Graph.Candidate to CandidateInfo
     # Map: Graph.NodeData to list of graph.LinkData where link.target == node
     linksByTargetNode: dict
     winnerNames: list
@@ -25,24 +25,24 @@ class GraphSummary:
         candidates = {}
         alreadyWonInPreviousRound = []
         for node in graph.nodes:
-            item = node.item
-            if item not in candidates:
-                candidates[item] = CandidateInfo(item.name)
+            candidate = node.candidate
+            if candidate not in candidates:
+                candidates[candidate] = CandidateInfo(candidate.name)
 
-            currRound = len(candidates[item].votesAddedPerRound)
-            candidates[item].add_votes(node.count)
-            rounds[currRound].add_votes(item, node.count)
+            currRound = len(candidates[candidate].votesAddedPerRound)
+            candidates[candidate].add_votes(node.count)
+            rounds[currRound].add_votes(candidate, node.count)
 
             if node.isWinner:
                 # Only count winner the first time they win
-                if item not in alreadyWonInPreviousRound:
-                    rounds[currRound].add_winner(item)
-                    alreadyWonInPreviousRound.append(item)
+                if candidate not in alreadyWonInPreviousRound:
+                    rounds[currRound].add_winner(candidate)
+                    alreadyWonInPreviousRound.append(candidate)
             if node.isEliminated:
                 # Eliminate the next round: in the sankey representation,
                 # eliminated candidates are shown on the previous round
                 # so they don't ever show zero-vote bars. Account for that.
-                rounds[currRound + 1].add_eliminated(item)
+                rounds[currRound + 1].add_eliminated(candidate)
 
         # Create linksByNode
         linksByTargetNode = {}
@@ -58,12 +58,15 @@ class GraphSummary:
         self.numWinners = len(self.winnerNames)
         self.numEliminated = sum(len(r.eliminatedNames) for r in rounds)
 
-    def percent_denominator(self, roundNum):
+    def percent_denominator(self, roundNum, forceFirstRoundDeterminesPercentages):
         """
-        percentDenominator is either the current round total in IRV,
+        By default, percentDenominator is either the current round total in IRV,
         and the first round total in STV.
+        forceFirstRoundDeterminesPercentages can override this.
         """
-        if self.numWinners > 1:
+        if forceFirstRoundDeterminesPercentages:
+            roundNum = 0
+        elif self.numWinners > 1:
             roundNum = 0
         return self.rounds[roundNum].totalActiveVotes
 
@@ -73,8 +76,8 @@ class RoundInfo:
 
     def __init__(self, round_i):
         self.round_i = round_i
-        self.eliminatedItems = []
-        self.winnerItems = []
+        self.eliminatedCandidates = []
+        self.winnerCandidates = []
         self.eliminatedNames = []
         self.winnerNames = []
         self.totalActiveVotes = 0  # The total number of active ballots this round
@@ -83,21 +86,21 @@ class RoundInfo:
         """ Returns the "key" for this round (just the round number) """
         return self.round_i
 
-    def add_eliminated(self, item):
+    def add_eliminated(self, candidate):
         """ Adds the name to the list of names eliminated this round """
-        self.eliminatedItems.append(item)
-        self.eliminatedNames.append(item.name)
+        self.eliminatedCandidates.append(candidate)
+        self.eliminatedNames.append(candidate.name)
 
-    def add_winner(self, item):
+    def add_winner(self, candidate):
         """ Adds the name to the list of names elected this round """
-        self.winnerItems.append(item)
-        self.winnerNames.append(item.name)
+        self.winnerCandidates.append(candidate)
+        self.winnerNames.append(candidate.name)
 
-    def add_votes(self, candidateItem, numVotes):
+    def add_votes(self, candidate, numVotes):
         """ Notes that the given Candidate received numVotes votes - unless they're
             not an "active" candidate. """
-        assert isinstance(candidateItem, rcvResult.Item)
-        if not candidateItem.isActive:
+        assert isinstance(candidate, rcvResult.Candidate)
+        if not candidate.isActive:
             return
 
         self.totalActiveVotes += numVotes

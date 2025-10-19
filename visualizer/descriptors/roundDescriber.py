@@ -67,9 +67,9 @@ class Describer:
         if rounds[roundNum].winnerNames:
             return ""
 
-        def _num_votes_this_round(item):
-            # Gets the number of votes for this item on this round
-            candidateInfo = candidates[item]
+        def _num_votes_this_round(candidate):
+            # Gets the number of votes for this candidate on this round
+            candidateInfo = candidates[candidate]
             if roundNum >= len(candidateInfo.totalVotesPerRound):
                 return 0  # already eliminated
             return candidateInfo.totalVotesPerRound[roundNum]
@@ -155,7 +155,7 @@ class Describer:
             Returns empty string if there wasn't a winner. """
         rounds = self.graph.summarize().rounds
         winnerNames = rounds[roundNum].winnerNames
-        winnerItems = rounds[roundNum].winnerItems
+        winnerCandidates = rounds[roundNum].winnerCandidates
 
         event = textForWinnerUtils.as_event(self.config, len(winnerNames))
 
@@ -163,8 +163,8 @@ class Describer:
             # Did all candidates pass the threshold?
             candidates = self.graph.summarize().candidates
             thresh = self.graph.threshold
-            allOverThreshold = all(candidates[item].totalVotesPerRound[roundNum] > thresh
-                                   for item in winnerItems)
+            allOverThreshold = all(candidates[candidate].totalVotesPerRound[roundNum] > thresh
+                                   for candidate in winnerCandidates)
 
             if allOverThreshold:
                 thresholdString = intify(self.graph.threshold)

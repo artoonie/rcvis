@@ -191,7 +191,9 @@ class Visualize(DetailView):
         # wikipedia embedding
         referenceUrl = make_complete_url(self.request, reverse("visualize", args=(slug,)))
         referenceUrl += "#tabular-candidate-by-round"
-        data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode()
+        forceFirstRoundDeterminesPercentages = data['config'].forceFirstRoundDeterminesPercentages
+        data['wikicodeExport'] = WikipediaExport(data['graph'], referenceUrl).create_wikicode(
+            forceFirstRoundDeterminesPercentages)
 
         return data
 

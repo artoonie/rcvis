@@ -95,7 +95,8 @@ class WhatHappeningMultiWinner(FAQBase):
             "votes transfer to the next choice on their ballots. The rounds continue "\
             f"until {numWinners} candidates {presentPerfectAction}"
         if self.graph.threshold:
-            denominator = self.summary.percent_denominator(roundNum)
+            denominator = self.summary.percent_denominator(
+                roundNum, self.config.forceFirstRoundDeterminesPercentages)
             threshold = self.graph.threshold / denominator
             output += f" by each earning more than {threshold:.1%} of the votes"
         return output + "."
@@ -181,7 +182,8 @@ class WhyMultiWinner(FAQBase):
 
     def get_answer(self, roundNum):
         winners = self.summary.winnerNames
-        denominator = self.summary.percent_denominator(roundNum)
+        denominator = self.summary.percent_denominator(
+            roundNum, self.config.forceFirstRoundDeterminesPercentages)
         if denominator != 0:
             threshold = self.graph.threshold / denominator
         else:

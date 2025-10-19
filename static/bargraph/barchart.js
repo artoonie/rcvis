@@ -318,6 +318,7 @@ function makeBarGraph(args) {
       }
       // controls string in STV election results
       let percentDenominator = calculatePercentDenominator(
+        config,
         lastRoundNumWinners,
         totalVotesPerRound[0],
         totalVotesPerRound[d.round]
@@ -344,12 +345,12 @@ function makeBarGraph(args) {
       if(isEliminatedThisRound(d) || !isVertical) {
           return "";
       }
-      let percentDenominator;
-      if (lastRoundNumWinners > 1) {
-          percentDenominator = totalVotesPerRound[0];
-      } else {
-          percentDenominator = totalVotesPerRound[d.round];
-      }
+      let percentDenominator = calculatePercentDenominator(
+          config,
+          lastRoundNumWinners,
+          totalVotesPerRound[0],
+          totalVotesPerRound[d.round]
+      );
       return percentToText(d.data["candidate"], d[1], percentDenominator);
   };
   function rightRoundedRect(x, y, width, height, radius) {
@@ -444,8 +445,9 @@ function makeBarGraph(args) {
 
   // Hover text helper
   function barTextFn(d) {
-      const text = !isEliminatedThisRound(d) ? "On Round " + (d.round+1) + ", has " : "Eliminated on Round " + (d.round+1) + " with ";
-      const percentDenominator = calculatePercentDenominator(lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
+      const text = !isEliminatedThisRound(d) ? "On Round " + (d.round+1) + ", had " : "Eliminated on Round " + (d.round+1) + " with ";
+      const percentDenominator = calculatePercentDenominator(
+          config, lastRoundNumWinners, totalVotesPerRound[0], totalVotesPerRound[d.round])
       return text + votesAndPctToText(d.data["candidate"], d[1], percentDenominator, true, false);
   };
 

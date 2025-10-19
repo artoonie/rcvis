@@ -263,17 +263,17 @@ class JSONReader:
 
     self.graph is a Graph object which is partially initialized (TODO how partially?)
     self.rounds is a list of Round objects
-    self.items is a list of Item objects
+    self.candidates is a list of Candidate objects
     """
     graph: object
     rounds: list
-    items: list
+    candidates: list
     eliminationOrder: list
 
     def __init__(self, data):
         self.parse_data(data)
         self.graph.create_graph_from_rounds(self.rounds)
-        self.set_elimination_order(self.rounds, self.graph.items)
+        self.set_elimination_order(self.rounds, self.graph.candidates)
 
     def parse_data(self, data):
         """ Parses the JSON data, or raises an exception on failure """
@@ -314,38 +314,38 @@ class JSONReader:
 
             return graph
 
-        def initialize_items(data):
+        def initialize_candidates(data):
             round0 = data['results'][0]
-            return {name: rcvResult.Item(name) for name in round0['tally']}
+            return {name: rcvResult.Candidate(name) for name in round0['tally']}
 
         def load_transfer(tallyResults):
             transfersByName = tallyResults['transfers']
-            transfersByItem = {}
+            transfersByCandidate = {}
             for toName, numTransferred in transfersByName.items():
-                transfersByItem[items[toName]] = float(numTransferred)
+                transfersByCandidate[candidates[toName]] = float(numTransferred)
 
             if 'eliminated' in tallyResults:
                 nameEliminated = tallyResults['eliminated']
-                itemEliminated = items[nameEliminated]
-                return rcvResult.Elimination(itemEliminated, transfersByItem)
+                candidateEliminated = candidates[nameEliminated]
+                return rcvResult.Elimination(candidateEliminated, transfersByCandidate)
 
             assert 'elected' in tallyResults
             nameEliminated = tallyResults['elected']
-            itemEliminated = items[nameEliminated]
-            return rcvResult.WinTransfer(itemEliminated, transfersByItem)
+            candidateEliminated = candidates[nameEliminated]
+            return rcvResult.WinTransfer(candidateEliminated, transfersByCandidate)
 
         def load_rounds(data):
             rounds = []
             for currRound in data['results']:
                 rnd = rcvResult.Round()
                 for name, count in currRound['tally'].items():
-                    rnd.itemsToVotes[items[name]] = count
+                    rnd.candidatesToVotes[candidates[name]] = count
 
                 for tallyResults in currRound['tallyResults']:
                     if 'elected' in tallyResults:
                         winnerName = tallyResults['elected']
-                        winnerItem = items[winnerName]
-                        rnd.winners.append(winnerItem)
+                        winnerCandidate = candidates[winnerName]
+                        rnd.winners.append(winnerCandidate)
                     rnd.transfers.append(load_transfer(tallyResults))
                 rounds.append(rnd)
             return rounds
@@ -356,7 +356,7 @@ class JSONReader:
             task(data).do()
 
         graph = load_graph(data)
-        items = initialize_items(data)
+        candidates = initialize_candidates(data)
         rounds = load_rounds(data)
 
         self.graph = graph
@@ -370,37 +370,37 @@ class JSONReader:
         """ Returns the list of rounds """
         return self.rounds
 
-    def set_elimination_order(self, rounds, items):
-        """ Sets the elimination order given each round and a list of Items """
+    def set_elimination_order(self, rounds, candidates):
+        """ Sets the elimination order given each round and a list of Candidates """
         eliminationOrder = []
-        itemsRemaining = set(items)
+        candidatesRemaining = set(candidates)
         for rnd in rounds:
-            itemsEliminatedThisRound = [
-                e.item for e in rnd.transfers if isinstance(e, rcvResult.Elimination)]
-            itemsEliminatedThisRound = sorted(
-                itemsEliminatedThisRound, key=lambda item, rnd=rnd: rnd.itemsToVotes[item])
-            for item in itemsEliminatedThisRound:
-                eliminationOrder.append(item)
-                itemsRemaining.remove(item)
+            candidatesEliminatedThisRound = [
+                e.candidate for e in rnd.transfers if isinstance(e, rcvResult.Elimination)]
+            candidatesEliminatedThisRound = sorted(
+                candidatesEliminatedThisRound, key=lambda candidate, rnd=rnd: rnd.candidatesToVotes[candidate])
+            for candidate in candidatesEliminatedThisRound:
+                eliminationOrder.append(candidate)
+                candidatesRemaining.remove(candidate)
 
         # Winners are added last
         winners = []
         for rnd in rounds:
             for winner in rnd.winners:
                 winners.append(winner)
-                itemsRemaining.remove(winner)
+                candidatesRemaining.remove(winner)
         winners = reversed(winners)
 
-        # Remaining items: survived til last round, neither eliminated nor elected
+        # Remaining candidates: survived til last round, neither eliminated nor elected
         # Then sort by the number of votes they received first, and then alphabetically.
         # This mitigates nondeterministic tests and ensures a consistent order between loads.
         # We compute the names in reverse order so we can sort backwards-alphabetically
         # because our goal is an alphabetical candidate list, which is the reverse of
         # the elimination order
-        reverseOrder = sorted(itemsRemaining, key=lambda x:
+        reverseOrder = sorted(candidatesRemaining, key=lambda x:
                               (-self.graph.nodesPerRound[-1][x].count, x.name))
-        itemsRemaining = reversed(reverseOrder)
-        eliminationOrder.extend(itemsRemaining)
+        candidatesRemaining = reversed(reverseOrder)
+        eliminationOrder.extend(candidatesRemaining)
         eliminationOrder.extend(winners)
 
         # Place "residual surplus" and "inactive ballots" at the end
