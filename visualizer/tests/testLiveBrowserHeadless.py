@@ -697,3 +697,9 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(content_true.count(pct_when_false), 0)
         self.assertEqual(content_false.count(pct_when_false), num_appearances)
         self.assertEqual(content_false.count(pct_when_true), 0)
+
+        # Also ensure the FAQs are as expected -- on every round where there are inactive ballots
+        # That's eight rounds (excludes round 1), plus the JS to populate the round text, for a total
+        # of 9 matches.
+        self.assertEqual(content_true.count("How do you calculate percentages"), 9)
+        self.assertEqual(content_false.count("How do you calculate percentages"), 0)

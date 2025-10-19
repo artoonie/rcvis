@@ -284,9 +284,33 @@ class WhyNoVotes(FAQBase):
         return "What is happening?"
 
     def get_answer(self, roundNum):
-        return "This is probably an upcoming Ranked-Choice Voting election. "\
-               "Perhaps the results are not in, or maybe the election hasn't even happened yet. "\
+        return "This is probably an upcoming Ranked-Choice Voting election. " \
+               "Perhaps the results are not in, or maybe the election hasn't even happened yet. " \
                "This page may update once data becomes available."
+
+
+class WhyPercentageBasedOnFirstRound(FAQBase):
+    """
+    Explains forceFirstRoundDeterminesPercentages on rounds 2+ for IRV.
+    """
+
+    def is_active(self, roundNum):
+        if not self.config.forceFirstRoundDeterminesPercentages:
+            return False
+        if roundNum == 0:
+            return False
+        if self.summary.numWinners > 1:
+            return False
+        if self.summary.rounds[roundNum].totalActiveVotes == self.summary.rounds[0].totalActiveVotes:
+            return False
+        return True
+
+    def get_question(self, roundNum):
+        return "How do you calculate percentages?"
+
+    def get_answer(self, roundNum):
+        return "Percentages in this visualization are always calculated using the vote totals in " \
+            + "the first round."
 
 
 class FAQGenerator():
@@ -300,6 +324,7 @@ class FAQGenerator():
                   WhySingleWinner,
                   WhyMultiWinner,
                   WhyThreshold,
+                  WhyPercentageBasedOnFirstRound,
                   WhySurplusTransfer,
                   WhatIsInactiveBallots)
 
