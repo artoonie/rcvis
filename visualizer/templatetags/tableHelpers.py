@@ -5,7 +5,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def get_round_background_color(context, candidateName, round_item):
+def get_round_background_color(context, candidateName, candidate):
     """Track candidate status through iterations and return cell background color"""
     candidateKey = f"round_state_{candidateName}"
     if candidateKey not in context:
@@ -13,12 +13,12 @@ def get_round_background_color(context, candidateName, round_item):
             "wasWinner": False,
             "wasEliminated": False,
         }
-    if round_item is None and not context[candidateKey]["wasEliminated"]:
+    if candidate is None and not context[candidateKey]["wasEliminated"]:
         context[candidateKey]["wasEliminated"] = True
         return "#FFBEBE"
     if context[candidateKey]["wasEliminated"]:
         return "#FAD7D7"
-    if round_item and round_item.isWinner:
+    if candidate and candidate.isWinner:
         context[candidateKey]["wasWinner"] = True
         return "#A0FFB5"
     if context[candidateKey]["wasWinner"]:

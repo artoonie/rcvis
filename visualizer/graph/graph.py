@@ -23,8 +23,8 @@ class NodeData:
     """ Data about a single "node": a candidate in a single round """
     # pylint: disable=too-many-arguments
 
-    def __init__(self, item, label, count, roundNum):
-        self.item = item
+    def __init__(self, candidate, label, count, roundNum):
+        self.candidate = candidate
         self.label = label
         self.count = count
         self.roundNum = roundNum
@@ -70,8 +70,8 @@ class Graph:
         return len(self.nodesPerRound)
 
     @property
-    def items(self):
-        """ Returns all items present in this graph """
+    def candidates(self):
+        """ Returns all candidates present in this graph """
         return self.nodesPerRound[0].keys()
 
     def summarize(self):
@@ -80,19 +80,19 @@ class Graph:
             self.summary = GraphSummary(self)
         return self.summary
 
-    def get_items_for_names(self, listOfNames):
-        """ Given a list of all names, returns the corresponding Item for each naem """
-        allItems = list(set(n.item for n in self.nodes))
-        return sorted(allItems, key=lambda item: -listOfNames.index(item.name))
+    def get_candidates_for_names(self, listOfNames):
+        """ Given a list of all names, returns the corresponding Candidate for each name """
+        allCandidates = list(set(n.candidate for n in self.nodes))
+        return sorted(allCandidates, key=lambda candidate: -listOfNames.index(candidate.name))
 
-    def set_elimination_order(self, orderedItems):
+    def set_elimination_order(self, orderedCandidates):
         """
-        Given a list of Items, sets the elimination erder.
+        Given a list of Candidates, sets the elimination erder.
         Does no validation that the given order is complete, but will likely throw
         several errors here or elsewhere if you pass bad data.
         """
-        self.eliminationOrder = orderedItems
-        self.nodes = sorted(self.nodes, key=lambda x: -orderedItems.index(x.item))
+        self.eliminationOrder = orderedCandidates
+        self.nodes = sorted(self.nodes, key=lambda x: -orderedCandidates.index(x.candidate))
 
         # Reset summary: it's no longer accurate
         self.summary = None
@@ -115,18 +115,18 @@ class Graph:
         link = LinkData(sourceNode, targetNode, value)
         self.links.append(link)
 
-    def create_node(self, item, count, round_i):
+    def create_node(self, candidate, count, round_i):
         """ Creates a node with the given count.
             Only meaningful while graph creation is in progress. """
-        label = str(item.name)
-        node = NodeData(item, label, count, round_i)
+        label = str(candidate.name)
+        node = NodeData(candidate, label, count, round_i)
         self.nodes.append(node)
 
         return node
 
     def _ensure_no_last_round_transfers(self):
         for transfer in self.transfersPerRound[-1]:
-            assert len(transfer.transfersByItem) == 0
+            assert len(transfer.transfersByCandidate) == 0
 
     def _compute_transfers(self):
         """ Second pass: after all nodes are created, compute the edges """
@@ -142,45 +142,45 @@ class Graph:
             # Compute transfers to other candidates on each round
             totalVotesTransferredFrom = {}
             for transfer in transfers:
-                sourceNode = nodesThisRound[transfer.item]
-                totalVotesTransferredFrom[transfer.item] = 0
+                sourceNode = nodesThisRound[transfer.candidate]
+                totalVotesTransferredFrom[transfer.candidate] = 0
 
                 # All of the transfers from sourceNode to other nodes
-                for targetItem, count in transfer.transfersByItem.items():
-                    assert targetItem in nodesNextRound
-                    targetNode = nodesNextRound[targetItem]
+                for targetCandidate, count in transfer.transfersByCandidate.items():
+                    assert targetCandidate in nodesNextRound
+                    targetNode = nodesNextRound[targetCandidate]
                     self._add_connection(sourceNode=sourceNode,
                                          targetNode=targetNode,
                                          value=count)
-                    totalVotesTransferredFrom[transfer.item] += count
+                    totalVotesTransferredFrom[transfer.candidate] += count
 
             # Compute transfers to same candidate by computing untransferred votes
-            for item, node in nodesThisRound.items():
-                if item not in nodesNextRound:
+            for candidate, node in nodesThisRound.items():
+                if candidate not in nodesNextRound:
                     continue
-                votesTransferredToOthers = totalVotesTransferredFrom.get(item, 0)
+                votesTransferredToOthers = totalVotesTransferredFrom.get(candidate, 0)
                 votesTransferredToSelf = node.count - votesTransferredToOthers
                 self._add_connection(sourceNode=node,
-                                     targetNode=nodesNextRound[item],
+                                     targetNode=nodesNextRound[candidate],
                                      value=votesTransferredToSelf)
 
     def create_graph_from_rounds(self, rounds):
         """ Generates a graph with nodes and edges, where the nodes are
-            a single Item at a specific Round, and the edges are Transfers """
+            a single Candidate at a specific Round, and the edges are Transfers """
         for round_i, rnd in enumerate(rounds):
             self.winnersSoFar.update(rnd.winners)
 
-            eliminatedThisRound = {e.item for e in rnd.transfers
+            eliminatedThisRound = {e.candidate for e in rnd.transfers
                                    if isinstance(e, rcvResult.Elimination)}
 
             nodesThisRound = {}
-            for item, votes in rnd.itemsToVotes.items():
-                node = self.create_node(item, votes, round_i)
-                if item in self.winnersSoFar:
+            for candidate, votes in rnd.candidatesToVotes.items():
+                node = self.create_node(candidate, votes, round_i)
+                if candidate in self.winnersSoFar:
                     node.mark_winner()
-                if item in eliminatedThisRound:
+                if candidate in eliminatedThisRound:
                     node.mark_eliminated()
-                nodesThisRound[item] = node
+                nodesThisRound[candidate] = node
 
             self.nodesPerRound.append(nodesThisRound)
             self.transfersPerRound.append(rnd.transfers)

@@ -95,7 +95,8 @@ class WhatHappeningMultiWinner(FAQBase):
             "votes transfer to the next choice on their ballots. The rounds continue "\
             f"until {numWinners} candidates {presentPerfectAction}"
         if self.graph.threshold:
-            denominator = self.summary.percent_denominator(roundNum)
+            denominator = self.summary.percent_denominator(
+                roundNum, self.config.forceFirstRoundDeterminesPercentages)
             threshold = self.graph.threshold / denominator
             output += f" by each earning more than {threshold:.1%} of the votes"
         return output + "."
@@ -181,7 +182,8 @@ class WhyMultiWinner(FAQBase):
 
     def get_answer(self, roundNum):
         winners = self.summary.winnerNames
-        denominator = self.summary.percent_denominator(roundNum)
+        denominator = self.summary.percent_denominator(
+            roundNum, self.config.forceFirstRoundDeterminesPercentages)
         if denominator != 0:
             threshold = self.graph.threshold / denominator
         else:
@@ -282,9 +284,34 @@ class WhyNoVotes(FAQBase):
         return "What is happening?"
 
     def get_answer(self, roundNum):
-        return "This is probably an upcoming Ranked-Choice Voting election. "\
-               "Perhaps the results are not in, or maybe the election hasn't even happened yet. "\
+        return "This is probably an upcoming Ranked-Choice Voting election. " \
+               "Perhaps the results are not in, or maybe the election hasn't even happened yet. " \
                "This page may update once data becomes available."
+
+
+class WhyPercentageBasedOnFirstRound(FAQBase):
+    """
+    Explains forceFirstRoundDeterminesPercentages on rounds 2+ for IRV.
+    """
+
+    def is_active(self, roundNum):
+        if not self.config.forceFirstRoundDeterminesPercentages:
+            return False
+        if roundNum == 0:
+            return False
+        if self.summary.numWinners > 1:
+            return False
+
+        currVotes = self.summary.rounds[roundNum].totalActiveVotes
+        round0Votes = self.summary.rounds[0].totalActiveVotes
+        return currVotes != round0Votes
+
+    def get_question(self, roundNum):
+        return "How do you calculate percentages?"
+
+    def get_answer(self, roundNum):
+        return "Percentages in this visualization are always calculated using the vote totals in " \
+            + "the first round."
 
 
 class FAQGenerator():
@@ -298,6 +325,7 @@ class FAQGenerator():
                   WhySingleWinner,
                   WhyMultiWinner,
                   WhyThreshold,
+                  WhyPercentageBasedOnFirstRound,
                   WhySurplusTransfer,
                   WhatIsInactiveBallots)
 

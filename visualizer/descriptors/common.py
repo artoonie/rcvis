@@ -51,11 +51,11 @@ def get_redistribution_data(graph, roundNum):
     candidates = graph.summarize().candidates
     redistributedNames = []
     redistributedSum = 0
-    for item, candidateInfo in candidates.items():
+    for candidate, candidateInfo in candidates.items():
         if roundNum >= len(candidateInfo.votesAddedPerRound):
             continue
         votesAdded = candidateInfo.votesAddedPerRound[roundNum]
         if votesAdded < 0:
-            redistributedNames.append(item.name)
+            redistributedNames.append(candidate.name)
             redistributedSum -= votesAdded
     return {'names': redistributedNames, 'sum': redistributedSum}

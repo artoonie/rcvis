@@ -302,7 +302,7 @@ class SimpleTests(TestCase):
         with open(filenames.MULTIWINNER, 'r+', encoding='utf-8') as f:
             graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
 
-        text = WikipediaExport(graph, "http://example.com/v/slug").create_wikicode()
+        text = WikipediaExport(graph, "http://example.com/v/slug").create_wikicode(False)
 
         # TODO - how can I test this? I tried mwparserfromhell but that doesn't have a way to
         # validate syntax. For now, just validate it doesn't throw an exception, and that the

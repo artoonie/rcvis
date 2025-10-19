@@ -23,6 +23,8 @@ class DefaultConfig():  # pylint: disable=too-few-public-methods
     A simplified JsonConfig with just the default values.
     Use this to pass to functions that require a config if you do not have
     or need a config (e.g. in validators).
+
+    This should NEVER be used in the construction of a real Graph or GraphSummary object.
     """
 
     def __init__(self):
@@ -30,6 +32,7 @@ class DefaultConfig():  # pylint: disable=too-few-public-methods
         self.textForWinner = TextForWinner.ELECTED
         self.isPreferentialBlock = False
         self.excludeFinalWinnerAndEliminatedCandidate = False
+        self.forceFirstRoundDeterminesPercentages = False
 
 
 def get_embed_html(embedlyUrl, maxwidth, maxheight):
@@ -52,7 +55,7 @@ def get_data_for_graph(graph, config):
     d3Bargraph = D3Bargraph(graph)
     d3Sankey = D3Sankey(graph)
     tabularByCandidate = TabulateByCandidate(graph, config)
-    singleTableSummary = SingleTableSummary(graph)
+    singleTableSummary = SingleTableSummary(graph, config.forceFirstRoundDeterminesPercentages)
     tabularByRound = TabulateByRound(graph)
     tabularByRoundInteractive = TabulateByRoundInteractive(graph, config)
     graphData = {
@@ -98,11 +101,10 @@ def get_data_for_view(config):
 
         # TODO this doesn't feel good - the graph should load this natively,
         # not have it snuck here.
-        orderedItems = graph.get_items_for_names(candidateSidecarDataPyObj.data['order'])
-        graph.set_elimination_order(orderedItems)
+        orderedCandidates = graph.get_candidates_for_names(candidateSidecarDataPyObj.data['order'])
+        graph.set_elimination_order(orderedCandidates)
         candidateSidecarData = json.dumps(candidateSidecarDataPyObj.data)
     else:
-        candidateSidecarDataPyObj = None
         candidateSidecarData = json.dumps(None)
 
     offlineMode = settings.OFFLINE_MODE

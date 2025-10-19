@@ -4,8 +4,8 @@ from visualizer.common import intify, percentify, INACTIVE_TEXT
 from visualizer.descriptors import textForWinnerUtils as TextForWinner
 
 
-def makePrimarySecondaryLabels(numVotes, denominator, item):
-    if item.isActive:
+def makePrimarySecondaryLabels(numVotes, denominator, candidate):
+    if candidate.isActive:
         primaryLabel = percentify(numVotes, denominator)
         secondaryLabel = votify(numVotes)
     else:
@@ -26,7 +26,7 @@ class TabulateByRoundInteractive:
             for winnerName in roundData.winnerNames:
                 alreadyWonInRound[winnerName] = (roundNum + 1)
             rnd = []
-            for item, cinfo in summary.candidates.items():
+            for candidate, cinfo in summary.candidates.items():
                 d = {}
                 isEliminatedThisRound = cinfo.name in roundData.eliminatedNames
                 isElectedThisRound = cinfo.name in roundData.winnerNames
@@ -60,9 +60,10 @@ class TabulateByRoundInteractive:
                         d['change'] = changify(votesAddedThisRound)
 
                     myNumVotes = cinfo.totalVotesPerRound[roundNum]
-                    percentDenominator = summary.percent_denominator(roundNum)
+                    percentDenominator = summary.percent_denominator(
+                        roundNum, config.forceFirstRoundDeterminesPercentages)
                     d['primaryLabel'], d['secondaryLabel'] = makePrimarySecondaryLabels(
-                        myNumVotes, percentDenominator, item)
+                        myNumVotes, percentDenominator, candidate)
                 d['name'] = cinfo.name
                 d['wonThisRound'] = cinfo.name in roundData.winnerNames
                 d['eliminatedThisRound'] = isEliminatedThisRound
@@ -91,14 +92,18 @@ class SingleTableSummary:
     tabulation: list  # A list of CandidateTabulation
     rounds: int
 
-    def __init__(self, graph):
+    def __init__(self, graph, forceFirstRoundDeterminesPercentages):
         summary = graph.summarize()
         self.rounds = range(len(summary.rounds))
         self.tabulation = []
 
         candidates = summary.candidates
-        for item in candidates:
-            self.tabulation.append(CandidateTabulationByRound(graph, item))
+        for candidate in candidates:
+            self.tabulation.append(
+                CandidateTabulationByRound(
+                    graph,
+                    candidate,
+                    forceFirstRoundDeterminesPercentages))
 
 
 """ A summary of one candidate, prepared for tabulation, with every round """
@@ -108,18 +113,19 @@ class CandidateTabulationByRound:
     name: str
     eachRound: list
 
-    def __init__(self, graph, item):
-        self.name = item.name
+    def __init__(self, graph, candidate, forceFirstRoundDeterminesPercentages):
+        self.name = candidate.name
         summary = graph.summarize()
         numRounds = len(summary.rounds)
-        candidateInfo = summary.candidates[item]
+        candidateInfo = summary.candidates[candidate]
         self.eachRound = []
         self.rounds = range(numRounds)
         for i, myNumVotes in enumerate(candidateInfo.totalVotesPerRound):
             thisRoundSummary = summary.rounds[i]
-            percentDenominator = summary.percent_denominator(i)
+            percentDenominator = summary.percent_denominator(
+                i, forceFirstRoundDeterminesPercentages)
             self.eachRound.append(OneCandidateOneRound(
-                thisRoundSummary, myNumVotes, percentDenominator, item))
+                thisRoundSummary, myNumVotes, percentDenominator, candidate))
 
         # We want all rounds filled out - pad the remaining rounds
         numRoundsThisCandidate = len(candidateInfo.totalVotesPerRound)
@@ -136,15 +142,15 @@ class OneCandidateOneRound:
     numVotes: str
     pctVotes: str
 
-    def __init__(self, thisRoundSummary, myNumVotes, percentDenominator, item):
+    def __init__(self, thisRoundSummary, myNumVotes, percentDenominator, candidate):
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            myNumVotes, percentDenominator, item)
+            myNumVotes, percentDenominator, candidate)
 
         self.numVotes = intify(myNumVotes)
         self.pctVotes = percentify(myNumVotes, percentDenominator)
 
-        self.isWinner = item.name in thisRoundSummary.winnerNames
-        self.isEliminated = item.name in thisRoundSummary.eliminatedNames
+        self.isWinner = candidate.name in thisRoundSummary.winnerNames
+        self.isEliminated = candidate.name in thisRoundSummary.eliminatedNames
 
 
 class TabulateByCandidate:
@@ -155,8 +161,8 @@ class TabulateByCandidate:
         summary = graph.summarize()
         self.tabulation = []
         candidates = summary.candidates
-        for item in candidates:
-            self.tabulation.append(CandidateTabulation(graph, config, item))
+        for candidate in candidates:
+            self.tabulation.append(CandidateTabulation(graph, config, candidate))
         self.rounds = range(len(summary.rounds))
 
 
@@ -166,16 +172,16 @@ class CandidateTabulation:
     rounds: list
     isWinner: bool
 
-    def __init__(self, graph, config, item):
+    def __init__(self, graph, config, candidate):
         summary = graph.summarize()
-        candidateInfo = summary.candidates[item]
+        candidateInfo = summary.candidates[candidate]
 
-        self.name = item.name
-        self.isWinner = item.name in summary.winnerNames
+        self.name = candidate.name
+        self.isWinner = candidate.name in summary.winnerNames
 
         self.rounds = []
         for i in range(len(candidateInfo.votesAddedPerRound)):
-            node = graph.nodesPerRound[i][item]
+            node = graph.nodesPerRound[i][candidate]
 
             if node in summary.linksByTargetNode:
                 linksForThisNode = summary.linksByTargetNode[node]
@@ -187,7 +193,7 @@ class CandidateTabulation:
 
             self.rounds.append(
                 RoundTabulation(config, node.count, i,
-                                item, summary, linksForThisNode))
+                                candidate, summary, linksForThisNode))
 
 
 class RoundTabulation:
@@ -197,13 +203,14 @@ class RoundTabulation:
     # secondaryLabel:str
     # round_i:int, 1-indexed
 
-    def __init__(self, config, totalActiveVotes, round_i, item, summary, linksForThisNode):
+    def __init__(self, config, totalActiveVotes, round_i, candidate, summary, linksForThisNode):
         self.round_i = round_i + 1
 
         myNumVotes = float(totalActiveVotes)
-        percentDenominator = summary.percent_denominator(round_i)
+        percentDenominator = summary.percent_denominator(
+            round_i, config.forceFirstRoundDeterminesPercentages)
         self.primaryLabel, self.secondaryLabel = makePrimarySecondaryLabels(
-            myNumVotes, percentDenominator, item)
+            myNumVotes, percentDenominator, candidate)
 
         roundInfos = summary.rounds
         thisRoundWinners = roundInfos[round_i].winnerNames
@@ -211,7 +218,7 @@ class RoundTabulation:
             thisRoundEliminations = roundInfos[round_i + 1].eliminatedNames
         else:
             thisRoundEliminations = []
-        eliminatedText = "Eliminated. " if item.name in thisRoundEliminations else ""
+        eliminatedText = "Eliminated. " if candidate.name in thisRoundEliminations else ""
 
         if round_i == 0:
             self.summary = f"{totalActiveVotes} first-round votes. " + eliminatedText
@@ -219,18 +226,18 @@ class RoundTabulation:
 
         transfers = []
         for link in linksForThisNode:
-            if link.source.item.name == link.target.item.name:
+            if link.source.candidate.name == link.target.candidate.name:
                 # Don't account for links to self
                 continue
             voteTxt = pluralize('vote', link.value)
             transfers.append(
-                f"{link.value} {voteTxt} from {link.source.item.name}. ")
+                f"{link.value} {voteTxt} from {link.source.candidate.name}. ")
 
         transferText = andify("Gained ", transfers, "")
 
         # Only show info relevant to this candidate
         winCaption = TextForWinner.as_caption(config) + ". "
-        winnerText = winCaption if item.name in thisRoundWinners else ""
+        winnerText = winCaption if candidate.name in thisRoundWinners else ""
         self.summary = winnerText + transferText + eliminatedText
 
 

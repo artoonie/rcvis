@@ -29,21 +29,22 @@ function votesToText(numVotes, includeWordVotes, doSimplifyNumber)
 
   let fmt;
   if (doSimplifyNumber && numVotes >= 1000) {
-      fmt = d3.format(".2s");
+    fmt = d3.format(".2s");
   } else {
-      fmt = d3.format(",");
+    fmt = d3.format(",");
   }
 
   return fmt(numVotes) + " " + (includeWordVotes ? "votes" : "");
 }
 
-function calculatePercentDenominator(numWinners, firstRoundVoteTotal, currRoundVoteTotal)
+function calculatePercentDenominator(
+    config, numWinners, firstRoundVoteTotal, currRoundVoteTotal)
 {
-    if (numWinners <= 1) {
-        return currRoundVoteTotal;
-    } else {
-        return firstRoundVoteTotal;
-    }
+  if (config.forceFirstRoundDeterminesPercentages || numWinners > 1) {
+    return firstRoundVoteTotal;
+  } else {
+    return currRoundVoteTotal;
+  }
 }
 
 function percentToText(candidateName, numVotes, totalVotes)

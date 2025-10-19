@@ -88,7 +88,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
             # Get an eliminated bar by its text
             bargraph = self.browser.find_element(By.ID, 'bargraph-interactive-body')
-            cssSelector = "path[data-original-title=\"On Round 1, has 64 votes (16%)\"]"
+            cssSelector = "path[data-original-title=\"On Round 1, had 64 votes (16%)\"]"
             WebDriverWait(self.browser, 5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, cssSelector)))
             lastBarInLastRoundList = bargraph.find_elements(By.CSS_SELECTOR, cssSelector)
@@ -673,3 +673,33 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         executorCallCount = executor_mock.submit.call_count
         self._upload(filenames.MULTIWINNER)
         self.assertEqual(executor_mock.submit.call_count, executorCallCount + 1)
+
+    def test_force_first_round_determines_percentages(self):
+        """
+        Test that forceFirstRoundDeterminesPercentages correctly changes percentage calculations.
+        """
+        def get_content(forceFirstRoundDeterminesPercentages):
+            self._upload(filenames.SOME_MISSING_TRANSFERS, additionalArgs={
+                'forceFirstRoundDeterminesPercentages': forceFirstRoundDeterminesPercentages
+            })
+            return self.browser.page_source
+        contentTrue = get_content(True)
+        contentFalse = get_content(False)
+
+        # This is the percent of votes Eric Adams received in the last round when the setting
+        # forceFirstRoundDeterminesPercentages is true vs false
+        percentWhenFalse = '51.05%'
+        percentWhenTrue = '43.74%'
+        # The number of times the percentage is expected to appear.
+        numAppearances = 9
+
+        self.assertEqual(contentTrue.count(percentWhenTrue), numAppearances)
+        self.assertEqual(contentTrue.count(percentWhenFalse), 0)
+        self.assertEqual(contentFalse.count(percentWhenFalse), numAppearances)
+        self.assertEqual(contentFalse.count(percentWhenTrue), 0)
+
+        # Also ensure the FAQs are as expected -- on every round where there are inactive ballots
+        # That's eight rounds (excludes round 1), plus the JS to populate the round text, for a
+        # total of 9 matches.
+        self.assertEqual(contentTrue.count("How do you calculate percentages"), 9)
+        self.assertEqual(contentFalse.count("How do you calculate percentages"), 0)

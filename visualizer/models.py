@@ -96,6 +96,7 @@ class JsonConfig(models.Model):
     # Options only modifiable at upload time
     excludeFinalWinnerAndEliminatedCandidate = models.BooleanField(default=False)
     hideDecimals = models.BooleanField(default=False)
+    forceFirstRoundDeterminesPercentages = models.BooleanField(default=False)
 
     @classmethod
     def get_all_non_auto_fields(cls):
@@ -106,6 +107,7 @@ class JsonConfig(models.Model):
                 'showRoundNumbersOnSankey',
                 'onlyShowWinnersTabular',
                 'isPreferentialBlock',
+                'forceFirstRoundDeterminesPercentages',
                 'hideSankey',
                 'hideTabular',
                 'doDimPrevRoundColors',

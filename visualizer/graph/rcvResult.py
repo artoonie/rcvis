@@ -4,8 +4,8 @@ from visualizer import common
 
 
 # pylint: disable=too-few-public-methods
-class Item:
-    """ A single Item, also known as a Candidate elsewhere in the Code. """
+class Candidate:
+    """ A single Candidate. """
 
     def __init__(self, name):
         self.name = name
@@ -17,11 +17,11 @@ class Item:
 
 
 class Transfer:
-    """ Transfers is a mapping from Item objects to a number of transferred votes. """
+    """ Transfers is a mapping from Candidate objects to a number of transferred votes. """
 
-    def __init__(self, item, transfersByItem):
-        self.item = item
-        self.transfersByItem = transfersByItem
+    def __init__(self, candidate, transfersByCandidate):
+        self.candidate = candidate
+        self.transfersByCandidate = transfersByCandidate
 
 # pylint: disable=too-few-public-methods
 
@@ -44,4 +44,4 @@ class Round:
     def __init__(self):
         self.winners = []
         self.transfers = []
-        self.itemsToVotes = {}
+        self.candidatesToVotes = {}
