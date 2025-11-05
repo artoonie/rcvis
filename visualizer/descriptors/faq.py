@@ -160,6 +160,18 @@ class WhySingleWinner(FAQBase):
 
     def get_answer(self, roundNum):
         winner = self.summary.rounds[roundNum].winnerNames[0]
+        # Count active candidates in this round (excluding inactive ballots)
+        activeCandidates = [c for c in self.graph.nodesPerRound[roundNum].keys()
+                            if c.isActive]
+        areOnlyTwoActiveCandidates = len(activeCandidates) == 2
+
+        if self.config.forceFirstRoundDeterminesPercentages and areOnlyTwoActiveCandidates:
+            # Special case for IRV with forced first-round percentages:
+            # at this point, they didn't necessarily win because they received more than 50%,
+            # but because they had the most votes on the last round and there were only
+            # two candidates remaining.
+            return f"{winner} received the most votes."
+
         return f"{winner} received more than 50% of the votes after {roundNum + 1} "\
             "round(s). Only one candidate can have more than 50% of the votes, so "\
             f"{winner} was the candidate most preferred by these voters."
