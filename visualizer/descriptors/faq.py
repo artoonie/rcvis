@@ -122,11 +122,18 @@ class WhyEliminated(FAQBase):
         eliminatedNames = self.summary.rounds[roundNum].eliminatedNames
         elims = common.comma_separated_names_with_and(eliminatedNames)
         wasOrWere = "was" if len(eliminatedNames) == 1 else "were"
-        return f"{elims} had the fewest votes in Round {roundNum}. Since {elims} "\
+        winners = "winner" if len(self.summary.winnerNames) == 1 else "winners"
+
+        if len(self.summary.rounds[roundNum].eliminatedTiedWith) > 0:
+            start = f"There was a tie and {elims} lost the tiebreak"
+        else:
+            start = f"{elims} had the fewest votes in Round {roundNum}"
+
+        return f"{start}. Since {elims} "\
             f"{wasOrWere} eliminated, the voters who supported {elims} had their "\
             f"votes count for their next choices in Round {roundNum + 1}. "\
             "Transferring votes ensures that every voter can be included in choosing "\
-            "the final winner(s), even if their favorite candidate doesn't win."
+            f"the final {winners}, even if their favorite candidate doesn't win."
 
 
 class WhyBatchEliminated(FAQBase):
@@ -212,6 +219,10 @@ class WhySingleWinner(FAQBase):
         activeCandidates = [c for c in self.graph.nodesPerRound[roundNum].keys()
                             if c.isActive]
         areOnlyTwoActiveCandidates = len(activeCandidates) == 2
+
+        # Check for tiebreak first
+        if len(self.summary.rounds[roundNum].winnerTiedWith) > 0:
+            return f"There was a tie and {winner} won the tiebreak."
 
         if self.config.forceFirstRoundDeterminesPercentages and areOnlyTwoActiveCandidates:
             # Special case for IRV with forced first-round percentages:
@@ -390,9 +401,9 @@ class FAQGenerator():
                   WhyNoVotes,
                   WhyEliminated,
                   WhyBatchEliminated,
-                  HowWereTiesBroken,
                   WhySingleWinner,
                   WhyMultiWinner,
+                  HowWereTiesBroken,
                   WhyThreshold,
                   WhyPercentageBasedOnFirstRound,
                   WhySurplusTransfer,

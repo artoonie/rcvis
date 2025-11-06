@@ -299,3 +299,5 @@ class FAQTests(TestCase):
             "The tiebreak method is up to the election administrator. "
             "RCVis does not know what method was chosen to break this tie, "
             "only that Yinka Dare was eliminated and George Gervin was was elected.")
+        self.assertTrue(faq.WhyEliminated(*args).get_answer(1).startswith("There was a tie"))
+        self.assertTrue(faq.WhySingleWinner(*args).get_answer(1).startswith("There was a tie"))

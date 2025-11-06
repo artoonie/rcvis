@@ -60,7 +60,7 @@ class GraphSummary:
         self.linksByTargetNode = linksByTargetNode
         self.winnerNames = [i.name for i in alreadyWonInPreviousRound]
         self.numWinners = len(self.winnerNames)
-        self.numEliminated = sum(len(r.eliminatedNames) for r in rounds)
+        self.numEliminated = sum(len(r.eliminatedCandidates) for r in rounds)
 
     def percent_denominator(self, roundNum, forceFirstRoundDeterminesPercentages):
         """
@@ -75,18 +75,27 @@ class GraphSummary:
         return self.rounds[roundNum].totalActiveVotes
 
 
+# pylint: disable=too-many-instance-attributes
 class RoundInfo:
     """ Summarizes a single round, with functions to build the round """
 
     def __init__(self, round_i):
         self.round_i = round_i
+
+        # Lists of Candidates and their names eliminated or elected this round
         self.eliminatedCandidates = []
         self.winnerCandidates = []
+
+        # Since we use the candidate name list so often, have a separate list for it
         self.eliminatedNames = []
         self.winnerNames = []
-        self.totalActiveVotes = 0  # The total number of active ballots this round
-        self.eliminatedTiedWith = []  # List of Candidates tied with eliminated candidates
-        self.winnerTiedWith = []  # List of Candidates tied with winning candidates
+
+        # List of all candidates who tied with eliminated/winning candidates
+        self.eliminatedTiedWith = []
+        self.winnerTiedWith = []
+
+        # The total number of active ballots this round
+        self.totalActiveVotes = 0
 
     def key(self):
         """ Returns the "key" for this round (just the round number) """
