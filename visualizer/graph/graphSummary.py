@@ -51,6 +51,10 @@ class GraphSummary:
                 linksByTargetNode[link.target] = []
             linksByTargetNode[link.target].append(link)
 
+        # Detect ties for each round
+        for rnd in rounds:
+            rnd.find_ties(graph)
+
         self.rounds = rounds
         self.candidates = candidates
         self.linksByTargetNode = linksByTargetNode
@@ -81,6 +85,8 @@ class RoundInfo:
         self.eliminatedNames = []
         self.winnerNames = []
         self.totalActiveVotes = 0  # The total number of active ballots this round
+        self.eliminatedTiedWith = []  # List of Candidates tied with eliminated candidates
+        self.winnerTiedWith = []  # List of Candidates tied with winning candidates
 
     def key(self):
         """ Returns the "key" for this round (just the round number) """
@@ -104,6 +110,73 @@ class RoundInfo:
             return
 
         self.totalActiveVotes += numVotes
+
+    def find_ties(self, graph):
+        """
+        Detects ties in this round for both eliminated and winning candidates.
+        Populates eliminatedTiedWith and winnerTiedWith lists.
+
+        A tie occurs when a candidate in the action list (eliminated/winner) has the same
+        vote count as another candidate not in that list.
+
+        Args:
+            graph: The graph object to access vote counts
+        """
+        # Check ties for eliminated candidates
+        if self.eliminatedCandidates:
+            self.eliminatedTiedWith = self._find_ties_for_candidates(
+                graph, self.eliminatedCandidates)
+
+        # Check ties for winning candidates
+        if self.winnerCandidates:
+            self.winnerTiedWith = self._find_ties_for_candidates(
+                graph, self.winnerCandidates)
+
+    def _find_ties_for_candidates(self, graph, candidateList):
+        """
+        Helper to find which candidates tied with the given candidate list.
+
+        Args:
+            graph: The graph object
+            candidateList: List of candidates to check for ties
+
+        Returns:
+            List of candidates that tied (had same vote count) but weren't in candidateList
+        """
+        if len(candidateList) == 0:
+            return []
+
+        # Look at the previous round to get vote counts at time of elimination/election
+        # (In sankey, eliminations/elections are shown on the previous round)
+        lookupRound = self.round_i - 1
+        if lookupRound < 0:
+            return []
+
+        if lookupRound >= len(graph.nodesPerRound):
+            return []
+
+        nodesThisRound = graph.nodesPerRound[lookupRound]
+
+        # Get vote counts for all active candidates
+        candidateVotes = {candidate: nodesThisRound[candidate].count
+                          for candidate in nodesThisRound.keys()
+                          if candidate.isActive}
+
+        # Get vote counts of the target candidates
+        targetVotes = [candidateVotes.get(c, 0) for c in candidateList]
+        if not targetVotes:
+            return []
+
+        # Find the threshold vote count (minimum for eliminated, could be adjusted for winners)
+        thresholdVoteCount = min(targetVotes)
+
+        # Find all candidates with the same vote count who aren't in candidateList
+        tiedCandidates = []
+        for candidate, votes in candidateVotes.items():
+            if candidate not in candidateList and votes == thresholdVoteCount:
+                tiedCandidates.append(candidate)
+
+        return tiedCandidates
 
 
 class CandidateInfo:

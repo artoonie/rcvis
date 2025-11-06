@@ -150,6 +150,50 @@ class WhyBatchEliminated(FAQBase):
             "produces the same results, \"batch\" elimination just takes fewer rounds."
 
 
+class HowWereTiesBroken(FAQBase):
+    """ Whenever there's a tie in eliminations or elections """
+
+    def is_active(self, roundNum):
+        rnd = self.summary.rounds[roundNum]
+        return len(rnd.eliminatedTiedWith) > 0 or len(rnd.winnerTiedWith) > 0
+
+    def get_question(self, roundNum):
+        return "How were ties broken?"
+
+    def get_answer(self, roundNum):
+        rnd = self.summary.rounds[roundNum]
+
+        result = "The tiebreak method is up to the election administrator. "\
+                 "RCVis does not know what method was chosen to break this tie, only that "
+
+        parts = []
+
+        # Handle elimination ties
+        if rnd.eliminatedTiedWith:
+            eliminatedNames = rnd.eliminatedNames
+            elims = common.comma_separated_names_with_and(eliminatedNames)
+            wasOrWere = "was" if len(eliminatedNames) == 1 else "were"
+            parts.append(f"{elims} {wasOrWere} eliminated")
+
+        # Handle election/winner ties
+        if rnd.winnerTiedWith:
+            winnerNames = rnd.winnerNames
+            winners = common.comma_separated_names_with_and(winnerNames)
+            wasOrWere = "was" if len(winnerNames) == 1 else "were"
+            actionText = textForWinnerUtils.as_event(self.config, len(winnerNames))
+            parts.append(f"{winners} {wasOrWere} {actionText}")
+
+        # Combine the parts
+        if len(parts) == 2:
+            result += parts[0] + " and " + parts[1] + "."
+        elif len(parts) == 1:
+            result += parts[0] + "."
+        else:
+            result += "a tie was broken."
+
+        return result
+
+
 class WhySingleWinner(FAQBase):
     """ Whenever someone is elected in IRV """
 
@@ -346,6 +390,7 @@ class FAQGenerator():
                   WhyNoVotes,
                   WhyEliminated,
                   WhyBatchEliminated,
+                  HowWereTiesBroken,
                   WhySingleWinner,
                   WhyMultiWinner,
                   WhyThreshold,
