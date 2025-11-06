@@ -122,11 +122,18 @@ class WhyEliminated(FAQBase):
         eliminatedNames = self.summary.rounds[roundNum].eliminatedNames
         elims = common.comma_separated_names_with_and(eliminatedNames)
         wasOrWere = "was" if len(eliminatedNames) == 1 else "were"
-        return f"{elims} had the fewest votes in Round {roundNum}. Since {elims} "\
+        winners = "winner" if len(self.summary.winnerNames) == 1 else "winners"
+
+        if len(self.summary.rounds[roundNum].eliminatedTiedWith) > 0:
+            start = f"There was a tie and {elims} lost the tiebreak"
+        else:
+            start = f"{elims} had the fewest votes in Round {roundNum}"
+
+        return f"{start}. Since {elims} "\
             f"{wasOrWere} eliminated, the voters who supported {elims} had their "\
             f"votes count for their next choices in Round {roundNum + 1}. "\
             "Transferring votes ensures that every voter can be included in choosing "\
-            "the final winner(s), even if their favorite candidate doesn't win."
+            f"the final {winners}, even if their favorite candidate doesn't win."
 
 
 class WhyBatchEliminated(FAQBase):
@@ -150,6 +157,50 @@ class WhyBatchEliminated(FAQBase):
             "produces the same results, \"batch\" elimination just takes fewer rounds."
 
 
+class HowWereTiesBroken(FAQBase):
+    """ Whenever there's a tie in eliminations or elections """
+
+    def is_active(self, roundNum):
+        rnd = self.summary.rounds[roundNum]
+        return len(rnd.eliminatedTiedWith) > 0 or len(rnd.winnerTiedWith) > 0
+
+    def get_question(self, roundNum):
+        return "How were ties broken?"
+
+    def get_answer(self, roundNum):
+        rnd = self.summary.rounds[roundNum]
+
+        result = "The tiebreak method is up to the election administrator. "\
+                 "RCVis does not know what method was chosen to break this tie, only that "
+
+        parts = []
+
+        # Handle elimination ties
+        if rnd.eliminatedTiedWith:
+            eliminatedNames = rnd.eliminatedNames
+            elims = common.comma_separated_names_with_and(eliminatedNames)
+            wasOrWere = "was" if len(eliminatedNames) == 1 else "were"
+            parts.append(f"{elims} {wasOrWere} eliminated")
+
+        # Handle election/winner ties
+        if rnd.winnerTiedWith:
+            winnerNames = rnd.winnerNames
+            winners = common.comma_separated_names_with_and(winnerNames)
+            wasOrWere = "was" if len(winnerNames) == 1 else "were"
+            actionText = textForWinnerUtils.as_event(self.config, len(winnerNames))
+            parts.append(f"{winners} {wasOrWere} {actionText}")
+
+        # Combine the parts
+        if len(parts) == 2:
+            result += parts[0] + " and " + parts[1] + "."
+        elif len(parts) == 1:
+            result += parts[0] + "."
+        else:
+            result += "a tie was broken."
+
+        return result
+
+
 class WhySingleWinner(FAQBase):
     """ Whenever someone is elected in IRV """
 
@@ -168,6 +219,10 @@ class WhySingleWinner(FAQBase):
         activeCandidates = [c for c in self.graph.nodesPerRound[roundNum].keys()
                             if c.isActive]
         areOnlyTwoActiveCandidates = len(activeCandidates) == 2
+
+        # Check for tiebreak first
+        if len(self.summary.rounds[roundNum].winnerTiedWith) > 0:
+            return f"There was a tie and {winner} won the tiebreak."
 
         if self.config.forceFirstRoundDeterminesPercentages and areOnlyTwoActiveCandidates:
             # Special case for IRV with forced first-round percentages:
@@ -348,6 +403,7 @@ class FAQGenerator():
                   WhyBatchEliminated,
                   WhySingleWinner,
                   WhyMultiWinner,
+                  HowWereTiesBroken,
                   WhyThreshold,
                   WhyPercentageBasedOnFirstRound,
                   WhySurplusTransfer,

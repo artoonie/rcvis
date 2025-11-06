@@ -286,3 +286,18 @@ class FAQTests(TestCase):
         for electionRound in allRounds:
             verbCounter = Counter([r['verb'] for r in electionRound])
             self.assertTrue([verb <= 1 for verb in verbCounter.values()])
+
+    def test_tiebreak(self):
+        """Ensure tiebreax text appears only in Round 2"""
+        with open(filenames.TIEBREAK, 'r', encoding='utf-8') as f:
+            graph = make_graph_with_file(f, False)
+        args = (graph, self.config)
+        self.assertFalse(faq.HowWereTiesBroken(*args).is_active(0))
+        self.assertTrue(faq.HowWereTiesBroken(*args).is_active(1))
+        self.assertEqual(
+            faq.HowWereTiesBroken(*args).get_answer(1),
+            "The tiebreak method is up to the election administrator. "
+            "RCVis does not know what method was chosen to break this tie, "
+            "only that Yinka Dare was eliminated and George Gervin was was elected.")
+        self.assertTrue(faq.WhyEliminated(*args).get_answer(1).startswith("There was a tie"))
+        self.assertTrue(faq.WhySingleWinner(*args).get_answer(1).startswith("There was a tie"))

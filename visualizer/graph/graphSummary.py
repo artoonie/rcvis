@@ -51,12 +51,16 @@ class GraphSummary:
                 linksByTargetNode[link.target] = []
             linksByTargetNode[link.target].append(link)
 
+        # Detect ties for each round
+        for rnd in rounds:
+            rnd.find_ties(graph)
+
         self.rounds = rounds
         self.candidates = candidates
         self.linksByTargetNode = linksByTargetNode
         self.winnerNames = [i.name for i in alreadyWonInPreviousRound]
         self.numWinners = len(self.winnerNames)
-        self.numEliminated = sum(len(r.eliminatedNames) for r in rounds)
+        self.numEliminated = sum(len(r.eliminatedCandidates) for r in rounds)
 
     def percent_denominator(self, roundNum, forceFirstRoundDeterminesPercentages):
         """
@@ -71,16 +75,27 @@ class GraphSummary:
         return self.rounds[roundNum].totalActiveVotes
 
 
+# pylint: disable=too-many-instance-attributes
 class RoundInfo:
     """ Summarizes a single round, with functions to build the round """
 
     def __init__(self, round_i):
         self.round_i = round_i
+
+        # Lists of Candidates and their names eliminated or elected this round
         self.eliminatedCandidates = []
         self.winnerCandidates = []
+
+        # Since we use the candidate name list so often, have a separate list for it
         self.eliminatedNames = []
         self.winnerNames = []
-        self.totalActiveVotes = 0  # The total number of active ballots this round
+
+        # List of all candidates who tied with eliminated/winning candidates
+        self.eliminatedTiedWith = []
+        self.winnerTiedWith = []
+
+        # The total number of active ballots this round
+        self.totalActiveVotes = 0
 
     def key(self):
         """ Returns the "key" for this round (just the round number) """
@@ -104,6 +119,64 @@ class RoundInfo:
             return
 
         self.totalActiveVotes += numVotes
+
+    def find_ties(self, graph):
+        """
+        Detects ties in this round for both eliminated and winning candidates.
+        Populates eliminatedTiedWith and winnerTiedWith lists.
+
+        A tie occurs when a candidate in the action list (eliminated/winner) has the same
+        vote count as another candidate not in that list.
+        """
+        # Check ties for eliminated candidates
+        if self.eliminatedCandidates:
+            self.eliminatedTiedWith = self._find_ties_for_candidates(
+                self.round_i - 1, graph, self.eliminatedCandidates)
+
+        # Check ties for winning candidates
+        if self.winnerCandidates:
+            self.winnerTiedWith = self._find_ties_for_candidates(
+                self.round_i, graph, self.winnerCandidates)
+
+    def _find_ties_for_candidates(self, lookupRound, graph, candidateList):
+        """
+        Helper to find which candidates tied with the given candidate list.
+
+        Returns a list of candidates that tied but weren't in candidateList
+        """
+        if len(candidateList) == 0:
+            return []
+
+        # Look at the previous round to get vote counts at time of elimination/election
+        if lookupRound < 0:
+            return []
+
+        nodesThisRound = graph.nodesPerRound[lookupRound]
+
+        # Get vote counts for all active candidates
+        candidateVotes = {candidate: nodesThisRound[candidate].count
+                          for candidate in nodesThisRound.keys()
+                          if candidate.isActive}
+
+        # Get vote counts of the target candidates
+        targetVotes = [candidateVotes.get(c, 0) for c in candidateList]
+        if not targetVotes:
+            return []
+
+        # If there are multiple candidates in the candidate list and they don't have the
+        # same vote count, we can safely ignore ties
+        minVotes = min(targetVotes)
+        maxVotes = max(targetVotes)
+        if minVotes != maxVotes:
+            return []
+
+        # Find all candidates with the same vote count who aren't in candidateList
+        tiedCandidates = []
+        for candidate, votes in candidateVotes.items():
+            if candidate not in candidateList and votes == minVotes:
+                tiedCandidates.append(candidate)
+
+        return tiedCandidates
 
 
 class CandidateInfo:
