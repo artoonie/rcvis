@@ -45,12 +45,16 @@ class WhatHappeningSingleWinner(FAQBase):
         return "What is happening?"
 
     def get_answer(self, roundNum):
-        return "These are results from a ranked choice election. "\
+        ans = "These are results from a ranked choice election. "\
             "Voters were asked to rank the candidates from most to least favorite. "\
             "The ballots are then counted in rounds. In each round, the candidate "\
             "with the fewest votes is eliminated, and their supporters' votes "\
             "transfer to the next choice on their ballots. The rounds continue until "\
             "one candidate wins by earning more than 50% of the votes."
+        if self.config.forceFirstRoundDeterminesPercentages:
+            ans += " If no candidate reaches 50%, the candidate with the most votes "\
+                "on the final round is declared the winner."
+        return ans
 
 
 class WhatHappeningPreferentialBlockWinner(FAQBase):
@@ -322,8 +326,16 @@ class WhyPercentageBasedOnFirstRound(FAQBase):
         return "How do you calculate percentages?"
 
     def get_answer(self, roundNum):
-        return "Percentages in this visualization are always calculated using the vote totals in " \
-            + "the first round."
+        hasInactiveBallots = INACTIVE_TEXT in [c.name for c in self.summary.candidates.values()]
+        ans = "Percentages in this visualization are calculated by dividing the number of votes "\
+            "a candidate received on each round by the total number of voters who participated "\
+            "in the contest."
+        if hasInactiveBallots:
+            ans += " The percentages in this round will add up to 100% if you account "\
+                   "for Inactive Ballots."
+        else:
+            ans += " The percentages in this round may not add up to 100%"
+        return ans
 
 
 class FAQGenerator():
