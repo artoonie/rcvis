@@ -127,41 +127,28 @@ class RoundInfo:
 
         A tie occurs when a candidate in the action list (eliminated/winner) has the same
         vote count as another candidate not in that list.
-
-        Args:
-            graph: The graph object to access vote counts
         """
         # Check ties for eliminated candidates
         if self.eliminatedCandidates:
             self.eliminatedTiedWith = self._find_ties_for_candidates(
-                graph, self.eliminatedCandidates)
+                self.round_i - 1, graph, self.eliminatedCandidates)
 
         # Check ties for winning candidates
         if self.winnerCandidates:
             self.winnerTiedWith = self._find_ties_for_candidates(
-                graph, self.winnerCandidates)
+                self.round_i, graph, self.winnerCandidates)
 
-    def _find_ties_for_candidates(self, graph, candidateList):
+    def _find_ties_for_candidates(self, lookupRound, graph, candidateList):
         """
         Helper to find which candidates tied with the given candidate list.
 
-        Args:
-            graph: The graph object
-            candidateList: List of candidates to check for ties
-
-        Returns:
-            List of candidates that tied (had same vote count) but weren't in candidateList
+        Returns a list of candidates that tied but weren't in candidateList
         """
         if len(candidateList) == 0:
             return []
 
         # Look at the previous round to get vote counts at time of elimination/election
-        # (In sankey, eliminations/elections are shown on the previous round)
-        lookupRound = self.round_i - 1
         if lookupRound < 0:
-            return []
-
-        if lookupRound >= len(graph.nodesPerRound):
             return []
 
         nodesThisRound = graph.nodesPerRound[lookupRound]
@@ -176,13 +163,17 @@ class RoundInfo:
         if not targetVotes:
             return []
 
-        # Find the threshold vote count (minimum for eliminated, could be adjusted for winners)
-        thresholdVoteCount = min(targetVotes)
+        # If there are multiple candidates in the candidate list and they don't have the
+        # same vote count, we can safely ignore ties
+        minVotes = min(targetVotes)
+        maxVotes = max(targetVotes)
+        if minVotes != maxVotes:
+            return []
 
         # Find all candidates with the same vote count who aren't in candidateList
         tiedCandidates = []
         for candidate, votes in candidateVotes.items():
-            if candidate not in candidateList and votes == thresholdVoteCount:
+            if candidate not in candidateList and votes == minVotes:
                 tiedCandidates.append(candidate)
 
         return tiedCandidates
