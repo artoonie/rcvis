@@ -297,7 +297,7 @@ class FAQTests(TestCase):
         self.assertEqual(
             faq.HowWereTiesBroken(*args).get_answer(1),
             "The tiebreak method is up to the election administrator. "
-            "RCVis does not know what method was chosen to break this tie, "
-            "only that Yinka Dare was eliminated and George Gervin was was elected.")
+            "The outcome of the tiebreak is that Yinka Dare was eliminated "
+            "and George Gervin was was elected.")
         self.assertTrue(faq.WhyEliminated(*args).get_answer(1).startswith("There was a tie"))
         self.assertTrue(faq.WhySingleWinner(*args).get_answer(1).startswith("There was a tie"))
