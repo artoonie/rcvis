@@ -171,7 +171,7 @@ class HowWereTiesBroken(FAQBase):
         rnd = self.summary.rounds[roundNum]
 
         result = "The tiebreak method is up to the election administrator. "\
-                 "RCVis does not know what method was chosen to break this tie, only that "
+                 "The outcome of the tiebreak is that "
 
         parts = []
 
