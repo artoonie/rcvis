@@ -430,7 +430,7 @@ class SimpleTests(TestCase):
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),
-                                               timeout=3)
+                                               timeout=8)
 
     def test_homepage_real_world_examples(self):
         """

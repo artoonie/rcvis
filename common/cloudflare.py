@@ -74,7 +74,7 @@ class CloudflareAPI():
             apiUrl,
             headers=cls._get_auth_headers(),
             data=json.dumps(data),
-            timeout=3)
+            timeout=8)
 
         info = f"{len(paths)} starting with {paths[0]}"
         if response.status_code == 200:
