@@ -12,6 +12,12 @@
       "photo_url": "/static/visualizer/logo-white.png",
       "moreinfo_url": "https://ballotpedia.org/Link",
       "party": "(Green)"
+    },
+    "Vanilla" : {
+      "incumbent": null,
+      "photo_url": null,
+      "moreinfo_url": null,
+      "party": null
     }
   },
   "order": [

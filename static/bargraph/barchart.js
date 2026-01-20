@@ -498,34 +498,49 @@ function makeBarGraph(args) {
           }
       }
   }
-  function replaceTextWithSidecarData(d3TextElem) {
-    /*
-     * Wraps the text element in a href from the sidecar data.
-     * Precondition: this candidate must have sidecar data
-     */
+  function replaceTextWithSidecarData(d3TextElem, textShift = 0) {
     d3TextElem.each(function() {
-      const textElem = d3.select(this),
-        name = textElem.text(),
-        data = candidateSidecarData['info'][name],
-        href = data['moreinfo_url'],
-        party = data['party'],
+      let textElem = d3.select(this),
+          name = textElem.text(),
+          data = candidateSidecarData['info'][name],
+          href = null,
+          party = null,
+          isIncumbent = null;
+      if (data) {
+        href = data['moreinfo_url'];
+        party = data['party'];
         isIncumbent = data['incumbent'];
-
-        const link = textElem.text(null)
-          .append("a")
+      }
+  
+      // Clear existing content and set common attributes on <text>
+      textElem
+        .text(null)
+        .attr("x", textShift)
+        .attr("text-anchor", "start")
+        .attr("dy", ".32em");
+  
+      if (href != null) {
+        const link = textElem.append("a")
           .attr("href", href)
           .attr("target", "_blank")
-          .attr("dy", ".32em")
           .style("fill", "#1c5f99")
           .text(name);
+  
+        if (isIncumbent) {
+          link.classed("dataLabelIncumbent", true);
+        }
+      } else {
+        textElem.append("tspan")
+          .style("fill", "#1c5f99")
+          .text(name);
+      }
+  
+      if (party != null) {
         textElem.append("tspan")
           .attr("dx", "5px")
           .style("fill", "#999")
           .text(party);
-
-        if (isIncumbent) {
-          link.classed("dataLabelIncumbent", true);
-        }
+      }
     });
   }
 
@@ -608,33 +623,25 @@ function makeBarGraph(args) {
             .attr("cy", 0)
             .attr("r", imageSize/2);
 
-          const candidatesWithoutSidecarData = candidateWrapper.selectAll(".tick")
-            .filter(d => candidateSidecarData['info'][d] === undefined);
+          const candidates = candidateWrapper.selectAll(".tick");
+          const textShift = imageSize + 10;
+          candidates.selectAll(".tick text")
+              .call(c => replaceTextWithSidecarData(c, textShift));
 
-          const candidatesWithSidecarData = candidateWrapper.selectAll(".tick")
-            .filter(d => candidateSidecarData['info'][d] !== undefined);
-
-          candidatesWithSidecarData.selectAll(".tick text")
-              .call(c => replaceTextWithSidecarData(c));
-
-          candidatesWithSidecarData
+          candidates
             .append("image")
-              .attr("href", d => candidateSidecarData['info'][d]['photo_url'])
+              .attr("href", d => {
+                  const info = candidateSidecarData['info'][d];
+                  let photoUrl = null;
+                  if (info) {
+                    photoUrl = info['photo_url'];
+                  }
+                  return photoUrl ? photoUrl : null;
+              })
               .attr("clip-path", `url(#${circleDefId})`)
               .attr("width", imageSize)
               .attr("height", imageSize)
               .attr("y", -imageSize/2);
-
-          // Shift the text over and word wrap
-          const textShift = imageSize + 10;
-          candidatesWithoutSidecarData.selectAll(".tick text")
-              .attr("text-anchor", "start")
-              .attr("x", textShift)
-              .call(magicWordWrap);
-          candidatesWithSidecarData.selectAll("a")
-              .attr("text-anchor", "start")
-              .attr("x", textShift)
-              .call(magicWordWrap);
       }
       else
       {
