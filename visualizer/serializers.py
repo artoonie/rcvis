@@ -45,12 +45,14 @@ class BaseVisualizationSerializer(serializers.HyperlinkedModelSerializer):
         embedRelativeBarUrl = reverse('visualizeEmbedly', args=(instance.slug, 'bar'))
         embedRelativeSankeyUrl = reverse('visualizeEmbedly', args=(instance.slug, 'sankey'))
         embedRelativeTableUrl = reverse('visualizeEmbedly', args=(instance.slug, 'table'))
+        embedRelativePieUrl = reverse('visualizeEmbedly', args=(instance.slug, 'pie'))
         oembedRelativeUrl = reverse('oembed') + "?url=" + visAbsoluteUrl
 
         data['visualizeUrl'] = visAbsoluteUrl
         data['embedUrl'] = request.build_absolute_uri(embedRelativeBarUrl)
         data['embedSankeyUrl'] = request.build_absolute_uri(embedRelativeSankeyUrl)
         data['embedTableUrl'] = request.build_absolute_uri(embedRelativeTableUrl)
+        data['embedPieUrl'] = request.build_absolute_uri(embedRelativePieUrl)
         data['oembedEndpointUrl'] = request.build_absolute_uri(oembedRelativeUrl)
         return data
 
