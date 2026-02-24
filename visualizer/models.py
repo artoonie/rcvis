@@ -50,6 +50,7 @@ class JsonConfig(models.Model):
     candidateSidecarFile = models.FileField(null=True, blank=True)
     slug = models.SlugField(unique=True, max_length=255)
     uploadedAt = models.DateTimeField(auto_now_add=True)
+    updatedAt = models.DateTimeField(auto_now=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         related_name='this_users_jsons',
