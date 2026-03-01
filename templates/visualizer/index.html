@@ -72,7 +72,10 @@
       <p class="lead text-center">RCV elections are just like a standard "first-past-the-post" election, except you can have backup choices. If your top pick has no chance of winning, you'll still have a say: your vote will count for your next choice.</p>
       <p class="text-center">Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked Choice Voting</a>.</p>
 
-      <div class="video-container"><iframe id="youtube-iframe" width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" loading="lazy" allowfullscreen></iframe></div>
+      <div class="video-container">
+         <iframe width="560" height="315" src="https://www.youtube.com/embed/gq7N2hmX9FI?si=ej0rsaNfuGPaW2ZF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+
   </div>
 
   <div class="homedescriptor" id="types">
@@ -295,13 +298,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha256-jXCJJT3KKcnNjZ3rfsabCj1EX4j2omR4xxm+H5CtywE=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-      // Load youtube after page finishes loading
-      function loadYoutubeDeferred() {
-        let youtubeVideo = document.getElementById('youtube-iframe');
-        if (!youtubeVideo.hasAttribute('src')) {
-          youtubeVideo.setAttribute('src', 'https://www.youtube.com/embed/gq7N2hmX9FI');
-        }
-      }
       // Load images after page finished loading
       function loadImagesDeferred() {
         const images = document.getElementsByClassName('resourceCellImage');
@@ -313,7 +309,6 @@
         }
       }
 
-    $(document).ready(loadYoutubeDeferred)
     $(document).ready(loadImagesDeferred)
     </script>
 {% endblock %}
