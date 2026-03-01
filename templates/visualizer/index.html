@@ -298,13 +298,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha256-jXCJJT3KKcnNjZ3rfsabCj1EX4j2omR4xxm+H5CtywE=" crossorigin="anonymous"></script>
     <script type="text/javascript">
-      // Load youtube after page finishes loading
-      function loadYoutubeDeferred() {
-        let youtubeVideo = document.getElementById('youtube-iframe');
-        if (!youtubeVideo.hasAttribute('src')) {
-          youtubeVideo.setAttribute('src', 'https://www.youtube.com/embed/gq7N2hmX9FI');
-        }
-      }
       // Load images after page finished loading
       function loadImagesDeferred() {
         const images = document.getElementsByClassName('resourceCellImage');
@@ -316,7 +309,6 @@
         }
       }
 
-    $(document).ready(loadYoutubeDeferred)
     $(document).ready(loadImagesDeferred)
     </script>
 {% endblock %}
