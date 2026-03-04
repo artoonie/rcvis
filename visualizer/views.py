@@ -221,6 +221,7 @@ class VisualizeEmbedded(DetailView):
                 'Please re-send the election data to generate a new visualization.</p>'
                 '</body></html>',
                 content_type='text/html',
+                status=404,
             )
             patch_cache_control(response, no_store=True, no_cache=True, max_age=0)
             return response
