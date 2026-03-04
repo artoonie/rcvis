@@ -12,12 +12,13 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import Resolver404
 from django.urls import resolve
 from django.urls import reverse
+from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -206,6 +207,23 @@ class VisualizeEmbedded(DetailView):
     """
     model = JsonConfig
     template_name = 'visualizer/visualize-embedded.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            return super().get(request, *args, **kwargs)
+        except Http404:
+            response = HttpResponse(
+                '<!DOCTYPE html>'
+                '<html lang="en"><body style="font-family: sans-serif; text-align: center;'
+                ' padding: 2em; color: #4a5568;">'
+                '<h2>Visualization Not Found</h2>'
+                '<p>This visualization is no longer available.<br>'
+                'Please re-send the election data to generate a new visualization.</p>'
+                '</body></html>',
+                content_type='text/html',
+            )
+            patch_cache_control(response, no_store=True, no_cache=True, max_age=0)
+            return response
 
     def get_context_data(self, **kwargs):
         config = super().get_context_data(**kwargs)
