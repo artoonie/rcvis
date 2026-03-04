@@ -59,6 +59,10 @@ function hideTabsBasedOnConfig() {
   {
     $("li[name='li_hideable_tabular']").css("display","none");
   }
+  if (config.hidePie)
+  {
+    $("li[name='li_hideable_pie']").css("display","none");
+  }
   if (config.hideSankey)
   {
     $("li[name='li_hideable_sankey']").css("display","none");
