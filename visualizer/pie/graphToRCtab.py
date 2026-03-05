@@ -47,9 +47,29 @@ def graph_to_rctab_json(graph):
         nodes_this_round = graph.nodesPerRound[round_i]
 
         # Build tally: candidate name -> vote count (as string)
-        # Include all candidates present this round (including Inactive Ballots)
-        tally = {}
+        # Include all candidates present this round (including Inactive Ballots).
+        # Interleave by vote count (largest, smallest, 2nd largest, 2nd smallest, ...)
+        # so that small slices always have a large neighbor, reducing label overlap.
+        # Inactive/residual entries always go last.
+        active_items = []
+        inactive_items = []
         for candidate, node in nodes_this_round.items():
+            if candidate.name in inactive_names:
+                inactive_items.append((candidate, node))
+            else:
+                active_items.append((candidate, node))
+        active_items.sort(key=lambda item: item[1].count, reverse=True)
+        interleaved = []
+        lo, hi = 0, len(active_items) - 1
+        while lo <= hi:
+            interleaved.append(active_items[lo])
+            if lo != hi:
+                interleaved.append(active_items[hi])
+            lo += 1
+            hi -= 1
+        interleaved.extend(inactive_items)
+        tally = {}
+        for candidate, node in interleaved:
             tally[candidate.name] = _stringify(node.count)
 
         # Build tallyResults from transfersPerRound

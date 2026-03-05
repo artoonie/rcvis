@@ -14,15 +14,12 @@
 
     // Generate candidate colors from the election's color theme,
     // matching the palette used by the other visualizations.
+    // Generate enough colors for all tally entries (including Inactive Ballots)
+    // rather than config.numCandidates, to avoid color wrapping.
+    const _parsedSummary = JSON.parse(electionSummary);
+    const _numTallyEntries = Object.keys(_parsedSummary.results[0].tally).length;
     const colorGenerator = getColorGenerator(config.colorTheme);
-    const candidateColors = Array.from(colorGenerator({{ config.numCandidates }}));
-    // Scramble colors so adjacent pie slices have more visual contrast.
-    // Pick a stride near N/2 that is coprime to N, so every index is visited exactly once.
-    function gcd(a, b) { while (b) { [a, b] = [b, a % b]; } return a; }
-    const _n = candidateColors.length;
-    let _stride = Math.floor(_n / 2) || 1;
-    while (_stride < _n && gcd(_stride, _n) !== 1) _stride++;
-    const scrambledColors = candidateColors.map((_, i) => candidateColors[(i * _stride) % _n]);
+    const candidateColors = Array.from(colorGenerator(_numTallyEntries));
 
     // Create the pie-chart element
     const pieChart = document.createElement("pie-chart");
@@ -32,7 +29,7 @@
     // we can just bind it in object form here.
     pieChart.requestRoundChange = updateRound;
     pieChart.electionSummary = electionSummary;
-    pieChart.candidateColors = scrambledColors;
+    pieChart.candidateColors = candidateColors;
     pieChart.textForWinner = "{{ textForWinner }}";
     pieChart.excludeFinalWinnerAndEliminatedCandidate = {{ config.excludeFinalWinnerAndEliminatedCandidate|yesno:"true,false" }};
     pieChart.currentRound = {{ config.numRounds }};
