@@ -42,35 +42,41 @@ def graph_to_rctab_json(graph):
     inactive_names = {common.INACTIVE_TEXT, common.RESIDUAL_SURPLUS_TEXT}
     num_active_candidates = sum(1 for c in graph.candidates if c.name not in inactive_names)
 
+    # Compute interleave order once from round 1, reuse for all rounds.
+    # Alternates largest/smallest so small slices have large neighbors,
+    # reducing label overlap. Inactive/residual entries always last.
+    # Order must be stable across rounds for D3 pie animation to work.
+    round1_nodes = graph.nodesPerRound[0]
+    active_items = []
+    inactive_order = []
+    for candidate, node in round1_nodes.items():
+        if candidate.name in inactive_names:
+            inactive_order.append(candidate.name)
+        else:
+            active_items.append((candidate.name, node.count))
+    active_items.sort(key=lambda item: item[1], reverse=True)
+    interleaved_order = []
+    lo, hi = 0, len(active_items) - 1
+    while lo <= hi:
+        interleaved_order.append(active_items[lo][0])
+        if lo != hi:
+            interleaved_order.append(active_items[hi][0])
+        lo += 1
+        hi -= 1
+    interleaved_order.extend(inactive_order)
+
     results = []
     for round_i in range(num_rounds):
         nodes_this_round = graph.nodesPerRound[round_i]
+        names_this_round = {c.name: (c, node) for c, node in nodes_this_round.items()}
 
-        # Build tally: candidate name -> vote count (as string)
-        # Include all candidates present this round (including Inactive Ballots).
-        # Interleave by vote count (largest, smallest, 2nd largest, 2nd smallest, ...)
-        # so that small slices always have a large neighbor, reducing label overlap.
-        # Inactive/residual entries always go last.
-        active_items = []
-        inactive_items = []
-        for candidate, node in nodes_this_round.items():
-            if candidate.name in inactive_names:
-                inactive_items.append((candidate, node))
-            else:
-                active_items.append((candidate, node))
-        active_items.sort(key=lambda item: item[1].count, reverse=True)
-        interleaved = []
-        lo, hi = 0, len(active_items) - 1
-        while lo <= hi:
-            interleaved.append(active_items[lo])
-            if lo != hi:
-                interleaved.append(active_items[hi])
-            lo += 1
-            hi -= 1
-        interleaved.extend(inactive_items)
+        # Build tally using the stable interleaved order from round 1,
+        # including only candidates still present this round.
         tally = {}
-        for candidate, node in interleaved:
-            tally[candidate.name] = _stringify(node.count)
+        for name in interleaved_order:
+            if name in names_this_round:
+                candidate, node = names_this_round[name]
+                tally[name] = _stringify(node.count)
 
         # Build tallyResults from transfersPerRound
         tally_results = []
