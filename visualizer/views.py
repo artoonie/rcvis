@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotModified
 from django.shortcuts import render
 from django.templatetags.static import static
 from django.urls import Resolver404
@@ -21,6 +21,8 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
+from django.utils.cache import patch_cache_control
+from django.utils.http import http_date, parse_http_date_safe
 from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
@@ -160,8 +162,43 @@ class UploadByDataTable(Upload):
         self.model.jsonFile.save('datatablesfile.json', form.cleaned_data['jsonFile'])
 
 
+class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
+    """
+    Mixin for DetailView subclasses that serve JsonConfig visualizations.
+    Short-circuits with 304 Not Modified when the client's If-Modified-Since
+    matches the object's updatedAt, skipping expensive graph computation
+    and template rendering. Also sets Last-Modified and Cache-Control on
+    all responses.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """Return 304 if the client's copy is fresh, otherwise render normally."""
+        # Fetch object once — setting self.object avoids a second DB query
+        # when super().get() calls get_object() internally.
+        self.object = self.get_object()
+
+        # Short-circuit: if the client has a fresh copy, return 304 without
+        # doing any of the expensive graph computation or template rendering.
+        if self.object.updatedAt:
+            lastModified = self.object.updatedAt.timestamp()
+            ifModifiedSince = request.META.get('HTTP_IF_MODIFIED_SINCE')
+            if ifModifiedSince:
+                ifModifiedSince = parse_http_date_safe(ifModifiedSince)
+                if ifModifiedSince is not None and lastModified <= ifModifiedSince:
+                    response = HttpResponseNotModified()
+                    response['Last-Modified'] = http_date(lastModified)
+                    patch_cache_control(response, no_cache=True, max_age=0)
+                    return response
+
+        response = super().get(request, *args, **kwargs)
+        if self.object.updatedAt:
+            response['Last-Modified'] = http_date(self.object.updatedAt.timestamp())
+        patch_cache_control(response, no_cache=True, max_age=0)
+        return response
+
+
 @method_decorator(vary_on_headers('increment',), name='get')
-class Visualize(DetailView):
+class Visualize(ConditionalGetMixin, DetailView):
     """ Visualizing a single JsonConfig """
     model = JsonConfig
     template_name = 'visualizer/visualize.html'
@@ -198,9 +235,8 @@ class Visualize(DetailView):
         return data
 
 
-@method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class VisualizeEmbedded(DetailView):
+class VisualizeEmbedded(ConditionalGetMixin, DetailView):
     """
     The embedded visualization, to be used in an iframe.
     """
@@ -260,7 +296,7 @@ class VisualizeEmbedly(RedirectView):
 
 @method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
-class VisualizeBallotpedia(DetailView):
+class VisualizeBallotpedia(ConditionalGetMixin, DetailView):
     """ The embedded ballotpedia visualization """
     model = JsonConfig
     template_name = 'visualizer/visualize-ballotpedia.html'
