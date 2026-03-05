@@ -162,7 +162,7 @@ class UploadByDataTable(Upload):
         self.model.jsonFile.save('datatablesfile.json', form.cleaned_data['jsonFile'])
 
 
-class ConditionalGetMixin:
+class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     """
     Mixin for DetailView subclasses that serve JsonConfig visualizations.
     Short-circuits with 304 Not Modified when the client's If-Modified-Since
@@ -172,6 +172,7 @@ class ConditionalGetMixin:
     """
 
     def get(self, request, *args, **kwargs):
+        """Return 304 if the client's copy is fresh, otherwise render normally."""
         # Fetch object once — setting self.object avoids a second DB query
         # when super().get() calls get_object() internally.
         self.object = self.get_object()
@@ -179,13 +180,13 @@ class ConditionalGetMixin:
         # Short-circuit: if the client has a fresh copy, return 304 without
         # doing any of the expensive graph computation or template rendering.
         if self.object.updatedAt:
-            last_modified = self.object.updatedAt.timestamp()
-            if_modified_since = request.META.get('HTTP_IF_MODIFIED_SINCE')
-            if if_modified_since:
-                if_modified_since = parse_http_date_safe(if_modified_since)
-                if if_modified_since is not None and last_modified <= if_modified_since:
+            lastModified = self.object.updatedAt.timestamp()
+            ifModifiedSince = request.META.get('HTTP_IF_MODIFIED_SINCE')
+            if ifModifiedSince:
+                ifModifiedSince = parse_http_date_safe(ifModifiedSince)
+                if ifModifiedSince is not None and lastModified <= ifModifiedSince:
                     response = HttpResponseNotModified()
-                    response['Last-Modified'] = http_date(last_modified)
+                    response['Last-Modified'] = http_date(lastModified)
                     patch_cache_control(response, no_cache=True, max_age=0)
                     return response
 
