@@ -5322,7 +5322,7 @@ bo(
 var gd = /* @__PURE__ */ Vn("<span> </span> <!>", 1), _d = /* @__PURE__ */ Vn("About to eliminate: <!>", 1), md = /* @__PURE__ */ Vn("<span> </span> <!>", 1), yd = /* @__PURE__ */ Vn(" <!>", 1), wd = /* @__PURE__ */ Vn('<h3 class="svelte-1r6y5gl"> </h3> <h4 class="svelte-1r6y5gl"><!> <!></h4>', 1), xd = /* @__PURE__ */ Vn("<span> </span> <br/>", 1), bd = /* @__PURE__ */ Vn('<div class="animation-button-container svelte-1r6y5gl"><button class="next-button">One Small Step</button></div> <div class="common-header svelte-1r6y5gl"></div> <div class="page-container svelte-1r6y5gl"><div class="visualizations-container svelte-1r6y5gl"><div class="pie-chart-container svelte-1r6y5gl"><!></div></div> <!></div> <div class="tooltip svelte-1r6y5gl"><h3 class="svelte-1r6y5gl"> </h3> <!></div> <div class="tooltip svelte-1r6y5gl"> <br/> these ballots have already been eliminated.</div>', 1);
 const $d = {
   hash: "svelte-1r6y5gl",
-  code: `.page-container.svelte-1r6y5gl {width:95%;max-width:1800px;margin:0 auto;padding:0 20px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;}.common-header.svelte-1r6y5gl {width:100%;margin-bottom:1rem;text-align:center;}.tooltip.svelte-1r6y5gl {position:absolute;width:max-content;text-align:left;padding:.5rem;background:#FFFFFF;color:#313639;border:1px solid #313639;border-radius:8px;pointer-events:none;font-size:0.8rem;left:50%;transform:translate(-50%);font-weight:normal;opacity:0;}.tooltip.svelte-1r6y5gl h3:where(.svelte-1r6y5gl) {text-align:center;}.animation-button-container.svelte-1r6y5gl {display:flex;justify-content:center;gap:10px;margin:0.5rem;}.pie-chart-container.svelte-1r6y5gl {
+  code: `.page-container.svelte-1r6y5gl {width:95%;max-width:1800px;margin:0 auto;padding:0 20px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;}.common-header.svelte-1r6y5gl {width:100%;margin-bottom:1rem;text-align:center;}.tooltip.svelte-1r6y5gl {position:fixed;width:max-content;text-align:left;padding:.5rem;background:#FFFFFF;color:#313639;border:1px solid #313639;border-radius:8px;pointer-events:none;font-size:0.8rem;left:50%;transform:translate(-50%);font-weight:normal;opacity:0;z-index:100;}.tooltip.svelte-1r6y5gl h3:where(.svelte-1r6y5gl) {text-align:center;}.animation-button-container.svelte-1r6y5gl {display:flex;justify-content:center;gap:10px;margin:0.5rem;}.pie-chart-container.svelte-1r6y5gl {
   /* width: 90%; */
   /* min-width: 800px; /* Larger minimum size */width:100%; /* Change from 90% to 100% */min-width:auto; /* Remove the 800px minimum */flex-grow:0; /* Don't grow beyond specified width */margin:0 auto;margin-right:40px; /* Add extra space on right */margin-top:-3vh;}.visualizations-container.svelte-1r6y5gl {display:flex;justify-content:space-between;width:100%;padding:0 20px;
   /* gap: 80px; */gap:20px; /* Reduce from 80px */}
@@ -5406,13 +5406,13 @@ function Ad(t, e) {
         ((x) => {
           var B = El(x, 2);
           Q(b, B[0], !0), Q(m, B[1], !0);
-        })(et(w(C), i())), w(v) && (w(v).style.top = String(w(T) || 20) + "px", w(v).style.opacity = String(n));
+        })(et(w(C), i())), w(v) && (w(v).style.top = String((w(T) || 0) + 20) + "px", w(v).style.opacity = String(n));
         break;
       case "leave":
         w(v) && (w(v).style.opacity = "0"), Q(b, [], !0), Q(m, "");
         break;
       case "show-exhausted":
-        w(g) && (w(g).style.top = String(w(T) || 20) + "px", w(g).style.opacity = String(n));
+        w(g) && (w(g).style.top = String((w(T) || 0) + 20) + "px", w(g).style.opacity = String(n));
         break;
       case "hide-exhausted":
         w(g) && (w(g).style.opacity = "0");
