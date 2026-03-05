@@ -81,11 +81,8 @@ MIDDLEWARE = [
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
-    # Order of the next 3 is important
-    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
-    'django.middleware.cache.FetchFromCacheMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -282,20 +279,14 @@ CLOUDFLARE_AUTH_TOKEN = os.environ.get('CLOUDFLARE_AUTH_TOKEN')
 
 AWS_DEFAULT_ACL = None
 
-if os.environ.get('DISABLE_CACHE') != 'True':
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': '/tmp/django_rcvis_cache/',
-        }
+# In-memory cache for lightweight uses (e.g. upload rate limiting).
+# Full HTTP response caching is handled by Cloudflare at the edge;
+# Django's cache middleware has been removed.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
-else:
-    assert DEBUG
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
-    }
+}
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

@@ -23,7 +23,6 @@ from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.cache import patch_cache_control
 from django.utils.http import http_date, parse_http_date_safe
-from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -197,7 +196,6 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
         return response
 
 
-@method_decorator(vary_on_headers('increment',), name='get')
 class Visualize(ConditionalGetMixin, DetailView):
     """ Visualizing a single JsonConfig """
     model = JsonConfig
@@ -294,7 +292,6 @@ class VisualizeEmbedly(RedirectView):
         return super().get_redirect_url(slug) + "?vistype=" + vistype
 
 
-@method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeBallotpedia(ConditionalGetMixin, DetailView):
     """ The embedded ballotpedia visualization """

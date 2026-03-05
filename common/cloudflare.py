@@ -5,7 +5,6 @@ import json
 import requests
 
 from django.conf import settings
-from django.core.cache import cache
 from django.contrib.sites.models import Site
 from django.urls import reverse
 
@@ -53,12 +52,7 @@ class CloudflareAPI():
 
     @classmethod
     def purge_paths_cache(cls, paths):
-        """ Purges the URLs (paths, not URLs) """
-        # We also want to purge the file-based cache, but unfortunately
-        # we don't have a way of doing this per-URL.
-        # It's overkill, but here we purge everything.
-        cache.clear()
-
+        """ Purges the Cloudflare CDN cache for the given paths. """
         # If we're on local/dev/staging/etc, we're done.
         if not cls._is_api_enabled():
             return

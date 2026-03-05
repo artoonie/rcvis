@@ -1,6 +1,5 @@
 """ Models for storing data about a movie """
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.storage import DefaultStorage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -27,10 +26,6 @@ class Movie(models.Model):
     # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-
-        # Clear the cache. Otherwise, you'll continue to get the cached result
-        # of the old model.
-        cache.clear()
 
 
 class TextToSpeechCachedFile(models.Model):
