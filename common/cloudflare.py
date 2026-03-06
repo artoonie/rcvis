@@ -7,7 +7,9 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.sites.models import Site
+from django.http import HttpRequest
 from django.urls import reverse
+from django.utils.cache import get_cache_key
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +54,27 @@ class CloudflareAPI():
         cls.purge_paths_cache(paths)
 
     @classmethod
+    def _purge_django_cache(cls, paths: list[str]) -> None:
+        """ Purge matching entries from Django's file-based cache. """
+        for path in paths:
+            request = HttpRequest()
+            request.method = 'GET'
+            # Split path?query into path and query string
+            if '?' in path:
+                request.path, request.META['QUERY_STRING'] = path.split('?', 1)
+            else:
+                request.path = path
+                request.META['QUERY_STRING'] = ''
+            request.META['SERVER_NAME'] = 'localhost'
+            request.META['SERVER_PORT'] = '80'
+            cache_key = get_cache_key(request)
+            if cache_key:
+                cache.delete(cache_key)
+
+    @classmethod
     def purge_paths_cache(cls, paths):
-        """ Purges the URLs (paths, not URLs) """
-        # We also want to purge the file-based cache, but unfortunately
-        # we don't have a way of doing this per-URL.
-        # It's overkill, but here we purge everything.
-        cache.clear()
+        """ Purges the given paths from both Django's file cache and Cloudflare CDN. """
+        cls._purge_django_cache(paths)
 
         # If we're on local/dev/staging/etc, we're done.
         if not cls._is_api_enabled():

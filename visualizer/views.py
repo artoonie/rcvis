@@ -23,7 +23,6 @@ from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.utils.cache import patch_cache_control
 from django.utils.http import http_date, parse_http_date_safe
-from django.views.decorators.vary import vary_on_headers
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
@@ -165,10 +164,18 @@ class UploadByDataTable(Upload):
 class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     """
     Mixin for DetailView subclasses that serve JsonConfig visualizations.
-    Short-circuits with 304 Not Modified when the client's If-Modified-Since
-    matches the object's updatedAt, skipping expensive graph computation
-    and template rendering. Also sets Last-Modified and Cache-Control on
-    all responses.
+
+    Sets Last-Modified from the object's updatedAt and Cache-Control: no-cache
+    so browsers always revalidate. On cache misses (file cache empty),
+    short-circuits with 304 if the client already has a fresh copy,
+    avoiding expensive graph computation. On cache hits, Django's
+    ConditionalGetMiddleware handles the 304 conversion using the
+    Last-Modified header preserved in the cached response.
+
+    Cache-Control: no-cache (without max-age=0) allows Django's
+    UpdateCacheMiddleware to store the rendered response server-side,
+    so subsequent requests from different clients or Cloudflare PoPs
+    can be served from the file cache without recomputing the graph.
     """
 
     def get(self, request, *args, **kwargs):
@@ -179,6 +186,7 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
 
         # Short-circuit: if the client has a fresh copy, return 304 without
         # doing any of the expensive graph computation or template rendering.
+        # This handles cache misses where FetchFromCacheMiddleware found nothing.
         if self.object.updatedAt:
             lastModified = self.object.updatedAt.timestamp()
             ifModifiedSince = request.META.get('HTTP_IF_MODIFIED_SINCE')
@@ -187,17 +195,16 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
                 if ifModifiedSince is not None and lastModified <= ifModifiedSince:
                     response = HttpResponseNotModified()
                     response['Last-Modified'] = http_date(lastModified)
-                    patch_cache_control(response, no_cache=True, max_age=0)
+                    patch_cache_control(response, no_cache=True)
                     return response
 
         response = super().get(request, *args, **kwargs)
         if self.object.updatedAt:
             response['Last-Modified'] = http_date(self.object.updatedAt.timestamp())
-        patch_cache_control(response, no_cache=True, max_age=0)
+        patch_cache_control(response, no_cache=True)
         return response
 
 
-@method_decorator(vary_on_headers('increment',), name='get')
 class Visualize(ConditionalGetMixin, DetailView):
     """ Visualizing a single JsonConfig """
     model = JsonConfig
@@ -294,7 +301,6 @@ class VisualizeEmbedly(RedirectView):
         return super().get_redirect_url(slug) + "?vistype=" + vistype
 
 
-@method_decorator(vary_on_headers('increment',), name='get')
 @method_decorator(xframe_options_exempt, name='dispatch')
 class VisualizeBallotpedia(ConditionalGetMixin, DetailView):
     """ The embedded ballotpedia visualization """
