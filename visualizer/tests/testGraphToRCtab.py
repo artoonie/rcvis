@@ -261,3 +261,36 @@ class ExcludeFinalWinnerTests(TestCase):
         last_round = result['results'][-1]
         elected = [tr for tr in last_round['tallyResults'] if 'elected' in tr]
         self.assertEqual(len(elected), 1)
+
+
+class SpecialCharacterTests(TestCase):
+    """ Tests that candidate names with special characters survive the conversion """
+
+    def setUp(self):
+        with open(filenames.CRAZY_NAMES, 'r', encoding='utf-8') as f:
+            self.graph = make_graph_with_file(f, excludeFinalWinnerAndEliminatedCandidate=False)
+        self.result = graph_to_rctab_json(self.graph)
+
+    def test_conversion_succeeds(self):
+        """ graphToRCtab should not crash on names with HTML, quotes, commas, etc. """
+        self.assertIn('results', self.result)
+        self.assertGreater(len(self.result['results']), 0)
+
+    def test_html_name_preserved(self):
+        """ A candidate name containing HTML tags should appear verbatim in the tally """
+        first_tally = self.result['results'][0]['tally']
+        html_names = [n for n in first_tally if '<b>' in n]
+        self.assertEqual(len(html_names), 1)
+        self.assertIn('A malicious name <b>with html</b>', first_tally)
+
+    def test_quotes_preserved(self):
+        """ A candidate name with quotes and ticks should appear verbatim """
+        first_tally = self.result['results'][0]['tally']
+        self.assertIn('A malicious name with "quotes" and \'ticks\'', first_tally)
+
+    def test_all_candidates_present_in_first_round(self):
+        """ All graph candidates should appear in the first round's tally """
+        graph_candidates = {c.name for c in self.graph.candidates}
+        first_tally_names = set(self.result['results'][0]['tally'].keys())
+        self.assertTrue(graph_candidates.issubset(first_tally_names),
+                        f"Missing candidates: {graph_candidates - first_tally_names}")

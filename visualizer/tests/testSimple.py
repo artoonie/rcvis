@@ -293,6 +293,50 @@ class SimpleTests(TestCase):
         response = self.client.get(visualizeUrl)
         self.assertRedirects(response, expectedBaseURL + 'barchart-interactive', status_code=301)
 
+    def test_pie_vistype_renders(self):
+        """
+        Ensure the pie chart vistype renders without error when accessed
+        via the embedded visualization URL with ?vistype=pie.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = TestHelpers.get_latest_upload().slug
+        path = reverse('visualizeEmbedded', args=(slug,)) + '?vistype=pie'
+        response = self.client.get(path)
+        self.assertEqual(response.status_code, 200)
+
+    def test_pie_embedly_redirect(self):
+        """
+        Ensure the embedly-friendly pie URL /vo/{slug}/pie redirects
+        to the embedded URL /ve/{slug}?vistype=pie with a 301.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        slug = TestHelpers.get_latest_upload().slug
+        visualizeUrl = reverse('visualizeEmbedly', args=(slug, 'pie'))
+        response = self.client.get(visualizeUrl)
+        expectedUrl = f'/ve/{slug}?vistype=pie'
+        self.assertRedirects(response, expectedUrl, status_code=301)
+
+    def test_hide_pie_config(self):
+        """
+        When hidePie is True on a JsonConfig, the rendered visualization page
+        should pass hidePie = true to the JavaScript config.
+        """
+        TestHelpers.get_multiwinner_upload_response(self.client)
+        config = TestHelpers.get_latest_upload()
+
+        # Default: hidePie is False
+        path = reverse('visualize', args=(config.slug,))
+        response = self.client.get(path)
+        self.assertContains(response, 'config.hidePie =  false')
+
+        # Set hidePie to True; disable cache so we get a fresh response
+        config.hidePie = True
+        config.save()
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            response = self.client.get(path)
+        self.assertContains(response, 'config.hidePie =  true')
+
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
     def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
@@ -380,7 +424,7 @@ class SimpleTests(TestCase):
         slug = TestHelpers.get_latest_upload().slug
 
         requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
-        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 15 starting with "\
+        expectedLogString = "INFO:common.cloudflare:Cleared cloudflare cache for 17 starting with "\
                             "/v/one-round: {'a': 0}"
 
         with self.settings(
@@ -404,6 +448,7 @@ class SimpleTests(TestCase):
             "https://example.com/vo/one-round/barchart-interactive",
             "https://example.com/vo/one-round/sankey",
             "https://example.com/vo/one-round/table",
+            "https://example.com/vo/one-round/pie",
             "https://example.com/vb/one-round",
             "https://example.com/ve/one-round?vistype=barchart-interactive",
             "https://example.com/ve/one-round?vistype=barchart-fixed",
@@ -412,6 +457,7 @@ class SimpleTests(TestCase):
             "https://example.com/ve/one-round?vistype=tabular-by-round-interactive",
             "https://example.com/ve/one-round?vistype=candidate-by-round",
             "https://example.com/ve/one-round?vistype=sankey",
+            "https://example.com/ve/one-round?vistype=pie",
             "https://www.example.com/v/one-round",
             "https://www.example.com/ve/one-round",
             "https://www.example.com/vo/one-round",
@@ -419,6 +465,7 @@ class SimpleTests(TestCase):
             "https://www.example.com/vo/one-round/barchart-interactive",
             "https://www.example.com/vo/one-round/sankey",
             "https://www.example.com/vo/one-round/table",
+            "https://www.example.com/vo/one-round/pie",
             "https://www.example.com/vb/one-round",
             "https://www.example.com/ve/one-round?vistype=barchart-interactive",
             "https://www.example.com/ve/one-round?vistype=barchart-fixed",
@@ -426,7 +473,8 @@ class SimpleTests(TestCase):
             "https://www.example.com/ve/one-round?vistype=tabular-by-round",
             "https://www.example.com/ve/one-round?vistype=tabular-by-round-interactive",
             "https://www.example.com/ve/one-round?vistype=candidate-by-round",
-            "https://www.example.com/ve/one-round?vistype=sankey"]}
+            "https://www.example.com/ve/one-round?vistype=sankey",
+            "https://www.example.com/ve/one-round?vistype=pie"]}
         requestPostResponse.assert_called_with(expectedUrl,
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),
