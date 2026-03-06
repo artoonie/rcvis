@@ -54,22 +54,49 @@ class CloudflareAPI():
         cls.purge_paths_cache(paths)
 
     @classmethod
+    def _make_cache_request(cls, path: str, domain: str) -> HttpRequest:
+        """ Build a synthetic request matching how Django's cache middleware
+            would have seen the original request for this path and domain.
+            Sets HTTP_HOST so build_absolute_uri() matches the original
+            request's cache key (SERVER_NAME alone appends the port). """
+        request = HttpRequest()
+        request.method = 'GET'
+        if '?' in path:
+            request.path, request.META['QUERY_STRING'] = path.split('?', 1)
+        else:
+            request.path = path
+            request.META['QUERY_STRING'] = ''
+        request.META['HTTP_HOST'] = domain
+        request.META['wsgi.url_scheme'] = 'https'
+        request.META['SERVER_NAME'] = domain
+        request.META['SERVER_PORT'] = '443'
+        return request
+
+    @classmethod
     def _purge_django_cache(cls, paths: list[str]) -> None:
-        """ Purge matching entries from Django's file-based cache. """
-        for path in paths:
-            request = HttpRequest()
-            request.method = 'GET'
-            # Split path?query into path and query string
-            if '?' in path:
-                request.path, request.META['QUERY_STRING'] = path.split('?', 1)
-            else:
-                request.path = path
-                request.META['QUERY_STRING'] = ''
-            request.META['SERVER_NAME'] = 'localhost'
-            request.META['SERVER_PORT'] = '80'
-            cache_key = get_cache_key(request)
-            if cache_key:
-                cache.delete(cache_key)
+        """ Purge matching entries from Django's file-based cache.
+            Tries both the primary domain and www. variant to match
+            however the cache was populated. """
+        domain = Site.objects.get_current().domain
+        domains = [domain]
+        if not domain.startswith("www."):
+            domains.append(f"www.{domain}")
+
+        # Temporarily allow the site domain so get_cache_key can call
+        # build_absolute_uri() without hitting ALLOWED_HOSTS validation.
+        # This is safe because we're constructing internal requests, not
+        # processing user input.
+        original_hosts = settings.ALLOWED_HOSTS
+        settings.ALLOWED_HOSTS = list(set(original_hosts + domains))
+        try:
+            for path in paths:
+                for d in domains:
+                    request = cls._make_cache_request(path, d)
+                    cache_key = get_cache_key(request)
+                    if cache_key:
+                        cache.delete(cache_key)
+        finally:
+            settings.ALLOWED_HOSTS = original_hosts
 
     @classmethod
     def purge_paths_cache(cls, paths):

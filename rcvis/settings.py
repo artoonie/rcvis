@@ -282,12 +282,20 @@ CLOUDFLARE_AUTH_TOKEN = os.environ.get('CLOUDFLARE_AUTH_TOKEN')
 
 AWS_DEFAULT_ACL = None
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/tmp/django_rcvis_cache/',
+if os.environ.get('DISABLE_CACHE') != 'True':
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': '/tmp/django_rcvis_cache/',
+        }
     }
-}
+else:
+    assert DEBUG
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

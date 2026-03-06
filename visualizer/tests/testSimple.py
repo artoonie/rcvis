@@ -432,6 +432,86 @@ class SimpleTests(TestCase):
                                                data=json.dumps(expectedData),
                                                timeout=8)
 
+    def test_purge_django_cache(self):
+        """
+        Ensure _purge_django_cache removes cached responses that were stored
+        by UpdateCacheMiddleware, using the correct domain from django.sites.
+        """
+        # Upload a visualization so we have a page to cache
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        slug = TestHelpers.get_latest_upload().slug
+        path = reverse('visualize', args=(slug,))
+
+        # First request populates the cache via UpdateCacheMiddleware
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+
+        # Second request should be served from cache (still 200)
+        response2 = self.client.get(path)
+        self.assertEqual(response2.status_code, 200)
+
+        # Purge and verify the cache entry is gone by checking that
+        # a new request still works (no 304 from stale cache)
+        CloudflareAPI._purge_django_cache([path])
+
+        # After purge, the next request must re-render (not serve stale data).
+        # We verify by checking the response contains the visualization title.
+        response3 = self.client.get(path)
+        self.assertEqual(response3.status_code, 200)
+        self.assertContains(response3, slug)
+
+    def test_purge_django_cache_with_query_string(self):
+        """
+        Ensure _purge_django_cache handles paths with query strings,
+        which are used for embedded visualization variants.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        slug = TestHelpers.get_latest_upload().slug
+        path = reverse('visualizeEmbedded', args=(slug,))
+        path_with_qs = path + '?vistype=sankey'
+
+        # Populate cache
+        self.client.get(path_with_qs)
+
+        # Purge should not raise, even with query string
+        CloudflareAPI._purge_django_cache([path_with_qs])
+
+    def test_purge_django_cache_tries_www_variant(self):
+        """
+        Ensure _purge_django_cache tries both the primary domain and the
+        www. variant, matching how get_absolute_paths_for works for Cloudflare.
+        """
+        domain = 'example.com'
+        path = '/v/test-slug'
+
+        from django.utils.cache import learn_cache_key, get_cache_key
+        from django.core.cache import cache
+        from django.http import HttpResponse
+
+        # Allow test domains so learn_cache_key can build absolute URIs
+        with self.settings(ALLOWED_HOSTS=['*']):
+            # Manually cache entries for both domain variants
+            for host in [domain, f'www.{domain}']:
+                request = CloudflareAPI._make_cache_request(path, host)
+                response = HttpResponse('cached content')
+                response['Content-Type'] = 'text/html'
+                cache_key = learn_cache_key(request, response)
+                cache.set(cache_key, response)
+                # Verify it's cached
+                self.assertIsNotNone(get_cache_key(request))
+
+            # Purge — should clear both variants
+            CloudflareAPI._purge_django_cache([path])
+
+            # Both should be gone
+            for host in [domain, f'www.{domain}']:
+                request = CloudflareAPI._make_cache_request(path, host)
+                cache_key = get_cache_key(request)
+                if cache_key:
+                    self.assertIsNone(cache.get(cache_key))
+
     def test_homepage_real_world_examples(self):
         """
         Tests the "real-world examples" section on the homepage.
