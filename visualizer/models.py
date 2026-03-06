@@ -87,6 +87,7 @@ class JsonConfig(models.Model):
     showRoundNumbersOnSankey = models.BooleanField(default=True)
     onlyShowWinnersTabular = models.BooleanField(default=True)
     hideSankey = models.BooleanField(default=False)
+    hidePie = models.BooleanField(default=False)
     hideTabular = models.BooleanField(default=False)
     doDimPrevRoundColors = models.BooleanField(default=True)
     isPreferentialBlock = models.BooleanField(default=False)
@@ -109,6 +110,7 @@ class JsonConfig(models.Model):
                 'isPreferentialBlock',
                 'forceFirstRoundDeterminesPercentages',
                 'hideSankey',
+                'hidePie',
                 'hideTabular',
                 'doDimPrevRoundColors',
                 'excludeFinalWinnerAndEliminatedCandidate',
