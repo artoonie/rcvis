@@ -296,10 +296,10 @@ class SimpleTests(TestCase):
     def test_embedded_404_returns_friendly_page(self):
         """
         When an embedded visualization slug doesn't exist, return a friendly
-        HTML page (200) instead of a 404, so it displays nicely in iframes.
+        HTML page with a 404 status, so it displays nicely in iframes.
         """
         response = self.client.get('/ve/nonexistent-slug')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 404)
         self.assertIn(b'Visualization Not Found', response.content)
 
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
