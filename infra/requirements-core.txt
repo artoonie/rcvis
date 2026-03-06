@@ -29,7 +29,7 @@ pycodestyle==2.13.0
 # For django-rest
 djangorestframework==3.16.0
 drf-api-tracking==1.8.4
-markdown==3.4.3
+markdown==3.8.1
 
 # For movie creation
 celery==5.5.3
