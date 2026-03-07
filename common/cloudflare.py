@@ -7,7 +7,9 @@ import requests
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.sites.models import Site
+from django.http import HttpRequest
 from django.urls import reverse
+from django.utils.cache import get_cache_key
 
 logger = logging.getLogger(__name__)
 
@@ -52,12 +54,54 @@ class CloudflareAPI():
         cls.purge_paths_cache(paths)
 
     @classmethod
+    def _make_cache_request(cls, path: str, domain: str) -> HttpRequest:
+        """ Build a synthetic request matching how Django's cache middleware
+            would have seen the original request for this path and domain.
+            Sets HTTP_HOST so build_absolute_uri() matches the original
+            request's cache key (SERVER_NAME alone appends the port). """
+        request = HttpRequest()
+        request.method = 'GET'
+        if '?' in path:
+            request.path, request.META['QUERY_STRING'] = path.split('?', 1)
+        else:
+            request.path = path
+            request.META['QUERY_STRING'] = ''
+        request.META['HTTP_HOST'] = domain
+        request.META['wsgi.url_scheme'] = 'https'
+        request.META['SERVER_NAME'] = domain
+        request.META['SERVER_PORT'] = '443'
+        return request
+
+    @classmethod
+    def _purge_django_cache(cls, paths: list[str]) -> None:
+        """ Purge matching entries from Django's file-based cache.
+            Tries both the primary domain and www. variant to match
+            however the cache was populated. """
+        domain = Site.objects.get_current().domain
+        domains = [domain]
+        if not domain.startswith("www."):
+            domains.append(f"www.{domain}")
+
+        # Temporarily allow the site domain so get_cache_key can call
+        # build_absolute_uri() without hitting ALLOWED_HOSTS validation.
+        # This is safe because we're constructing internal requests, not
+        # processing user input.
+        original_hosts = settings.ALLOWED_HOSTS
+        settings.ALLOWED_HOSTS = list(set(original_hosts + domains))
+        try:
+            for path in paths:
+                for d in domains:
+                    request = cls._make_cache_request(path, d)
+                    cache_key = get_cache_key(request)
+                    if cache_key:
+                        cache.delete(cache_key)
+        finally:
+            settings.ALLOWED_HOSTS = original_hosts
+
+    @classmethod
     def purge_paths_cache(cls, paths):
-        """ Purges the URLs (paths, not URLs) """
-        # We also want to purge the file-based cache, but unfortunately
-        # we don't have a way of doing this per-URL.
-        # It's overkill, but here we purge everything.
-        cache.clear()
+        """ Purges the given paths from both Django's file cache and Cloudflare CDN. """
+        cls._purge_django_cache(paths)
 
         # If we're on local/dev/staging/etc, we're done.
         if not cls._is_api_enabled():
