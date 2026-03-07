@@ -11,7 +11,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
-from django.utils.http import http_date
+from django.utils.http import http_date, parse_http_date
 from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
 from common.testUtils import TestHelpers
@@ -558,6 +558,52 @@ class SimpleTests(TestCase):
         # the cached 200, ConditionalGetMiddleware converts it to 304
         response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
         self.assertEqual(response2.status_code, 304)
+
+    def test_server_cache_returns_304_when_if_modified_since_is_later(self):
+        """
+        If-Modified-Since is later than Last-Modified: the resource hasn't been
+        modified since the client's copy, so 304. FetchFromCacheMiddleware serves
+        the cached 200, ConditionalGetMiddleware converts to 304.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+        last_modified = response1['Last-Modified']
+
+        # Shift If-Modified-Since 10 seconds into the future
+        future_date = http_date(parse_http_date(last_modified) + 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=future_date)
+        self.assertEqual(response2.status_code, 304)
+
+    def test_server_cache_returns_200_when_if_modified_since_is_earlier(self):
+        """
+        If-Modified-Since is earlier than Last-Modified: the resource was modified
+        after the client's copy, so the server should return the cached 200.
+        FetchFromCacheMiddleware serves the cached response, but
+        ConditionalGetMiddleware does NOT convert to 304 because the resource
+        is newer than the client's timestamp.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+        last_modified = response1['Last-Modified']
+
+        # Shift If-Modified-Since 10 seconds into the past
+        past_date = http_date(parse_http_date(last_modified) - 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=past_date)
+        self.assertEqual(response2.status_code, 200)
+        # Verify the response came with the same Last-Modified (served from cache)
+        self.assertEqual(response2['Last-Modified'], last_modified)
 
     def test_conditional_get_returns_200_after_update(self):
         """
