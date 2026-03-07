@@ -536,6 +536,29 @@ class SimpleTests(TestCase):
             response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
             self.assertEqual(response2.status_code, 304)
 
+    def test_server_cache_returns_304_when_fresh(self):
+        """
+        With the file cache enabled, the second request with If-Modified-Since
+        should return 304 via the middleware pipeline (FetchFromCacheMiddleware
+        serves the cached 200, then ConditionalGetMiddleware converts to 304).
+        This path never reaches the view — it's entirely handled by middleware.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache (UpdateCacheMiddleware stores it)
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+        last_modified = response1['Last-Modified']
+        self.assertIsNotNone(last_modified)
+
+        # Second request with If-Modified-Since: FetchFromCacheMiddleware returns
+        # the cached 200, ConditionalGetMiddleware converts it to 304
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
+        self.assertEqual(response2.status_code, 304)
+
     def test_conditional_get_returns_200_after_update(self):
         """
         After the model is updated, a request with the old If-Modified-Since
