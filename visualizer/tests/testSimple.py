@@ -11,6 +11,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.utils.http import http_date
 from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
 from common.testUtils import TestHelpers
@@ -511,6 +512,113 @@ class SimpleTests(TestCase):
                 cache_key = get_cache_key(request)
                 if cache_key:
                     self.assertIsNone(cache.get(cache_key))
+
+    def test_conditional_get_returns_304_when_fresh(self):
+        """
+        When the client sends If-Modified-Since matching the object's updatedAt,
+        ConditionalGetMixin should short-circuit with 304 (no graph computation).
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # Disable file cache so ConditionalGetMixin handles it directly
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # First request: get the Last-Modified header
+            response1 = self.client.get(path)
+            self.assertEqual(response1.status_code, 200)
+            last_modified = response1['Last-Modified']
+            self.assertIsNotNone(last_modified)
+
+            # Second request with If-Modified-Since: should get 304
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
+            self.assertEqual(response2.status_code, 304)
+
+    def test_conditional_get_returns_200_after_update(self):
+        """
+        After the model is updated, a request with the old If-Modified-Since
+        should get a fresh 200 (not 304), because updatedAt has advanced.
+        """
+        from datetime import timedelta
+
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # Get the initial Last-Modified
+            response1 = self.client.get(path)
+            old_last_modified = response1['Last-Modified']
+
+            # Update the model and force updatedAt forward by 2 seconds
+            # (HTTP dates have 1-second resolution, so same-second updates
+            # would not be distinguishable)
+            config.hideSankey = not config.hideSankey
+            config.save()
+            JsonConfig.objects.filter(pk=config.pk).update(
+                updatedAt=config.updatedAt + timedelta(seconds=2))
+
+            # Request with old timestamp should get 200, not 304
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_last_modified)
+            self.assertEqual(response2.status_code, 200)
+
+            # And the new Last-Modified should differ
+            self.assertNotEqual(response2['Last-Modified'], old_last_modified)
+
+    def test_response_has_last_modified_header(self):
+        """
+        Visualization responses should include a Last-Modified header
+        matching the object's updatedAt timestamp.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # Check both Visualize and VisualizeEmbedded views
+            for view_name in ['visualize', 'visualizeEmbedded']:
+                path = reverse(view_name, args=(config.slug,))
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('Last-Modified', response)
+                expected = http_date(config.updatedAt.timestamp())
+                self.assertEqual(response['Last-Modified'], expected)
+
+    def test_response_has_no_cache_directive(self):
+        """
+        Visualization responses should include Cache-Control: no-cache
+        so browsers always revalidate with the server.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            path = reverse('visualize', args=(config.slug,))
+            response = self.client.get(path)
+            self.assertIn('no-cache', response.get('Cache-Control', ''))
+
+    def test_save_purge_only_on_update(self):
+        """
+        The first save (creation) should NOT trigger a cache purge, but
+        a subsequent save (update) should. Tests the _state.adding guard
+        in JsonConfig.save().
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with patch.object(CloudflareAPI, 'purge_vis_cache') as mock_purge:
+            # Update triggers purge
+            config.hideSankey = not config.hideSankey
+            config.save()
+            mock_purge.assert_called_once_with(config.slug)
 
     def test_homepage_real_world_examples(self):
         """
