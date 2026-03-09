@@ -293,6 +293,15 @@ class SimpleTests(TestCase):
         response = self.client.get(visualizeUrl)
         self.assertRedirects(response, expectedBaseURL + 'barchart-interactive', status_code=301)
 
+    def test_embedded_404_returns_friendly_page(self):
+        """
+        When an embedded visualization slug doesn't exist, return a friendly
+        HTML page with a 404 status, so it displays nicely in iframes.
+        """
+        response = self.client.get('/ve/nonexistent-slug')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(b'Visualization Not Found', response.content)
+
     @patch('visualizer.wikipedia.wikipedia.WikipediaExport._get_todays_date_string')
     def test_wikicode(self, mockGetDateString):
         """ Validate that the wikicode can be generated and hasn't inadvertently changed """
