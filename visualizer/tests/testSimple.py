@@ -437,6 +437,10 @@ class SimpleTests(TestCase):
         """
         When the client sends If-Modified-Since matching the object's updatedAt,
         ConditionalGetMixin should short-circuit with 304 (no graph computation).
+        File cache is disabled to isolate the view-level ConditionalGetMixin.
+        An old If-Modified-Since returns 200; the current one returns 304.
+        The view hits the DB — contrast with test_server_cache_returns_304_when_fresh,
+        where zero DB queries prove the 304 comes from the middleware cache.
         """
         with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             self.client.post('/upload.html', {'jsonFile': f})
@@ -446,13 +450,16 @@ class SimpleTests(TestCase):
         # Disable file cache so ConditionalGetMixin handles it directly
         with self.settings(CACHES={'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
-            # First request: get the Last-Modified header
-            response1 = self.client.get(path)
+            # With an old If-Modified-Since: should get 200
+            old_date = http_date(0)
+            response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_date)
             self.assertEqual(response1.status_code, 200)
             last_modified = response1['Last-Modified']
             self.assertIsNotNone(last_modified)
 
-            # Second request with If-Modified-Since: should get 304
+            # With current If-Modified-Since: should get 304.
+            # DB queries confirm the view ran (contrast with
+            # test_server_cache_returns_304_when_fresh which has zero queries).
             response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
             self.assertEqual(response2.status_code, 304)
 
@@ -461,7 +468,9 @@ class SimpleTests(TestCase):
         With the file cache enabled, the second request with If-Modified-Since
         should return 304 via the middleware pipeline (FetchFromCacheMiddleware
         serves the cached 200, then ConditionalGetMiddleware converts to 304).
-        This path never reaches the view — it's entirely handled by middleware.
+        This path never reaches the view — verified by asserting zero DB queries.
+        Contrast with test_conditional_get_returns_304_when_fresh, where the
+        file cache is disabled and the view handles the 304 (with DB queries).
         """
         with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             self.client.post('/upload.html', {'jsonFile': f})
@@ -469,14 +478,17 @@ class SimpleTests(TestCase):
         path = reverse('visualize', args=(config.slug,))
 
         # First request: populates the file cache (UpdateCacheMiddleware stores it)
-        response1 = self.client.get(path)
+        old_date = http_date(0)
+        response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_date)
         self.assertEqual(response1.status_code, 200)
         last_modified = response1['Last-Modified']
         self.assertIsNotNone(last_modified)
 
-        # Second request with If-Modified-Since: FetchFromCacheMiddleware returns
-        # the cached 200, ConditionalGetMiddleware converts it to 304
-        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
+        # Second request with current If-Modified-Since: FetchFromCacheMiddleware
+        # returns the cached 200, ConditionalGetMiddleware converts to 304.
+        # Zero DB queries proves the view never ran.
+        with self.assertNumQueries(0):
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
         self.assertEqual(response2.status_code, 304)
 
     def test_server_cache_returns_304_when_if_modified_since_is_later(self):
