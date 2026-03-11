@@ -172,10 +172,12 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     ConditionalGetMiddleware handles the 304 conversion using the
     Last-Modified header preserved in the cached response.
 
-    Cache-Control: no-cache (without max-age=0) allows Django's
-    UpdateCacheMiddleware to store the rendered response server-side,
+    Cache-Control: no-cache allows Django's server-side cache to store
+    the rendered response (via UpdateCacheWithoutMaxAgeMiddleware),
     so subsequent requests from different clients or Cloudflare PoPs
     can be served from the file cache without recomputing the graph.
+    The custom middleware strips the max-age that UpdateCacheMiddleware
+    would otherwise add, so browsers always revalidate.
     """
 
     def get(self, request, *args, **kwargs):
