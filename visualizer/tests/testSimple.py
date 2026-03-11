@@ -6,11 +6,13 @@ from io import StringIO
 import json
 from mock import patch
 
+from django.core.cache import cache
 from django.core.files import File
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.utils.cache import get_cache_key
 from django.utils.http import http_date, parse_http_date
 from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
@@ -608,6 +610,71 @@ class SimpleTests(TestCase):
             config.hideSankey = not config.hideSankey
             config.save()
             mock_purge.assert_called_once_with(config.slug)
+
+    def test_purge_django_cache(self):
+        """
+        purge_paths_cache should delete matching entries from Django's
+        file-based cache so the next request rebuilds the page.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # Use example.com (the Site domain) so cache keys match what
+        # _get_purge_domains will try to purge.
+        with self.settings(ALLOWED_HOSTS=['example.com', 'www.example.com', 'testserver']):
+            response = self.client.get(path, SERVER_NAME='example.com')
+            self.assertEqual(response.status_code, 200)
+
+            # Verify a cache entry exists for the path
+            cache_key = get_cache_key(response.wsgi_request)
+            self.assertIsNotNone(cache_key)
+            self.assertIsNotNone(cache.get(cache_key))
+
+            # Purge and verify it's gone
+            CloudflareAPI.purge_paths_cache([path])
+            self.assertIsNone(cache.get(cache_key))
+
+    def test_purge_django_cache_with_query_string(self):
+        """
+        purge_paths_cache should correctly purge cached entries for URLs
+        that include query strings (e.g. ?vistype=sankey).
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualizeEmbedded', args=(config.slug,)) + '?vistype=sankey'
+
+        # Use example.com so cache keys match _get_purge_domains
+        with self.settings(ALLOWED_HOSTS=['example.com', 'www.example.com', 'testserver']):
+            response = self.client.get(path, SERVER_NAME='example.com')
+            self.assertEqual(response.status_code, 200)
+
+            # Verify a cache entry exists
+            cache_key = get_cache_key(response.wsgi_request)
+            self.assertIsNotNone(cache_key)
+            self.assertIsNotNone(cache.get(cache_key))
+
+            # Purge and verify it's gone
+            CloudflareAPI.purge_paths_cache([path])
+            self.assertIsNone(cache.get(cache_key))
+
+    def test_purge_django_cache_tries_www_variant(self):
+        """
+        _purge_django_cache should also try the www. variant of the Site
+        domain, in case the cache was populated with that host.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # _get_purge_domains should include both example.com and www.example.com
+        domains = CloudflareAPI._get_purge_domains()
+        hosts = [d['host'] for d in domains]
+        self.assertIn('example.com', hosts)
+        self.assertIn('www.example.com', hosts)
 
     def test_homepage_real_world_examples(self):
         """
