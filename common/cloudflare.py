@@ -6,6 +6,7 @@ import requests
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.exceptions import DisallowedHost
 from django.contrib.sites.models import Site
 from django.http import HttpRequest
 from django.urls import reverse
@@ -111,23 +112,20 @@ class CloudflareAPI():
             Uses the current request's host (via thread-local) plus the
             Site domain and www. variant to cover dev and production. """
         domains = cls._get_purge_domains()
-        all_hosts = [d['host'] for d in domains]
 
-        # Temporarily allow all purge domains so get_cache_key can call
-        # build_absolute_uri() without hitting ALLOWED_HOSTS validation.
-        original_hosts = settings.ALLOWED_HOSTS
-        settings.ALLOWED_HOSTS = list(set(original_hosts + all_hosts))
-        try:
-            for path in paths:
-                for d in domains:
-                    request = cls._make_cache_request(path, d['host'])
-                    request.META['wsgi.url_scheme'] = d['scheme']
-                    request.META['SERVER_PORT'] = d['port']
+        for path in paths:
+            for d in domains:
+                request = cls._make_cache_request(path, d['host'])
+                request.META['wsgi.url_scheme'] = d['scheme']
+                request.META['SERVER_PORT'] = d['port']
+                try:
                     cache_key = get_cache_key(request)
-                    if cache_key:
-                        cache.delete(cache_key)
-        finally:
-            settings.ALLOWED_HOSTS = original_hosts
+                except DisallowedHost:
+                    # Host isn't in ALLOWED_HOSTS, so there can't be
+                    # cached responses for it — skip.
+                    continue
+                if cache_key:
+                    cache.delete(cache_key)
 
     @classmethod
     def purge_paths_cache(cls, paths):
