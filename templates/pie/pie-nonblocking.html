@@ -32,6 +32,7 @@
     pieChart.candidateColors = candidateColors;
     pieChart.textForWinner = "{{ textForWinner }}";
     pieChart.excludeFinalWinnerAndEliminatedCandidate = {{ config.excludeFinalWinnerAndEliminatedCandidate|yesno:"true,false" }};
+    pieChart.firstRoundDeterminesPercentages = false;
     pieChart.currentRound = {{ config.numRounds }};
 
     // Append it to the div
