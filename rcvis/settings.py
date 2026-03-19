@@ -82,8 +82,9 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     # Order of the next 3 is important
-    'django.middleware.cache.UpdateCacheMiddleware',
+    'visualizer.middleware.UpdateCacheWithoutMaxAgeMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
 
     'django.middleware.csrf.CsrfViewMiddleware',

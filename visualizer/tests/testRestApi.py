@@ -2,6 +2,7 @@
 Rest API Test Cases
 """
 
+from datetime import timedelta
 from enum import Enum
 import os
 import re
@@ -17,6 +18,7 @@ from rest_framework_tracking.models import APIRequestLog
 
 from common.cloudflare import CloudflareAPI
 from common.testUtils import TestHelpers
+from visualizer.models import JsonConfig
 from visualizer.tests import filenames
 
 TestHelpers.silence_logging_spam()
@@ -437,6 +439,24 @@ class RestAPITests(APITestCase):
         # Ensure purge is called once edited
         purgeMock.assert_called_once()
         purgeMock.assert_called_with('one-round')
+
+    def test_patch_updates_updated_at(self):
+        """ REST PATCH should advance updatedAt so conditional GET
+            serves fresh content after an API edit. """
+        self._authenticate_as('notadmin')
+        self._upload_file_for_api(filenames.ONE_ROUND)
+        config = TestHelpers.get_latest_upload()
+
+        # Push updatedAt back so the PATCH will always produce a later timestamp
+        past = config.updatedAt - timedelta(seconds=2)
+        JsonConfig.objects.filter(pk=config.pk).update(updatedAt=past)
+
+        url = f'/api/visualizations/{config.id}/'
+        response = self.client.patch(url, format='json', data={})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        config.refresh_from_db()
+        self.assertGreater(config.updatedAt, past)
 
     def test_purge_paths(self):
         """ Test that cloudflare cache clears both www and non-www addresses """

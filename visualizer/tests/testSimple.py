@@ -2,6 +2,7 @@
 Integration tests without a server
 """
 
+from datetime import timedelta
 from io import StringIO
 import json
 from mock import patch
@@ -11,6 +12,7 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.utils.http import http_date, parse_http_date
 from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
 from common.testUtils import TestHelpers
@@ -440,6 +442,192 @@ class SimpleTests(TestCase):
                                                headers=expectedHeaders,
                                                data=json.dumps(expectedData),
                                                timeout=8)
+
+    def test_conditional_get_returns_304_when_fresh(self):
+        """
+        When the client sends If-Modified-Since matching the object's updatedAt,
+        ConditionalGetMixin should short-circuit with 304 (no graph computation).
+        File cache is disabled to isolate the view-level ConditionalGetMixin.
+        An old If-Modified-Since returns 200; the current one returns 304.
+        The view hits the DB — contrast with test_server_cache_returns_304_when_fresh,
+        where zero DB queries prove the 304 comes from the middleware cache.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # Disable file cache so ConditionalGetMixin handles it directly
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # With an old If-Modified-Since: should get 200
+            oldDate = http_date(0)
+            response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldDate)
+            self.assertEqual(response1.status_code, 200)
+            lastModified = response1['Last-Modified']
+            self.assertIsNotNone(lastModified)
+
+            # With current If-Modified-Since: should get 304.
+            # DB queries confirm the view ran (contrast with
+            # test_server_cache_returns_304_when_fresh which has zero queries).
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=lastModified)
+            self.assertEqual(response2.status_code, 304)
+
+    def test_server_cache_returns_304_when_fresh(self):
+        """
+        With the file cache enabled, the second request with If-Modified-Since
+        should return 304 via the middleware pipeline (FetchFromCacheMiddleware
+        serves the cached 200, then ConditionalGetMiddleware converts to 304).
+        This path never reaches the view — verified by asserting zero DB queries.
+        Contrast with test_conditional_get_returns_304_when_fresh, where the
+        file cache is disabled and the view handles the 304 (with DB queries).
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache (UpdateCacheMiddleware stores it)
+        oldDate = http_date(0)
+        response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldDate)
+        self.assertEqual(response1.status_code, 200)
+        lastModified = response1['Last-Modified']
+        self.assertIsNotNone(lastModified)
+
+        # Second request with current If-Modified-Since: FetchFromCacheMiddleware
+        # returns the cached 200, ConditionalGetMiddleware converts to 304.
+        # Zero DB queries proves the view never ran.
+        with self.assertNumQueries(0):
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=lastModified)
+        self.assertEqual(response2.status_code, 304)
+
+    def test_server_cache_returns_304_when_if_modified_since_is_later(self):
+        """
+        If-Modified-Since is later than Last-Modified: the resource hasn't been
+        modified since the client's copy, so 304. FetchFromCacheMiddleware serves
+        the cached 200, ConditionalGetMiddleware converts to 304.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+        lastModified = response1['Last-Modified']
+
+        # Shift If-Modified-Since 10 seconds into the future
+        futureDate = http_date(parse_http_date(lastModified) + 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=futureDate)
+        self.assertEqual(response2.status_code, 304)
+
+    def test_server_cache_returns_200_when_if_modified_since_is_earlier(self):
+        """
+        If-Modified-Since is earlier than Last-Modified: the resource was modified
+        after the client's copy, so the server should return the cached 200.
+        FetchFromCacheMiddleware serves the cached response, but
+        ConditionalGetMiddleware does NOT convert to 304 because the resource
+        is newer than the client's timestamp.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # First request: populates the file cache
+        response1 = self.client.get(path)
+        self.assertEqual(response1.status_code, 200)
+        lastModified = response1['Last-Modified']
+
+        # Shift If-Modified-Since 10 seconds into the past
+        pastDate = http_date(parse_http_date(lastModified) - 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=pastDate)
+        self.assertEqual(response2.status_code, 200)
+        # Verify the response came with the same Last-Modified (served from cache)
+        self.assertEqual(response2['Last-Modified'], lastModified)
+
+    def test_conditional_get_returns_200_after_update(self):
+        """
+        After the model is updated, a request with the old If-Modified-Since
+        should get a fresh 200 (not 304), because updatedAt has advanced.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # Get the initial Last-Modified
+            response1 = self.client.get(path)
+            oldLastModified = response1['Last-Modified']
+
+            # Update the model and force updatedAt forward by 2 seconds
+            # (HTTP dates have 1-second resolution, so same-second updates
+            # would not be distinguishable)
+            config.hideSankey = not config.hideSankey
+            config.save()
+            JsonConfig.objects.filter(pk=config.pk).update(
+                updatedAt=config.updatedAt + timedelta(seconds=2))
+
+            # Request with old timestamp should get 200, not 304
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldLastModified)
+            self.assertEqual(response2.status_code, 200)
+
+            # And the new Last-Modified should differ
+            self.assertNotEqual(response2['Last-Modified'], oldLastModified)
+
+    def test_response_has_last_modified_header(self):
+        """
+        Visualization responses should include a Last-Modified header
+        matching the object's updatedAt timestamp.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # Check both Visualize and VisualizeEmbedded views
+            for viewName in ['visualize', 'visualizeEmbedded']:
+                path = reverse(viewName, args=(config.slug,))
+                response = self.client.get(path)
+                self.assertEqual(response.status_code, 200)
+                self.assertIn('Last-Modified', response)
+                expected = http_date(config.updatedAt.timestamp())
+                self.assertEqual(response['Last-Modified'], expected)
+
+    def test_response_has_no_cache_directive(self):
+        """
+        Visualization responses should include Cache-Control: no-cache
+        so browsers always revalidate with the server.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            path = reverse('visualize', args=(config.slug,))
+            response = self.client.get(path)
+            self.assertIn('no-cache', response.get('Cache-Control', ''))
+
+    def test_save_purge_only_on_update(self):
+        """
+        The first save (creation) should NOT trigger a cache purge, but
+        a subsequent save (update) should. Tests the _state.adding guard
+        in JsonConfig.save().
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+
+        with patch.object(CloudflareAPI, 'purge_vis_cache') as mockPurge:
+            # Update triggers purge
+            config.hideSankey = not config.hideSankey
+            config.save()
+            mockPurge.assert_called_once_with(config.slug)
 
     def test_homepage_real_world_examples(self):
         """
