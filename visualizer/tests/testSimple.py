@@ -2,6 +2,7 @@
 Integration tests without a server
 """
 
+from datetime import timedelta
 from io import StringIO
 import json
 from mock import patch
@@ -460,16 +461,16 @@ class SimpleTests(TestCase):
         with self.settings(CACHES={'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
             # With an old If-Modified-Since: should get 200
-            old_date = http_date(0)
-            response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_date)
+            oldDate = http_date(0)
+            response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldDate)
             self.assertEqual(response1.status_code, 200)
-            last_modified = response1['Last-Modified']
-            self.assertIsNotNone(last_modified)
+            lastModified = response1['Last-Modified']
+            self.assertIsNotNone(lastModified)
 
             # With current If-Modified-Since: should get 304.
             # DB queries confirm the view ran (contrast with
             # test_server_cache_returns_304_when_fresh which has zero queries).
-            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=lastModified)
             self.assertEqual(response2.status_code, 304)
 
     def test_server_cache_returns_304_when_fresh(self):
@@ -487,17 +488,17 @@ class SimpleTests(TestCase):
         path = reverse('visualize', args=(config.slug,))
 
         # First request: populates the file cache (UpdateCacheMiddleware stores it)
-        old_date = http_date(0)
-        response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_date)
+        oldDate = http_date(0)
+        response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldDate)
         self.assertEqual(response1.status_code, 200)
-        last_modified = response1['Last-Modified']
-        self.assertIsNotNone(last_modified)
+        lastModified = response1['Last-Modified']
+        self.assertIsNotNone(lastModified)
 
         # Second request with current If-Modified-Since: FetchFromCacheMiddleware
         # returns the cached 200, ConditionalGetMiddleware converts to 304.
         # Zero DB queries proves the view never ran.
         with self.assertNumQueries(0):
-            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=last_modified)
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=lastModified)
         self.assertEqual(response2.status_code, 304)
 
     def test_server_cache_returns_304_when_if_modified_since_is_later(self):
@@ -514,11 +515,11 @@ class SimpleTests(TestCase):
         # First request: populates the file cache
         response1 = self.client.get(path)
         self.assertEqual(response1.status_code, 200)
-        last_modified = response1['Last-Modified']
+        lastModified = response1['Last-Modified']
 
         # Shift If-Modified-Since 10 seconds into the future
-        future_date = http_date(parse_http_date(last_modified) + 10)
-        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=future_date)
+        futureDate = http_date(parse_http_date(lastModified) + 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=futureDate)
         self.assertEqual(response2.status_code, 304)
 
     def test_server_cache_returns_200_when_if_modified_since_is_earlier(self):
@@ -537,22 +538,20 @@ class SimpleTests(TestCase):
         # First request: populates the file cache
         response1 = self.client.get(path)
         self.assertEqual(response1.status_code, 200)
-        last_modified = response1['Last-Modified']
+        lastModified = response1['Last-Modified']
 
         # Shift If-Modified-Since 10 seconds into the past
-        past_date = http_date(parse_http_date(last_modified) - 10)
-        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=past_date)
+        pastDate = http_date(parse_http_date(lastModified) - 10)
+        response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=pastDate)
         self.assertEqual(response2.status_code, 200)
         # Verify the response came with the same Last-Modified (served from cache)
-        self.assertEqual(response2['Last-Modified'], last_modified)
+        self.assertEqual(response2['Last-Modified'], lastModified)
 
     def test_conditional_get_returns_200_after_update(self):
         """
         After the model is updated, a request with the old If-Modified-Since
         should get a fresh 200 (not 304), because updatedAt has advanced.
         """
-        from datetime import timedelta
-
         with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             self.client.post('/upload.html', {'jsonFile': f})
         config = TestHelpers.get_latest_upload()
@@ -562,7 +561,7 @@ class SimpleTests(TestCase):
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
             # Get the initial Last-Modified
             response1 = self.client.get(path)
-            old_last_modified = response1['Last-Modified']
+            oldLastModified = response1['Last-Modified']
 
             # Update the model and force updatedAt forward by 2 seconds
             # (HTTP dates have 1-second resolution, so same-second updates
@@ -573,11 +572,11 @@ class SimpleTests(TestCase):
                 updatedAt=config.updatedAt + timedelta(seconds=2))
 
             # Request with old timestamp should get 200, not 304
-            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=old_last_modified)
+            response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=oldLastModified)
             self.assertEqual(response2.status_code, 200)
 
             # And the new Last-Modified should differ
-            self.assertNotEqual(response2['Last-Modified'], old_last_modified)
+            self.assertNotEqual(response2['Last-Modified'], oldLastModified)
 
     def test_response_has_last_modified_header(self):
         """
@@ -591,8 +590,8 @@ class SimpleTests(TestCase):
         with self.settings(CACHES={'default': {
                 'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
             # Check both Visualize and VisualizeEmbedded views
-            for view_name in ['visualize', 'visualizeEmbedded']:
-                path = reverse(view_name, args=(config.slug,))
+            for viewName in ['visualize', 'visualizeEmbedded']:
+                path = reverse(viewName, args=(config.slug,))
                 response = self.client.get(path)
                 self.assertEqual(response.status_code, 200)
                 self.assertIn('Last-Modified', response)
@@ -624,11 +623,11 @@ class SimpleTests(TestCase):
             self.client.post('/upload.html', {'jsonFile': f})
         config = TestHelpers.get_latest_upload()
 
-        with patch.object(CloudflareAPI, 'purge_vis_cache') as mock_purge:
+        with patch.object(CloudflareAPI, 'purge_vis_cache') as mockPurge:
             # Update triggers purge
             config.hideSankey = not config.hideSankey
             config.save()
-            mock_purge.assert_called_once_with(config.slug)
+            mockPurge.assert_called_once_with(config.slug)
 
     def test_homepage_real_world_examples(self):
         """

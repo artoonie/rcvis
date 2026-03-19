@@ -18,7 +18,6 @@ from django.templatetags.static import static
 from django.urls import Resolver404
 from django.urls import resolve
 from django.urls import reverse
-from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt

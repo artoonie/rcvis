@@ -2,6 +2,7 @@
 Rest API Test Cases
 """
 
+from datetime import timedelta
 from enum import Enum
 import os
 import re
@@ -442,8 +443,6 @@ class RestAPITests(APITestCase):
     def test_patch_updates_updated_at(self):
         """ REST PATCH should advance updatedAt so conditional GET
             serves fresh content after an API edit. """
-        from datetime import timedelta
-
         self._authenticate_as('notadmin')
         self._upload_file_for_api(filenames.ONE_ROUND)
         config = TestHelpers.get_latest_upload()
