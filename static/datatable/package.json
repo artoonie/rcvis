@@ -17,7 +17,7 @@
     "micromodal": "^0.4.10"
   },
   "devDependencies": {
-    "webpack": "^5.98.0",
+    "webpack": "^5.105.4",
     "webpack-cli": "^6.0.1"
   },
   "author": "",
