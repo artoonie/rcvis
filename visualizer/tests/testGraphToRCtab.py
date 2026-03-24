@@ -1,13 +1,17 @@
 """
 Tests for the graphToRCtab converter that builds RCTab-compatible JSON
-from processed Graph objects for the pie chart component.
+from processed Graph objects. The converter bridges rcvis's internal Graph
+representation to the RCTab JSON format consumed by the pie chart component.
+These tests verify the conversion logic (structure, types, candidate handling),
+not the pie chart rendering itself.
 """
 
 from django.test import TestCase
 
 from visualizer import common
 from visualizer.graph.graphCreator import make_graph_with_file
-from visualizer.pie.graphToRCtab import graph_to_rctab_json, _stringify
+from visualizer.common import stringify
+from visualizer.pie.graphToRCtab import graph_to_rctab_json
 from visualizer.tests import filenames
 
 
@@ -15,23 +19,23 @@ class StringifyTests(TestCase):
     """ Tests for the _stringify helper """
 
     def test_integer_unchanged(self):
-        self.assertEqual(_stringify(42), "42")
+        self.assertEqual(stringify(42), "42")
 
     def test_integer_float_drops_decimal(self):
-        self.assertEqual(_stringify(42.0), "42")
+        self.assertEqual(stringify(42.0), "42")
 
     def test_actual_float_kept(self):
-        self.assertEqual(_stringify(42.5), "42.5")
+        self.assertEqual(stringify(42.5), "42.5")
 
     def test_zero(self):
-        self.assertEqual(_stringify(0), "0")
+        self.assertEqual(stringify(0), "0")
 
     def test_zero_float(self):
-        self.assertEqual(_stringify(0.0), "0")
+        self.assertEqual(stringify(0.0), "0")
 
     def test_string_passthrough(self):
         """ RCTab JSON sometimes has string values already """
-        self.assertEqual(_stringify("100"), "100")
+        self.assertEqual(stringify("100"), "100")
 
 
 class OneRoundTests(TestCase):

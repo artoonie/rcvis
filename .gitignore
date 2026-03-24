@@ -17,4 +17,3 @@ staticfiles/
 !.elasticbeanstalk/*.global.yml
 
 **/**/dist/
-scripts/reset-db.sh

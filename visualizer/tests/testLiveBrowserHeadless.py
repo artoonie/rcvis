@@ -705,3 +705,40 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # total of 9 matches.
         self.assertEqual(contentTrue.count("How do you calculate percentages"), 9)
         self.assertEqual(contentFalse.count("How do you calculate percentages"), 0)
+
+    def _get_pie_svg_text(self):
+        """
+        Read text content from the pie chart's SVG, which lives inside
+        the <pie-chart> custom element's shadow DOM.
+        """
+        return self.browser.execute_script(
+            "const el = document.querySelector('pie-chart');"
+            "if (!el || !el.shadowRoot) return '';"
+            "const svg = el.shadowRoot.querySelector('svg');"
+            "return svg ? svg.textContent : '';")
+
+    def test_pie_chart_round_change(self):
+        """
+        Changing rounds in the pie chart's round player should update
+        the visible candidate labels in the SVG.
+        """
+        self._upload(filenames.THREE_ROUND)
+
+        # Switch to the pie chart tab
+        self._go_to_tab('pie-tab')
+
+        # Wait for the pie chart to render
+        self._ensure_eventually_asserts(
+            lambda: self.assertTrue(len(self._get_pie_svg_text()) > 0))
+
+        # Change to round 1 via the pie's round player select.
+        # Round 1 should have all candidates including Banana,
+        # which is eliminated in later rounds.
+        container = self.browser.find_element(By.ID, 'pie-slider-container')
+        selectEl = container.find_element(By.CSS_SELECTOR, '.round-player-select')
+        select = Select(selectEl)
+        select.select_by_value('0')  # Round 1 (0-indexed)
+
+        # The SVG text lives inside the pie-chart custom element's shadow DOM
+        self._ensure_eventually_asserts(
+            lambda: self.assertIn('Banana', self._get_pie_svg_text()))

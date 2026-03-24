@@ -194,8 +194,8 @@ STORAGES = {
 
 
 def pie_chart_no_cache(headers, path, url):
-    """Ensure browsers revalidate the pie chart component on every load."""
-    if url.endswith('pie-chart.es.js'):
+    """In development, ensure browsers revalidate the pie chart component on every load."""
+    if DEBUG and url.endswith('pie-chart.es.js'):
         headers['Cache-Control'] = 'no-cache'
 
 

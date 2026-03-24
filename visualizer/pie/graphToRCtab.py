@@ -13,14 +13,6 @@ from visualizer import common
 from visualizer.graph.rcvResult import Elimination, WinTransfer
 
 
-def _stringify(value):
-    """ Convert a number to string, matching RCTab JSON convention.
-        Integers are formatted without decimals. """
-    if isinstance(value, float) and value == int(value):
-        return str(int(value))
-    return str(value)
-
-
 def graph_to_rctab_json(graph):
     """
     Build an RCTab-compatible JSON dict from a processed Graph.
@@ -76,7 +68,7 @@ def graph_to_rctab_json(graph):
         for name in interleaved_order:
             if name in names_this_round:
                 candidate, node = names_this_round[name]
-                tally[name] = _stringify(node.count)
+                tally[name] = common.stringify(node.count)
 
         # Build tallyResults from transfersPerRound
         tally_results = []
@@ -95,7 +87,7 @@ def graph_to_rctab_json(graph):
             transfers = {}
             for target_candidate, count in transfer.transfersByCandidate.items():
                 if count != 0:
-                    transfers[target_candidate.name] = _stringify(count)
+                    transfers[target_candidate.name] = common.stringify(count)
             tally_result['transfers'] = transfers
 
             tally_results.append(tally_result)
@@ -106,11 +98,11 @@ def graph_to_rctab_json(graph):
             if candidate.name == common.INACTIVE_TEXT and candidate in nodes_this_round:
                 exhausted = nodes_this_round[candidate].count
                 if exhausted > 0:
-                    inactive_ballots['exhaustedChoices'] = _stringify(exhausted)
+                    inactive_ballots['exhaustedChoices'] = common.stringify(exhausted)
                 break
 
         # Threshold: RCTab has per-round threshold, rcvis stores a single value
-        threshold = _stringify(graph.threshold) if graph.threshold is not None else "0"
+        threshold = common.stringify(graph.threshold) if graph.threshold is not None else "0"
 
         results.append({
             'round': round_i + 1,
@@ -130,10 +122,10 @@ def graph_to_rctab_json(graph):
         'jsonFormatVersion': '1',
         'results': results,
         'summary': {
-            'finalThreshold': _stringify(graph.threshold) if graph.threshold is not None else "0",
+            'finalThreshold': common.stringify(graph.threshold) if graph.threshold is not None else "0",
             'numCandidates': num_active_candidates,
             'numWinners': summary.numWinners,
-            'totalNumBallots': _stringify(first_round_total),
+            'totalNumBallots': common.stringify(first_round_total),
         },
     }
 

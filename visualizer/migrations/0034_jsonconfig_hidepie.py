@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('visualizer', '0032_jsonconfig_forcefirstrounddeterminespercentages'),
+        ('visualizer', '0033_add_updated_at'),
     ]
 
     operations = [
