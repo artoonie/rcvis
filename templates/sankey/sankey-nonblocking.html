@@ -14,15 +14,20 @@
 <script type="text/javascript">
 {{ sankeyjs|safe }}  // lgtm [js/useless-expression]
 
-if (numRounds > 1)
-{
-  loadFunctions();
-  makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApxWidth, totalVotesPerRound, config.colorTheme);
+function renderSankey() {
+  const graph = decompressGraph(graphCompressed, charMap);
+  if (numRounds > 1)
+  {
+    loadFunctions();
+    makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApxWidth, totalVotesPerRound, config.colorTheme);
+  }
+  else
+  {
+    d3.select("#sankey-body").append("text")
+          .text("Sankey diagrams show a flow from one round to the next. This single-round election cannot be displayed as a Sankey diagram.")
+          .style("margin-left", "50px")
+  }
 }
-else
-{
-  d3.select("#sankey-body").append("text")
-        .text("Sankey diagrams show a flow from one round to the next. This single-round election cannot be displayed as a Sankey diagram.")
-        .style("margin-left", "50px")
-}
+
+requestAnimationFrame(renderSankey);
 </script>

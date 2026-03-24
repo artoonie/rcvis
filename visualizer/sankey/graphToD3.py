@@ -14,24 +14,29 @@ class D3Sankey:
         js += f'numWinners = {graph.summarize().numWinners} ;\n'
         js += f'longestLabelApxWidth = {longestLabelApxWidth};\n'
         js += f'totalVotesPerRound = {totalVotesPerRound};\n'
-        js += 'graph = {"nodes" : [], "links" : []};\n'
-
-        # Maps Candidates to a unique index. Used for color indexing.
-        indices = {candidate: i for i, candidate in enumerate(graph.eliminationOrder)}
+        # Maps Candidates to a single char key (a-z) ordered by elimination order.
+        # Position in charMap doubles as the color index. Supports up to 26 candidates.
+        elimination_order = list(graph.eliminationOrder)
+        candidate_to_char = {c: chr(ord('a') + i) for i, c in enumerate(elimination_order)}
+        char_map = {chr(ord('a') + i): c.name for i, c in enumerate(elimination_order)}
 
         nodeIndices = {}
-        for i, node in enumerate(graph.nodes):
+        nodes = []
+        for node in graph.nodes:
             # Skip inactive (exhausted) nodes
             if not node.candidate.isActive:
                 continue
 
-            nodeIndices[node] = i
-            js += f'graph.nodes.push({{ "name": {json.dumps(node.label)},\n'
-            js += f'                    "round": {node.roundNum},\n'
-            js += f'                    "value": {node.count},\n'
-            js += f'                    "isWinner": {int(node.isWinner)},\n'
-            js += f'                    "isEliminated": {int(node.isEliminated)},\n'
-            js += f'                    "index": "{indices[node.candidate]}"}});\n'
+            nodeIndices[node] = len(nodes)
+            nodes.append([
+                candidate_to_char[node.candidate],
+                node.roundNum,
+                node.count,
+                int(node.isWinner),
+                int(node.isEliminated),
+            ])
+
+        links = []
         for link in graph.links:
             # Skip inactive (exhausted) nodes
             if not link.source.candidate.isActive:
@@ -39,10 +44,12 @@ class D3Sankey:
             if not link.target.candidate.isActive:
                 continue
 
-            sourceIndex = nodeIndices[link.source]
-            targetIndex = nodeIndices[link.target]
-            js += f'graph.links.push({{ "source": {sourceIndex},\n'
-            js += f'                    "target": {targetIndex},\n'
-            js += f'            "candidateIndex": {indices[link.source.candidate]},\n'
-            js += f'                     "value": {link.value:0.3f} }});\n'
+            links.append([
+                nodeIndices[link.source],
+                nodeIndices[link.target],
+                round(link.value, 3),
+            ])
+
+        js += f'charMap = {json.dumps(char_map)};\n'
+        js += f'graphCompressed = {json.dumps({"nodes": nodes, "links": links})};\n'
         self.js = js

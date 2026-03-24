@@ -1,3 +1,23 @@
+function decompressGraph(c, charMap) {
+  // charMap: single char -> candidate name, ordered by elimination order.
+  // A char's position (charCode - 'a') is its color index.
+  const nodes = c.nodes.map(([ch, round, value, w, e]) => ({
+    name: charMap[ch],
+    round,
+    value,
+    isWinner: w,
+    isEliminated: e,
+    index: ch.charCodeAt(0) - 97,
+  }));
+  const links = c.links.map(([source, target, value]) => ({
+    source,
+    target,
+    candidateIndex: nodes[source].index,
+    value,
+  }));
+  return { nodes, links };
+}
+
 function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApxWidth, totalVotesPerRound, colorThemeIndex) {
   // Below are crazy heuristics to try to get the graph to look good
   // on a variety of sizes.
