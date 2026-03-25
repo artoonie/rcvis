@@ -5705,7 +5705,7 @@ function op(e, t) {
   }
   function st(w) {
     var Z;
-    if (!((Z = b(M)) != null && Z.results) || w < 2 || w > b(M).results.length) return !0;
+    if (!((Z = b(M)) != null && Z.results) || w < 2 || w > b(M).results.length || w === b(M).results.length) return !0;
     const V = b(M).results[w - 2].tallyResults;
     return V.length === 0 || V.every((_e) => Object.keys(_e.transfers).length === 0);
   }
