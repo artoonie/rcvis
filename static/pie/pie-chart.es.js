@@ -5701,12 +5701,12 @@ function op(e, t) {
   let T, q = /* @__PURE__ */ $e(0);
   function Le(w) {
     var xe;
-    return !((xe = b(M)) != null && xe.results) || w < 2 || w > b(M).results.length ? ["Eliminate", "Transfer", "Consolidate"] : [b(M).results[w - 2].tallyResults.some((ie) => ie.eliminated) ? "Eliminate" : "Surplus", "Transfer", "Consolidate"];
+    return !((xe = b(M)) != null && xe.results) || w < 1 || w > b(M).results.length ? ["Eliminate", "Transfer", "Consolidate"] : [b(M).results[w - 1].tallyResults.some((ie) => ie.eliminated) ? "Eliminate" : "Surplus", "Transfer", "Consolidate"];
   }
   function st(w) {
     var Z;
-    if (!((Z = b(M)) != null && Z.results) || w < 2 || w > b(M).results.length || w === b(M).results.length) return !0;
-    const V = b(M).results[w - 2].tallyResults;
+    if (!((Z = b(M)) != null && Z.results) || w < 1 || w > b(M).results.length || w === b(M).results.length) return !0;
+    const V = b(M).results[w - 1].tallyResults;
     return V.length === 0 || V.every((_e) => Object.keys(_e.transfers).length === 0);
   }
   function de(w) {
