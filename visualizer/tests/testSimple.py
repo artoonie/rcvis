@@ -7,11 +7,13 @@ from io import StringIO
 import json
 from mock import patch
 
+from django.core.cache import cache
 from django.core.files import File
 from django.core.management import call_command
 from django.test import TestCase
 from django.test.client import RequestFactory
 from django.urls import reverse
+from django.utils.cache import get_cache_key
 from django.utils.http import http_date, parse_http_date
 from rcvformats.schemas.universaltabulator import SchemaV0 as UTSchema
 
@@ -628,6 +630,66 @@ class SimpleTests(TestCase):
             config.hideSankey = not config.hideSankey
             config.save()
             mockPurge.assert_called_once_with(config.slug)
+
+    def test_purge_vis_cache_clears_all_cached_urls(self):
+        """
+        purge_vis_cache should delete all cached entries for a slug,
+        including query-string variants like ?vistype=sankey.
+        NOTE: purge_vis_cache has a hardcoded list of known URL patterns.
+        If new vistypes or URL patterns are added, that list must be updated
+        or those entries won't be purged (this is a known fragility of the
+        surgical approach vs cache.clear()).
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        slug = config.slug
+
+        # Representative sample of the URLs purge_vis_cache should clear:
+        # base view, embedded view, and two query-string variants.
+        paths = [
+            reverse('visualize', args=(slug,)),
+            reverse('visualizeEmbedded', args=(slug,)),
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=sankey',
+            reverse('visualizeEmbedded', args=(slug,)) + '?vistype=barchart-interactive',
+        ]
+
+        # Use example.com (the Site domain) so cache keys match what
+        # _get_purge_domains will try to purge.
+        with self.settings(ALLOWED_HOSTS=['example.com', 'www.example.com', 'testserver']):
+            # Populate the cache for each path and collect cache keys
+            cache_keys = []
+            for path in paths:
+                response = self.client.get(path, SERVER_NAME='example.com')
+                self.assertEqual(response.status_code, 200)
+                cache_key = get_cache_key(response.wsgi_request)
+                self.assertIsNotNone(cache_key)
+                self.assertIsNotNone(cache.get(cache_key))
+                cache_keys.append(cache_key)
+
+            # Purge everything for this slug
+            CloudflareAPI.purge_vis_cache(slug)
+
+            # Verify all entries are gone
+            for i, cache_key in enumerate(cache_keys):
+                self.assertIsNone(cache.get(cache_key),
+                    f"Cache entry for {paths[i]} was not purged")
+
+    def test_purge_django_cache_tries_www_variant(self):
+        """
+        _purge_django_cache should also try the www. variant of the Site
+        domain, in case the cache was populated with that host.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        # _get_purge_domains should include both example.com and www.example.com
+        domains = CloudflareAPI._get_purge_domains()
+        hosts = [d['host'] for d in domains]
+        self.assertIn('example.com', hosts)
+        self.assertIn('www.example.com', hosts)
 
     def test_homepage_real_world_examples(self):
         """
