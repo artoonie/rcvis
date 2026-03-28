@@ -192,6 +192,15 @@ STORAGES = {
     }
 }
 
+
+def pie_chart_no_cache(headers, path, url):
+    """In development, ensure browsers revalidate the pie chart component on every load."""
+    if DEBUG and url.endswith('pie-chart.es.js'):
+        headers['Cache-Control'] = 'no-cache'
+
+
+WHITENOISE_ADD_HEADERS_FUNCTION = pie_chart_no_cache
+
 NODE_PACKAGE_JSON = './package.json'
 NODE_MODULES_ROOT = './node_modules'
 NODE_PACKAGE_MANAGER_EXECUTABLE = os.environ.get('NODE_PACKAGE_MANAGER_EXECUTABLE', '/usr/bin/npm')
