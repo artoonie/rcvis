@@ -13,6 +13,28 @@ from visualizer import common
 from visualizer.graph.rcvResult import Elimination, WinTransfer
 
 
+def _scatter_order(names):
+    """
+    Shuffle candidate names deterministically to spread sizes around the pie.
+
+    Uses a seeded random shuffle so the order is stable for the same set
+    of candidates (required for D3 pie animation across rounds). The seed
+    is derived from the sorted candidate names, so the same election
+    always produces the same order.
+    """
+    import random
+    import hashlib
+
+    if len(names) <= 3:
+        return list(names)
+
+    seed = int(hashlib.md5('|'.join(sorted(names)).encode()).hexdigest(), 16) % (2**32)
+    rng = random.Random(seed)
+    result = list(names)
+    rng.shuffle(result)
+    return result
+
+
 def graph_to_rctab_json(graph):
     """
     Build an RCTab-compatible JSON dict from a processed Graph.
@@ -35,8 +57,10 @@ def graph_to_rctab_json(graph):
     num_active_candidates = sum(1 for c in graph.candidates if c.name not in inactive_names)
 
     # Compute interleave order once from round 1, reuse for all rounds.
-    # Alternates largest/smallest so small slices have large neighbors,
-    # reducing label overlap. Inactive/residual entries always last.
+    # Spreads sizes evenly around the circle using a stride-based approach:
+    # sort candidates by votes descending, then pick every Nth one to ensure
+    # large and small slices are distributed, not clustered.
+    # Inactive/residual entries always last.
     # Order must be stable across rounds for D3 pie animation to work.
     round1_nodes = graph.nodesPerRound[0]
     active_items = []
@@ -47,14 +71,7 @@ def graph_to_rctab_json(graph):
         else:
             active_items.append((candidate.name, node.count))
     active_items.sort(key=lambda item: item[1], reverse=True)
-    interleaved_order = []
-    lo, hi = 0, len(active_items) - 1
-    while lo <= hi:
-        interleaved_order.append(active_items[lo][0])
-        if lo != hi:
-            interleaved_order.append(active_items[hi][0])
-        lo += 1
-        hi -= 1
+    interleaved_order = _scatter_order([name for name, _ in active_items])
     interleaved_order.extend(inactive_order)
 
     results = []
