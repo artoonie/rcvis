@@ -271,12 +271,12 @@ class JSONReader:
     eliminationOrder: list
 
     def __init__(self, data):
-        self.parse_data(data)
+        data = self.parse_and_migrate_data(data)
         self.graph.create_graph_from_rounds(self.rounds)
+        self.graph.set_migrated_raw_data(data)
         self.set_elimination_order(self.rounds, self.graph.candidates)
-        self.graph._raw_JSON = data
 
-    def parse_data(self, data):
+    def parse_and_migrate_data(self, data):
         """ Parses the JSON data, or raises an exception on failure """
         def get_migration_tasks():
             return [FixNoTransfersTask,
@@ -362,6 +362,7 @@ class JSONReader:
 
         self.graph = graph
         self.rounds = rounds
+        return data
 
     def get_graph(self):
         """ Returns the Graph object """
@@ -370,7 +371,7 @@ class JSONReader:
     def get_rounds(self):
         """ Returns the list of rounds """
         return self.rounds
-
+    
     def set_elimination_order(self, rounds, candidates):
         """ Sets the elimination order given each round and a list of Candidates """
         eliminationOrder = []

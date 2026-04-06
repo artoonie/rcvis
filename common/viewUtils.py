@@ -10,7 +10,6 @@ from visualizer.descriptors.roundDescriber import Describer
 from visualizer.descriptors.textForWinnerUtils import as_caption
 from visualizer.graph.graphCreator import make_graph_with_file
 from visualizer.models import TextForWinner
-from visualizer.pie.graphToRCtab import graph_to_rctab_json
 from visualizer.sankey.graphToD3 import D3Sankey
 from visualizer.sidecar.reader import SidecarReader
 from visualizer.tabular.tabular import TabulateByRoundInteractive, \
@@ -69,8 +68,7 @@ def get_data_for_graph(graph, config):
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'graph': graph,
-        'rawData': graph._raw_JSON,
-        'pieData': graph_to_rctab_json(graph),
+        'pieData': graph.get_migrated_raw_data(),
         'textForWinner': as_caption(config).lower(),
     }
     roundDescriberData = get_data_for_round_describer(graph, config)

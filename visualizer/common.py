@@ -34,14 +34,6 @@ def percentify(numerator, denominator):
     return str(round(10000.0 * floatVal) / 100.0) + "%"
 
 
-def stringify(value):
-    """ Convert a number to string, matching RCTab JSON convention.
-        Integers are formatted without decimals. """
-    if isinstance(value, float) and value == int(value):
-        return str(int(value))
-    return str(value)
-
-
 def candidate_renames():
     """ A dictionary mapping how we should rename candidate names """
     return {

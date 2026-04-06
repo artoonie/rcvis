@@ -97,6 +97,14 @@ class Graph:
         # Reset summary: it's no longer accurate
         self.summary = None
 
+    def set_migrated_raw_data(self, migratedRawData):
+        """ As of implementation, only used for pie chart visualization. """
+        self.migratedRawData = migratedRawData
+
+    def get_migrated_raw_data(self):
+        """ As of implementation, only used for pie chart visualization. """
+        return self.migratedRawData
+
     def set_date(self, date):
         """ Sets the date of this election """
         assert isinstance(date, datetime.datetime)
