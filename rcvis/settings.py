@@ -329,3 +329,6 @@ if not OFFLINE_MODE:
     # Otherwise tests will use a live database and not clear after each test
     # Also ensure logging is output on remote
     django_on_heroku.settings(locals(), staticfiles=False, secret_key=False, logging=False)
+
+    # Avoid 500s caused by dead connections
+    DATABASES["default"]["CONN_HEALTH_CHECKS"] = True

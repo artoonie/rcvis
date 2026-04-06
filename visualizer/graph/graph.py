@@ -56,6 +56,9 @@ class Graph:
         # This must be set manually by calling set_elimination_order
         self.eliminationOrder = None
 
+        # This must be set in order for the pie chart to work
+        self.migratedRawData = None
+
         # Used while building the graph only
         self.nodesPerRound = []
         self.transfersPerRound = []

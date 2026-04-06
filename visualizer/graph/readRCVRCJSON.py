@@ -371,7 +371,7 @@ class JSONReader:
     def get_rounds(self):
         """ Returns the list of rounds """
         return self.rounds
-    
+
     def set_elimination_order(self, rounds, candidates):
         """ Sets the elimination order given each round and a list of Candidates """
         eliminationOrder = []
