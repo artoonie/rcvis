@@ -729,7 +729,7 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
 
         # Wait for the pie chart to render
         self._ensure_eventually_asserts(
-            lambda: self.assertTrue(len(self._get_pie_svg_text()) > 0))
+            lambda: self.assertGreater(len(self._get_pie_svg_text()), 0))
 
         # Change to round 1 via the pie's round player select.
         # Round 1 should have all candidates including Banana,
