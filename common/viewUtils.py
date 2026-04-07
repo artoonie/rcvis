@@ -68,7 +68,7 @@ def get_data_for_graph(graph, config):
         'tabularByRound': tabularByRound,
         'tabularByRoundInteractive': tabularByRoundInteractive,
         'graph': graph,
-        'pieData': graph.get_migrated_raw_data(),
+        'rawData': graph.get_migrated_raw_data(),
         'textForWinner': as_caption(config).lower(),
     }
     roundDescriberData = get_data_for_round_describer(graph, config)

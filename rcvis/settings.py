@@ -192,7 +192,6 @@ STORAGES = {
     }
 }
 
-
 NODE_PACKAGE_JSON = './package.json'
 NODE_MODULES_ROOT = './node_modules'
 NODE_PACKAGE_MANAGER_EXECUTABLE = os.environ.get('NODE_PACKAGE_MANAGER_EXECUTABLE', '/usr/bin/npm')

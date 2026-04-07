@@ -14,12 +14,8 @@
 
     // Generate candidate colors from the election's color theme,
     // matching the palette used by the other visualizations.
-    // Generate enough colors for all tally entries (including Inactive Ballots)
-    // rather than config.numCandidates, to avoid color wrapping.
-    const _parsedSummary = JSON.parse(electionSummary);
-    const _numTallyEntries = Object.keys(_parsedSummary.results[0].tally).length;
     const colorGenerator = getColorGenerator(config.colorTheme);
-    const candidateColors = Array.from(colorGenerator(_numTallyEntries));
+    const candidateColors = Array.from(colorGenerator({{ config.numCandidates }}));
 
     // Create the pie-chart element
     const pieChart = document.createElement("pie-chart");
@@ -33,6 +29,7 @@
     pieChart.textForWinner = "{{ textForWinner }}";
     pieChart.excludeFinalWinnerAndEliminatedCandidate = {{ config.excludeFinalWinnerAndEliminatedCandidate|yesno:"true,false" }};
     pieChart.firstRoundDeterminesPercentages = false;
+    pieChart.randomizeOrder = true;
     pieChart.currentRound = {{ config.numRounds }};
 
     // Append it to the div
