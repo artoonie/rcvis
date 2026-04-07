@@ -1,0 +1,58 @@
+{% load static %}
+
+<!-- Previously wrapped in django-compressor block, but compressor 4.5.1
+     breaks ES module scripts. May need a different compression approach. -->
+<script type="module" src="{% static 'pie/pie-chart.es.js' %}"></script>
+
+<script>
+
+    // const electionSummary = JSON.parse(document.getElementById("rawDataId").textContent);
+    //
+    // We might as well leave this as a string, because it has to be serialized to send to the
+    // client browser anyway, and the pie chart component can handle it in string form.
+    const electionSummary = document.getElementById("rawDataId").textContent;
+
+    // Generate candidate colors from the election's color theme,
+    // matching the palette used by the other visualizations.
+    const colorGenerator = getColorGenerator(config.colorTheme);
+    const candidateColors = Array.from(colorGenerator({{ config.numCandidates }}));
+
+    // Create the pie-chart element
+    const pieChart = document.createElement("pie-chart");
+
+    // Functions *must* be added as properties; anything added as an attribute must be a string.
+    // So we don't have to re-stringify the JSON object, which will be immediately parsed again,
+    // we can just bind it in object form here.
+    pieChart.requestRoundChange = updateRound;
+    pieChart.electionSummary = electionSummary;
+    pieChart.candidateColors = candidateColors;
+    pieChart.textForWinner = "{{ textForWinner }}";
+    pieChart.excludeFinalWinnerAndEliminatedCandidate = {{ config.excludeFinalWinnerAndEliminatedCandidate|yesno:"true,false" }};
+    pieChart.firstRoundDeterminesPercentages = false;
+    pieChart.randomizeOrder = true;
+    pieChart.currentRound = {{ config.numRounds }};
+
+    // Append it to the div
+    document.getElementById("pie-body").appendChild(pieChart);
+
+    const pieRoundPlayer = RoundPlayer({
+      container: document.getElementById('pie-slider-container'),
+      totalRounds: {{ config.numRounds }},
+      onChange: updatePieChartRound,
+      timeBetweenStepsMs: 3000,
+      firstStepHoldTimeMs: 500,
+    });
+
+    function updatePieChartRound(sliderIndex) {
+        pieChart.currentRound = sliderIndex+1;
+    }
+
+    // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
+    // loops it requests to be told the new currentRound rather than using 2-way binding.
+    // And we also update the slider state while we're at it.
+    function updateRound(roundNum) {
+        pieChart.currentRound = roundNum;
+        pieRoundPlayer.setStep(roundNum - 1);
+    }
+
+</script>

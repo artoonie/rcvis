@@ -4,12 +4,14 @@ function RoundPlayer({
   onPlay,
   totalRounds,
   timeBetweenStepsMs,
+  firstStepHoldTimeMs,
 }) {
   let isPlaying = false;
   let currentStep = totalRounds - 1;
   // Imported from visualize-common.js
   let stepTimeMs =
     timeBetweenStepsMs || getTimeBetweenAnimationStepsMs(totalRounds);
+  let firstStepTimeMs = firstStepHoldTimeMs || stepTimeMs;
   let timer = null;
   const svgNS = "http://www.w3.org/2000/svg";
   const MIN_ROUNDS_FOR_NAV = 3;
@@ -132,13 +134,13 @@ function RoundPlayer({
     changeStep(step);
   }
 
-  function nextStep() {
+  function nextStep(currStepTimeMs) {
     if (!isPlaying) return;
 
     timer = window.setTimeout(() => {
       changeStep(currentStep + 1);
-      nextStep();
-    }, stepTimeMs);
+      nextStep(stepTimeMs);
+    }, currStepTimeMs);
   }
 
   function play() {
@@ -146,7 +148,7 @@ function RoundPlayer({
     isPlaying = true;
     container.querySelector(".round-player-play-btn").innerText = "Stop";
     changeStep(0);
-    nextStep();
+    nextStep(firstStepTimeMs);
   }
 
   function stop() {

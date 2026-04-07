@@ -1,3 +1,6 @@
 query-filters:
   - exclude:
       id: py/catch-base-exception
+
+paths-ignore:
+ - 'static/pie/pie-chart.es.js'
