@@ -50,9 +50,14 @@
     // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
     // loops it requests to be told the new currentRound rather than using 2-way binding.
     // And we also update the slider state while we're at it.
+    //
+    // During auto-play, skip the setStep() call — it stops playback.
+    // The round player's timer will catch up on its next tick.
     function updateRound(roundNum) {
         pieChart.currentRound = roundNum;
-        pieRoundPlayer.setStep(roundNum - 1);
+        if (!pieRoundPlayer.playing()) {
+            pieRoundPlayer.setStep(roundNum - 1);
+        }
     }
 
 </script>
