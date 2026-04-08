@@ -191,7 +191,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.browser.execute_script("showFaqButtonNow();")
 
         # Starts at 65px
-        div = self.browser.find_element(By.ID, 'round-description-wrapper')
+        div = self.browser.find_element(By.CSS_SELECTOR, '.round-description-wrapper')
         self._ensure_eventually_asserts(lambda: self.assertEqual(div.size['height'], 65))
 
         faqHeader = self.browser.find_element(By.CSS_SELECTOR, '.faq-description-header')
@@ -291,7 +291,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self._upload_something_if_needed()
 
         # Ensure that the FAQs are visible outside an iframe
-        faq = self.browser.find_element(By.ID, 'faq-text')
+        faq = self.browser.find_element(By.ID, 'bargraph-interactive-faq-text')
         self.assertEqual(faq.value_of_css_property("display"), "block")
 
         # Get the iframe HTML
@@ -310,7 +310,7 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Check that the FAQs are hidden
         WebDriverWait(self.browser, 3).until(
             EC.visibility_of_element_located((By.ID, "embedded-body")))
-        faq = self.browser.find_element(By.ID, 'faq-text')
+        faq = self.browser.find_element(By.ID, 'bargraph-interactive-faq-text')
         self.assertEqual(faq.value_of_css_property("display"), "none")
 
         # After clicking "Read a detailed explanation" it becomes visible

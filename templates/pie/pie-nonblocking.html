@@ -35,16 +35,22 @@
     // Append it to the div
     document.getElementById("pie-body").appendChild(pieChart);
 
+    const pieNumRounds = {{ config.numRounds }};
+    const pieIds = makeRoundComponentIds("pie");
+
     const pieRoundPlayer = RoundPlayer({
       container: document.getElementById('pie-slider-container'),
-      totalRounds: {{ config.numRounds }},
+      totalRounds: pieNumRounds,
       onChange: updatePieChartRound,
       timeBetweenStepsMs: 3000,
       firstStepHoldTimeMs: 500,
     });
+    activeRoundPlayer = pieRoundPlayer;
 
     function updatePieChartRound(sliderIndex) {
         pieChart.currentRound = sliderIndex+1;
+        showTextOnRoundDescriber(descriptionOfCurrRound(sliderIndex), false, pieIds);
+        updateFaqText(sliderIndex, pieIds);
     }
 
     // When the pie chart is animating it knows it is advancing rounds, but to avoid reactive
@@ -53,6 +59,15 @@
     function updateRound(roundNum) {
         pieChart.currentRound = roundNum;
         pieRoundPlayer.setStep(roundNum - 1);
+        showTextOnRoundDescriber(descriptionOfCurrRound(roundNum - 1), false, pieIds);
+        updateFaqText(roundNum - 1, pieIds);
+    }
+
+    // Show summary text and last-round FAQ on load
+    showTextOnRoundDescriber(humanFriendlySummary, false, pieIds);
+    updateFaqText(pieNumRounds - 1, pieIds);
+    if (window.self === window.top) {
+        makeFaqSectionVisible(pieIds);
     }
 
 </script>

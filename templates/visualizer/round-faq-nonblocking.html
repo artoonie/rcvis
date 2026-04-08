@@ -1,0 +1,38 @@
+<script type="text/javascript">
+
+let scrollbarLocked = false;
+
+function lockScrollbarIfNeeded() {
+  // Don't allow the animation to shift horizontally when a scrollbar is added
+  // and removed -- if a scrollbar is ever visible, keep it there.
+  if (scrollbarLocked) return;
+
+  const hasVerticalScrollbar = document.documentElement.scrollHeight > window.innerHeight;
+
+  if (hasVerticalScrollbar) {
+    document.body.style.overflowY = 'scroll';
+    scrollbarLocked = true;
+  }
+}
+
+function updateFaqText(round, ids) {
+  const faqsPerRound = {{ faqsPerRound|safe }};
+  const text = faqsPerRound[round]
+              .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
+                        "<p class='faq-a'>" + d['answer'] + "</p>")
+              .reduce((accum, val) => accum + val);
+  document.getElementById(ids.faqText).innerHTML = `<h3 class="faq-description-header">Round ${round + 1} Explanation</h3> ${text}`;
+  setTimeout(lockScrollbarIfNeeded, 0); // Needs to run after the DOM is updated
+}
+
+function showFaqsFor(prefix) {
+  const ids = makeRoundComponentIds(prefix);
+  makeFaqSectionVisible(ids);
+  document.getElementById(ids.faqText).scrollIntoView({ behavior: "smooth" });
+}
+
+function makeFaqSectionVisible(ids) {
+  document.getElementById(ids.faqText).style.display = "block";
+}
+
+</script>

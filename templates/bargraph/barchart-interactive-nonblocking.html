@@ -2,96 +2,9 @@
 
 <script type="text/javascript">
 
-const idOfWhyButton = "#bargraph-interactive-why-button";
 // Raising the scope for other methods to access
 let barchartRoundPlayer = null;
-let scrollbarLocked = false;
-
-function showTextOnRoundDescriber(description, keepFAQButtonHidden) {
-  // While playing, don't update the description text for the round
-  if (barchartRoundPlayer.playing()) {
-    return;
-  }
-
-  const idOfLegendOrRoundDescriber = "#bargraph-interactive-round-description";
-
-  // Don't re-render and transition if text already matches
-  if (d3.select(idOfLegendOrRoundDescriber).text() === description) {
-    return;
-  }
-
-  d3.select(idOfLegendOrRoundDescriber)
-  .transition()
-    .duration(100)
-    .delay(0)
-    .style("opacity", "0");
-  d3.select(idOfWhyButton)
-  .transition()
-    .duration(100)
-    .delay(0)
-    .style("opacity", "0");
-
-  d3.select(idOfLegendOrRoundDescriber)
-  .transition()
-    .delay(350)
-    .style("opacity", "1")
-    .text(description);
-
-  if (!keepFAQButtonHidden) {
-    d3.select(idOfWhyButton)
-    .transition()
-      .delay(350)
-      .style("opacity", "1");
-  }
-};
-
-
-function descriptionOfCurrRound(round) {
-  const roundData = humanFriendlyEventsPerRound[round];
-
-  let roundText = roundData.map(function(event) {
-    return event.description;
-  }).reduce(function(totalString, currText) {
-    return totalString + "\n" + currText;
-  }, "");
-
-  const roundIdentifier = `Round ${round + 1}. `;
-  return roundIdentifier + roundText;
-}
-
-
-function lockScrollbarIfNeeded() {
-  // Don't allow the animation to shift horizontally when a scrollbar is added
-  // and removed -- if a scrollbar is ever visible, keep it there.
-  if (scrollbarLocked) return;
-
-  const hasVerticalScrollbar = document.documentElement.scrollHeight > window.innerHeight;
-
-  if (hasVerticalScrollbar) {
-    document.body.style.overflowY = 'scroll';
-    scrollbarLocked = true;
-  }
-}
-
-function updateFaqText(round) {
-  const faqsPerRound = {{ faqsPerRound|safe }};
-  const idOfFaqTextDiv = "faq-text";
-  const text = faqsPerRound[round]
-              .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
-                        "<p class='faq-a'>" + d['answer'] + "</p>")
-              .reduce((accum, val) => accum + val);
-  document.getElementById(idOfFaqTextDiv).innerHTML = `<h3 class="faq-description-header">Round ${round + 1} Explanation</h3> ${text}`;
-  setTimeout(lockScrollbarIfNeeded, 0); // Needs to run after the DOM is updated
-}
-
-function showFaqs() {
-  makeFaqSectionVisible();
-  document.getElementById("faq-text").scrollIntoView({ behavior: "smooth" })
-}
-
-function makeFaqSectionVisible() {
-  document.getElementById("faq-text").style.display = "block";
-}
+const bargraphInteractiveIds = makeRoundComponentIds("bargraph-interactive");
 
 function makeInteractiveGraph() {
   {{ bargraphjs|safe }}
@@ -124,8 +37,8 @@ function makeInteractiveGraph() {
 
   function sliderValueChangedCallback(round) {
     transitionEachBarForRound(round);
-    showTextOnRoundDescriber(descriptionOfCurrRound(round), false);
-    updateFaqText(round);
+    showTextOnRoundDescriber(descriptionOfCurrRound(round), false, bargraphInteractiveIds);
+    updateFaqText(round, bargraphInteractiveIds);
   }
 
   barchartRoundPlayer = RoundPlayer({
@@ -133,35 +46,22 @@ function makeInteractiveGraph() {
     totalRounds: numRounds,
     onChange: sliderValueChangedCallback,
     onPlay: function() {
-      showTextOnRoundDescriber(humanFriendlySummary, false);
+      showTextOnRoundDescriber(humanFriendlySummary, false, bargraphInteractiveIds);
     }
   });
+  activeRoundPlayer = barchartRoundPlayer;
 
   // After creating the slider, make the default text the summary
   // round summary, with the FAQ button showing.
-  showTextOnRoundDescriber(humanFriendlySummary, false);
+  showTextOnRoundDescriber(humanFriendlySummary, false, bargraphInteractiveIds);
 
   // On load, show the FAQs if not in an iframe
   if (window.self === window.top) {
-    makeFaqSectionVisible();
+    makeFaqSectionVisible(bargraphInteractiveIds);
   }
 
   // Populate the FAQ with initial description for the last round
-  updateFaqText(numRounds - 1);
-}
-
-function showFaqButton() {
-  d3.select(idOfWhyButton)
-  .transition()
-    .delay(300)
-    .duration(300)
-    .style("opacity", "100%");
-}
-
-function showFaqButtonNow() {
-  // Just used for integration testing
-  d3.select(idOfWhyButton)
-    .style("opacity", "100%");
+  updateFaqText(numRounds - 1, bargraphInteractiveIds);
 }
 
 makeInteractiveGraph();

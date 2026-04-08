@@ -1,7 +1,11 @@
 {% load static %}
 
+{% include "visualizer/round-describer.html" with prefix="tabular" %}
+
   <div id="tabular-by-round-slider-container" class="ml-auto mr-auto">
   </div>
+
+{% include "visualizer/round-faq.html" with prefix="tabular" %}
 
   <div id="tabularByRoundInteractiveContainer">
     {% for round in tabularByRoundInteractive.rounds %}
@@ -15,7 +19,7 @@
               <th scope="col">Current total votes</th>
             </tr>
           </thead>
-        
+
           <tbody>
             {% for candidate in round %}
               {% if candidate.wonThisRound %}

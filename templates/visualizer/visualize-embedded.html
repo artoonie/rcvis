@@ -45,6 +45,8 @@
   </div>
 
   {% include "visualizer/common-visualizer-nonblocking.html" %}
+  {% include "visualizer/round-describer-nonblocking.html" %}
+  {% include "visualizer/round-faq-nonblocking.html" %}
   {% if vistype == "sankey" %}
       {% include "sankey/sankey-nonblocking.html" %}
   {% elif vistype == "pie" %}

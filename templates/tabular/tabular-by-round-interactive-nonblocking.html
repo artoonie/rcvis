@@ -5,12 +5,15 @@
 
 // For slider TODO sync with barchart-interactive.html
 var numRounds = {{ tabularByRoundInteractive.rounds|length }};
+const tabularIds = makeRoundComponentIds("tabular");
 
 function showRound(round) {
-    for (let i = 0; i < numRounds; i++) { 
+    for (let i = 0; i < numRounds; i++) {
       document.getElementById("tabular_round_container_"+i).style.display = "none";
     }
     document.getElementById("tabular_round_container_"+round).style.display = "block";
+    showTextOnRoundDescriber(descriptionOfCurrRound(round), false, tabularIds);
+    updateFaqText(round, tabularIds);
 }
 
 showRound(numRounds-1)
@@ -20,5 +23,12 @@ const roundPlayer = RoundPlayer({
   totalRounds: numRounds,
   onChange: showRound,
 });
+activeRoundPlayer = roundPlayer;
+
+// Show summary text and last-round FAQ on load
+showTextOnRoundDescriber(humanFriendlySummary, false, tabularIds);
+if (window.self === window.top) {
+    makeFaqSectionVisible(tabularIds);
+}
 
 </script>

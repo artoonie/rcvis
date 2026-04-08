@@ -64,7 +64,7 @@ path.domain {
   display: inline-block;
 }
 
-#faq-text {
+.faq-text {
   width: 100%;
   max-width: 750px;
   padding: 5px 10px 0px 10px;
