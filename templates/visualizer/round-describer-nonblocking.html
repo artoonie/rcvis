@@ -1,0 +1,81 @@
+<script type="text/javascript">
+
+// Consumers must set activeRoundPlayer to their RoundPlayer instance
+// before showTextOnRoundDescriber is called.
+let activeRoundPlayer = null;
+
+function makeRoundComponentIds(prefix) {
+  return {
+    describer: "#" + prefix + "-round-description",
+    whyButton: "#" + prefix + "-why-button",
+    faqText: prefix + "-faq-text"
+  };
+}
+
+function showTextOnRoundDescriber(description, keepFAQButtonHidden, ids) {
+  // While playing, don't update the description text for the round
+  if (activeRoundPlayer.playing()) {
+    return;
+  }
+
+  // Don't re-render and transition if text already matches
+  if (d3.select(ids.describer).text() === description) {
+    return;
+  }
+
+  d3.select(ids.describer)
+  .transition()
+    .duration(100)
+    .delay(0)
+    .style("opacity", "0");
+  d3.select(ids.whyButton)
+  .transition()
+    .duration(100)
+    .delay(0)
+    .style("opacity", "0");
+
+  d3.select(ids.describer)
+  .transition()
+    .delay(350)
+    .style("opacity", "1")
+    .text(description);
+
+  if (!keepFAQButtonHidden) {
+    d3.select(ids.whyButton)
+    .transition()
+      .delay(350)
+      .style("opacity", "1");
+  }
+};
+
+
+function descriptionOfCurrRound(round) {
+  const roundData = humanFriendlyEventsPerRound[round];
+
+  let roundText = roundData.map(function(event) {
+    return event.description;
+  }).reduce(function(totalString, currText) {
+    return totalString + "\n" + currText;
+  }, "");
+
+  const roundIdentifier = `Round ${round + 1}. `;
+  return roundIdentifier + roundText;
+}
+
+
+function showFaqButton(ids) {
+  d3.select(ids.whyButton)
+  .transition()
+    .delay(300)
+    .duration(300)
+    .style("opacity", "100%");
+}
+
+function showFaqButtonNow() {
+  // Just used for integration testing - targets the bargraph
+  const ids = makeRoundComponentIds("bargraph-interactive");
+  d3.select(ids.whyButton)
+    .style("opacity", "100%");
+}
+
+</script>

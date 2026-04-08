@@ -1,9 +1,18 @@
+{% load static %}
+{% load compress %}
+
+{% compress css file %}
+<link rel="stylesheet" type="text/css" href="{% static 'pie/pie.css' %}">
+{% endcompress %}
 
 <!-- Embed JSON Data -->
 {{ rawData|json_script:"rawDataId" }}
 
+{% include "visualizer/round-describer.html" with prefix="pie" %}
 
 <div id="pie-wrapper" class="shadow-wrapper">
     <div id="pie-slider-container"></div>
     <div id="pie-body" style="width: 100%; max-width: 800px; aspect-ratio: 1; margin: 0 auto;"></div>
 </div>
+
+{% include "visualizer/round-faq.html" with prefix="pie" %}
