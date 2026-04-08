@@ -158,6 +158,16 @@ function RoundPlayer({
       "Play Animation";
   }
 
+  // Resume playback from a specific step without resetting to round 0.
+  // Used when the pie chart skips a no-transfer round during auto-play
+  // and needs the round player to catch up without interrupting playback.
+  function resumeFrom(step) {
+    changeStep(step);
+    if (!isPlaying) return;
+    window.clearTimeout(timer);
+    nextStep(stepTimeMs);
+  }
+
   function playing() {
     return isPlaying;
   }
@@ -168,5 +178,5 @@ function RoundPlayer({
 
   init();
 
-  return { play, stop, setStep, setTimeBetweenStepsMs, playing };
+  return { play, stop, setStep, resumeFrom, setTimeBetweenStepsMs, playing };
 }
