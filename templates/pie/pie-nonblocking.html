@@ -24,6 +24,7 @@
     // So we don't have to re-stringify the JSON object, which will be immediately parsed again,
     // we can just bind it in object form here.
     pieChart.requestRoundChange = updateRound;
+    pieChart.requestSkipToRound = skipToRound;
     pieChart.electionSummary = electionSummary;
     pieChart.candidateColors = candidateColors;
     pieChart.textForWinner = "{{ textForWinner }}";
@@ -40,7 +41,6 @@
       totalRounds: {{ config.numRounds }},
       onChange: updatePieChartRound,
       timeBetweenStepsMs: 3000,
-      firstStepHoldTimeMs: 500,
     });
 
     function updatePieChartRound(sliderIndex) {
@@ -53,6 +53,13 @@
     function updateRound(roundNum) {
         pieChart.currentRound = roundNum;
         pieRoundPlayer.setStep(roundNum - 1);
+    }
+
+    // Skip to a round immediately without stopping playback.
+    // Used to skip no-transfer rounds during animation.
+    function skipToRound(roundNum) {
+        pieChart.currentRound = roundNum;
+        pieRoundPlayer.skipToStep(roundNum - 1);
     }
 
 </script>

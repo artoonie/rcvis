@@ -134,6 +134,14 @@ function RoundPlayer({
     changeStep(step);
   }
 
+  // Jump to a step immediately without stopping playback.
+  // Used to skip no-transfer rounds during animation.
+  function skipToStep(step) {
+    window.clearTimeout(timer);
+    changeStep(step);
+    if (isPlaying) nextStep(stepTimeMs);
+  }
+
   function nextStep(currStepTimeMs) {
     if (!isPlaying) return;
 
@@ -168,5 +176,5 @@ function RoundPlayer({
 
   init();
 
-  return { play, stop, setStep, setTimeBetweenStepsMs, playing };
+  return { play, stop, setStep, skipToStep, setTimeBetweenStepsMs, playing };
 }
