@@ -156,7 +156,8 @@ function RoundPlayer({
     isPlaying = true;
     container.querySelector(".round-player-play-btn").innerText = "Stop";
     changeStep(0);
-    nextStep(firstStepTimeMs);
+    // First step fires immediately — the timer delay is for between steps
+    nextStep(0);
   }
 
   function stop() {
