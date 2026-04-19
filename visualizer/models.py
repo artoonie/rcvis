@@ -1,5 +1,7 @@
 """ The django object models """
 
+import secrets
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -131,22 +133,28 @@ class JsonConfig(models.Model):
         return JsonConfig.objects.all().exclude(owner__in=privateUsers)
 
     def _get_unique_slug(self):
-        # loop until the name is unique
+        # Build the title-based prefix (kept for human-readable URLs and SEO).
         slug = slugify(self.title)
         if slug.endswith('json'):
             slug = slug[:-4]
 
-        # at most 220 chars for slug, 20 for title, leaving 15 for numbers
+        # at most 220 chars for slug, 20 for title, leaving 15 for suffix
         slug = slug[:220]
 
-        # loop until the name is unique
-        num = 1
-        uniqueSlug = slug
-        while JsonConfig.objects.filter(slug=uniqueSlug).exists():
-            uniqueSlug = f'{slug}-{num}'
-            num += 1
+        # Append 48 bits of random hex. This has two effects:
+        #   1. Slugs are not enumerable. Knowing another visualization's title
+        #      tells you nothing about its URL — previously, `/v/<title>`,
+        #      `/v/<title>-1`, `/v/<title>-2`, ... let anyone walk the index.
+        #   2. Slugs never reuse across database resets. A stale client that
+        #      PATCHes by slug can't accidentally overwrite a different
+        #      record that happened to land on the same counter value.
+        # The uniqueness loop is retained as belt-and-suspenders, but with
+        # 2**48 values the chance of a collision is astronomically small.
+        candidate = f'{slug}-{secrets.token_hex(6)}'
+        while JsonConfig.objects.filter(slug=candidate).exists():
+            candidate = f'{slug}-{secrets.token_hex(6)}'
 
-        return uniqueSlug
+        return candidate
 
     def __str__(self):
         return f"{self.slug}: {self.title}"

@@ -5,6 +5,7 @@ Integration tests without a server
 from datetime import timedelta
 from io import StringIO
 import json
+import re
 from mock import patch
 
 from django.core.files import File
@@ -386,17 +387,21 @@ class SimpleTests(TestCase):
         assert summary.rounds[2].winnerNames[0] == 'Vanilla'
 
     def test_uniqueness(self):
-        """ Ensures filenames are not overwritten """
-        slug0 = "city-of-eastpointe-macomb-county-mi"
-        slug1 = "city-of-eastpointe-macomb-county-mi-1"
+        """ Ensures filenames are not overwritten when a title repeats. """
+        slugPrefix = "city-of-eastpointe-macomb-county-mi"
+        slugPattern = re.compile(rf'^v/{slugPrefix}-[0-9a-f]{{12}}$')
 
         response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], f"v/{slug0}")
+        self.assertRegex(response['location'], slugPattern)
+        slug0 = response['location'][len('v/'):]
 
         response = TestHelpers.get_multiwinner_upload_response(self.client)
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], f"v/{slug1}")
+        self.assertRegex(response['location'], slugPattern)
+        slug1 = response['location'][len('v/'):]
+
+        self.assertNotEqual(slug0, slug1)
 
         model0 = JsonConfig.objects.get(slug=slug0)
         model1 = JsonConfig.objects.get(slug=slug1)
@@ -408,14 +413,17 @@ class SimpleTests(TestCase):
         # Upload two files
         TestHelpers.get_multiwinner_upload_response(self.client)
         TestHelpers.get_multiwinner_upload_response(self.client)
-        slug = 'city-of-eastpointe-macomb-county-mi'
+        slugPrefix = 'city-of-eastpointe-macomb-county-mi'
 
         # Load those two via the database
         out = StringIO()
         call_command('checkUploads', 0, 100, stdout=out)
-        self.assertIn(f'0: Successfully loaded {slug}-1', out.getvalue())
-        self.assertIn(f'1: Successfully loaded {slug}', out.getvalue())
-        self.assertIn('Successfully loaded configs', out.getvalue())
+        output = out.getvalue()
+        # Both uploads should be reported as successfully loaded by the command,
+        # regardless of the random slug suffixes.
+        self.assertEqual(len(re.findall(rf'Successfully loaded {slugPrefix}-[0-9a-f]{{12}}',
+                                        output)), 2)
+        self.assertIn('Successfully loaded configs', output)
 
         # Load all files in the testData/ directory (one of which raises a TypeError)
         out = StringIO()
@@ -722,12 +730,13 @@ class SimpleTests(TestCase):
 
     def test_slug_generation(self):
         """
-        Tests that slug generation increments with each upload
+        Tests that repeated uploads produce unique, title-prefixed slugs
+        with random suffixes (non-enumerable).
         """
         TestHelpers.get_multiwinner_upload_response(self.client)
         TestHelpers.get_multiwinner_upload_response(self.client)
         slug = TestHelpers.get_latest_upload().slug
-        self.assertEqual(slug, 'city-of-eastpointe-macomb-county-mi-1')
+        self.assertRegex(slug, r'^city-of-eastpointe-macomb-county-mi-[0-9a-f]{12}$')
 
     def test_public_user(self):
         """
