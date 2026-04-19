@@ -13,7 +13,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.http import Http404, JsonResponse, HttpResponse, HttpResponseNotModified
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.templatetags.static import static
 from django.urls import Resolver404
 from django.urls import resolve
@@ -516,7 +516,41 @@ class ConvertToRCTabFormat(ValidateDataEntry):
 # For django REST
 
 
-class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
+class PkOrSlugLookupMixin:
+    """
+    Allow ViewSet detail operations to be addressed by either integer PK
+    (legacy clients) or slug (new clients). The router URL pattern captures
+    a single path segment; we dispatch based on whether the value parses
+    as a positive integer and a matching PK exists.
+
+    Rationale: the integer PK is a sequential auto-increment, which means
+    after a database reset (e.g. on an ephemeral / Cloud Run deployment)
+    newly-created records can occupy the same PKs as prior records held
+    by different clients. A stale PATCH from one client could then
+    silently overwrite another client's data. Slugs carry 48 bits of
+    randomness and do not collide across resets, so addressing by slug
+    is intrinsically safe. Integer-PK addressing is preserved for
+    backward compatibility with existing clients.
+    """
+
+    def get_object(self):
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup = self.kwargs[self.lookup_url_kwarg or self.lookup_field]
+
+        obj = None
+        if lookup.isdigit():
+            try:
+                obj = queryset.get(pk=int(lookup))
+            except queryset.model.DoesNotExist:
+                pass
+        if obj is None:
+            obj = get_object_or_404(queryset, slug=lookup)
+
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+
+class JsonOnlyViewSet(PkOrSlugLookupMixin, LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that allows tabulated JSONs to be viewed or edited. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = JsonOnlySerializer
@@ -526,7 +560,7 @@ class JsonOnlyViewSet(LoggingMixin, viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class VerboseViewSet(LoggingMixin, viewsets.ModelViewSet):
+class VerboseViewSet(PkOrSlugLookupMixin, LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint that expects all arguments to be supplied. """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = VerboseSerializer
@@ -536,7 +570,7 @@ class VerboseViewSet(LoggingMixin, viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class BallotpediaViewSet(LoggingMixin, viewsets.ModelViewSet):
+class BallotpediaViewSet(PkOrSlugLookupMixin, LoggingMixin, viewsets.ModelViewSet):
     """ API endpoint with all ballotpedia fields """
     queryset = JsonConfig.objects.all().order_by('-uploadedAt')
     serializer_class = BallotpediaSerializer

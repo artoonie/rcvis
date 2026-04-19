@@ -358,19 +358,43 @@ class RestAPITests(APITestCase):
         self.assertEqual(logs[1].method, 'GET')
 
     def test_slug_generation(self):
-        """ Ensure slug generation increments on the rest API """
+        """ Ensure slug generation produces unique, non-enumerable slugs
+            that share the title prefix but have distinct random suffixes. """
         self._authenticate_as('notadmin')
 
         # Upload once
         response = self._upload_file_for_api(filenames.ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        firstSlug = TestHelpers.get_latest_upload().slug
 
         # Upload again
         response = self._upload_file_for_api(filenames.ONE_ROUND)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        secondSlug = TestHelpers.get_latest_upload().slug
 
-        oneRoundObject = TestHelpers.get_latest_upload()
-        self.assertEqual(oneRoundObject.slug, 'one-round-1')
+        # Both slugs start with the title prefix, but the random suffix
+        # makes them distinct and non-enumerable.
+        self.assertRegex(firstSlug, r'^one-round-[0-9a-f]{12}$')
+        self.assertRegex(secondSlug, r'^one-round-[0-9a-f]{12}$')
+        self.assertNotEqual(firstSlug, secondSlug)
+
+    def test_detail_accepts_pk_and_slug(self):
+        """ Ensure detail endpoints accept both PK and slug as the lookup
+            value. PK is retained for backward compatibility; slug is the
+            preferred (and non-enumerable) form. """
+        self._authenticate_as('notadmin')
+        response = self._upload_file_for_api(filenames.ONE_ROUND)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        obj = TestHelpers.get_latest_upload()
+
+        pk_response = self.client.get(f'/api/visualizations/{obj.pk}/')
+        slug_response = self.client.get(f'/api/visualizations/{obj.slug}/')
+
+        self.assertEqual(pk_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(slug_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(pk_response.data['slug'], slug_response.data['slug'])
+        self.assertEqual(pk_response.data['slug'], obj.slug)
 
     def test_defaults(self):
         """ Ensure the correct defaults are used on upload """
