@@ -81,6 +81,9 @@ MIDDLEWARE = [
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
+    # Store current request in thread-local for cache key construction in model.save()
+    'visualizer.middleware.CurrentRequestMiddleware',
+
     # Order of the next 3 is important
     'visualizer.middleware.UpdateCacheWithoutMaxAgeMiddleware',
     'django.middleware.common.CommonMiddleware',
