@@ -27,7 +27,7 @@ pylint-django==2.6.1
 pycodestyle==2.13.0
 
 # For django-rest
-djangorestframework==3.16.0
+djangorestframework==3.17.2
 drf-api-tracking==1.8.4
 markdown==3.8.1
 
