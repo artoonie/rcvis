@@ -1,42 +1,42 @@
-boto3==1.38.38
+boto3==1.43.90
 csscompressor==0.9.5
-django-admin-cursor-paginator==0.1.6
-django-compressor==4.5.1
+django-admin-cursor-paginator==0.1.7
+django-compressor==4.6.0
 django-extra-views==0.16.0
-django-node-assets==0.9.15
+django-node-assets==0.9.16
 django-registration==5.2.1
 django-social-share==2.3.0
 django-sortedm2m==4.0.0
 django-storages==1.14.6
-Django==5.2.16
+Django==6.1.1
 rcvformats==0.0.46
-selenium==4.31.0  # Stay below 4.32.0 until this is fixed: https://github.com/SeleniumHQ/selenium/issues/15772
-requests==2.33.0
-whitenoise==6.4.0
+selenium==4.48.0  # Stay below 4.32.0 until this is fixed: https://github.com/SeleniumHQ/selenium/issues/15772
+requests==2.34.2
+whitenoise==6.12.0
 
 # For tests
 mock==5.2.0
-requests-mock==1.12.0
+requests-mock==1.12.1
 django_extensions==4.1
 
 # For coverage
 autopep8==2.3.2
-coverage==7.9.1
-pylint==3.3.7
-pylint-django==2.6.1
-pycodestyle==2.13.0
+coverage==7.16.0
+pylint==4.0.8
+pylint-django==2.8.0
+pycodestyle==2.14.0
 
 # For django-rest
-djangorestframework==3.17.2
+djangorestframework==3.18.1
 drf-api-tracking==1.8.4
-markdown==3.8.1
+markdown==3.10.3
 
 # For movie creation
-celery==5.5.3
+celery==5.6.3
 django-cleanup==9.0.0
 moviepy==2.2.1
-pillow<12.0.0 # Highest version supported by moviepy
+pillow<13.0.0 # Highest version supported by moviepy
 
 # For Heroku
-gunicorn==23.0.0
+gunicorn==26.2.0
 django-on-heroku==1.1.2
