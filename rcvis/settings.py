@@ -290,6 +290,14 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': '/tmp/django_rcvis_cache/',
+        'OPTIONS': {
+            # Django's default is 300 entries, after which a random third is
+            # evicted on every write. Each cached page costs two entries, so
+            # the default holds about 150 pages: fewer than the URL variants
+            # of a dozen busy visualizations. Every eviction is a graph
+            # recomputation at the origin.
+            'MAX_ENTRIES': 5000,
+        },
     }
 }
 
