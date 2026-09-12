@@ -262,9 +262,14 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Initial load should not be cached
         is_cache_much_faster(baseUrl, True)
 
-        # Uploading should clear all cache
+        # Uploading saves the new visualization more than once. Its first save
+        # finds no page cache registry for a never-viewed slug and clears everything.
         self._upload(filenames.ONE_ROUND)
         is_cache_much_faster(baseUrl, True)
+
+        # Updating that other visualization again purges only its own pages
+        TestHelpers.get_latest_upload().save()
+        is_cache_much_faster(baseUrl, False)
 
         # But just visiting the upload page and returning should not clear cache
         self.open("/upload.html")
@@ -290,10 +295,14 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # Going to the same URL should now be cached
         self.assertEqual(count_cache_misses_mocked(url), 0)
 
-        # Uploading also clears cache, but this is accidental -
-        # it just happens to save() multiple times
+        # Uploading saves the new visualization more than once. Its first save
+        # finds no page cache registry for a never-viewed slug and clears everything.
         self._upload(filenames.ONE_ROUND)
         self.assertEqual(count_cache_misses_mocked(url), 1)
+
+        # Updating that other visualization again purges only its own pages
+        TestHelpers.get_latest_upload().save()
+        self.assertEqual(count_cache_misses_mocked(url), 0)
 
     def test_sharetab_sane_links(self):
         """ Check that the share tab has sane links for all buttons """

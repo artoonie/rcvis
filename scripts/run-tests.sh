@@ -51,6 +51,7 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
               visualizer.tests.testDataTablesHeadlessBrowser\
               visualizer.tests.testFaq\
               visualizer.tests.testModelDeletion\
+              visualizer.tests.testPageCachePurge\
               visualizer.tests.testRawData\
               visualizer.tests.testRestApi\
               visualizer.tests.testRestApiExampleCode\

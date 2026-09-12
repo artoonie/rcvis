@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.core.cache import cache
 from django.db.models import BooleanField
 from django.urls import reverse
 from selenium import webdriver
@@ -34,6 +35,8 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
     def setUp(self):
         """ Creates the selenium browser. If on CI, connects to SauceLabs """
         super().setUp()
+        # The page cache outlives tests; start each one from an empty cache
+        cache.clear()
         if self.isUsingSauceLabs:
             username = os.environ["SAUCE_USERNAME"]
             accessKey = os.environ["SAUCE_ACCESS_KEY"]

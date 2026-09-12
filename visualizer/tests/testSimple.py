@@ -36,6 +36,8 @@ class SimpleTests(TestCase):
     def setUp(self):
         TestHelpers.login(self.client)
         TestHelpers.setup_host_mocks(self)
+        # The page cache outlives tests; start each one from an empty cache
+        cache.clear()
 
     def tearDown(self):
         TestHelpers.logout(self.client)

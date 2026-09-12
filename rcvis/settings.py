@@ -81,6 +81,10 @@ MIDDLEWARE = [
 
     'django.contrib.sessions.middleware.SessionMiddleware',
 
+    # Records page cache keys per visualization so a save can purge just its pages.
+    # Must stay above UpdateCacheMiddleware: its response hook runs after the store.
+    'common.pageCacheRegistry.PageCacheRegistryMiddleware',
+
     # Order of the next 3 is important
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
