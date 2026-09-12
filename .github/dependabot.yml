@@ -1,0 +1,51 @@
+# Dependabot configuration.
+#
+# Every ecosystem/directory below uses a single catch-all group, so Dependabot
+# opens one combined PR per ecosystem+directory instead of one PR per package.
+# The groups apply to both scheduled version updates and security updates.
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/infra"
+    schedule:
+      interval: "weekly"
+    groups:
+      all-pip-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      all-pip-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: "npm"
+    directories:
+      - "/"
+      - "/static/settings"
+      - "/static/datatable"
+    schedule:
+      interval: "weekly"
+    groups:
+      all-npm-dependencies:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      all-npm-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      all-github-actions:
+        applies-to: version-updates
+        patterns:
+          - "*"
+      all-github-actions-security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
