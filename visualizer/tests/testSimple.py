@@ -646,21 +646,6 @@ class SimpleTests(TestCase):
                 expected = http_date(config.updatedAt.timestamp())
                 self.assertEqual(response['Last-Modified'], expected)
 
-    def test_response_has_no_cache_directive(self):
-        """
-        Visualization responses should include Cache-Control: no-cache
-        so browsers always revalidate with the server.
-        """
-        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
-            self.client.post('/upload.html', {'jsonFile': f})
-        config = TestHelpers.get_latest_upload()
-
-        with self.settings(CACHES={'default': {
-                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
-            path = reverse('visualize', args=(config.slug,))
-            response = self.client.get(path)
-            self.assertIn('no-cache', response.get('Cache-Control', ''))
-
     def test_save_purge_only_on_update(self):
         """
         The first save (creation) should NOT trigger a cache purge, but

@@ -165,19 +165,18 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     """
     Mixin for DetailView subclasses that serve JsonConfig visualizations.
 
-    Sets Last-Modified from the object's updatedAt and Cache-Control: no-cache
-    so browsers always revalidate. On cache misses (file cache empty),
-    short-circuits with 304 if the client already has a fresh copy,
-    avoiding expensive graph computation. On cache hits, Django's
-    ConditionalGetMiddleware handles the 304 conversion using the
-    Last-Modified header preserved in the cached response.
+    Sets Last-Modified from the object's updatedAt so clients can
+    revalidate cheaply. On cache misses (file cache empty), short-circuits
+    with 304 if the client already has a fresh copy, avoiding expensive
+    graph computation. On cache hits, Django's ConditionalGetMiddleware
+    handles the 304 conversion using the Last-Modified header preserved
+    in the cached response, without touching the database.
 
-    Cache-Control: no-cache allows Django's server-side cache to store
-    the rendered response (via UpdateCacheWithoutMaxAgeMiddleware),
-    so subsequent requests from different clients or Cloudflare PoPs
-    can be served from the file cache without recomputing the graph.
-    The custom middleware strips the max-age that UpdateCacheMiddleware
-    would otherwise add, so browsers always revalidate.
+    Browser and edge cache lifetimes are owned by Cloudflare, which
+    ignores the origin's Cache-Control for these pages and is purged
+    whenever the model is saved. The origin therefore sends Django's
+    default cacheable headers, which also lets UpdateCacheMiddleware
+    store the rendered response in the server-side file cache.
     """
 
     def get(self, request, *args, **kwargs):
@@ -197,13 +196,11 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
                 if ifModifiedSince is not None and lastModified <= ifModifiedSince:
                     response = HttpResponseNotModified()
                     response['Last-Modified'] = http_date(lastModified)
-                    patch_cache_control(response, no_cache=True)
                     return response
 
         response = super().get(request, *args, **kwargs)
         if self.object.updatedAt:
             response['Last-Modified'] = http_date(self.object.updatedAt.timestamp())
-        patch_cache_control(response, no_cache=True)
         return response
 
 

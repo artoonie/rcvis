@@ -82,7 +82,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
 
     # Order of the next 3 is important
-    'visualizer.middleware.UpdateCacheWithoutMaxAgeMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
@@ -288,6 +288,13 @@ CACHES = {
         'LOCATION': '/tmp/django_rcvis_cache/',
     }
 }
+
+# Lifetime of pages in the server-side cache, and the max-age sent to browsers.
+# In production Cloudflare ignores the origin's Cache-Control and applies its
+# own Browser TTL of 5 minutes, so this mirrors that value to keep local
+# development honest about how stale a browser can be after an update.
+# Keep in sync with the Browser TTL in the Cloudflare cache rule.
+CACHE_MIDDLEWARE_SECONDS = 300
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
