@@ -7,9 +7,10 @@ from io import StringIO
 import json
 from mock import patch
 
+from django.core.cache import cache
 from django.core.files import File
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.test.client import RequestFactory
 from django.urls import reverse
 from django.utils.http import http_date, parse_http_date
@@ -646,20 +647,64 @@ class SimpleTests(TestCase):
                 expected = http_date(config.updatedAt.timestamp())
                 self.assertEqual(response['Last-Modified'], expected)
 
-    def test_response_has_no_cache_directive(self):
+    # Public visualization pages that must be served from the page cache.
+    # The rcvis.com traffic profile is a million viewers of a handful of
+    # visualizations within an hour, on one small server: only the first
+    # viewer of each page may touch the database.
+    SHARED_CACHE_VIEWS = ['visualize', 'visualizeEmbedded', 'visualizeBallotpedia']
+
+    def test_visualization_headers_allow_shared_caching(self):
         """
-        Visualization responses should include Cache-Control: no-cache
-        so browsers always revalidate with the server.
+        Visualization responses must be storable by a shared cache (Django's
+        page cache, Cloudflare) and identical for every viewer. Any of these
+        failing means each viewer gets their own copy, or none is cached:
+        Vary: Cookie splits the cache per session, a Set-Cookie stops Django
+        from caching at all, and no-cache/no-store/private stop everyone.
         """
         with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
             self.client.post('/upload.html', {'jsonFile': f})
-        config = TestHelpers.get_latest_upload()
+        slug = TestHelpers.get_latest_upload().slug
 
-        with self.settings(CACHES={'default': {
-                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
-            path = reverse('visualize', args=(config.slug,))
+        for viewName in self.SHARED_CACHE_VIEWS:
+            path = reverse(viewName, args=(slug,))
             response = self.client.get(path)
-            self.assertIn('no-cache', response.get('Cache-Control', ''))
+            self.assertEqual(response.status_code, 200, path)
+
+            vary = [v.strip().lower() for v in response.get('Vary', '').split(',')]
+            self.assertNotIn('cookie', vary, f"{path} varies on Cookie: cache is split per viewer")
+            self.assertFalse(response.cookies, f"{path} sets a cookie: Django will not cache it")
+
+            directives = [d.strip().lower() for d in response['Cache-Control'].split(',')]
+            for forbidden in ('no-cache', 'no-store', 'private'):
+                self.assertNotIn(forbidden, directives, f"{path} sends {forbidden}: not cacheable")
+            maxAge = [d for d in directives if d.startswith('max-age=')]
+            self.assertEqual(len(maxAge), 1, f"{path} has no max-age: {directives}")
+            self.assertGreater(int(maxAge[0].split('=')[1]), 0, path)
+
+    def test_second_viewer_never_touches_the_database(self):
+        """
+        Two different people loading the same visualization must hit the
+        database once in total. The first viewer (logged in) populates the
+        page cache; the second viewer (a separate anonymous client with no
+        cookies) must be served the identical page with zero queries.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        slug = TestHelpers.get_latest_upload().slug
+
+        # Start from an empty page cache so the first request is a real miss
+        cache.clear()
+
+        for viewName in self.SHARED_CACHE_VIEWS:
+            path = reverse(viewName, args=(slug,))
+            firstViewer = self.client.get(path)
+            self.assertEqual(firstViewer.status_code, 200, path)
+
+            secondViewer = Client()
+            with self.assertNumQueries(0):
+                response = secondViewer.get(path)
+            self.assertEqual(response.status_code, 200, path)
+            self.assertEqual(response.content, firstViewer.content, path)
 
     def test_save_purge_only_on_update(self):
         """
