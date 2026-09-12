@@ -10,21 +10,21 @@ from django.utils.translation import gettext as _
 from common.cloudflare import CloudflareAPI
 
 
-class ColorTheme(models.IntegerChoices):
+class ColorTheme(models.IntegerChoices):  # pylint: disable=too-many-ancestors
     """ Describes the status of movie generation for this model """
     RAINBOW = 0, _('Full color spectrum')
     PURPLE_TO_ORANGE = 1, _('Purple to orange')
     ALTERNATING = 2, _('Alternating colors')
 
 
-class EliminationBarColor(models.IntegerChoices):
+class EliminationBarColor(models.IntegerChoices):  # pylint: disable=too-many-ancestors
     """ Describes the status of movie generation for this model """
     GRAY = 0, _('Gray')
     HIDDEN = 1, _('Hidden')
     LAST_ROUND_COLOR = 2, _('Same color of transfer')
 
 
-class TextForWinner(models.IntegerChoices):
+class TextForWinner(models.IntegerChoices):  # pylint: disable=too-many-ancestors
     """ Describes the status of movie generation for this model """
     ELECTED = 0, _('Candidate was elected')
     WON = 1, _('Candidate won')
@@ -32,7 +32,7 @@ class TextForWinner(models.IntegerChoices):
     LEAD = 3, _('Candidate is in the lead')
 
 
-class MovieGenerationStatuses(models.IntegerChoices):
+class MovieGenerationStatuses(models.IntegerChoices):  # pylint: disable=too-many-ancestors
     """ Describes the status of movie generation for this model """
     NOT_REQUESTED = 0, _('No movie generation has been requested')
     NOT_STARTED = 1, _('Movie generation has been requested but not started')
