@@ -109,7 +109,7 @@ class SidecarTests(TestCase):
             'incumbentsBolded': b'Incumbents are <span class="dataLabelIncumbent">'
                                 b'bolded and underlined</span>',
             'noIncumbents': b'There were no incumbents in this race',
-            'source': b'<a href="http://test.com">Source [test.com]</a>'
+            'source': b'<a href="https://test.com">Source [test.com]</a>'
         }
 
         # Look through the test config to see if the text should be in or not in the HTML
@@ -174,7 +174,7 @@ class SidecarTests(TestCase):
                 self._test_ballotpedia_text_with_config({
                     'jsonFile': jsonFile,
                     'candidateSidecarFile': sidecarFile,
-                    'dataSourceURL': 'test.com',  # note: http:// is auto-added
+                    'dataSourceURL': 'test.com',  # note: https:// is auto-added
                     'areResultsCertified': True
                 }, {
                     'title': self.assertIn,
