@@ -12,6 +12,8 @@ from django.urls import reverse
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.command import Command
+from selenium.webdriver.remote.webdriver import WebDriver as Remote
 from selenium.webdriver.support.ui import Select
 
 from common.testUtils import TestHelpers
@@ -59,7 +61,7 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
             options.set_capability('sauce:options', sauceOptions)
 
             seleniumEndpoint = f"https://{username}:{accessKey}@ondemand.saucelabs.com:443/wd/hub"
-            self.browser = webdriver.Remote(command_executor=seleniumEndpoint, options=options)
+            self.browser = Remote(command_executor=seleniumEndpoint, options=options)
         else:
             self.browser = TestHelpers.get_headless_browser()
             self.browser.set_window_size(1280, 1024)
@@ -108,7 +110,9 @@ class LiveServerTestBaseClass(StaticLiveServerTestCase):
 
     def _get_log(self):
         """ Returns and clears the console log """
-        return self.browser.get_log('browser')
+        # Selenium 4.32+ removed get_log() from webdriver.Remote (used for SauceLabs),
+        # but the underlying command is still registered on every driver, so call it directly.
+        return self.browser.execute(Command.GET_LOG, {'type': 'browser'})['value']
 
     def _assert_log_len(self, num):
         """ Asserts the log contains num elements, or prints out what's in the log.

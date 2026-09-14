@@ -6,7 +6,7 @@ tests so that we aren't spinning up subprocesses on every call
 
 from unittest.mock import MagicMock, patch
 
-executor_mock = MagicMock()
+executor_mock = MagicMock()  # pylint: disable=invalid-name
 
 patcher = patch("visualizer.executor.get_executor", MagicMock(return_value=executor_mock))
 patcher.start()

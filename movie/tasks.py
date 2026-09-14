@@ -10,6 +10,7 @@ from django.conf import settings
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
 from movie.creation.movieCreator import MovieCreationFactory
 from visualizer.models import JsonConfig, MovieGenerationStatuses
@@ -59,9 +60,9 @@ def create_movie_task(pk, domain):
     if 'CHROMEDRIVER_PATH' in os.environ:
         chromeOptions.add_argument("--remote-debugging-port=9222")
         service = ChromeService(executable_path=os.environ["CHROMEDRIVER_PATH"])
-        browser = webdriver.Chrome(service=service, options=chromeOptions)
+        browser = Chrome(service=service, options=chromeOptions)
     else:
-        browser = webdriver.Chrome(options=chromeOptions)
+        browser = Chrome(options=chromeOptions)
 
     browser.implicitly_wait(10)
 

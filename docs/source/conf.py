@@ -15,7 +15,15 @@ import django
 
 sys.path.insert(0, os.path.abspath('../../'))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'rcvis.settings'
+
+# Sphinx 9's autodoc calls repr() on class attributes such as the REST views'
+# `queryset = Model.objects.all()`, which queries the database. Read the Docs has
+# no database, so give the docs build an empty in-memory one with every table.
+from django.conf import settings  # noqa: E402  pylint: disable=wrong-import-position
+settings.DATABASES['default']['NAME'] = ':memory:'
 django.setup()
+from django.core.management import call_command  # noqa: E402  pylint: disable=wrong-import-position
+call_command('migrate', verbosity=0)
 
 # -- Project information -----------------------------------------------------
 
