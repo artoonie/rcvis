@@ -11,7 +11,7 @@ imports = ('movie.tasks',)
 # No backend - we don't care about the results, we'll update the database
 result_backend = None  # pylint: disable=invalid-name
 
-task_annotations = {
+task_annotations = {  # pylint: disable=invalid-name
     'tasks.create_movie_task': {'rate_limit': '1/s'}
 }
 
@@ -20,7 +20,7 @@ if not sqs_queue_name:
     # Otherwise we get a cryptic error message
     raise NotImplementedError("No queue name set. Set SQS_QUEUE_NAME.")
 
-broker_transport_options = {
+broker_transport_options = {  # pylint: disable=invalid-name
     'queue_name_prefix': sqs_queue_name
 }
 

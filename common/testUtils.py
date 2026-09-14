@@ -15,6 +15,7 @@ from django.contrib.auth.models import Permission
 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 from scraper.models import MultiScraper, Scraper
 from visualizer.models import JsonConfig
 from visualizer.tests import filenames
@@ -76,9 +77,9 @@ class TestHelpers():
         if 'CHROMEDRIVER_PATH' in os.environ:
             chromeOptions.add_argument("--remote-debugging-port=9222")
             service = ChromeService(executable_path=os.environ["CHROMEDRIVER_PATH"])
-            return webdriver.Chrome(service=service, options=chromeOptions)
+            return Chrome(service=service, options=chromeOptions)
 
-        return webdriver.Chrome(options=chromeOptions)
+        return Chrome(options=chromeOptions)
 
         # Or, Firefox
         # firefoxOptions = webdriver.FirefoxOptions()

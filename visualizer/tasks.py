@@ -11,6 +11,7 @@ def create_headless_browser():
     """Create a browser with internal imports for use in process pool executor"""
     from selenium import webdriver
     from selenium.webdriver.chrome.service import Service as ChromeService
+    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
 
     chromeOptions = webdriver.ChromeOptions()
     for arg in [
@@ -24,11 +25,11 @@ def create_headless_browser():
     chromedriverPath = os.getenv('CHROMEDRIVER_PATH')
     if chromedriverPath:
         chromeOptions.add_argument("--remote-debugging-port=9222")
-        return webdriver.Chrome(
+        return Chrome(
             service=ChromeService(
                 executable_path=chromedriverPath),
             options=chromeOptions)
-    return webdriver.Chrome(options=chromeOptions)
+    return Chrome(options=chromeOptions)
 
 
 def generate_json_config_title_image(pk, domain):
