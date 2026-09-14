@@ -26,6 +26,11 @@ updates:
       - "/static/datatable"
     schedule:
       interval: "weekly"
+    ignore:
+      # TypeScript 6 turns on strict-mode defaults the codebase doesn't satisfy, and
+      # TypeScript 7 (the native compiler) has no ts-loader support. Stay on 5.x.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       all-npm-dependencies:
         applies-to: version-updates
