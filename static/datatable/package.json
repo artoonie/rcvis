@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "tabulator-tables": "^6.5.2",
-    "micromodal": "^0.4.10"
+    "micromodal": "^0.7.0"
   },
   "devDependencies": {
     "webpack": "^5.105.4",
