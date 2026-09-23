@@ -1,4 +1,4 @@
-boto3==1.43.90
+boto3==1.43.93
 csscompressor==0.9.5
 django-admin-cursor-paginator==0.1.7
 django-compressor==4.6.0
@@ -10,7 +10,7 @@ django-sortedm2m==4.0.0
 django-storages==1.14.6
 Django==6.1.1
 rcvformats==0.0.46
-selenium==4.48.0
+selenium==4.49.0
 requests==2.34.2
 whitenoise==6.12.0
 
@@ -21,7 +21,7 @@ django_extensions==4.1
 
 # For coverage
 autopep8==2.3.2
-coverage==7.16.0
+coverage==7.16.1
 pylint==4.0.8
 pylint-django==2.8.0
 pycodestyle==2.14.0
