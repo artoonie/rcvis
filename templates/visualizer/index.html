@@ -11,20 +11,22 @@
   <meta name="description" content="Ranked-Choice Voting visualizations: interactive charts, graphs, tables, and wikipedia exports for displaying the results of RCV Elections">
 {% endblock %}
 
+{% block bodyclass %}home-page{% endblock %}
+
 {% block navlinks %}
-<button class="navbar-toggler navbar-toggler-right text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-  Menu
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
 </button>
 <div class="collapse navbar-collapse" id="navbarResponsive">
   <ul class="navbar-nav ml-auto">
-    <li class="nav-item mx-0 mx-lg-1">
-      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#types">DataViz Types</a>
+    <li class="nav-item">
+      <a class="nav-link" href="#types">DataViz Types</a>
     </li>
-    <li class="nav-item mx-0 mx-lg-1">
-      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="#examples">Real-World Examples</a>
+    <li class="nav-item">
+      <a class="nav-link" href="#examples">Real-World Examples</a>
     </li>
-    <li class="nav-item mx-0 mx-lg-1">
-      <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="/upload.html">Create A Visualization</a>
+    <li class="nav-item">
+      <a class="nav-link" href="/upload.html">Create A Visualization</a>
     </li>
   </ul>
 </div>
@@ -32,13 +34,14 @@
 
 {% block maincontent %}
   <!-- Masthead -->
-  <div class="homedescriptor" id="intro">
-      <p><h1 class="page-section-heading text-center text-uppercase text-secondary mb-0">Ranked Choice Voting ballots are <a href="https://www.fairvote.org/ranking_is_easy_a_response_to_misleading_claims_about_voter_errors">easy to fill out</a>.</h1></p>
-      <p><h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">RCVis makes the results easy to understand, too.</h2></p>
+  <div class="homedescriptor home-hero" id="intro">
+    <div class="container">
+      <h1 class="home-hero-title text-center">Ranked Choice Voting ballots are easy to fill out.</h1>
+      <h2 class="home-hero-subtitle text-center">RCVis makes the results easy to understand, too.</h2>
 
-      <p class="masthead-subheading font-weight-light text-center">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
+      <p class="home-hero-lead text-center">Charts, graphs, and tables to help your audience understand the results of a Ranked Choice Voting election. Export to Wikipedia, embed with HTML, or share to social media.</p>
 
-      <p class="text-center">
+      <p class="text-center home-hero-image">
         <picture class="img-fluid">
           <source media="(max-width: 450px)" srcset="{% static 'visualizer/summary-400px-phone.png' %}">
           <source media="(max-width: 850px)" srcset="{% static 'visualizer/summary-800px-tablet.png' %}">
@@ -46,15 +49,16 @@
                alt="Example images of a barchart, sankey diagram, single table summary, and wikipedia export">
         </picture>
       </p>
+    </div>
   </div>
 
-  <div class="homedescriptor" id="whatis">
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">Useful for real elections, and for straw polls</h2>
+  <div class="homedescriptor" id="usedby">
+    <div class="container">
+      <h2 class="page-section-heading text-center">Useful for real elections, and for straw polls</h2>
 
-      <!-- Portfolio Grid Items -->
-      <p class="lead text-center">
+      <div class="lead text-center">
         <div class="row">
-          <div class="col resourceCell ml-auto mr-auto text-left" style="max-width: 800px">
+          <div class="col resourceCell home-prose ml-auto mr-auto text-left" style="max-width: 800px">
             RCVis has been used by millions of voters in the United States and abroad for Election Night Reporting of Ranked Choice Voting elections.
             <br/><br/>It has hosted thousands of mock election results from RCV-compatible voting tools, including <a href="https://RankedVote.co" target="_blank">RankedVote.co</a>, <a href="https://RankedChoices.com" target="_blank">RankedChoices.com</a>, and <a href="https://www.rcv123.org" target="_blank">RCV123.org</a>.
             It can import data from Opavote, ElectionBuddy, Dominion software, RCTab, and more.
@@ -62,28 +66,29 @@
             <br/><br/>Election Administrators: please <a href="mailto:team@rcvis.com" target="_blank">get in touch</a> if you'd like to use RCVis for an upcoming election. RCVis is free for most use cases, and we offer consultation services for customization and integration with your existing ENR pipeline.
           </div>
         </div>
-      </p>
+      </div>
+    </div>
   </div>
 
   <div class="homedescriptor" id="whatis">
-      <h2 class="page-section-heading text-center text-uppercase text-secondary mb-0">What is Ranked Choice Voting?</h2>
+    <div class="container">
+      <h2 class="page-section-heading text-center">What is Ranked Choice Voting?</h2>
 
-      <!-- Portfolio Grid Items -->
       <p class="lead text-center">RCV elections are just like a standard "first-past-the-post" election, except you can have backup choices. If your top pick has no chance of winning, you'll still have a say: your vote will count for your next choice.</p>
       <p class="text-center">Learn more on our <a href="https://medium.com/@armin.samii/an-illustrated-guide-to-ranked-choice-voting-4ce3c5fe73f9">medium post: An Illustrated Guide to Ranked Choice Voting</a>.</p>
 
       <div class="video-container">
          <iframe width="560" height="315" src="https://www.youtube.com/embed/gq7N2hmX9FI?si=ej0rsaNfuGPaW2ZF" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
       </div>
-
+    </div>
   </div>
 
   <div class="homedescriptor" id="types">
     <div class="container">
-      <h2 class="page-section-heading text-center text-uppercase">Types of Visualizations</h2>
+      <h2 class="page-section-heading text-center">Types of Visualizations</h2>
 
       <div class="container text-center">
-        <div class="row">
+        <div class="row justify-content-center" id="vistype-grid">
           <div class="col resourceCell">
             <h5>Bar Charts</h5>
             <img class="resourceCellImage" data-src="{% static 'visualizer/icon_interactivebar.gif' %}" alt="Demo of interactive barchart" loading="lazy">
@@ -107,8 +112,17 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="row">
+          <div class="col resourceCell">
+            <h5>Pie Charts</h5>
+            <img class="resourceCellImage" data-src="{% static 'visualizer/icon_interactivepie.gif' %}" alt="Demo of interactive pie chart" loading="lazy">
+            <div class="row justify-content-center">
+              <div class="descriptors">
+                The pie chart shows each candidate's share of the vote in a single round. As you step through the rounds, the animation plays out in three phases: the candidate with the fewest votes is eliminated, their slice is split up and transferred to each voter's next choice, and the pie consolidates around the remaining candidates.
+
+                When a candidate crosses the winning threshold, their slice is outlined. Rounds where nothing changes are skipped.
+              </div>
+            </div>
+          </div>
           <div class="col resourceCell">
             <h5>Round-by-Round</h5>
             <img class="resourceCellImage" data-src="{% static 'visualizer/icon_interactiveroundbyround.gif' %}" alt="Demo of round-by-round summary" loading="lazy">
@@ -138,7 +152,7 @@
     <div class="container">
 
       <!-- Portfolio Section Heading -->
-      <h2 class="page-section-heading text-center text-uppercase">Real-World Data</h2>
+      <h2 class="page-section-heading text-center">Real-World Data</h2>
 
       <div class="container">
         <div class="row">
@@ -158,7 +172,7 @@
 
   <div class="homedescriptor" id="latest">
     <div class="container">
-      <h2 class="page-section-heading text-center text-uppercase">Newest Data</h2>
+      <h2 class="page-section-heading text-center">Newest Data</h2>
 
       <!-- Portfolio Grid Items -->
       <div class="row justify-content-center">
@@ -176,7 +190,7 @@
 
   <div class="homedescriptor" id="external">
     <div class="container">
-      <h2 class="page-section-heading text-center text-uppercase">More Resources</h2>
+      <h2 class="page-section-heading text-center">More Resources</h2>
 
       <div class="container text-center">
         <div class="row">
@@ -255,7 +269,7 @@
 
   <div class="homedescriptor" id="lookingfor">
     <div class="container">
-      <h2 class="page-section-heading text-center text-uppercase">Future Development</h2>
+      <h2 class="page-section-heading text-center">Future Development</h2>
 
       <div class="container">
         <div class="row">
@@ -295,8 +309,6 @@
 {% endblock %}
 
 {% block afterMaincontent %}
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha256-jXCJJT3KKcnNjZ3rfsabCj1EX4j2omR4xxm+H5CtywE=" crossorigin="anonymous"></script>
     <script type="text/javascript">
       // Load images after page finished loading
       function loadImagesDeferred() {
@@ -309,6 +321,27 @@
         }
       }
 
-    $(document).ready(loadImagesDeferred)
+      // Mobile menu toggle (no Bootstrap JS needed on this page)
+      function setupNavToggle() {
+        const toggler = document.querySelector('.navbar-toggler');
+        const menu = document.getElementById('navbarResponsive');
+        if (!toggler || !menu) return;
+        toggler.addEventListener('click', function () {
+          const isOpen = menu.classList.toggle('show');
+          toggler.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+        // Close the menu after choosing an in-page link
+        menu.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            menu.classList.remove('show');
+            toggler.setAttribute('aria-expanded', 'false');
+          });
+        });
+      }
+
+      window.addEventListener('DOMContentLoaded', function () {
+        loadImagesDeferred();
+        setupNavToggle();
+      });
     </script>
 {% endblock %}

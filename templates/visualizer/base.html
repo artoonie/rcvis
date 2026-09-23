@@ -11,36 +11,55 @@
 
 </head>
 
-<body id="page-top">
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
-    <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="{% url 'index' %}"><img src="{% static 'visualizer/logo-white.png' %}" width="120" height="28" alt="RCVis logo" id="logo" /></a>
+<body id="page-top" class="{% block bodyclass %}{% endblock %}">
+  <!-- Site header / navigation -->
+  <header class="site-header" id="mainNav">
+    <nav class="navbar container" aria-label="Main navigation">
+      <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'visualizer/logo-dark.png' %}" width="120" height="28" alt="RCVis logo" id="logo" /></a>
 {% block navlinks %}
 {% endblock %}
-    </div>
-  </nav>
+    </nav>
+  </header>
 
 <div id="maincontent">
 {% block maincontent %}
 {% endblock %}
-  <!-- Footer -->
- <div>
-  <footer class="footer">
-    <div class="container">
-      <h5 class="mb-2">About RCVis</h5>
-      <p class="mb-0">RCVis is open-source Ranked-Choice Voting Visualization software.
-      <p class="mb-0">Let's Collaborate! To use these visualizations for your election, poll, or infographic,<br/>
-                      please get in touch: team@rcvis.com.</p>
-      <p class="mb-0">
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSdwMw6xYNyxbZiEtuB0G9F7avQhkLY_jmlXjNOBPA01qR4y3g/viewform?usp=sf_link" target="_blank">Send feedback</a> or 
-        <a href="https://twitter.com/rcvisdotcom">follow us on Twitter</a>
-      </p>
+</div>
 
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="site-footer-grid">
+        <div>
+          <h5>About RCVis</h5>
+          <p>RCVis is open-source Ranked-Choice Voting Visualization software.</p>
+          <p>Let's collaborate! To use these visualizations for your election, poll, or infographic, please get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.</p>
+        </div>
+        <div>
+          <h5>Stay in touch</h5>
+          <ul class="site-footer-links">
+            <li>
+              <a href="https://docs.google.com/forms/d/e/1FAIpQLSdwMw6xYNyxbZiEtuB0G9F7avQhkLY_jmlXjNOBPA01qR4y3g/viewform?usp=sf_link" target="_blank" rel="noopener">Send feedback</a>
+            </li>
+            <li>
+              <a href="https://twitter.com/rcvisdotcom"><img src="{% static 'visualizer/icon_twitter.svg' %}" alt="" width="16" height="16">Follow us on Twitter</a>
+            </li>
+            <li>
+              <a href="https://github.com/artoonie/rcvis"><img src="{% static 'visualizer/icon_github.svg' %}" alt="" width="16" height="16">Source code on GitHub</a>
+            </li>
+            <li>
+              <a href="mailto:team@rcvis.com"><img src="{% static 'visualizer/icon_email.svg' %}" alt="" width="16" height="16">team@rcvis.com</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h5>Newsletter</h5>
+          <p>Occasional updates about new features and elections.</p>
 <!-- Begin Mailchimp Signup Form -->
 <div id="mc_embed_signup">
   <form action="https://rcvis.us20.list-manage.com/subscribe/post?u=ef3745fe023451adbc1053eb9&amp;id=35fe134379" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
     <div id="mc_embed_signup_scroll">
+      <label for="mce-EMAIL" class="sr-only" style="position:absolute;left:-5000px" aria-hidden="true">Email address</label>
       <input type="email" value="" name="EMAIL" class="email" id="mce-EMAIL" placeholder="email address" required>
       <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
       <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_ef3745fe023451adbc1053eb9_35fe134379" tabindex="-1" value=""></div>
@@ -49,32 +68,15 @@
   </form>
 </div>
 <!--End mc_embed_signup-->
+        </div>
+      </div>
 
-      <p class="mt-3 mb-0">
-        <a class="btn btn-outline-dark btn-social mx-1" href="https://github.com/artoonie/rcvis">
-          <img src="{% static 'visualizer/icon_github.svg' %}" alt="Github icon" width="18" height="18">
-        </a>
-        <a class="btn btn-outline-dark btn-social mx-1" href="https://twitter.com/rcvisdotcom">
-          <img src="{% static 'visualizer/icon_twitter.svg' %}" alt="Twitter icon" width="18" height="18">
-        </a>
-        <a class="btn btn-outline-dark btn-social mx-1" href="mailto:team@rcvis.com">
-          <img src="{% static 'visualizer/icon_email.svg' %}" alt="Email icon" width="18" height="18">
-        </a>
-      </p>
+      <div class="site-footer-bottom">
+        <p>Copyright &copy; {% now "Y" %} RCVis. Free, open-source, and nonpartisan.</p>
+        <p>Thank you to <a href="https://github.com/artoonie/rcvis/graphs/contributors">our contributors</a>.</p>
+      </div>
     </div>
   </footer>
-
-  <!-- Copyright Section -->
-  <section class="copyright py-4 text-center text-white">
-    <div class="container">
-      <small>
-          Copyright &copy; 2025 RCVis.
-          Thank you to
-          <a style="color: white; text-decoration: underline" href="https://github.com/artoonie/rcvis/graphs/contributors">our contributors</a>.</small>
-    </div>
-  </section>
- </div>
-</div>
 
 {% include "visualizer/common-nonblocking.html" %}
 {% block afterMaincontent %}

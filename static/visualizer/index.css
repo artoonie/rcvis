@@ -1,42 +1,197 @@
+/* Homepage layout. Section content is unchanged; this only sets rhythm and card styling. */
+
 .homedescriptor {
-  padding-left: 50px;
-  padding-right: 50px;
-  padding-bottom: 30px;
-  padding-top: 200px;
+  padding: 4rem 0;
 }
+
+.homedescriptor > .container {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.home-hero {
+  padding-top: 3.5rem;
+  padding-bottom: 3rem;
+  background:
+    radial-gradient(60% 50% at 50% 0%, var(--rcv-brand-soft) 0%, rgba(238, 240, 255, 0) 100%),
+    var(--rcv-surface);
+}
+
+.home-hero-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  max-width: 820px;
+  margin: 0 auto 0.5rem;
+}
+
+.home-hero-title a {
+  color: var(--rcv-link);
+  text-decoration: underline;
+  text-decoration-thickness: 3px;
+  text-decoration-color: rgba(71, 71, 255, 0.3);
+  text-underline-offset: 5px;
+}
+
+.home-hero-title a:hover {
+  color: var(--rcv-link-hover);
+  text-decoration-color: currentColor;
+}
+
+.home-hero-subtitle {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--rcv-muted);
+  max-width: 820px;
+  margin: 0 auto 1.25rem;
+}
+
+.home-hero-lead {
+  font-size: 1.05rem;
+  color: var(--rcv-text);
+  max-width: 680px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.home-hero-image img {
+  border-radius: 12px;
+  box-shadow: var(--rcv-shadow);
+}
+
+.page-section-heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.5rem;
+}
+
+.homedescriptor .lead {
+  font-size: 1.1rem;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+/* alternate section backgrounds for rhythm */
+#usedby,
+#examples,
+#lookingfor {
+  background: var(--rcv-surface-alt);
+  border-top: 1px solid var(--rcv-border);
+  border-bottom: 1px solid var(--rcv-border);
+}
+
+#examples + #latest {
+  padding-top: 3rem;
+}
+
 .video-container {
   text-align: center;
 }
 
 .video-container iframe {
-  width: 560px;
-  height: 315px;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: var(--rcv-shadow);
 }
 
 .resourceCell {
-  box-shadow: 1px -3px 15px 2px #dedede;
-  padding: 15px;
-  margin: 15px;
+  background: var(--rcv-surface);
+  border: 1px solid var(--rcv-border);
+  border-radius: 12px;
+  box-shadow: var(--rcv-shadow-sm);
+  padding: 1.5rem 1.25rem;
+  margin: 0.75rem;
+  min-width: 260px;
 }
+
+/* Five visualization types: fixed-basis cells that wrap 3 + 2 on desktop, 2 per row on tablets */
+#vistype-grid .resourceCell {
+  flex: 1 1 300px;
+  max-width: 340px;
+}
+
+.resourceCell h5 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.resourceCell > a:has(.resourceCellImage) {
+  color: var(--rcv-muted);
+  font-size: 0.85rem;
+}
+
+.home-prose {
+  font-size: 1rem;
+  line-height: 1.65;
+  padding: 1.75rem 2rem;
+}
+
 .resourceCellImage {
   width: 80%;
   max-width: 300px;
+  border-radius: 8px;
 }
+
 .visColumn {
-  min-width: 325px;
+  min-width: 300px;
   margin-bottom: 20px;
   margin-left: 5px;
   margin-right: 5px;
 }
+
+.visColumn > p {
+  font-weight: 700;
+  color: var(--rcv-ink);
+  margin-bottom: 0.5rem;
+}
+
+.visColumn li,
+#latest li {
+  list-style: none;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rcv-border);
+}
+
+#latest ul {
+  padding-left: 0;
+}
+
+#latest strong,
+.visColumn strong {
+  font-weight: 600;
+}
+
 .descriptors {
   min-width: 250px;
   max-width: 600px;
-  font-size: 0.8em;
-  margin-top: 1.5em;
-  margin-bottom: 2em;
-  padding-left: 10%;
-  padding-right: 10%;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--rcv-muted);
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  padding-left: 6%;
+  padding-right: 6%;
 }
+
+#lookingfor ol {
+  padding-left: 1.25rem;
+}
+
+#lookingfor li {
+  margin-bottom: 0.6rem;
+  line-height: 1.55;
+}
+
+#lookingfor li strong {
+  color: var(--rcv-ink);
+}
+
 .subheader {
   margin-top: 0px;
   margin-bottom: 0px;
@@ -44,51 +199,44 @@
   padding-right: 5px;
   font-size: 0.8em;
 }
-#mainNav {
-  position: fixed;
-  top: 0;
-  z-index: 99;
-  width: 100%;
-  padding-top: 0px;
-  padding-bottom: 0px;
-}
 
 @media only screen and (max-width: 868px) {
-  /* For mobile phones and tablets: */
-  body {
-    font-size: 0.8em;
+  .homedescriptor {
+    padding: 2.75rem 0;
+  }
+  .home-hero {
+    padding-top: 2.25rem;
+  }
+  .home-hero-title {
+    font-size: 1.6rem;
+  }
+  .home-hero-subtitle {
+    font-size: 1.1rem;
+  }
+  .home-hero-lead {
+    font-size: 0.95rem;
   }
   .page-section-heading {
-      font-size: 1.3em;
+    font-size: 1.4rem;
   }
-  .lead {
-    font-size: 1.0em;
+  .homedescriptor .lead {
+    font-size: 1rem;
   }
-  .homedescriptor {
-    padding-bottom: 15px;
-    padding-top: 100px;
-    padding-left: 40px;
-    padding-right: 40px;
+  .home-prose {
+    padding: 1.25rem 1.25rem;
   }
   .btn {
-    font-size: 0.7em;
+    font-size: 0.85em;
   }
-  .subheader {
-    font-size: 0.6em;
-  }
-  .video-container iframe {
-    width: 280px;
-    height: 157px;
-  }
-
 }
+
 @media only screen and (max-width: 450px) {
-  /* For mobile phones: */
-  .descriptors p {
-    margin-bottom: 0.5em;
+  .resourceCell {
+    margin: 0.5rem 0;
+    min-width: 0;
   }
-  .homedescriptor {
-    padding-left: 20px;
-    padding-right: 20px;
+  .descriptors {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
