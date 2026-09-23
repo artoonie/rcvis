@@ -1,4 +1,4 @@
-boto3==1.43.93
+boto3==1.43.98
 csscompressor==0.9.5
 django-admin-cursor-paginator==0.1.7
 django-compressor==4.6.0

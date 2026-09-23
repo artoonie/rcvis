@@ -1,2 +1,2 @@
 # For movie creation
-pycurl==7.47.0
+pycurl==7.48.0
