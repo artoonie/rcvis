@@ -1,7 +1,3 @@
-.nav-link {
-  border-radius: 0px;
-}
-
 .vis-wrapper {
   /* initially everything is hidden, js will enable */
   display: none;
@@ -17,35 +13,6 @@
   border-radius: 3px;
   padding-left: 3px;
   padding-right: 3px;
-}
-
-.nav-tabs {
-  flex-wrap: nowrap; /* don't let the navbar take multiple lines */
-  border-bottom: none;
-}
-
-.tabtext {
-  vertical-align: center;
-}
-
-.electiontitleheading {
-  border-left: 3px solid black;
-  padding-left: 4px;
-}
-
-.nav-item {
-  flex-wrap: wrap;
-  color: #000;
-  font-size: 12px;
-  margin-left: 5px;
-}
-
-.selected-nav {
-  border-bottom: 1px solid white;
-}
-
-.tabswitchnavbar {
-  flex-direction: row;
 }
 
 .shadow-wrapper {
@@ -126,15 +93,5 @@ svg {
   /* first reduce font size */
   .btn {
     font-size: 0.6rem;
-  }
-}
-
-@media only screen and (max-width: 1024px) {
-  /* then hide text */
-  .tabtext {
-    display: none;
-  }
-  a.active .tabtext {
-    display: block;
   }
 }

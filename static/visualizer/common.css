@@ -1,6 +1,4 @@
 body {
-  color: #002c59;
-  font-family: sans-serif;
   text-align: left;
   margin: 0px;
 }
@@ -12,20 +10,4 @@ h3 {
 }
 h6 {
   font-size: 0.8em;
-}
-#mainNav {
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
-}
-#mainNav .navbar-toggler {
-  font-size: 0.8rem;
-}
-
-#mc_embed_signup form {
-  margin-top: 10px;
-  padding: 0px;
-}
-
-#mc_embed_signup input.email {
-  width: 50%;
 }

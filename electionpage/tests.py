@@ -114,9 +114,11 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertIsNotNone(bargraphIframeWrapper.get_attribute('data-src'))
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-secondary')
 
-        # Click on bargraph button, and the opposite is true
+        # Click on bargraph button, and the opposite is true.
+        # The iframe is inserted on shown.bs.collapse, which fires asynchronously after the click.
         bargraphButton.click()
-        self.assertIsNone(bargraphIframeWrapper.get_attribute('data-src'))
+        self._ensure_eventually_asserts(
+            lambda: self.assertIsNone(bargraphIframeWrapper.get_attribute('data-src')))
         self.assertEqual(bargraphButton.get_attribute('class'), 'btn btn-primary')
 
         # And the height was correctly set via PostMessages
