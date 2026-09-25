@@ -18,6 +18,7 @@ from django.urls import reverse
 from mock import patch
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
@@ -742,3 +743,71 @@ class LiveBrowserHeadlessTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         # The SVG text lives inside the pie-chart custom element's shadow DOM
         self._ensure_eventually_asserts(
             lambda: self.assertIn('Banana', self._get_pie_svg_text()))
+
+    def test_tab_keyboard_navigation(self):
+        """ Arrow keys move between tabs, and aria-selected follows the selected tab """
+        self._upload(filenames.THREE_ROUND)
+
+        barchartTab = self.browser.find_element(By.ID, 'barchart-tab')
+        tableTab = self.browser.find_element(By.ID, 'single-table-summary-tab')
+        shareTab = self.browser.find_element(By.ID, 'share-tab')
+        self.assertEqual(barchartTab.get_attribute('aria-selected'), 'true')
+        self.assertEqual(tableTab.get_attribute('aria-selected'), 'false')
+        # Only the selected tab is in the tab order
+        self.assertIsNone(barchartTab.get_attribute('tabindex'))
+        self.assertEqual(tableTab.get_attribute('tabindex'), '-1')
+
+        barchartTab.send_keys(Keys.ARROW_RIGHT)
+        self.assertEqual(tableTab.get_attribute('aria-selected'), 'true')
+        self.assertEqual(barchartTab.get_attribute('aria-selected'), 'false')
+        self.assertEqual(barchartTab.get_attribute('tabindex'), '-1')
+        self.assertTrue(self.browser.current_url.endswith('#single-table-summary'))
+        self.assertTrue(self.browser.find_element(By.ID, 'id-single-table-summary').is_displayed())
+        self.assertFalse(self.browser.find_element(By.ID, 'id-barchart').is_displayed())
+        self.assertEqual(self.browser.switch_to.active_element.get_attribute('id'),
+                         'single-table-summary-tab')
+
+        tableTab.send_keys(Keys.END)
+        self.assertEqual(shareTab.get_attribute('aria-selected'), 'true')
+        shareTab.send_keys(Keys.HOME)
+        self.assertEqual(barchartTab.get_attribute('aria-selected'), 'true')
+
+    def test_chart_descriptions_follow_the_round(self):
+        """ The bar chart and sankey are described images; the bar chart follows the round """
+        self._upload(filenames.THREE_ROUND)
+
+        def _bargraph_desc():
+            return self.browser.execute_script(
+                "const svg = document.querySelector('#bargraph-interactive-body > svg');"
+                "return [svg.getAttribute('role'), svg.querySelector('title').textContent,"
+                "        svg.querySelector('desc').textContent];")
+
+        role, title, desc = _bargraph_desc()
+        self.assertEqual(role, 'img')
+        self.assertIn('Bar chart', title)
+        self.assertIn('Showing round 3 of 3.', desc)
+        self.assertIn('In the third round,', desc)
+
+        self._go_to_round_by_clicking(0)
+        self.assertIn('Showing round 1 of 3.', _bargraph_desc()[2])
+        self.assertIn('In the first round,', _bargraph_desc()[2])
+
+        # Changing rounds is announced to screenreaders by each player's live region
+        def _pie_live_text():
+            return self.browser.execute_script(
+                "return document.querySelector("
+                "'#pie-slider-container .round-player-live').innerText;")
+        self.assertEqual(_pie_live_text(), '')  # only the bar chart's player has been used
+        self._go_to_tab('pie-tab')
+        container = self.browser.find_element(By.ID, 'pie-slider-container')
+        Select(container.find_element(By.CSS_SELECTOR, '.round-player-select')).select_by_value('1')
+        self.assertIn('Round 2 of 3.', _pie_live_text())
+        self.assertIn('In the second round,', _pie_live_text())
+
+        self._go_to_tab('sankey-tab')
+        role, desc = self.browser.execute_script(
+            "const svg = document.getElementById('sankey-svg');"
+            "return [svg.getAttribute('role'), svg.querySelector('desc').textContent];")
+        self.assertEqual(role, 'img')
+        self.assertIn('Each column is a round of counting', desc)
+        self.assertIn('there were 3 rounds', desc)

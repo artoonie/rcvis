@@ -80,7 +80,7 @@ function updateFaqText(round) {
               .map(d => "<p class='faq-q'>" + d['question'] + "</p>" +
                         "<p class='faq-a'>" + d['answer'] + "</p>")
               .reduce((accum, val) => accum + val);
-  document.getElementById(idOfFaqTextDiv).innerHTML = `<h3 class="faq-description-header">Round ${round + 1} Explanation</h3> ${text}`;
+  document.getElementById(idOfFaqTextDiv).innerHTML = `<h2 class="faq-description-header">Round ${round + 1} Explanation</h2> ${text}`;
   setTimeout(lockScrollbarIfNeeded, 0); // Needs to run after the DOM is updated
 }
 
@@ -119,7 +119,9 @@ function makeInteractiveGraph() {
     isVertical: false,
     textForWinner: "{{ textForWinner }}",
     doDimPrevRoundColors: config.doDimPrevRoundColors,
-    candidateSidecarData: candidateSidecarData
+    candidateSidecarData: candidateSidecarData,
+    roundDescriptions: narration.rounds,
+    chartSummary: narration.summary
   });
 
   function sliderValueChangedCallback(round) {
@@ -134,7 +136,10 @@ function makeInteractiveGraph() {
     onChange: sliderValueChangedCallback,
     onPlay: function() {
       showTextOnRoundDescriber(humanFriendlySummary, false);
-    }
+    },
+    narration: narration,
+    // The round description above the chart is already a live region
+    announceRounds: false
   });
 
   // After creating the slider, make the default text the summary

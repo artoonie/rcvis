@@ -50,6 +50,44 @@ html {
   scroll-padding-top: calc(var(--rcv-header-height) + 12px);
 }
 
+/* Visually hidden, but still read by screen readers */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* "Skip to main content" link: only visible when focused via keyboard */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 2000;
+  padding: 0.5rem 1rem;
+  background: var(--rcv-brand);
+  color: #fff;
+  border-radius: var(--rcv-radius);
+  font-family: var(--rcv-font-ui);
+  transform: translateY(-200%);
+  transition: transform 0.15s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+  color: #fff;
+  outline: 2px solid var(--rcv-ink);
+  outline-offset: 2px;
+}
+
+#maincontent:focus {
+  outline: none;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
 }
@@ -420,6 +458,14 @@ h1, h2, h3, h4, h5, h6 {
   padding-left: 0.6rem;
 }
 
+.masthead .masthead-details {
+  font-size: 0.85rem;
+}
+.masthead .masthead-details a {
+  /* Links inside running text must not rely on color alone */
+  text-decoration: underline;
+}
+
 /* ------------------------------------------------------------------ */
 /* Footer                                                               */
 /* ------------------------------------------------------------------ */
@@ -458,7 +504,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-.site-footer h5 {
+.site-footer h2 {
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.06em;

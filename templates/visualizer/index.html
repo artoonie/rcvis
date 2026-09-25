@@ -28,6 +28,9 @@
     <li class="nav-item">
       <a class="nav-link" href="/upload.html">Create A Visualization</a>
     </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'updates' %}">Recent Updates</a>
+    </li>
   </ul>
 </div>
 {% endblock %}
@@ -280,26 +283,16 @@
             </p>
             <ol>
                 <li>
-                    <strong>Accessibility</strong>:
-                    RCVis is not screenreader-friendly, though we have an undocumented audio captions for each visualization.
-                    We'd like to make these audio captions widely available, as well as making all RCVis visualizations screenreader-friendly.
-                </li>
-                <li>
-                    <strong>ES&S Data</strong>:
-                    We'd like to be able to upload and visualize data from Election Systems & Software voting machines.
-                </li>
-                <li>
-                    <strong>Infrastructure Updates</strong>:
-                    We'd like to use enable autoscaling to better support the influx of users and uploads on election night, as well as other infrastructure
-                    updates for stability and speed.
+                    <strong>User Dashboard</strong>:
+                    We'd like to provide users a method for managing their own visualizations, including modifying them, deleting them, and marking them as private.
                 </li>
                 <li>
                     <strong>"Blue Check" Verification</strong>:
                     We'd like a system for displaying when a visualization hosted on RCVis has been vetted by an election administrator.
                 </li>
                 <li>
-                    <strong>User Dashboard</strong>:
-                    We'd like to provide users a method for managing their own visualizations, including modifying them, deleting them, and marking them as private.
+                    <strong>ES&S Data</strong>:
+                    We'd like to be able to upload and visualize data from Election Systems & Software voting machines.
                 </li>
             </ol>
         </div>

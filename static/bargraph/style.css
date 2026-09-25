@@ -104,6 +104,16 @@ path.domain {
   font-weight: bold;
 }
 
+/* The "Read a detailed explanation" button, styled as inline text */
+.faq-link {
+  padding: 0;
+  border: 0;
+  font-size: inherit;
+  font-weight: bold;
+  line-height: inherit;
+  vertical-align: baseline;
+}
+
 .prev-next-button {
   color: white;
 }

@@ -35,6 +35,23 @@ h3 {
   padding-right: 1em;
 }
 
+/* The big number in each single-table-summary cell. Styled like an h3, but not a heading. */
+.primaryLabel {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  padding-left: 1em;
+  padding-right: 1em;
+  color: var(--rcv-ink);
+}
+
+/* Per-round and per-candidate table headings: h2 for document outline, sized like an h4 */
+.round-heading {
+  font-size: 1.5rem;
+}
+
 #single-table-summary-table {
   margin-bottom: 0;
 }
