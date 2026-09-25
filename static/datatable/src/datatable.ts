@@ -453,8 +453,9 @@ export default class RcvisDataTable {
                 this.toJson(this.table.getData()));
         }
 
-        // Prepare the mock form
-        const form = document.getElementsByTagName('form')[0];
+        // Prepare the mock form: the upload form by id, since the page has other
+        // forms too (e.g. the logout form in the header)
+        const form = document.getElementById('form');
         const data = $(form).serializeArray();
 
         // AJAX to check if it would survive all serverside processing
