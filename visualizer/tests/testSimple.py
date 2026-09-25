@@ -171,6 +171,16 @@ class SimpleTests(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
+    def test_updates_page(self):
+        """ Tests that the recent updates page loads and is linked from the home page """
+        response = self.client.get(reverse('updates'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Recent Updates', response.content)
+        self.assertIn(b'<h2 class="updates-month">September 2026</h2>', response.content)
+
+        response = self.client.get('/')
+        self.assertIn(b'href="/updates.html"', response.content)
+
     def test_upload_file(self):
         """ Tests uploading a random file """
         response = TestHelpers.get_multiwinner_upload_response(self.client)

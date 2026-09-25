@@ -1,0 +1,53 @@
+/* Recent updates page: a short, dated list of changes */
+.updates-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1rem 4rem 1rem;
+  font-family: var(--rcv-font-ui);
+  line-height: 1.6;
+}
+
+.updates-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+}
+
+.updates-intro {
+  color: var(--rcv-muted);
+  margin-bottom: 2.5rem;
+}
+
+.updates-month {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rcv-brand);
+  border-bottom: 1px solid var(--rcv-border);
+  padding-bottom: 0.5rem;
+  margin: 2.5rem 0 1.25rem 0;
+}
+
+.updates-month:first-of-type {
+  margin-top: 0;
+}
+
+.updates-post {
+  margin-bottom: 2.25rem;
+}
+
+.updates-post h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.updates-post ul {
+  padding-left: 1.25rem;
+}
+
+.updates-post li {
+  margin-bottom: 0.35rem;
+}

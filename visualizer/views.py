@@ -81,6 +81,11 @@ class Index(TemplateView):
         return context
 
 
+class Updates(TemplateView):
+    """ Recent updates: a short changelog for people who use RCVis """
+    template_name = 'visualizer/updates.html'
+
+
 # pylint: disable=too-many-ancestors
 class Upload(LoginRequiredMixin, CreateView):
     """ The upload page """
