@@ -11,6 +11,7 @@ Modules
    :caption: Contents:
 
    visualizer
+   accessibility
    movie
    graph
    api

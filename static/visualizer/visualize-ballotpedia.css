@@ -1,4 +1,6 @@
 #bp-header {
+  margin: 0;
+  line-height: 1.5;
   width: 100%;
   background-color: #4c4c4c;
   color: white;

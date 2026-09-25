@@ -12,6 +12,7 @@
 </head>
 
 <body id="page-top" class="{% block bodyclass %}{% endblock %}">
+  <a class="skip-link" href="#maincontent">Skip to main content</a>
   <!-- Site header / navigation -->
   <header class="site-header" id="mainNav">
     <nav class="navbar container" aria-label="Main navigation">
@@ -21,23 +22,26 @@
     </nav>
   </header>
 
-<div id="maincontent">
+<main id="maincontent" tabindex="-1">
 {% block maincontent %}
 {% endblock %}
-</div>
+</main>
 
   <!-- Footer -->
   <footer class="site-footer">
     <div class="container">
       <div class="site-footer-grid">
         <div>
-          <h5>About RCVis</h5>
+          <h2>About RCVis</h2>
           <p>RCVis is open-source Ranked-Choice Voting Visualization software.</p>
           <p>Let's collaborate! To use these visualizations for your election, poll, or infographic, please get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.</p>
         </div>
         <div>
-          <h5>Stay in touch</h5>
+          <h2>Stay in touch</h2>
           <ul class="site-footer-links">
+            <li>
+              <a href="{% url 'updates' %}">Recent updates</a>
+            </li>
             <li>
               <a href="https://docs.google.com/forms/d/e/1FAIpQLSdwMw6xYNyxbZiEtuB0G9F7avQhkLY_jmlXjNOBPA01qR4y3g/viewform?usp=sf_link" target="_blank" rel="noopener">Send feedback</a>
             </li>
@@ -53,7 +57,7 @@
           </ul>
         </div>
         <div>
-          <h5>Newsletter</h5>
+          <h2>Newsletter</h2>
           <p>Occasional updates about new features and elections.</p>
 <!-- Begin Mailchimp Signup Form -->
 <div id="mc_embed_signup">

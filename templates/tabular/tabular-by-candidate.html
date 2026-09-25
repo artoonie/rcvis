@@ -2,8 +2,9 @@
 
 {% for candidateTabulation in tabularByCandidate.tabulation %}
 <div class="candidate-container" data-candidate-name="{{ candidateTabulation.name }}" data-is-winner="{{ candidateTabulation.isWinner|yesno:'true,false' }}">
-    <h4 class="text-center"> {{ candidateTabulation.name }} </h4>
+    <h2 class="text-center round-heading"> {{ candidateTabulation.name }} </h2>
     <table class="shadow-wrapper table fixed-width-table">
+    <caption class="sr-only">{{ candidateTabulation.name }}: what changed and total votes in each round</caption>
     <thead class="thead-light">
         <tr>
             <th scope="col">Round</th>

@@ -84,11 +84,14 @@ def get_data_for_round_describer(graph, config):
     roundDescriber = Describer(graph, config, summarizeAsParagraph=False)
     humanFriendlyEventsPerRound = roundDescriber.describe_all_rounds()
     humanFriendlySummary = roundDescriber.describe_initial_summary(isForVideo=False)
+    narration = roundDescriber.describe_narration()
     faqsPerRound = json.dumps(FAQGenerator(graph, config).describe_all_rounds())
 
     return {
         'humanFriendlyEventsPerRound': json.dumps(humanFriendlyEventsPerRound),
         'humanFriendlySummary': json.dumps(humanFriendlySummary),
+        # Plain-English narration, used for the charts' screenreader descriptions
+        'narrationJson': json.dumps(narration),
         'faqsPerRound': faqsPerRound
     }
 

@@ -5,6 +5,7 @@
 <div class="shadow-wrapper responsive-table-wrapper" id="single-table-summary-wrapper">
 <div class="responsive-table">
 <table class="table" id="single-table-summary-table">
+    <caption class="sr-only">Each candidate's votes in each round. Cells are shaded green once a candidate is elected and red once they are eliminated.</caption>
     <thead class="thead-light">
         <tr>
             <th scope="col" class="col-auto">Candidate name </th>
@@ -19,11 +20,14 @@
         <tr>
             <th scope="row">{{ candidateTabulation.name }}</th>
             {% for round in candidateTabulation.eachRound %}
-                {% get_round_background_color candidateTabulation.name round as roundBg %}
-                 <td style="background-color: {{ roundBg }}">
+                {% get_round_cell_info candidateTabulation.name round as cellInfo %}
+                 <td style="background-color: {{ cellInfo.color }}">
                     {% if round %}
-                      <h3 class="primaryLabel">{{ round.primaryLabel }}</h3>
+                      <span class="primaryLabel">{{ round.primaryLabel }}</span>
                                               {{ round.secondaryLabel }}
+                    {% endif %}
+                    {% if cellInfo.status %}
+                      <span class="sr-only">{{ cellInfo.status }}</span>
                     {% endif %}
                  </td>
             {% endfor %}

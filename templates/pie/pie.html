@@ -5,5 +5,10 @@
 
 <div id="pie-wrapper" class="shadow-wrapper">
     <div id="pie-slider-container"></div>
-    <div id="pie-body" style="width: 100%; max-width: 800px; aspect-ratio: 1; margin: 0 auto;"></div>
+    <p id="pie-description" class="sr-only">
+        Pie chart of each candidate's share of the votes in the selected round.
+        Use the round controls above to change rounds; the round is described as it changes.
+        The same numbers are available in the table views.
+    </p>
+    <div id="pie-body" style="width: 100%; max-width: 800px; aspect-ratio: 1; margin: 0 auto;" aria-describedby="pie-description"></div>
 </div>

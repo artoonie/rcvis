@@ -10,7 +10,8 @@
 
 <body id="embedded-body">
   <div id="embedded-wrapper">
-    <div id="embedded-content">
+    <main id="embedded-content">
+      <h1 class="sr-only">{{ title }}</h1>
       {% if vistype == "sankey" %}
           {% include "sankey/sankey.html" %}
       {% elif vistype == "pie" %}
@@ -30,18 +31,18 @@
       {% else %}
       <p id="no-such-vistype-message">Invalid visualization type requested. Don't expect this error? Contact team@rcvis.com for help.</p>
       {% endif %}
-    </div>
-    <div id="embedded-footer">
+    </main>
+    <footer id="embedded-footer">
         Visualizations by
           <a href="{% url 'visualize' config.slug %}" target="_blank">
-            <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
+            <img src="{% static 'visualizer/logo-white.png' %}" width="100px" alt="RCVis"/>
           </a>
         <div class="popout">
-          <a href="{% url 'visualize' config.slug %}" target="_blank">
-            <img src="{% static 'visualizer/icon_popout.png' %}" width="15px"/>
+          <a href="{% url 'visualize' config.slug %}" target="_blank" aria-label="Open the full visualization in a new tab">
+            <img src="{% static 'visualizer/icon_popout.png' %}" width="15px" alt=""/>
           </a>
         </div>
-    </div>
+    </footer>
   </div>
 
   {% include "visualizer/common-visualizer-nonblocking.html" %}

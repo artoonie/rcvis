@@ -70,6 +70,9 @@ Django and NPM and then do a one time setup by running the script
 This is needed to create the new admin user interactively. Following this, you can kill the server and start it
 with the run configuration provided - 'RCVis', a Django server configuration.
 
+## Accessibility
+Every visualization is described for screenreaders and navigable by keyboard: pick a round, then read what the chart says. See [the accessibility docs](docs/source/accessibility.rst) for what is covered and how it fits together.
+
 ## Test Data
 Test data, including real and mock elections, can be found in the `testData` directory. Example input formats can be found on [RCVFormats](https://github.com/artoonie/rcvformats/tree/main/testdata/inputs).
 
