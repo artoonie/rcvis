@@ -264,6 +264,31 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--rcv-brand);
 }
 
+.nav-logout-form {
+  display: inline;
+  margin: 0;
+}
+
+.nav-logout-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--rcv-brand);
+  cursor: pointer;
+}
+
+.nav-logout-button:hover {
+  color: var(--rcv-brand-deep);
+  text-decoration: underline;
+}
+
+.nav-logout-button:focus-visible {
+  outline: 2px solid var(--rcv-brand);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 /* ------------------------------------------------------------------ */
 /* Visualization tab bar (the /v/ page puts its tabs in the header)     */
 /* ------------------------------------------------------------------ */

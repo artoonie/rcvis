@@ -26,6 +26,7 @@ from requests_mock import Mocker
 from selenium.common.exceptions import NoSuchElementException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from common.testUtils import TestHelpers
 from electionpage.models import ElectionPage, ScrapableElectionPage, SingleSourceElectionPage
@@ -195,8 +196,8 @@ class ElectionPageTests(liveServerTestBaseClass.LiveServerTestBaseClass):
             self.browser.find_element(By.ID, "submit").click()
 
             if expectReload:
-                self._ensure_eventually_asserts(
-                    lambda: EC.staleness_of(bodyElement))
+                # Wait for the navigation: the old page's body goes stale
+                WebDriverWait(self.browser, timeout=10).until(EC.staleness_of(bodyElement))
 
             try:
                 return self.browser.find_element(
