@@ -35,11 +35,12 @@ h3 {
   padding-right: 1em;
 }
 
-/* The big number in each single-table-summary cell. Styled like an h3, but not a heading. */
+/* The big number in each single-table-summary cell. Styled like the h3 it replaced
+   (1.2em bold, from common.css overriding bootstrap), but not a heading. */
 .primaryLabel {
   display: block;
-  font-size: 1.75rem;
-  font-weight: 500;
+  font-size: 1.2em;
+  font-weight: 700;
   line-height: 1.2;
   margin-bottom: 0.5rem;
   padding-left: 1em;

@@ -314,5 +314,5 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         self.assertEqual(faq.value_of_css_property("display"), "none")
 
         # After clicking "Read a detailed explanation" it becomes visible
-        self.browser.find_element(By.LINK_TEXT, "Read a detailed explanation").click()
+        self.browser.find_element(By.CSS_SELECTOR, "button.faq-link").click()
         self.assertEqual(faq.value_of_css_property("display"), "block")
