@@ -6,11 +6,15 @@
 {% endblock %}
 
 {% block navlinks %}
-<p class="nav-userinfo">
+<div class="nav-userinfo">
   Logged in as <strong>{{ user.username }}</strong>.
   <br/>
-  <a href="{% url 'logout' %}">Log out</a>?
-</p>
+  {# Django 5 only accepts POST for logout, so this is a form styled as a link #}
+  <form method="post" action="{% url 'logout' %}" class="nav-logout-form">
+    {% csrf_token %}
+    <button type="submit" class="nav-logout-button">Log out</button>?
+  </form>
+</div>
 {% endblock %}
 
 {% block maincontent %}
