@@ -32,6 +32,7 @@ from rest_framework_tracking.mixins import LoggingMixin
 
 # rcvis helpers
 from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
+from common import pageCacheRegistry
 from common import viewUtils
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
@@ -177,6 +178,10 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     whenever the model is saved. The origin therefore sends Django's
     default cacheable headers, which also lets UpdateCacheMiddleware
     store the rendered response in the server-side file cache.
+
+    Tags the request with the slug so that PageCacheRegistryMiddleware
+    records the page cache key, letting a later save purge exactly the
+    pages of this visualization.
     """
 
     def get(self, request, *args, **kwargs):
@@ -184,6 +189,7 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
         # Fetch object once — setting self.object avoids a second DB query
         # when super().get() calls get_object() internally.
         self.object = self.get_object()
+        pageCacheRegistry.tag_request(request, self.object.slug)
 
         # Short-circuit: if the client has a fresh copy, return 304 without
         # doing any of the expensive graph computation or template rendering.

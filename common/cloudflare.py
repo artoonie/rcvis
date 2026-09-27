@@ -9,6 +9,8 @@ from django.core.cache import cache
 from django.contrib.sites.models import Site
 from django.urls import reverse
 
+from common import pageCacheRegistry
+
 logger = logging.getLogger(__name__)
 
 
@@ -52,16 +54,22 @@ class CloudflareAPI():
             reverse('visualizeEmbedded', args=(slug,)) + '?vistype=pie'
 
         ]
-        cls.purge_paths_cache(paths)
+        # Django's page cache: only the pages recorded for this slug
+        pageCacheRegistry.purge_slug(slug)
+        cls.purge_cloudflare(paths)
 
     @classmethod
     def purge_paths_cache(cls, paths):
-        """ Purges the URLs (paths, not URLs) """
-        # We also want to purge the file-based cache, but unfortunately
-        # we don't have a way of doing this per-URL.
-        # It's overkill, but here we purge everything.
+        """ Purges the URLs (paths, not URLs) from Django's cache and Cloudflare """
+        # Django's page cache keys cannot be derived from a path, so this
+        # clears everything. Visualizations have a per-slug registry of their
+        # keys instead: see purge_vis_cache.
         cache.clear()
+        cls.purge_cloudflare(paths)
 
+    @classmethod
+    def purge_cloudflare(cls, paths):
+        """ Purges the URLs (paths, not URLs) from Cloudflare's edge cache """
         # If we're on local/dev/staging/etc, we're done.
         if not cls._is_api_enabled():
             return
