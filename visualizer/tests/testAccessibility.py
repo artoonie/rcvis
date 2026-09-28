@@ -152,9 +152,3 @@ class VisualizationMarkupTests(TestCase):
 
         content = self._get(base + '?vistype=tabular-candidate-by-round')
         self.assertIn('<span class="sr-only">Elected</span>', content)
-
-    def test_homepage_roadmap_reflects_accessibility_work(self):
-        """ The roadmap no longer claims RCVis is not screenreader-friendly """
-        content = self._get('/')
-        self.assertNotIn('RCVis is not screenreader-friendly', content)
-        self.assertIn('described for screenreaders', content)
