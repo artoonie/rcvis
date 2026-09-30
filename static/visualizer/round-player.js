@@ -5,9 +5,12 @@ function RoundPlayer({
   totalRounds,
   timeBetweenStepsMs,
   firstStepHoldTimeMs,
+  narration, // Optional {summary, rounds: [...]}: plain-English text announced to screenreaders
+  announceRounds, // Announce round changes to screen readers (default true)
 }) {
   let isPlaying = false;
   let currentStep = totalRounds - 1;
+  const shouldAnnounceRounds = announceRounds !== false;
   // Imported from visualize-common.js
   let stepTimeMs =
     timeBetweenStepsMs || getTimeBetweenAnimationStepsMs(totalRounds);
@@ -32,8 +35,12 @@ function RoundPlayer({
       navBtn.classList.add("round-player-hidden");
     }
 
+    // The visible label is hidden on narrow screens, so name the button explicitly
+    navBtn.setAttribute("aria-label", isNext ? "Next round" : "Previous round");
+
     const labelEl = document.createElement("span");
     labelEl.classList.add("round-player-nav-label");
+    labelEl.setAttribute("aria-hidden", "true");
     labelEl.innerText = isNext ? "Next" : "Back";
     navBtn.appendChild(labelEl);
 
@@ -59,6 +66,7 @@ function RoundPlayer({
 
     const select = document.createElement("select");
     select.classList.add("round-player-select");
+    select.setAttribute("aria-label", "Round");
     for (let round = 0; round < totalRounds; ++round) {
       const opt = document.createElement("option");
       opt.value = round;
@@ -87,9 +95,21 @@ function RoundPlayer({
     return playBtn;
   }
 
+  function createLiveRegion() {
+    // Announces the current round to screen readers when it changes
+    const liveEl = document.createElement("div");
+    liveEl.classList.add("round-player-live", "sr-only");
+    liveEl.setAttribute("role", "status");
+    liveEl.setAttribute("aria-live", "polite");
+    liveEl.setAttribute("aria-atomic", "true");
+    return liveEl;
+  }
+
   function init() {
     const playerEl = document.createElement("div");
     playerEl.classList.add("round-player-container");
+    playerEl.setAttribute("role", "group");
+    playerEl.setAttribute("aria-label", "Round controls");
 
     const wrapperEl = document.createElement("div");
     wrapperEl.classList.add("round-player-wrapper");
@@ -98,9 +118,19 @@ function RoundPlayer({
     wrapperEl.appendChild(createNavButton(true));
 
     playerEl.appendChild(wrapperEl);
+
     playerEl.appendChild(createPlayButton());
 
+    if (shouldAnnounceRounds) {
+      playerEl.appendChild(createLiveRegion());
+    }
+
     container.appendChild(playerEl);
+  }
+
+  function announce(text) {
+    const liveEl = container.querySelector(".round-player-live");
+    if (liveEl) liveEl.innerText = text;
   }
 
   function changeStep(step) {
@@ -127,6 +157,12 @@ function RoundPlayer({
     }
 
     onChange(step);
+
+    let announcement = `Round ${step + 1} of ${totalRounds}.`;
+    if (narration && narration.rounds[step]) {
+      announcement += " " + narration.rounds[step];
+    }
+    announce(announcement);
   }
 
   function setStep(step) {

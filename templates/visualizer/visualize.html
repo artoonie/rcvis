@@ -33,51 +33,51 @@
 {% block bodyclass %}vis-page{% endblock %}
 
 {% block navlinks %}
-      <ul class="navbar-nav ml-auto tabswitchnavbar">
-        <li class="nav-item">
-            <a class="nav-link btn" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="barchart" aria-selected="true">
+      <ul class="navbar-nav ml-auto tabswitchnavbar" role="tablist" aria-label="Visualizations">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link btn" id="barchart-tab" data-toggle="changeviz" href="#barchart" role="tab" aria-controls="id-barchart" aria-selected="true">
               <img class="tabicon" src="{% static 'visualizer/tabicons/barchart.png' %}" width="18" height="18" alt="Barchart icon"/>
               <span class="tabtext">Bar</span>
             </a>
         </li>
-        <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="single-table-summary" aria-selected="false">
+        <li class="nav-item" role="presentation" name="li_hideable_tabular">
+            <a class="nav-link btn" id="single-table-summary-tab" data-toggle="changeviz" href="#single-table-summary" role="tab" aria-controls="id-single-table-summary" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/singletable.png' %}" width="18" height="18" alt="Single Table Summary icon. 'formulae table with row and column cells' by icon 54 from the Noun Project."/>
               <span class="tabtext">Table</span>
             </a>
         </li>
-        <li class="nav-item" name="li_hideable_pie">
-            <a class="nav-link btn" id="pie-tab" data-toggle="changeviz" href="#pie" role="tab" aria-controls="pie" aria-selected="false">
+        <li class="nav-item" role="presentation" name="li_hideable_pie">
+            <a class="nav-link btn" id="pie-tab" data-toggle="changeviz" href="#pie" role="tab" aria-controls="id-pie" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/pie.png' %}" width="18" height="18" alt="Pie icon"/>
               <span class="tabtext">Pie</span>
             </a>
         </li>
-        <li class="nav-item" name="li_hideable_sankey">
-            <a class="nav-link btn" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="sankey" aria-selected="false">
+        <li class="nav-item" role="presentation" name="li_hideable_sankey">
+            <a class="nav-link btn" id="sankey-tab" data-toggle="changeviz" href="#sankey" role="tab" aria-controls="id-sankey" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/sankey.png' %}" width="18" height="18" alt="Sankey icon. 'sankey graph' by Product Pencil from the Noun Project."/>
               <span class="tabtext">Sankey</span>
             </a>
         </li>
-        <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls=="round-by-round" aria-selected="false">
+        <li class="nav-item" role="presentation" name="li_hideable_tabular">
+            <a class="nav-link btn" id="round-by-round-tab" data-toggle="changeviz" href="#round-by-round" role="tab" aria-controls="id-round-by-round" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/roundbyround.png' %}" width="18" height="18" alt="Round-By-Round icon. 'move cells to another location for editing' by icon 54 from the Noun Project."/>
               <span class="tabtext">By round</span>
             </a>
         </li>
-        <li class="nav-item" name="li_hideable_tabular">
-            <a class="nav-link btn" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="candidate-summary" aria-selected="false">
+        <li class="nav-item" role="presentation" name="li_hideable_tabular">
+            <a class="nav-link btn" id="candidate-summary-tab" data-toggle="changeviz" href="#candidate-summary" role="tab" aria-controls="id-candidate-summary" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/candidatesummary.png' %}" width="18" height="18" alt="Candidate summary icon. 'data set' by H Alberto Gongora from the Noun Project."/>
               <span class="tabtext">By candidate</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link btn" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="settings" aria-selected="false">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link btn" id="settings-tab" data-toggle="changeviz" href="#settings" role="tab" aria-controls="id-settings" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/settings.png' %}" width="18" height="18" alt="Settings icon"/>
               <span class="tabtext">Settings</span>
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link btn" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="share" aria-selected="false">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link btn" id="share-tab" data-toggle="changeviz" href="#share" role="tab" aria-controls="id-share" aria-selected="false">
               <img class="tabicon" src="{% static 'visualizer/tabicons/share.png' %}" width="18" height="18" alt="Share icon"/>
               <span class="tabtext">Share</span>
             </a>
@@ -92,7 +92,7 @@
   <div class="container px-0">
       <h1 class="masthead-subheading font-weight-light electiontitleheading mt-1 mb-0 ml-3">{{ title }}</h1>
       <p class="font-weight-light mb-0 ml-3">{{ date }}</p>
-      <h6 class="font-weight-light mb-1 ml-3">
+      <p class="font-weight-light mb-1 ml-3 masthead-details">
         {% if config.customText %}
           {{ config.customText }}
         {% else %}
@@ -110,12 +110,12 @@
         {% if config.dataSourceURL %}
         | <a href="{{ config.dataSourceURL }}">Source [{{ sourceDomain }}]</a>
         {% endif %}
-      </h6>
+      </p>
   </div>
   </header>
 
   <div class="px-0">
-    <div class="container vis-wrapper" id="id-barchart" data-anchor="barchart" aria-labeledby="barchart-tab">
+    <div class="container vis-wrapper" id="id-barchart" data-anchor="barchart" role="tabpanel" aria-labelledby="barchart-tab">
       <div class="vis-fixed">
           {% include "bargraph/barchart-fixed.html" %}
       </div>
@@ -124,11 +124,11 @@
       </div>
     </div>
 
-    <div class="vis-wrapper" id="id-sankey" data-anchor="sankey" aria-labeledby="sankey-tab">
+    <div class="vis-wrapper" id="id-sankey" data-anchor="sankey" role="tabpanel" aria-labelledby="sankey-tab">
         {% include "sankey/sankey.html" %}
     </div>
 
-    <div class="vis-wrapper" id="id-round-by-round" data-anchor="round-by-round" aria-labeledby="round-by-round-tab">
+    <div class="vis-wrapper" id="id-round-by-round" data-anchor="round-by-round" role="tabpanel" aria-labelledby="round-by-round-tab">
       <div class="vis-fixed">
           {% include "tabular/tabular-by-round.html" %}
       </div>
@@ -137,19 +137,19 @@
       </div>
     </div>
 
-    <div class="vis-wrapper" id="id-pie" data-anchor="pie" aria-labeledby="pie-tab">
+    <div class="vis-wrapper" id="id-pie" data-anchor="pie" role="tabpanel" aria-labelledby="pie-tab">
         {% include "pie/pie.html" %}
     </div>
 
-    <div class="vis-wrapper" id="id-candidate-summary" data-anchor="candidate-summary" aria-labeledby="candidate-summary-tab">
+    <div class="vis-wrapper" id="id-candidate-summary" data-anchor="candidate-summary" role="tabpanel" aria-labelledby="candidate-summary-tab">
         {% include "tabular/tabular-by-candidate.html" %}
     </div>
 
-    <div class="vis-wrapper" id="id-single-table-summary" data-anchor="single-table-summary" aria-labeledby="single-table-summary-tab">
+    <div class="vis-wrapper" id="id-single-table-summary" data-anchor="single-table-summary" role="tabpanel" aria-labelledby="single-table-summary-tab">
         {% include "tabular/tabular-candidate-by-round.html" %}
     </div>
 
-    <div class="vis-wrapper" id="id-settings" data-anchor="settings" aria-labeledby="settings-tab">
+    <div class="vis-wrapper" id="id-settings" data-anchor="settings" role="tabpanel" aria-labelledby="settings-tab">
         {% include "settings/settings-update.html" %}
     </div>
 

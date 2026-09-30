@@ -85,7 +85,7 @@ class SidecarTests(TestCase):
     def _get_bp_body(self, visResponse):
         """ Get the main body of /vb/, just to make the search string a little smaller """
         bodyStart = visResponse.content.find(b'<body')
-        bodyEnd = visResponse.content.find(b'<div id="embedded-footer">')
+        bodyEnd = visResponse.content.find(b'<footer id="embedded-footer">')
         self.assertNotEqual(bodyStart, -1)
         self.assertNotEqual(bodyEnd, -1)
         staticHtml = visResponse.content[bodyStart:bodyEnd]
@@ -103,7 +103,7 @@ class SidecarTests(TestCase):
         staticHtml = self._get_bp_body(visResponse)
 
         texts = {
-            'title': b'<div id="bp-header">Favorite ice cream flavors',
+            'title': b'<h1 id="bp-header">Favorite ice cream flavors',
             'totalVotes': b'Total Votes: 1,200',
             'certified': b'The results have been certified',
             'incumbentsBolded': b'Incumbents are <span class="dataLabelIncumbent">'

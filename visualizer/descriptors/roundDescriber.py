@@ -200,6 +200,24 @@ class Describer:
         """ Returns an array corresponding to the description of each round """
         return [self.describe_round(i) for i in range(self.graph.numRounds)]
 
+    def describe_narration(self):
+        """
+        The plain-English narration of the whole election, as spoken in the generated movie
+        and used to describe the charts to screenreaders.
+
+        Returns a dict with a 'summary' paragraph and a 'rounds' list with one paragraph per round.
+        Always uses paragraphs, regardless of summarizeAsParagraph.
+        """
+        originalSummarizeAsParagraph = self.summarizeAsParagraph
+        try:
+            self.summarizeAsParagraph = True
+            return {
+                'summary': self.describe_initial_summary(isForVideo=True).strip(),
+                'rounds': [self.describe_round(i).strip() for i in range(self.graph.numRounds)]
+            }
+        finally:
+            self.summarizeAsParagraph = originalSummarizeAsParagraph
+
     def describe_initial_summary(self, isForVideo):
         """ Summarizes the entire election. """
         summary = self.graph.summarize()

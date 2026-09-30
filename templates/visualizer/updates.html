@@ -1,0 +1,43 @@
+{% extends "visualizer/base.html" %}
+{% load static %}
+{% load compress %}
+
+{% block header %}
+  {% compress css file %}
+    <link rel="stylesheet" href="{% static "visualizer/updates.css" %}">
+  {% endcompress %}
+
+  <title>Recent Updates: RCVis</title>
+  <meta name="description" content="Recent changes to RCVis, the Ranked Choice Voting visualization tool">
+{% endblock %}
+
+{% block maincontent %}
+<div class="updates-page">
+  <h1 class="updates-title">Recent Updates</h1>
+  <p class="updates-intro">
+    RCVis changelog
+  </p>
+
+  <h2 class="updates-month">September 2026</h2>
+
+  <article class="updates-post">
+    <h3>Screenreader and keyboard support</h3>
+    <p>
+      Every visualization now works with screenreaders and without a mouse. This applies to
+      the full RCVis pages and to visualizations embedded on other sites.
+    </p>
+    <ul>
+      <li>Each chart has a text description. The bar chart's description changes with the round, so a screenreader user can pick a round and then read what the chart shows.</li>
+      <li>Tables have captions, and cells that only used color to show "elected" or "eliminated" now say so for screenreaders.</li>
+      <li>The tabs at the top of a visualization can be moved between with the arrow keys, and there is a "Skip to main content" link for keyboard users.</li>
+    </ul>
+  </article>
+
+  <article class="updates-post">
+    <h3>A new look for RCVis</h3>
+    <p>
+      RCVis has a refreshed visual design. The charts and tables themselves have not changed, just cleaner formatting throughout.
+    </p>
+  </article>
+</div>
+{% endblock %}

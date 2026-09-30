@@ -8,12 +8,12 @@
 <div class="container-fluid">
   <div class="row d-flex flex-column justify-content-left align-items-start">
     <div class="round-description-container">
-      <div id="round-description-wrapper" class="round-description-wrapper" role="alert">
+      <div id="round-description-wrapper" class="round-description-wrapper" role="status" aria-live="polite" aria-atomic="true">
         <div class="round-description-text">
           <span id="bargraph-interactive-round-description">
           </span>
           <span id="bargraph-interactive-why-button">
-            <a role="button" tabindex="0" onclick="showFaqs()">Read a detailed explanation</a>.
+            <button type="button" class="btn btn-link faq-link" onclick="showFaqs()">Read a detailed explanation</button>.
           </span>
         </div>
       </div>

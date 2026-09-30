@@ -15,6 +15,8 @@ function makeBarGraph(args) {
   const textForWinner = args.textForWinner; // Eliminated, elected, etc
   const doDimPrevRoundColors = args.doDimPrevRoundColors; // Desaturate previous rounds? No-op on noninteractive
   const candidateSidecarData = args.candidateSidecarData; // Additional metadata about each candidate
+  const roundDescriptions = args.roundDescriptions || null; // Optional plain-English text per round, for screenreaders
+  const chartSummary = args.chartSummary || null; // Optional plain-English summary of the election, for screenreaders
   const candidateVoteCounts = args.candidateVoteCounts; // List of dicts of candidate descriptions.
                                                         // Each dict has two keys:
                                                         //  .candidate for the name,
@@ -78,11 +80,40 @@ function makeBarGraph(args) {
   const viewboxWidth = width + margin.left + margin.right;
   const viewboxHeight = height + margin.top + margin.bottom + paddingForVertical;
   
-  const svg = d3.select('#'+idOfContainer)
+  // The chart is exposed to screenreaders as a single image with a title and a
+  // description that follows the current round. The tables provide the raw numbers.
+  const svgTitleId = idOfContainer + "-title";
+  const svgDescId = idOfContainer + "-desc";
+  const svgRoot = d3.select('#'+idOfContainer)
     .append("svg")
     .attr("viewBox", "0 0 " + viewboxWidth + " " + viewboxHeight)
+    .attr("role", "img")
+    .attr("aria-labelledby", svgTitleId + " " + svgDescId);
+  svgRoot.append("title")
+    .attr("id", svgTitleId)
+    .text(isInteractive
+      ? "Bar chart of each candidate's votes in the selected round"
+      : "Bar chart of each candidate's votes in every round");
+  const svgDesc = svgRoot.append("desc")
+    .attr("id", svgDescId)
+    .text(describeChart(numRounds - 1));
+  const svg = svgRoot
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  function describeChart(round) {
+    let text = "";
+    if (isInteractive) {
+      text += "Showing round " + (round + 1) + " of " + numRounds + ". ";
+      if (roundDescriptions && roundDescriptions[round]) {
+        text += roundDescriptions[round] + " ";
+      }
+    } else if (chartSummary) {
+      text += chartSummary + " ";
+    }
+    text += "The same numbers are available in the table views.";
+    return text;
+  }
 
   const surplusPatternId = "diagonalHatch"+idOfContainer;
   const defs = svg.append("defs");
@@ -849,6 +880,7 @@ function makeBarGraph(args) {
     transitionEachBarForRound();
     transitionDataLabelsForRound();
     transitionThresholdForRound();
+    svgDesc.text(describeChart(round));
   };
 
   // Enable the bootstrap tooltip

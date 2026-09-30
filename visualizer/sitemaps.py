@@ -7,13 +7,13 @@ from visualizer.models import JsonConfig
 
 
 class StaticViewSitemap(sitemaps.Sitemap):
-    """ Home and upload pages """
+    """ Home, updates and upload pages """
     priority = 0.8
     changefreq = 'weekly'
     protocol = 'https'
 
     def items(self):
-        return ['index', 'upload']
+        return ['index', 'updates', 'upload']
 
     def location(self, item):
         return reverse(item)

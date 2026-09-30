@@ -5,8 +5,13 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def get_round_background_color(context, candidateName, candidate):
-    """Track candidate status through iterations and return cell background color"""
+def get_round_cell_info(context, candidateName, candidate):
+    """
+    Track candidate status through iterations of the single table summary.
+    Returns a dict with the cell background color and a plain-text status
+    (for screenreaders, since the color alone conveys the status visually).
+    Must be called exactly once per cell, in round order.
+    """
     candidateKey = f"round_state_{candidateName}"
     if candidateKey not in context:
         context[candidateKey] = {
@@ -15,13 +20,14 @@ def get_round_background_color(context, candidateName, candidate):
         }
     if candidate is None and not context[candidateKey]["wasEliminated"]:
         context[candidateKey]["wasEliminated"] = True
-        return "#FFBEBE"
+        return {"color": "#FFBEBE", "status": "Eliminated"}
     if context[candidateKey]["wasEliminated"]:
-        return "#FAD7D7"
+        return {"color": "#FAD7D7", "status": "Previously eliminated"}
     if candidate and candidate.isWinner:
+        wasWinner = context[candidateKey]["wasWinner"]
         context[candidateKey]["wasWinner"] = True
-        return "#A0FFB5"
+        return {"color": "#A0FFB5", "status": "Previously elected" if wasWinner else "Elected"}
     if context[candidateKey]["wasWinner"]:
-        return "#DCFFE1"
+        return {"color": "#DCFFE1", "status": "Previously elected"}
 
-    return "rgba(0,0,0,0)"
+    return {"color": "rgba(0,0,0,0)", "status": ""}

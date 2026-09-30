@@ -15,8 +15,8 @@
 
 <body id="embedded-body">
   <div id="embedded-wrapper">
-    <div id="bp-header">{{title}}</div>
-    <div id="embedded-content">
+    <header><h1 id="bp-header">{{title}}</h1></header>
+    <main id="embedded-content">
       {% include "bargraph/barchart-interactive.html" %}
       <div id="bp-info" class="container">
         <div id="bp-infobox-left">
@@ -35,18 +35,18 @@
         </div>
         <div id="bp-infobox-right">Total Votes: {{ numVotesFirstRound }}</div>
       </div>
-    </div> 
-    <div id="embedded-footer">
+    </main>
+    <footer id="embedded-footer">
         Visualizations by
           <a href="{% url 'visualize' config.slug %}" target="_blank">
-            <img src="{% static 'visualizer/logo-white.png' %}" width="100px"/>
+            <img src="{% static 'visualizer/logo-white.png' %}" width="100px" alt="RCVis"/>
           </a>
         <div class="popout">
-          <a href="{% url 'visualize' config.slug %}" target="_blank">
-            <img src="{% static 'visualizer/icon_popout.png' %}" width="15px"/>
+          <a href="{% url 'visualize' config.slug %}" target="_blank" aria-label="Open the full visualization in a new tab">
+            <img src="{% static 'visualizer/icon_popout.png' %}" width="15px" alt=""/>
           </a>
         </div>
-    </div>
+    </footer>
   </div>
   
   {% include "visualizer/common-visualizer-nonblocking.html" %}

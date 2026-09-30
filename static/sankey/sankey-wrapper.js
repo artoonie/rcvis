@@ -129,6 +129,16 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
     labels.text(function(d) { return "Round " + (d.round+1) });
   }
 
+  function describeSankey() {
+      let text = "Each column is a round of counting, and each flow shows votes moving from an " +
+                 "eliminated candidate to those voters' next choice. ";
+      if (typeof narration !== 'undefined' && narration && narration.summary) {
+          text += narration.summary + " ";
+      }
+      text += "The same numbers are available in the table views.";
+      return text;
+  }
+
   function makeGraph(graph) {
       // format variables
       const formatNumber = d3.format(",.2f");    // two decimal places
@@ -145,9 +155,19 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
           .style("width", getIdealWidth());
 
       // append the svg object to the body of the page
-      const svg = d3.select("#sankey-body").append("svg")
+      // Exposed to screenreaders as a single described image; the tables have the numbers
+      const svgRoot = d3.select("#sankey-body").append("svg")
           .attr("id", "sankey-svg")
           .attr("viewBox", "0 0 " + makeViewboxSizeString(viewboxSize0, viewboxSize1))
+          .attr("role", "img")
+          .attr("aria-labelledby", "sankey-svg-title sankey-svg-desc");
+      svgRoot.append("title")
+          .attr("id", "sankey-svg-title")
+          .text("Sankey diagram of how votes moved between candidates in each round");
+      svgRoot.append("desc")
+          .attr("id", "sankey-svg-desc")
+          .text(describeSankey());
+      const svg = svgRoot
         .append("g")
           .attr("transform", 
                 "translate(" + cmargin.left + "," + cmargin.top + ")");
@@ -266,6 +286,7 @@ function makeSankey(graph, numRounds, numCandidates, numWinners, longestLabelApx
   function makeTopBar(graph) {
       const viewboxLeft = -tmargin.left
       const topbarG = d3.select('#topbar').append("svg")
+          .attr("aria-hidden", "true")
           .attr("viewBox", viewboxLeft + " 0 " + makeViewboxSizeString(tmarginLength, viewboxSize1))
           .style("max-width", getIdealWidth())
           .append("g")

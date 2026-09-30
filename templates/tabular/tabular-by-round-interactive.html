@@ -6,8 +6,9 @@
   <div id="tabularByRoundInteractiveContainer">
     {% for round in tabularByRoundInteractive.rounds %}
       <div id="tabular_round_container_{{ forloop.counter0 }}">
-        <h4 class="mt-2 text-center">Round {{ forloop.counter }}</h4>
+        <h2 class="mt-2 text-center round-heading">Round {{ forloop.counter }}</h2>
         <table class="shadow-wrapper table fixed-width-table">
+          <caption class="sr-only">Round {{ forloop.counter }}: what changed for each candidate, and their total votes</caption>
           <thead class="thead-light">
             <tr>
               <th scope="col">Candidate</th>

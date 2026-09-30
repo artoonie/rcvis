@@ -45,7 +45,8 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
     ./scripts/test-code-quality.sh
 
     echo "Starting tests"
-    $RUN test visualizer.tests.testBallotpediaRestApi\
+    $RUN test visualizer.tests.testAccessibility\
+              visualizer.tests.testBallotpediaRestApi\
               visualizer.tests.testDataTables\
               visualizer.tests.testDataTablesRCTabFormat\
               visualizer.tests.testDataTablesHeadlessBrowser\
