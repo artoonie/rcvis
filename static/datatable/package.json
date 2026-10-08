@@ -13,7 +13,7 @@
     "lint": "npx eslint --config ../../eslint.config.js"
   },
   "dependencies": {
-    "tabulator-tables": "^6.5.3",
+    "tabulator-tables": "^6.6.1",
     "micromodal": "^0.7.0"
   },
   "devDependencies": {
