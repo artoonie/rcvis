@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import time
+from datetime import datetime
 
 import django_on_heroku
 
@@ -272,6 +274,19 @@ else:
 HEROKU_API_KEY = os.environ.get('HEROKU_API_KEY')
 HEROKU_APP_NAME = os.environ.get('HEROKU_APP_NAME')
 HEROKU_WORKER_DYNO_TYPE = os.environ.get('HEROKU_WORKER_DYNO_TYPE')
+
+# When the current code was deployed, used as a floor for Last-Modified on
+# visualization pages: django-compressor asset filenames change on deploy and
+# the old files no longer exist, so HTML cached before a deploy must revalidate
+# as stale even when the underlying model hasn't changed.
+# HEROKU_RELEASE_CREATED_AT (e.g. "2026-10-01T00:08:14Z") requires the
+# runtime-dyno-metadata labs feature; without it, and locally, fall back to
+# process start time.
+try:
+    DEPLOY_TIMESTAMP = datetime.fromisoformat(
+        os.environ['HEROKU_RELEASE_CREATED_AT']).timestamp()
+except (KeyError, ValueError):
+    DEPLOY_TIMESTAMP = time.time()
 
 # Movie creation
 AWS_POLLY_STORAGE_BUCKET_NAME = os.environ.get('AWS_POLLY_STORAGE_BUCKET_NAME')

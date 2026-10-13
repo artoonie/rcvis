@@ -637,6 +637,40 @@ class SimpleTests(TestCase):
             # And the new Last-Modified should differ
             self.assertNotEqual(response2['Last-Modified'], oldLastModified)
 
+    def test_conditional_get_returns_200_after_deploy(self):
+        """
+        A deploy changes the hashed static asset filenames the HTML points at,
+        so even an unchanged model must revalidate as stale: with a deploy
+        newer than both updatedAt and the client's copy, the old
+        If-Modified-Since should get a fresh 200 whose Last-Modified is the
+        deploy time, not updatedAt.
+        """
+        with open(filenames.ONE_ROUND, 'r', encoding='utf-8') as f:
+            self.client.post('/upload.html', {'jsonFile': f})
+        config = TestHelpers.get_latest_upload()
+        path = reverse('visualize', args=(config.slug,))
+
+        with self.settings(CACHES={'default': {
+                'BACKEND': 'django.core.cache.backends.dummy.DummyCache'}}):
+            # Client cached the page when the model was last updated
+            clientCopyDate = http_date(config.updatedAt.timestamp())
+
+            # Pre-deploy, that copy is still fresh
+            response1 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=clientCopyDate)
+            self.assertEqual(response1.status_code, 304)
+
+            # Simulate a deploy after the client cached the page
+            deployTimestamp = config.updatedAt.timestamp() + 100
+            with self.settings(DEPLOY_TIMESTAMP=deployTimestamp):
+                response2 = self.client.get(path, HTTP_IF_MODIFIED_SINCE=clientCopyDate)
+                self.assertEqual(response2.status_code, 200)
+                self.assertEqual(response2['Last-Modified'], http_date(deployTimestamp))
+
+                # Once the client has the post-deploy copy, 304s resume
+                response3 = self.client.get(
+                    path, HTTP_IF_MODIFIED_SINCE=response2['Last-Modified'])
+                self.assertEqual(response3.status_code, 304)
+
     def test_response_has_last_modified_header(self):
         """
         Visualization responses should include a Last-Modified header
