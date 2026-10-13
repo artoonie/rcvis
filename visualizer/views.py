@@ -170,12 +170,18 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     """
     Mixin for DetailView subclasses that serve JsonConfig visualizations.
 
-    Sets Last-Modified from the object's updatedAt so clients can
-    revalidate cheaply. On cache misses (file cache empty), short-circuits
-    with 304 if the client already has a fresh copy, avoiding expensive
-    graph computation. On cache hits, Django's ConditionalGetMiddleware
-    handles the 304 conversion using the Last-Modified header preserved
-    in the cached response, without touching the database.
+    Sets Last-Modified from the object's updatedAt, floored at the deploy
+    time, so clients can revalidate cheaply. The deploy floor matters:
+    the rendered HTML references hashed django-compressor assets that
+    change on deploy, so HTML cached before a deploy must revalidate as
+    stale even when the model itself hasn't changed — otherwise browsers
+    keep 304-renewing HTML that points at deleted static files.
+
+    On cache misses (file cache empty), short-circuits with 304 if the
+    client already has a fresh copy, avoiding expensive graph computation.
+    On cache hits, Django's ConditionalGetMiddleware handles the 304
+    conversion using the Last-Modified header preserved in the cached
+    response, without touching the database.
 
     Browser and edge cache lifetimes are owned by Cloudflare, which
     ignores the origin's Cache-Control for these pages and is purged
@@ -184,17 +190,23 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
     store the rendered response in the server-side file cache.
     """
 
+    def _last_modified_timestamp(self):
+        """The object's updatedAt floored at the deploy time, or None."""
+        if not self.object.updatedAt:
+            return None
+        return max(self.object.updatedAt.timestamp(), settings.DEPLOY_TIMESTAMP)
+
     def get(self, request, *args, **kwargs):
         """Return 304 if the client's copy is fresh, otherwise render normally."""
         # Fetch object once — setting self.object avoids a second DB query
         # when super().get() calls get_object() internally.
         self.object = self.get_object()
+        lastModified = self._last_modified_timestamp()
 
         # Short-circuit: if the client has a fresh copy, return 304 without
         # doing any of the expensive graph computation or template rendering.
         # This handles cache misses where FetchFromCacheMiddleware found nothing.
-        if self.object.updatedAt:
-            lastModified = self.object.updatedAt.timestamp()
+        if lastModified:
             ifModifiedSince = request.META.get('HTTP_IF_MODIFIED_SINCE')
             if ifModifiedSince:
                 ifModifiedSince = parse_http_date_safe(ifModifiedSince)
@@ -204,8 +216,8 @@ class ConditionalGetMixin:  # pylint: disable=too-few-public-methods
                     return response
 
         response = super().get(request, *args, **kwargs)
-        if self.object.updatedAt:
-            response['Last-Modified'] = http_date(self.object.updatedAt.timestamp())
+        if lastModified:
+            response['Last-Modified'] = http_date(lastModified)
         return response
 
 
