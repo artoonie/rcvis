@@ -66,20 +66,37 @@ class CloudflareAPI():
         if not cls._is_api_enabled():
             return
 
+        info = f"{len(paths)} starting with {paths[0]}"
+        cls._send_purge_request({'files': cls.get_absolute_paths_for(paths)}, info)
+
+    @classmethod
+    def purge_entire_cache(cls):
+        """
+        Purges everything: every page and every static file, on every domain.
+        Run on each deploy (see the Procfile release phase): rendered HTML
+        references hashed static files that change on deploy, and an edge copy
+        cached before the deploy would keep satisfying browsers' revalidation
+        requests with 304s, pinning HTML that points at deleted assets.
+        """
+        cache.clear()
+
+        if not cls._is_api_enabled():
+            return
+
+        cls._send_purge_request({'purge_everything': True}, 'purge_everything')
+
+    @classmethod
+    def _send_purge_request(cls, data, info):
+        """ POSTs a purge request to the cloudflare API and logs the outcome """
         zoneId = settings.CLOUDFLARE_ZONE_ID
         apiUrl = f"https://api.cloudflare.com/client/v4/zones/{zoneId}/purge_cache"
 
-        # Absolute URLs
-        data = {'files': cls.get_absolute_paths_for(paths)}
-
-        # Send it off
         response = requests.post(
             apiUrl,
             headers=cls._get_auth_headers(),
             data=json.dumps(data),
             timeout=8)
 
-        info = f"{len(paths)} starting with {paths[0]}"
         if response.status_code == 200:
             logger.info("Cleared cloudflare cache for %s: %s", info, response.json())
         else:
