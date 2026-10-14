@@ -502,6 +502,47 @@ class SimpleTests(TestCase):
                                                data=json.dumps(expectedData),
                                                timeout=8)
 
+    @patch('requests.post')
+    def test_cloudflare_purge_everything_on_deploy(self, requestPostResponse):
+        """
+        The deploy-time management command asks cloudflare to purge everything,
+        so edge copies of pre-deploy HTML can't keep 304-renewing browsers'
+        stale copies that point at deleted static assets.
+        """
+        requestPostResponse.side_effect = TestHelpers.create_request_mock({'a': 0}, 200)
+
+        with self.settings(
+                CLOUDFLARE_AUTH_TOKEN='mytoken',
+                CLOUDFLARE_ZONE_ID='zoneid'):
+            out = StringIO()
+            call_command('purgeCloudflare', stdout=out)
+            self.assertIn('Purged cloudflare cache', out.getvalue())
+
+        expectedUrl = 'https://api.cloudflare.com/client/v4/zones/zoneid/purge_cache'
+        expectedHeaders = {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer mytoken"
+        }
+        requestPostResponse.assert_called_with(expectedUrl,
+                                               headers=expectedHeaders,
+                                               data=json.dumps({'purge_everything': True}),
+                                               timeout=8)
+
+    @patch('requests.post')
+    def test_cloudflare_purge_failure_does_not_fail_release(self, requestPostResponse):
+        """
+        A cloudflare outage must not fail the command: it runs in the release
+        phase, and a failed release would block the deploy itself.
+        """
+        requestPostResponse.side_effect = IOError("cloudflare is down")
+
+        with self.settings(
+                CLOUDFLARE_AUTH_TOKEN='mytoken',
+                CLOUDFLARE_ZONE_ID='zoneid'):
+            err = StringIO()
+            call_command('purgeCloudflare', stderr=err)
+            self.assertIn('Cloudflare purge failed', err.getvalue())
+
     def test_conditional_get_returns_304_when_fresh(self):
         """
         When the client sends If-Modified-Since matching the object's updatedAt,
