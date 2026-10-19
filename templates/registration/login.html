@@ -17,13 +17,25 @@
 
 {% include "registration/reg-optional-text.html" %}
 
-<form action="." method="post">
+<form action="." method="post" id="login-form">
   <table class="table">
   {% csrf_token %}
   {{ form.as_table }}
   </table>
-  <input type="submit" value="Submit"> or <a href="{% url 'django_registration_register' %}">register</a>
+  <input type="submit" id="login-submit" value="Submit"> or <a href="{% url 'django_registration_register' %}">register</a>
 </form>
+
+<script>
+  // Prevent double-submits: a second POST after login rotates the CSRF
+  // token and fails CSRF verification.
+  document.getElementById('login-form').addEventListener('submit', function() {
+    document.getElementById('login-submit').disabled = true;
+  });
+  // Re-enable if the page is restored from the back/forward cache
+  window.addEventListener('pageshow', function() {
+    document.getElementById('login-submit').disabled = false;
+  });
+</script>
 
 <p class="mt-5"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
 
