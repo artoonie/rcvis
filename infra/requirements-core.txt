@@ -1,4 +1,4 @@
-boto3==1.43.111
+boto3==1.43.114
 csscompressor==0.9.5
 django-admin-cursor-paginator==0.1.7
 django-compressor==4.6.0
@@ -29,13 +29,13 @@ pycodestyle==2.15.0
 # For django-rest
 djangorestframework==3.18.3
 drf-api-tracking==1.8.4
-markdown==3.11
+markdown==3.11.1
 
 # For movie creation
 celery==5.6.3
 django-cleanup==9.0.0
 moviepy==2.2.1
-pillow<13.0.0 # Highest version supported by moviepy
+pillow<14.0.0 # Highest version supported by moviepy
 
 # For Heroku
 gunicorn==26.2.0
