@@ -18,6 +18,7 @@ from django.templatetags.static import static
 from django.urls import Resolver404
 from django.urls import resolve
 from django.urls import reverse
+from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.clickjacking import xframe_options_exempt
@@ -25,7 +26,7 @@ from django.utils.cache import patch_cache_control
 from django.utils.http import http_date, parse_http_date_safe
 from django.views.generic.base import TemplateView, RedirectView
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from rcvformats.conversions.automatic import AutomaticConverter
 from rest_framework import permissions, viewsets
 from rest_framework_tracking.mixins import LoggingMixin
@@ -33,13 +34,16 @@ from rest_framework_tracking.mixins import LoggingMixin
 # rcvis helpers
 from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
+from common.cloudflare import CloudflareAPI
+from scraper.models import Scraper, MultiScraper
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
 from visualizer.executor import get_executor
 from visualizer.forms import UploadForm, UploadByDataTableForm
 from visualizer.graph import readDataTablesResult
 from visualizer.graph.graphCreator import BadJSONError
-from visualizer.models import JsonConfig, HomepageFeaturedElectionColumn
+from visualizer.models import JsonConfig, HomepageFeaturedElection, \
+    HomepageFeaturedElectionColumn
 from visualizer.serializers import BaseVisualizationSerializer
 from visualizer.serializers import JsonOnlySerializer, VerboseSerializer, \
     BallotpediaSerializer, UserSerializer
@@ -86,17 +90,11 @@ class Updates(TemplateView):
     template_name = 'visualizer/updates.html'
 
 
-# pylint: disable=too-many-ancestors
-class Upload(LoginRequiredMixin, CreateView):
-    """ The upload page """
-    login_url = 'login'
-    redirect_field_name = 'redirect_to'
-    template_name = 'visualizer/uploadFile.html'
-    success_url = 'v/{slug}'
-    form_class = UploadForm
-    model = JsonConfig
-    build_path = "upload.html"
-    include = JsonConfig.get_all_non_auto_fields()
+class JsonConfigSaveMixin:
+    """
+    Validates and saves a JsonConfig from an UploadForm.
+    Shared by the create (upload) and edit views.
+    """
 
     def _actions_before_save(self, form):
         """
@@ -106,10 +104,12 @@ class Upload(LoginRequiredMixin, CreateView):
         """
 
     def form_valid(self, form):
+        """ Validates the JSONs, populates the model from them, and saves """
         try:
+            # A ClearableFileInput yields False when the sidecar is being cleared
             graph = validators.try_to_load_jsons(
                 form.cleaned_data['jsonFile'],
-                form.cleaned_data['candidateSidecarFile'])
+                form.cleaned_data['candidateSidecarFile'] or None)
 
             self.model = form.save(commit=False)
             self.model.owner = self.request.user
@@ -153,8 +153,77 @@ class Upload(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def form_invalid(self, form):
+        """ Renders the upload-error page with this form's errors """
         context = {'formErrorList': form.errors}
         return render(self.request, 'visualizer/errorBadJson.html', context=context)
+
+
+# pylint: disable=too-many-ancestors
+class Upload(LoginRequiredMixin, JsonConfigSaveMixin, CreateView):
+    """ The upload page """
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'visualizer/uploadFile.html'
+    success_url = 'v/{slug}'
+    form_class = UploadForm
+    model = JsonConfig
+    build_path = "upload.html"
+    include = JsonConfig.get_all_non_auto_fields()
+
+
+# pylint: disable=too-many-ancestors
+class EditUpload(LoginRequiredMixin, JsonConfigSaveMixin, UpdateView):
+    """ Edit an existing upload: replace the file or change settings """
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'visualizer/editUpload.html'
+    # Absolute path: the relative 'v/{slug}' would resolve against v/<slug>/edit
+    success_url = '/v/{slug}'
+    form_class = UploadForm
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        # Only owners may edit; everyone else gets a 404
+        return JsonConfig.objects.filter(owner=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        config = self.object
+        context['configValues'] = {
+            field: getattr(config, field)
+            for field in JsonConfig.get_all_non_auto_fields()
+            if field not in ('jsonFile', 'candidateSidecarFile')
+        }
+        return context
+
+
+class DeleteUpload(LoginRequiredMixin, DeleteView):
+    """ Delete an upload, after a confirmation page """
+    login_url = 'login'
+    redirect_field_name = 'redirect_to'
+    template_name = 'visualizer/confirmDeleteUpload.html'
+    success_url = reverse_lazy('userDashboard')
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        # Only owners may delete; everyone else gets a 404
+        return JsonConfig.objects.filter(owner=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['isFeaturedOnHomepage'] = HomepageFeaturedElection.objects.filter(
+            jsonConfig=self.object).exists()
+        context['hasScraper'] = Scraper.objects.filter(jsonConfig=self.object).exists() or \
+            MultiScraper.objects.filter(jsonConfig=self.object).exists()
+        return context
+
+    def form_valid(self, form):
+        # Cloudflare purging only happens in JsonConfig.save() - on deletion,
+        # we must purge here to avoid serving cached copies of a deleted page
+        slug = self.object.slug
+        response = super().form_valid(form)
+        CloudflareAPI.purge_vis_cache(slug)
+        return response
 
 
 # pylint: disable=too-many-ancestors

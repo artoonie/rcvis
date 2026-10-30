@@ -56,7 +56,8 @@ elif [ "$CI_NODE_TOTAL" -eq 3 ]; then
               visualizer.tests.testRestApi\
               visualizer.tests.testRestApiExampleCode\
               visualizer.tests.testSidecar\
-              visualizer.tests.testSimple
+              visualizer.tests.testSimple\
+              visualizer.tests.testUserDashboard
   else
     # Should never happen
     exit -1

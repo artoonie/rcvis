@@ -24,6 +24,8 @@ urlpatterns = [
     path('', views.Index.as_view()),
     path('index.html', views.Index.as_view(), name='index'),
     path('v/<slug>', views.Visualize.as_view(), name='visualize'),
+    path('v/<slug>/edit', views.EditUpload.as_view(), name='editUpload'),
+    path('v/<slug>/delete', views.DeleteUpload.as_view(), name='deleteUpload'),
     path('ve/<slug>', views.VisualizeEmbedded.as_view(), name='visualizeEmbedded'),
     path('vo/<slug>', views.VisualizeEmbedly.as_view(), name='visualizeEmbedlyDefault'),
     path('vo/<slug>/<vistype>', views.VisualizeEmbedly.as_view(), name='visualizeEmbedly'),

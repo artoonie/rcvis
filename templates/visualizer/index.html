@@ -20,17 +20,16 @@
 <div class="collapse navbar-collapse" id="navbarResponsive">
   <ul class="navbar-nav ml-auto">
     <li class="nav-item">
-      <a class="nav-link" href="#types">DataViz Types</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="#examples">Real-World Examples</a>
-    </li>
-    <li class="nav-item">
       <a class="nav-link" href="/upload.html">Create A Visualization</a>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{% url 'updates' %}">Recent Updates</a>
     </li>
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'userDashboard' %}">Your Account</a>
+    </li>
+    {% endif %}
   </ul>
 </div>
 {% endblock %}
@@ -282,10 +281,6 @@
                 If you'd like to help fund the development of RCVis, or volunteer your time as a developer, please get in touch: <a href="mailto:team@rcvis.com">team@rcvis.com</a>.
             </p>
             <ol>
-                <li>
-                    <strong>User Dashboard</strong>:
-                    We'd like to provide users a method for managing their own visualizations, including modifying them, deleting them, and marking them as private.
-                </li>
                 <li>
                     <strong>"Blue Check" Verification</strong>:
                     We'd like a system for displaying when a visualization hosted on RCVis has been vetted by an election administrator.

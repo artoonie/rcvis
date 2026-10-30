@@ -1,0 +1,33 @@
+{% extends "visualizer/base.html" %}
+
+{% block header %}
+<title>Delete {{ object.title }}</title>
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block maincontent %}
+<div class="container formArea mt-3 mb-3">
+  <h1 class="page-section-heading text-center">Delete this visualization?</h1>
+  <p class="text-center">
+    <strong>{{ object.title }}</strong> will be permanently deleted.
+    Its link will stop working and its data cannot be recovered.
+  </p>
+
+  {% if isFeaturedOnHomepage %}
+  <p class="text-center">
+    Note: this visualization is featured on the RCVis homepage. Deleting it will remove it from the homepage.
+  </p>
+  {% endif %}
+  {% if hasScraper %}
+  <p class="text-center">
+    Note: this visualization is updated automatically from an official data source. Deleting it will stop those updates.
+  </p>
+  {% endif %}
+
+  <form method="post" class="text-center">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger btn-xl">Yes, delete it</button>
+    <a href="{% url 'userDashboard' %}" class="btn btn-secondary btn-xl">Cancel</a>
+  </form>
+</div>
+{% endblock %}
