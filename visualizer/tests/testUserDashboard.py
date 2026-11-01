@@ -6,6 +6,7 @@ and editing/deleting your own uploads.
 import uuid
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
 from mock import patch
@@ -128,6 +129,24 @@ class UserDashboardTests(TestCase):
         self.assertEqual(updatedConfig.slug, config.slug)
         self.assertNotEqual(updatedConfig.title, config.title)
         self.assertNotEqual(updatedConfig.numRounds, config.numRounds)
+
+    def test_cached_pages_identical_for_all_users(self):
+        """
+        The homepage and updates page are edge-cached: Cloudflare serves one
+        copy per URL to everyone, ignoring cookies. Any auth-dependent HTML on
+        them leaks one user's variant to all visitors, so the rendered pages
+        must be byte-identical whether or not you are logged in.
+        """
+        for url in ('/index.html', reverse('updates')):
+            TestHelpers.logout(self.client)
+            cache.clear()  # Bypass the server-side page cache: render fresh
+            anonymousHtml = self.client.get(url).content
+
+            TestHelpers.login(self.client)
+            cache.clear()
+            loggedInHtml = self.client.get(url).content
+
+            self.assertEqual(anonymousHtml, loggedInHtml)
 
     def test_delete(self):
         """ Deleting removes the object and purges the cloudflare cache """
