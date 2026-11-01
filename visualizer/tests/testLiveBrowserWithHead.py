@@ -290,9 +290,12 @@ class LiveBrowserWithHeadTests(liveServerTestBaseClass.LiveServerTestBaseClass):
         """ FAQ visibility with respect to iframes: visibility = not in iframe """
         self._upload_something_if_needed()
 
-        # Ensure that the FAQs are visible outside an iframe
+        # Ensure that the FAQs are visible outside an iframe.
+        # The FAQs are only shown once the interactive graph initializes,
+        # so wait for that rather than asserting immediately.
         faq = self.browser.find_element(By.ID, 'faq-text')
-        self.assertEqual(faq.value_of_css_property("display"), "block")
+        self._ensure_eventually_asserts(
+            lambda: self.assertEqual(faq.value_of_css_property("display"), "block"))
 
         # Get the iframe HTML
         self._go_to_tab("share-tab")
