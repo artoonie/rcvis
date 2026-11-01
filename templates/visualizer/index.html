@@ -25,11 +25,12 @@
     <li class="nav-item">
       <a class="nav-link" href="{% url 'updates' %}">Recent Updates</a>
     </li>
-    {% if user.is_authenticated %}
+    {# This page is edge-cached: one copy is served to everyone, so it must #}
+    {# never render auth-dependent HTML. The link shows for everyone; the   #}
+    {# dashboard itself redirects anonymous visitors to the login page.     #}
     <li class="nav-item">
       <a class="nav-link" href="{% url 'userDashboard' %}">Your Account</a>
     </li>
-    {% endif %}
   </ul>
 </div>
 {% endblock %}
