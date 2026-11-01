@@ -1,0 +1,64 @@
+{% extends "visualizer/base.html" %}
+
+{% block header %}
+<title>Manage your account</title>
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block navlinks %}
+{% include "visualizer/nav-user-menu.html" %}
+{% endblock %}
+
+{% block maincontent %}
+<div class="container formArea mt-3 mb-3">
+  <h1 class="page-section-heading text-center">Manage your account</h1>
+
+  <form method="post" action="{% url 'togglePrivacy' %}" class="privacy-row">
+    {% csrf_token %}
+    <span class="privacy-label" id="visibility-label">Account visibility</span>
+    <div class="segmented-control" role="radiogroup" aria-labelledby="visibility-label">
+      <label class="segmented-option">
+        <input type="radio" name="visibility" value="public"
+               {% if not isPrivate %}checked{% endif %} onchange="this.form.submit()">
+        <span>Public</span>
+      </label>
+      <label class="segmented-option">
+        <input type="radio" name="visibility" value="private"
+               {% if isPrivate %}checked{% endif %} onchange="this.form.submit()">
+        <span>Private</span>
+      </label>
+    </div>
+    <small class="privacy-help">
+      Private hides your visualizations from the RCVis homepage and search engines.
+      Anyone with a direct link can still view them.
+    </small>
+  </form>
+
+  <h2 class="mt-4">Your visualizations</h2>
+  {% if uploads %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Uploaded</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for upload in uploads %}
+      <tr>
+        <td><a href="{% url 'visualize' upload.slug %}">{{ upload.title }}</a></td>
+        <td class="upload-date">{{ upload.uploadedAt|date:"M j, Y" }}</td>
+        <td class="upload-actions">
+          <a href="{% url 'editUpload' upload.slug %}" class="btn btn-secondary btn-sm">Edit</a>
+          <a href="{% url 'deleteUpload' upload.slug %}" class="btn btn-danger btn-sm">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>You haven't uploaded anything yet. <a href="{% url 'upload' %}">Create a visualization</a>.</p>
+  {% endif %}
+</div>
+{% endblock %}

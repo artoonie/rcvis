@@ -1,0 +1,21 @@
+{# Account menu: click the username to open Manage Uploads / Log Out #}
+<details class="nav-account">
+  <summary>{{ user.username }}<span class="nav-account-caret" aria-hidden="true">▾</span></summary>
+  <div class="nav-account-menu">
+    <a href="{% url 'userDashboard' %}">Manage Uploads</a>
+    {# Django 5 only accepts POST for logout, so this is a form styled as a menu item #}
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Log Out</button>
+    </form>
+  </div>
+</details>
+<script>
+  // Close the account menu when clicking anywhere else
+  document.addEventListener('click', function(event) {
+    const openMenu = document.querySelector('details.nav-account[open]');
+    if (openMenu && !openMenu.contains(event.target)) {
+      openMenu.removeAttribute('open');
+    }
+  });
+</script>

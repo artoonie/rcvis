@@ -1,0 +1,78 @@
+{% extends  "settings/base.html" %}
+
+{% block beforeOptions %}
+  <div class="mb-2 mt-2" id="header">
+    <div class="uploaddescriptor">
+      <h1 class="page-section-heading text-center mb-0">Edit: {{ object.title }}</h1>
+      <p class="text-center">Your visualization's link will stay the same.</p>
+    </div>
+  </div>
+
+  <form action="" enctype="multipart/form-data" method="post" id="form">
+
+  {# settings.css dims #options until upload.js enables it; the edit page is always enabled #}
+  <div class="mb-2 mt-2" id="options" style="opacity: 100%">
+    <div class="uploaddescriptor">
+      {% csrf_token %}
+{% endblock %}
+
+{% block additionalOptions %}
+    <button class="collapsible">▶ Replace uploaded files</button>
+    <div class="optionscontent" id="file-options">
+      <div class="container mt-3">
+        <label for="jsonFile" class="d-block">Results file:</label>
+        <input id="jsonFile" type="file" name="jsonFile" accept="application/json, .csv, .xlsx, .txt"/>
+        <br/>
+        <small>Leave empty to keep the current file. Replacing it updates the title and data, but not videos.</small>
+      </div>
+      <div class="container mt-3">
+        <label for="candidateSidecarFile" class="d-block">Candidate sidecar file:</label>
+        <input id="candidateSidecarFile" type="file" name="candidateSidecarFile" accept="application/json"/>
+        {% if object.candidateSidecarFile %}
+        <br/>
+        <label>
+          <input type="checkbox" name="candidateSidecarFile-clear"/> Remove the current sidecar file
+        </label>
+        {% endif %}
+      </div>
+    </div>
+
+  {% include "settings/settings-data-options.html" %}
+  {% include "settings/settings-global-options.html" %}
+{% endblock %}
+
+{% block afterOptions %}
+
+      <div class="narrowbox mt-3">
+        <button id="saveButton" type="submit" class="btn btn-primary btn-xl">Save Changes</button>
+      </div>
+
+    </div>
+  </div>
+  </form>
+
+  {% include "settings/settings-nonblocking.html" %}
+
+  {{ configValues|json_script:"configValues" }}
+  <script>
+    // Pre-populate the form with this visualization's current settings
+    (function() {
+      const config = JSON.parse(document.getElementById('configValues').textContent);
+      const selectFields = ['colorTheme', 'eliminationBarColor', 'textForWinner'];
+      const textFields = ['dataSourceURL', 'customText'];
+      for (const key in config) {
+        let element;
+        if (selectFields.includes(key)) {
+          element = document.querySelector("select[name='" + key + "']");
+          if (element) element.value = config[key];
+        } else if (textFields.includes(key)) {
+          element = document.querySelector("[name='" + key + "']");
+          if (element) element.value = config[key] === null ? '' : config[key];
+        } else {
+          element = document.querySelector("input[type='checkbox'][name='" + key + "']");
+          if (element) element.checked = config[key];
+        }
+      }
+    })();
+  </script>
+{% endblock %}

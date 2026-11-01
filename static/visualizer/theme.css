@@ -284,47 +284,78 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Small user status shown in the header on the upload page */
-.nav-userinfo {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--rcv-muted);
-  text-align: right;
-  line-height: 1.35;
+/* Account menu (click the username) shown in the header when logged in */
+.nav-account {
+  position: relative;
 }
 
-.nav-userinfo strong {
-  color: var(--rcv-ink);
-  font-weight: 600;
-}
-
-.nav-userinfo a {
-  color: var(--rcv-brand);
-}
-
-.nav-logout-form {
-  display: inline;
-  margin: 0;
-}
-
-.nav-logout-button {
-  padding: 0;
-  border: 0;
-  background: none;
-  font: inherit;
-  color: var(--rcv-brand);
+.nav-account summary {
+  list-style: none;
   cursor: pointer;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rcv-ink);
 }
 
-.nav-logout-button:hover {
-  color: var(--rcv-brand-deep);
-  text-decoration: underline;
+.nav-account summary::-webkit-details-marker {
+  display: none;
 }
 
-.nav-logout-button:focus-visible {
+.nav-account summary:hover {
+  background: var(--rcv-surface-alt);
+}
+
+.nav-account summary:focus-visible {
   outline: 2px solid var(--rcv-brand);
   outline-offset: 2px;
-  border-radius: 3px;
+}
+
+.nav-account-caret {
+  margin-left: 0.3rem;
+  font-size: 0.7em;
+  color: var(--rcv-muted);
+}
+
+.nav-account-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 11rem;
+  background: var(--rcv-surface);
+  border: 1px solid var(--rcv-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(11, 31, 58, 0.12);
+  padding: 0.35rem;
+  z-index: 100;
+}
+
+.nav-account-menu form {
+  margin: 0;
+}
+
+.nav-account-menu a,
+.nav-account-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.6rem;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--rcv-ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-account-menu a:hover,
+.nav-account-menu button:hover {
+  background: var(--rcv-surface-alt);
+  text-decoration: none;
+  color: var(--rcv-ink);
 }
 
 /* ------------------------------------------------------------------ */
@@ -733,4 +764,84 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.85rem;
   font-weight: 600;
   color: #b42318;
+}
+
+/* ------------------------------------------------------------------ */
+/* Account dashboard                                                    */
+/* ------------------------------------------------------------------ */
+
+.privacy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 1rem 0 1.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--rcv-surface-alt);
+  border: 1px solid var(--rcv-border);
+  border-radius: 8px;
+}
+
+.privacy-label {
+  font-weight: 600;
+  color: var(--rcv-ink);
+}
+
+.privacy-help {
+  flex-basis: 100%;
+  display: block;
+  color: var(--rcv-muted);
+}
+
+/* Two-option Public | Private control; the filled side is the current state */
+.segmented-control {
+  display: inline-flex;
+  background: var(--rcv-surface);
+  border: 1px solid var(--rcv-border-strong);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented-option {
+  margin: 0;
+}
+
+.segmented-option input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.segmented-option span {
+  display: block;
+  padding: 0.35rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--rcv-muted);
+  cursor: pointer;
+}
+
+.segmented-option + .segmented-option span {
+  border-left: 1px solid var(--rcv-border-strong);
+}
+
+.segmented-option input:checked + span {
+  background: var(--rcv-brand);
+  color: #fff;
+  cursor: default;
+}
+
+.segmented-option input:focus-visible + span {
+  outline: 2px solid var(--rcv-brand);
+  outline-offset: -3px;
+}
+
+.upload-date {
+  white-space: nowrap;
+}
+
+.upload-actions {
+  white-space: nowrap;
+  text-align: right;
 }

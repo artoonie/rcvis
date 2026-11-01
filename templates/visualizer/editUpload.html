@@ -1,0 +1,14 @@
+{% extends "visualizer/base.html" %}
+
+{% block header %}
+<title>Edit {{ object.title }}</title>
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block navlinks %}
+{% include "visualizer/nav-user-menu.html" %}
+{% endblock %}
+
+{% block maincontent %}
+{% include "settings/settings-edit.html" %}
+{% endblock %}
