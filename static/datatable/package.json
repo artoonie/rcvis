@@ -13,11 +13,11 @@
     "lint": "npx eslint --config ../../eslint.config.js"
   },
   "dependencies": {
-    "tabulator-tables": "^6.6.1",
+    "tabulator-tables": "^6.7.1",
     "micromodal": "^0.7.0"
   },
   "devDependencies": {
-    "webpack": "^5.112.0",
+    "webpack": "^5.112.2",
     "webpack-cli": "^7.2.3"
   },
   "author": "",
