@@ -161,3 +161,6 @@ class UserDashboardTests(TestCase):
         self.assertEqual(response.url, reverse('userDashboard'))
         self.assertFalse(JsonConfig.objects.filter(pk=config.pk).exists())
         mockCloudflare.purge_vis_cache.assert_called_once_with(config.slug)
+        # The homepage recent list and the sitemap linked to it, too
+        mockCloudflare.purge_paths_cache.assert_called_once_with(
+            ['/', '/index.html', '/sitemap.xml'])

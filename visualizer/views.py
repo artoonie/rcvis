@@ -35,6 +35,7 @@ from rest_framework_tracking.mixins import LoggingMixin
 from accounts.permissions import IsOwnerOrReadOnly, HasAPIAccess
 from common import viewUtils
 from common.cloudflare import CloudflareAPI
+from electionpage.models import ElectionPage
 from scraper.models import Scraper, MultiScraper
 from visualizer import validators
 from visualizer.common import make_complete_url, intify
@@ -215,14 +216,23 @@ class DeleteUpload(LoginRequiredMixin, DeleteView):
             jsonConfig=self.object).exists()
         context['hasScraper'] = Scraper.objects.filter(jsonConfig=self.object).exists() or \
             MultiScraper.objects.filter(jsonConfig=self.object).exists()
+        context['isOnElectionPage'] = ElectionPage.objects.filter(
+            listOfElections=self.object).exists()
         return context
 
     def form_valid(self, form):
         # Cloudflare purging only happens in JsonConfig.save() - on deletion,
         # we must purge here to avoid serving cached copies of a deleted page
         slug = self.object.slug
+        electionPagePaths = [
+            reverse('electionPage', args=(page.slug,))
+            for page in ElectionPage.objects.filter(listOfElections=self.object)]
         response = super().form_valid(form)
         CloudflareAPI.purge_vis_cache(slug)
+        # The homepage's recent list, the sitemap, and any election pages that
+        # included this visualization would otherwise keep linking to it
+        CloudflareAPI.purge_paths_cache(
+            ['/', '/index.html', '/sitemap.xml'] + electionPagePaths)
         return response
 
 
