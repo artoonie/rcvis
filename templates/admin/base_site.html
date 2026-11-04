@@ -4,6 +4,20 @@
 
 {% block header %}
 {% include 'visualizer/common-header.html' %}
+<style>
+  /* common-header.html pulls the site's light-only stylesheets into the admin,
+     whose body/heading colors (#002c59 on white) are unreadable when the admin
+     switches to dark mode. Re-assert the admin's own theme variables for the
+     generic rules those stylesheets recolor; the site header above keeps its
+     explicit .site-header styling. */
+  body {
+    color: var(--body-fg);
+    background-color: var(--body-bg);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--body-fg);
+  }
+</style>
 {% endblock %}
 
 {% block branding %}
