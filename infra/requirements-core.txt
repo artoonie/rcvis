@@ -1,4 +1,4 @@
-boto3==1.43.118
+boto3==1.43.123
 csscompressor==0.9.5
 django-admin-cursor-paginator==0.1.7
 django-compressor==4.6.0
@@ -10,7 +10,7 @@ django-sortedm2m==4.0.0
 django-storages==1.14.6
 Django==6.1.2
 rcvformats==0.0.46
-selenium==4.51.0
+selenium==4.52.0
 requests==2.34.2
 whitenoise==6.12.0
 
