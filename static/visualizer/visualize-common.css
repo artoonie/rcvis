@@ -36,16 +36,29 @@ svg {
   max-width: 400px;
 }
 .embedded-footer {
-  background: linear-gradient(0deg, aliceblue, transparent);
+  /* Translucent stand-in for aliceblue (same look on white hosts) so the
+     fade doesn't paint an opaque light band on colored host backgrounds */
+  background: linear-gradient(0deg, rgba(214, 233, 255, 0.55), transparent);
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   padding: 10px;
 }
 
 #embedded-body {
+  /* Transparent on purpose: embeds blend into the host page's background.
+     Everything that needs a surface (cards, tables, the footer) paints its
+     own; decorations that assume a white surround are disabled below. */
   background-color: transparent;
   height: 100vh;
   margin: 0;
+}
+
+/* The solid light-gray shadows look like white fog on a colored host page,
+   so embeds simply go without them. (Standalone pages keep them.) */
+#embedded-body .shadow-wrapper,
+#embedded-body .round-description-container,
+#embedded-body #faq-text {
+  box-shadow: none;
 }
 #embedded-wrapper {
   height: 100vh;
