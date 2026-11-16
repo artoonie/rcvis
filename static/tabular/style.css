@@ -8,6 +8,12 @@
     padding-right: 0px;
     text-align: center;
 }
+/* The div above is only as wide as the scroll box, so when a wide table
+   scrolls horizontally its overflow would sit on a transparent embed
+   background. The table itself spans every column, so paint it too. */
+.responsive-table .table {
+    background-color: white;
+}
 .responsive-table-wrapper {
     width: 100%;
     max-width: calc(100vw - 25px); /* -25px to prevent scrollbar on embed */
