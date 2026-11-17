@@ -17,7 +17,7 @@
     "@types/micromodal": "^0.7.0",
     "@types/tabulator-tables": "^6.3.6",
     "bootstrap": "^5.3.8",
-    "eslint": "10.14.0",
+    "eslint": "10.15.0",
     "globals": "^17.14.0",
     "jquery": "^4.0.0",
     "ts-loader": "^9.6.2",
